@@ -1,0 +1,34 @@
+{
+    "go.formatTool": "goimports",
+    "go.lintOnSave": "off",
+    "go.vetOnSave": "off",
+    "go.useLanguageServer": true,
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+        },
+        // Optional: Disable snippets, as they conflict with completion ranking.
+        "editor.snippetSuggestions": "none",
+    },
+    "[go.mod]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+        },
+    },
+    "gopls": {
+        // Add parameter placeholders when completing a function.
+        "usePlaceholders": true,
+
+        // If true, enable additional analyses with staticcheck.
+        // Warning: This will significantly increase memory usage.
+        "staticcheck": false,
+    },
+
+    "go.languageServerFlags": [
+        "-rpc.trace", // for more detailed debug logging
+        "serve",
+        "--debug=localhost:6060", // to investigate memory usage, see profiles
+    ]
+}
