@@ -11,4 +11,6 @@ type Defalut interface {
 	PostHandler(conf *config.Json)
 }
 
-
+type BaseDefalut struct {
+	*BasePluggable
+}

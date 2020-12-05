@@ -1,6 +1,6 @@
 package element
 
-type Recode interface {
+type Record interface {
 	Add(Column) error
 	GetByIndex(i int) (Column, error)
 	GetByName(name string) (Column, error)
@@ -10,21 +10,21 @@ type Recode interface {
 	MemorySize() int64
 }
 
-type DefaultRecode struct {
+type DefaultRecord struct {
 	names      []string
 	columns    map[string]Column
 	byteSize   int64
 	memorySize int64
 }
 
-func NewDefaultRecode() *DefaultRecode {
-	return &DefaultRecode{
+func NewDefaultRecord() *DefaultRecord {
+	return &DefaultRecord{
 		names:   make([]string, 0),
 		columns: make(map[string]Column),
 	}
 }
 
-func (r *DefaultRecode) Add(c Column) error {
+func (r *DefaultRecord) Add(c Column) error {
 	r.names = append(r.names, c.Name())
 	if _, ok := r.columns[c.Name()]; ok {
 		return ErrColumnExist
@@ -34,7 +34,7 @@ func (r *DefaultRecode) Add(c Column) error {
 	return nil
 }
 
-func (r *DefaultRecode) GetByIndex(i int) (Column, error) {
+func (r *DefaultRecord) GetByIndex(i int) (Column, error) {
 	if i >= len(r.names) || i < 0 {
 		return nil, ErrIndexOutOfRange
 	}
@@ -44,14 +44,14 @@ func (r *DefaultRecode) GetByIndex(i int) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-func (r *DefaultRecode) GetByName(name string) (Column, error) {
+func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	if v, ok := r.columns[name]; ok {
 		return v, nil
 	}
 	return nil, ErrColumnNotExist
 }
 
-func (r *DefaultRecode) Set(i int, c Column) error {
+func (r *DefaultRecord) Set(i int, c Column) error {
 	if i >= len(r.names) || i < 0 {
 		return ErrIndexOutOfRange
 	}
@@ -65,24 +65,24 @@ func (r *DefaultRecode) Set(i int, c Column) error {
 	return nil
 }
 
-func (r *DefaultRecode) ColumnNumber() int {
+func (r *DefaultRecord) ColumnNumber() int {
 	return len(r.columns)
 }
 
-func (r *DefaultRecode) ByteSize() int64 {
+func (r *DefaultRecord) ByteSize() int64 {
 	return r.byteSize
 }
 
-func (r *DefaultRecode) MemorySize() int64 {
+func (r *DefaultRecord) MemorySize() int64 {
 	return r.memorySize
 }
 
-func (r *DefaultRecode) incSize(c Column) {
+func (r *DefaultRecord) incSize(c Column) {
 	r.byteSize += c.ByteSize()
 	r.memorySize += c.MemorySize()
 }
 
-func (r *DefaultRecode) decSize(c Column) {
+func (r *DefaultRecord) decSize(c Column) {
 	r.byteSize -= c.ByteSize()
 	r.memorySize -= c.MemorySize()
 }
