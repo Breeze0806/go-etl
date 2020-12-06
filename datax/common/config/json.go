@@ -268,7 +268,11 @@ func (j *Json) FromFile(filename string) error {
 	j.res = new.res
 	return nil
 }
-
+func (j *Json) Clone() *Json {
+	return &Json{
+		res: j.res,
+	}
+}
 func (j *Json) getResult(path string) (gjson.Result, error) {
 	res := j.res.Get(path)
 	if res.Exists() {

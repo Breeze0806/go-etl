@@ -8,12 +8,13 @@ import (
 	"sync"
 )
 
-//Logger 用于打印binlog包的调试日志
+//Logger 用于打印调试日志
 type Logger interface {
-	Errorf(string, ...interface{}) //错误日志打印
-	Infof(string, ...interface{})  //进程日志打印
-	Debugf(string, ...interface{}) //调试日志打印
-	Print(args ...interface{})     //打印dump包的错误日志
+	Errorf(format string, v ...interface{}) //错误日志打印
+	Infof(format string, v ...interface{})  //进程日志打印
+	Debugf(format string, v ...interface{}) //调试日志打印
+	Print(args ...interface{})              //打印错误日志
+	Printf(format string, v ...interface{}) //打印错误日志
 }
 
 //LogLevel 日志级别, 为调试/信息/错误
@@ -34,16 +35,16 @@ type defaultLogger struct {
 func newNilLogger() Logger {
 	d := &defaultLogger{
 		level:  ErrorLevel,
-		logger: log.New(os.Stderr, "[binlog]", log.Lmicroseconds|log.LstdFlags|log.Lshortfile),
+		logger: log.New(os.Stderr, "[etl]", log.Lmicroseconds|log.LstdFlags|log.Lshortfile),
 	}
 	return d
 }
 
 //NewDefaultLogger 生成一个日志打印Logger，level可以是DebugLevel，InfoLevel，ErrorLevel
-func NewDefaultLogger(writer io.Writer, level LogLevel) Logger {
+func NewDefaultLogger(writer io.Writer, level LogLevel, prefix string) Logger {
 	d := &defaultLogger{
 		level:  level,
-		logger: log.New(writer, "[binlog]", log.Lmicroseconds|log.LstdFlags|log.Lshortfile),
+		logger: log.New(writer, prefix, log.Lmicroseconds|log.LstdFlags|log.Lshortfile),
 	}
 	return d
 }
@@ -70,6 +71,10 @@ func (d *defaultLogger) Print(args ...interface{}) {
 	d.logger.Output(2, fmt.Sprint(args...))
 }
 
+func (d *defaultLogger) Printf(format string, v ...interface{}) {
+	d.logger.Output(2, fmt.Sprintf(format, v...))
+}
+
 var (
 	lw   = loggerWrapper{l: newNilLogger()}
 	_log = lw.logger()
@@ -92,8 +97,12 @@ func (l *loggerWrapper) logger() Logger {
 	return l.l
 }
 
-//SetLogger 设置一个符合Logger日志来打印binlog包的调试信息
+//SetLogger 设置一个符合Logger日志来打印调试信息
 func SetLogger(logger Logger) {
 	lw.setLogger(logger)
 	_log = lw.logger()
+}
+
+func GetLogger() Logger {
+	return _log
 }
