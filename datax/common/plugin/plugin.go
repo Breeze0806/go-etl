@@ -1,36 +1,40 @@
 package plugin
 
-import "github.com/Breeze0806/go-etl/datax/common/config"
+import (
+	"context"
+
+	"github.com/Breeze0806/go-etl/datax/common/config"
+)
 
 type Plugin interface {
 	Pluggable
-	PreCheck() error
-	Prepare() error
-	Post() error
-	PreHandler(conf *config.Json) error
-	PostHandler(conf *config.Json) error
+	PreCheck(ctx context.Context) error
+	Prepare(ctx context.Context) error
+	Post(ctx context.Context) error
+	PreHandler(ctx context.Context, conf *config.Json) error
+	PostHandler(ctx context.Context, conf *config.Json) error
 }
 
 type BasePlugin struct {
 	*BasePluggable
 }
 
-func (b *BasePlugin) PreCheck() error {
+func (b *BasePlugin) PreCheck(ctx context.Context) error {
 	return nil
 }
 
-func (b *BasePlugin) Post() error {
+func (b *BasePlugin) Post(ctx context.Context) error {
 	return nil
 }
 
-func (b *BasePlugin) Prepare() error {
+func (b *BasePlugin) Prepare(ctx context.Context) error {
 	return nil
 }
 
-func (b *BasePlugin) PreHandler(conf *config.Json) error {
+func (b *BasePlugin) PreHandler(ctx context.Context, conf *config.Json) error {
 	return nil
 }
 
-func (b *BasePlugin) PostHandler(conf *config.Json) error {
+func (b *BasePlugin) PostHandler(ctx context.Context, conf *config.Json) error {
 	return nil
 }

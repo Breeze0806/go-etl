@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -119,10 +120,10 @@ type defaultJobPlugin struct {
 	*plugin.BaseJob
 }
 
-func (d *defaultJobPlugin) Init() error {
+func (d *defaultJobPlugin) Init(ctx context.Context) error {
 	return nil
 }
 
-func (d *defaultJobPlugin) Destroy() error {
+func (d *defaultJobPlugin) Destroy(ctx context.Context) error {
 	return nil
 }

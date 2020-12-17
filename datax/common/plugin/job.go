@@ -1,13 +1,13 @@
 package plugin
 
 type Job interface {
-	Defalut
+	Plugin
 	Collector() JobCollector
 	SetCollector(JobCollector)
 }
 
 type BaseJob struct {
-	*BaseDefalut
+	*BasePlugin
 	collector JobCollector
 }
 

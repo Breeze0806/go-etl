@@ -1,7 +1,7 @@
 package plugin
 
 type Task interface {
-	Defalut
+	Plugin
 	TaskCollector() TaskCollector
 	SetTaskCollector(collector TaskCollector)
 	TaskId() int
@@ -11,7 +11,7 @@ type Task interface {
 }
 
 type BaseTask struct {
-	*BaseDefalut
+	*BasePlugin
 
 	taskId      int
 	taskGroupId int

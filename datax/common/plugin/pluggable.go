@@ -1,6 +1,10 @@
 package plugin
 
-import "github.com/Breeze0806/go-etl/datax/common/config"
+import (
+	"context"
+
+	"github.com/Breeze0806/go-etl/datax/common/config"
+)
 
 type Pluggable interface {
 	Developer() (string, error)
@@ -23,9 +27,9 @@ type Pluggable interface {
 
 	SetPluginConf(conf *config.Json)
 
-	Init() error
+	Init(ctx context.Context) error
 
-	Destroy() error
+	Destroy(ctx context.Context) error
 }
 
 type BasePluggable struct {

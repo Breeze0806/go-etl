@@ -280,3 +280,8 @@ func (j *Json) getResult(path string) (gjson.Result, error) {
 	}
 	return gjson.Result{}, fmt.Errorf("path(%v) does not exist", path)
 }
+
+// todo: need to test
+func (j *Json) MarshalJSON() ([]byte, error) {
+	return []byte(j.String()), nil
+}

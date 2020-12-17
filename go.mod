@@ -7,4 +7,5 @@ require (
 	github.com/tidwall/gjson v1.6.3
 	github.com/tidwall/match v1.0.2 // indirect
 	github.com/tidwall/sjson v1.1.2
+	go.uber.org/atomic v1.7.0
 )

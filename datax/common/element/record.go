@@ -10,6 +10,42 @@ type Record interface {
 	MemorySize() int64
 }
 
+var singleTerminateRecord = &terminateRecord{}
+
+func GetTerminateRecord() Record {
+	return singleTerminateRecord
+}
+
+type terminateRecord struct{}
+
+func (t *terminateRecord) Add(Column) error {
+	return nil
+}
+
+func (t *terminateRecord) GetByIndex(i int) (Column, error) {
+	return nil, nil
+}
+
+func (t *terminateRecord) GetByName(name string) (Column, error) {
+	return nil, nil
+}
+
+func (t *terminateRecord) Set(i int, c Column) error {
+	return nil
+}
+
+func (t *terminateRecord) ColumnNumber() int {
+	return 0
+}
+
+func (t *terminateRecord) ByteSize() int64 {
+	return 0
+}
+
+func (t *terminateRecord) MemorySize() int64 {
+	return 0
+}
+
 type DefaultRecord struct {
 	names      []string
 	columns    map[string]Column
