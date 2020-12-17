@@ -10,36 +10,60 @@ import (
 )
 
 type NilStringColumnValue struct {
+	*nilColumnValue
+}
+
+func NewNilStringColumnValue() ColumnValue {
+	return &NilStringColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 func (n *NilStringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
+func (n *NilStringColumnValue) clone() ColumnValue {
+	return NewNilStringColumnValue()
+}
+
+//StringColumnValue 注意：Decimal 123.0（val:1230,exp:-1）和123（val:123,exp:0）不一致
 type StringColumnValue struct {
-	notNilColumnValue
+	*notNilColumnValue
+	TimeEncoder
 	val string
 }
 
-func NewStringColumnValue(s string) (ColumnValue, error) {
+func NewStringColumnValue(s string) ColumnValue {
+	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(time.RFC3339Nano))
+}
+
+func NewStringColumnValueWithEncoder(s string, e TimeEncoder) ColumnValue {
 	return &StringColumnValue{
-		val: s,
-	}, nil
+		notNilColumnValue: &notNilColumnValue{},
+		TimeEncoder:       e,
+		val:               s,
+	}
 }
 
 func (s *StringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
-func (s *StringColumnValue) AsBool() (bool, error) {
-	return strconv.ParseBool(s.val)
+func (s *StringColumnValue) AsBool() (v bool, err error) {
+	v, err = strconv.ParseBool(s.val)
+	if err != nil {
+		return false, NewTransformError(s.Type(), TypeBool, fmt.Errorf("err: %v, val: %v ", err, s.val))
+	}
+	return
 }
 
 func (s *StringColumnValue) AsBigInt() (*big.Int, error) {
-	if v, ok := new(big.Int).SetString(s.val, 10); ok {
-		return v, nil
+	v, err := NewDecimalColumnValueFromString(s.val)
+	if err != nil {
+		return nil, NewTransformError(s.Type(), TypeBigInt, fmt.Errorf("err: %v, val: %v ", err, s.val))
 	}
-	return nil, NewTransformError(s.Type(), TypeBigInt, fmt.Errorf("val: %v ", s.val))
+	return v.AsBigInt()
 }
 
 func (s *StringColumnValue) AsDecimal() (decimal.Decimal, error) {
@@ -58,8 +82,12 @@ func (s *StringColumnValue) AsBytes() ([]byte, error) {
 	return []byte(s.val), nil
 }
 
-func (s *StringColumnValue) AsTime() (time.Time, error) {
-	return time.Time{}, NewTransformError(s.Type(), TypeTime, fmt.Errorf(" val: %v", s.val))
+func (s *StringColumnValue) AsTime() (t time.Time, err error) {
+	t, err = s.TimeEncode(s.val)
+	if err != nil {
+		return time.Time{}, NewTransformError(s.Type(), TypeTime, fmt.Errorf(" val: %v", s.val))
+	}
+	return
 }
 
 func (s *StringColumnValue) String() string {
@@ -67,7 +95,5 @@ func (s *StringColumnValue) String() string {
 }
 
 func (s *StringColumnValue) clone() ColumnValue {
-	return &StringColumnValue{
-		val: s.val,
-	}
+	return NewStringColumnValue(s.val)
 }

@@ -20,13 +20,13 @@ type TransformError struct {
 
 func NewTransformTypeError(one, other ColumnType) *TransformError {
 	return &TransformError{
-		msg: fmt.Sprintf("%s can not Transform to %s", one, other),
+		msg: fmt.Sprintf("%s can not transform to %s", one, other),
 	}
 }
 
 func NewTransformError(one, other ColumnType, err error) *TransformError {
 	return &TransformError{
-		msg: fmt.Sprintf("%s Transform to %s", one, other),
+		msg: fmt.Sprintf("%s transform to %s", one, other),
 		err: err,
 	}
 }

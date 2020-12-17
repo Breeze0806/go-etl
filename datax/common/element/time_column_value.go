@@ -8,19 +8,40 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-var defaultTimeFormat = time.RFC3339Nano
-
 type NilTimeColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
+}
+
+func NewNilTimeColumnValue() ColumnValue {
+	return &NilTimeColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 func (n *NilTimeColumnValue) Type() ColumnType {
 	return TypeTime
 }
 
+func (n *NilTimeColumnValue) clone() ColumnValue {
+	return NewNilTimeColumnValue()
+}
+
 type TimeColumnValue struct {
-	notNilColumnValue
+	*notNilColumnValue
+	TimeDecoder
 	val time.Time
+}
+
+func NewTimeColumnValue(t time.Time) ColumnValue {
+	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(time.RFC3339Nano))
+}
+
+func NewTimeColumnValueWithDecoder(t time.Time, d TimeDecoder) ColumnValue {
+	return &TimeColumnValue{
+		notNilColumnValue: &notNilColumnValue{},
+		TimeDecoder:       d,
+		val:               t,
+	}
 }
 
 func (t *TimeColumnValue) Type() ColumnType {
@@ -39,12 +60,22 @@ func (t *TimeColumnValue) AsDecimal() (decimal.Decimal, error) {
 	return decimal.Decimal{}, NewTransformError(t.Type(), TypeDecimal, fmt.Errorf("val: %v", t.String()))
 }
 
-func (t *TimeColumnValue) AsString() (string, error) {
-	return t.val.String(), nil
+func (t *TimeColumnValue) AsString() (s string, err error) {
+	var i interface{}
+	i, err = t.TimeDecode(t.val)
+	if err != nil {
+		return "", NewTransformError(t.Type(), TypeString, fmt.Errorf("val: %v", t.String()))
+	}
+	return i.(string), nil
 }
 
-func (t *TimeColumnValue) AsBytes() ([]byte, error) {
-	return []byte(t.val.String()), nil
+func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
+	var i interface{}
+	i, err = t.TimeDecode(t.val)
+	if err != nil {
+		return nil, NewTransformError(t.Type(), TypeString, fmt.Errorf("val: %v", t.String()))
+	}
+	return []byte(i.(string)), nil
 }
 
 func (t *TimeColumnValue) AsTime() (time.Time, error) {

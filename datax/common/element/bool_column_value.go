@@ -9,16 +9,33 @@ import (
 )
 
 type NilBoolColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
+}
+
+func NewNilBoolColumnValue() ColumnValue {
+	return &NilBoolColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 func (n *NilBoolColumnValue) Type() ColumnType {
 	return TypeBool
 }
 
+func (n *NilBoolColumnValue) clone() ColumnValue {
+	return NewNilBoolColumnValue()
+}
+
 type BoolColumnValue struct {
-	notNilColumnValue
+	*notNilColumnValue
 	val bool
+}
+
+func NewBoolColumnValue(v bool) ColumnValue {
+	return &BoolColumnValue{
+		notNilColumnValue: &notNilColumnValue{},
+		val:               v,
+	}
 }
 
 func (b *BoolColumnValue) Type() ColumnType {
@@ -31,16 +48,16 @@ func (b *BoolColumnValue) AsBool() (bool, error) {
 
 func (b *BoolColumnValue) AsBigInt() (*big.Int, error) {
 	if b.val {
-		return _IntOne, nil
+		return big.NewInt(1), nil
 	}
-	return _IntZero, nil
+	return big.NewInt(0), nil
 }
 
 func (b *BoolColumnValue) AsDecimal() (decimal.Decimal, error) {
 	if b.val {
 		return decimal.New(1, 0), nil
 	}
-	return decimal.New(0, 0), nil
+	return decimal.New(0, 1), nil
 }
 
 func (b *BoolColumnValue) AsString() (string, error) {
@@ -69,7 +86,5 @@ func (b *BoolColumnValue) String() string {
 }
 
 func (b *BoolColumnValue) clone() ColumnValue {
-	return &BoolColumnValue{
-		val: b.val,
-	}
+	return NewBoolColumnValue(b.val)
 }

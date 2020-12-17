@@ -10,11 +10,21 @@ import (
 )
 
 type NilDecimalColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
+}
+
+func NewNilDecimalColumnValue() ColumnValue {
+	return &NilDecimalColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 func (n *NilDecimalColumnValue) Type() ColumnType {
 	return TypeDecimal
+}
+
+func (n *NilDecimalColumnValue) clone() ColumnValue {
+	return NewNilDecimalColumnValue()
 }
 
 type DecimalColumnValue struct {
@@ -22,10 +32,16 @@ type DecimalColumnValue struct {
 	val decimal.Decimal
 }
 
-func NewDecimalColumnValueFromFloat(f float64) (ColumnValue, error) {
+func NewDecimalColumnValueFromFloat(f float64) ColumnValue {
 	return &DecimalColumnValue{
 		val: decimal.NewFromFloat(f),
-	}, nil
+	}
+}
+
+func NewDecimalColumnValue(d decimal.Decimal) ColumnValue {
+	return &DecimalColumnValue{
+		val: d,
+	}
 }
 
 func NewDecimalColumnValueFromString(s string) (ColumnValue, error) {

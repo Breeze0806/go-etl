@@ -61,10 +61,10 @@ func NewDefaultRecord() *DefaultRecord {
 }
 
 func (r *DefaultRecord) Add(c Column) error {
-	r.names = append(r.names, c.Name())
 	if _, ok := r.columns[c.Name()]; ok {
 		return ErrColumnExist
 	}
+	r.names = append(r.names, c.Name())
 	r.columns[c.Name()] = c
 	r.incSize(c)
 	return nil

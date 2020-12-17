@@ -9,20 +9,51 @@ import (
 )
 
 var _IntZero = big.NewInt(0)
-var _IntOne = big.NewInt(1)
 var _IntTen = big.NewInt(10)
 
 type NilBigIntColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
+}
+
+func NewNilBigIntColumnValue() ColumnValue {
+	return &NilBigIntColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 func (n *NilBigIntColumnValue) Type() ColumnType {
 	return TypeBigInt
 }
 
+func (n *NilBigIntColumnValue) clone() ColumnValue {
+	return NewNilBigIntColumnValue()
+}
+
 type BigIntColumnValue struct {
 	notNilColumnValue
 	val *big.Int
+}
+
+func NewBigIntColumnValueFromInt64(v int64) ColumnValue {
+	return &BigIntColumnValue{
+		val: big.NewInt(v),
+	}
+}
+
+func NewBigIntColumnValue(v *big.Int) ColumnValue {
+	return &BigIntColumnValue{
+		val: new(big.Int).Set(v),
+	}
+}
+
+func NewBigIntColumnValueFromString(v string) (ColumnValue, error) {
+	bi, ok := new(big.Int).SetString(v, 10)
+	if !ok {
+		return nil, NewSetError(v, TypeBigInt, fmt.Errorf("string %v is not valid int", v))
+	}
+	return &BigIntColumnValue{
+		val: bi,
+	}, nil
 }
 
 func (b *BigIntColumnValue) Type() ColumnType {
@@ -38,7 +69,10 @@ func (b *BigIntColumnValue) AsBigInt() (*big.Int, error) {
 }
 
 func (b *BigIntColumnValue) AsDecimal() (decimal.Decimal, error) {
-	return decimal.NewFromBigInt(b.val, 0), nil
+	if b.val.Cmp(_IntZero) != 0 {
+		return decimal.NewFromBigInt(b.val, 0), nil
+	}
+	return decimal.New(0, 1), nil
 }
 
 func (b *BigIntColumnValue) AsString() (string, error) {
@@ -46,7 +80,7 @@ func (b *BigIntColumnValue) AsString() (string, error) {
 }
 
 func (b *BigIntColumnValue) AsBytes() ([]byte, error) {
-	return b.val.Bytes(), nil
+	return []byte(b.val.String()), nil
 }
 
 func (b *BigIntColumnValue) AsTime() (time.Time, error) {
@@ -58,7 +92,5 @@ func (b *BigIntColumnValue) String() string {
 }
 
 func (b *BigIntColumnValue) clone() ColumnValue {
-	return &BigIntColumnValue{
-		val: new(big.Int).Set(b.val),
-	}
+	return NewBigIntColumnValue(b.val)
 }

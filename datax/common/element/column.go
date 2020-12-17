@@ -73,14 +73,14 @@ func (n *notNilColumnValue) IsNil() bool {
 	return false
 }
 
-type nilColumnValue struct {
-}
+type nilColumnValue struct{}
 
 func (n *nilColumnValue) Type() ColumnType {
 	return TypeUnknown
 }
+
 func (n *nilColumnValue) IsNil() bool {
-	return false
+	return true
 }
 
 func (n *nilColumnValue) AsBool() (bool, error) {
@@ -108,9 +108,6 @@ func (n *nilColumnValue) AsTime() (time.Time, error) {
 }
 func (n *nilColumnValue) String() string {
 	return "<nil>"
-}
-func (n *nilColumnValue) clone() ColumnValue {
-	return &nilColumnValue{}
 }
 
 type DefaultColumn struct {
