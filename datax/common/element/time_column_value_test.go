@@ -36,7 +36,11 @@ func TestNilTimeColumnValue_clone(t *testing.T) {
 		n    *NilTimeColumnValue
 		want ColumnValue
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			n:    NewNilTimeColumnValue().(*NilTimeColumnValue),
+			want: NewNilTimeColumnValue(),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -161,6 +165,11 @@ func TestTimeColumnValue_AsString(t *testing.T) {
 			t:     NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
 			wantS: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat),
 		},
+		{
+			name:    "2",
+			t:       NewTimeColumnValueWithDecoder(time.Time{}, &mockTimeDecoder{}).(*TimeColumnValue),
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -187,6 +196,11 @@ func TestTimeColumnValue_AsBytes(t *testing.T) {
 			name:  "1",
 			t:     NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
 			wantB: []byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat)),
+		},
+		{
+			name:    "2",
+			t:       NewTimeColumnValueWithDecoder(time.Time{}, &mockTimeDecoder{}).(*TimeColumnValue),
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -225,6 +239,27 @@ func TestTimeColumnValue_AsTime(t *testing.T) {
 			}
 			if !got.Equal(tt.want) {
 				t.Errorf("TimeColumnValue.AsTime() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTimeColumnValue_clone(t *testing.T) {
+	tests := []struct {
+		name string
+		t    *TimeColumnValue
+		want ColumnValue
+	}{
+		{
+			name: "1",
+			t:    NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
+			want: NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.t.clone(); !reflect.DeepEqual(got.String(), tt.want.String()) {
+				t.Errorf("TimeColumnValue.clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -338,3 +338,50 @@ func TestDefaultColumn_MemorySize(t *testing.T) {
 		})
 	}
 }
+
+func TestColumnType_IsSupported(t *testing.T) {
+	tests := []struct {
+		name string
+		c    ColumnType
+		want bool
+	}{
+		{
+			name: "1",
+			c:    TypeBigInt,
+			want: true,
+		},
+		{
+			name: "2",
+			c:    TypeUnknown,
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.c.IsSupported(); got != tt.want {
+				t.Errorf("ColumnType.IsSupported() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestColumnType_String(t *testing.T) {
+	tests := []struct {
+		name string
+		c    ColumnType
+		want string
+	}{
+		{
+			name: "1",
+			c:    ColumnType(100),
+			want: "unknown",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.c.String(); got != tt.want {
+				t.Errorf("ColumnType.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

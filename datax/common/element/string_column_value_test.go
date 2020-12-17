@@ -144,6 +144,11 @@ func TestStringColumnValue_AsBool(t *testing.T) {
 			s:    NewStringColumnValue("False").(*StringColumnValue),
 			want: false,
 		},
+		{
+			name:    "FAlse",
+			s:       NewStringColumnValue("FAlse").(*StringColumnValue),
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -191,6 +196,11 @@ func TestStringColumnValue_AsBigInt(t *testing.T) {
 			s:    NewStringColumnValue("1.23456e4").(*StringColumnValue),
 			want: testBigIntFromString("12345"),
 		},
+		{
+			name:    "6",
+			s:       NewStringColumnValue("1.23456e4adad").(*StringColumnValue),
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -237,6 +247,11 @@ func TestStringColumnValue_AsDecimal(t *testing.T) {
 			name: "5",
 			s:    NewStringColumnValue("1.23456e4").(*StringColumnValue),
 			want: testDecimalFormString("12345.6"),
+		},
+		{
+			name:    "6",
+			s:       NewStringColumnValue("1.23456e4adad").(*StringColumnValue),
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

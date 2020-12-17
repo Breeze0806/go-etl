@@ -1,10 +1,18 @@
 package element
 
 import (
+	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/shopspring/decimal"
 )
+
+type mockTimeDecoder struct{}
+
+func (m *mockTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
+	return time.Time{}, fmt.Errorf("mockTimeDecoder error")
+}
 
 func testBigIntFromString(v string) *big.Int {
 	bi, _ := new(big.Int).SetString(v, 10)

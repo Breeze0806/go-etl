@@ -170,6 +170,11 @@ func TestBytesColumnValue_AsBool(t *testing.T) {
 			s:    NewBytesColumnValue([]byte("False")).(*BytesColumnValue),
 			want: false,
 		},
+		{
+			name:    "FAlse",
+			s:       NewBytesColumnValue([]byte("FAlse")).(*BytesColumnValue),
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -217,6 +222,11 @@ func TestBytesColumnValue_AsBigInt(t *testing.T) {
 			s:    NewBytesColumnValue([]byte("1.23456e4")).(*BytesColumnValue),
 			want: testBigIntFromString("12345"),
 		},
+		{
+			name:    "6",
+			s:       NewBytesColumnValue([]byte("1.23456e4dada")).(*BytesColumnValue),
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -263,6 +273,11 @@ func TestBytesColumnValue_AsDecimal(t *testing.T) {
 			name: "5",
 			s:    NewBytesColumnValue([]byte("1.23456e4")).(*BytesColumnValue),
 			want: testDecimalFormString("12345.6"),
+		},
+		{
+			name:    "6",
+			s:       NewBytesColumnValue([]byte("1.23456e4dad")).(*BytesColumnValue),
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
