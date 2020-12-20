@@ -15,21 +15,33 @@ func (m *mockTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
 }
 
 func testBigIntFromString(v string) *big.Int {
-	bi, _ := new(big.Int).SetString(v, 10)
+	bi, ok := new(big.Int).SetString(v, 10)
+	if !ok {
+		panic(fmt.Errorf("%v is not int", v))
+	}
 	return bi
 }
 
 func testBigIntColumnValueFromString(v string) *BigIntColumnValue {
-	c, _ := NewBigIntColumnValueFromString(v)
+	c, err := NewBigIntColumnValueFromString(v)
+	if err != nil {
+		panic(err)
+	}
 	return c.(*BigIntColumnValue)
 }
 
 func testDecimalFormString(v string) decimal.Decimal {
-	d, _ := decimal.NewFromString(v)
+	d, err := decimal.NewFromString(v)
+	if err != nil {
+		panic(err)
+	}
 	return d
 }
 
 func testDecimalColumnValueFormString(v string) ColumnValue {
-	d, _ := NewDecimalColumnValueFromString(v)
+	d, err := NewDecimalColumnValueFromString(v)
+	if err != nil {
+		panic(err)
+	}
 	return d
 }

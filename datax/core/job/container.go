@@ -54,7 +54,7 @@ func NewContainer(conf *config.Json) (c *Container, err error) {
 func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobId)
 	defer c.destroy()
-	c.userConf = c.Config().Clone()
+	c.userConf = c.Config().CloneConfig()
 	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobId)
 	if err = c.preHandle(); err != nil {
 		return
@@ -202,7 +202,7 @@ func (c *Container) split() (err error) {
 
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.Json
-	tasksConfigs, err = c.Config().GetArray(coreconst.DataxJobContent)
+	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (t
 		return
 	}
 	var transformConfs []*config.Json
-	transformConfs, err = c.Config().GetArray(coreconst.DataxJobContentTransformer)
+	transformConfs, err = c.Config().GetConfigArray(coreconst.DataxJobContentTransformer)
 	if err != nil {
 		return
 	}

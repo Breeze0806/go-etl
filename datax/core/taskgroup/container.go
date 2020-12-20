@@ -59,7 +59,7 @@ func (c *Container) Do() error {
 
 func (c *Container) Start() (err error) {
 	var taskConfigs []*config.Json
-	if taskConfigs, err = c.Config().GetArray(coreconst.DataxJobContent); err != nil {
+	if taskConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent); err != nil {
 		return err
 	}
 	c.scheduler = schedule.NewTaskSchduler(len(taskConfigs), len(taskConfigs))

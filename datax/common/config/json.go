@@ -1,56 +1,49 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strconv"
-
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
+	"github.com/Breeze0806/go-etl/encoding"
 )
 
 type Json struct {
-	res gjson.Result
+	*encoding.Json
+}
+
+func NewJsonFromEncodingJson(j *encoding.Json) *Json {
+	return &Json{
+		Json: j,
+	}
 }
 
 func NewJsonFromString(s string) (*Json, error) {
-	if !gjson.Valid(s) {
-		return nil, fmt.Errorf("%v is not valid json", s)
-	}
-	return &Json{
-		res: gjson.Parse(s),
-	}, nil
-}
-
-func NewJsonFromBytes(b []byte) (*Json, error) {
-	if !gjson.ValidBytes(b) {
-		return nil, fmt.Errorf("%v is not valid json", string(b))
-	}
-	return &Json{
-		res: gjson.ParseBytes(b),
-	}, nil
-}
-
-func NewJsonFromFile(filename string) (*Json, error) {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, fmt.Errorf("read file %v fail. err： %v", filename, err)
-	}
-	return NewJsonFromBytes(data)
-}
-
-func (j *Json) GetConfig(path string) (*Json, error) {
-	res, err := j.getResult(path)
+	json, err := encoding.NewJsonFromString(s)
 	if err != nil {
 		return nil, err
 	}
-	if res.Type != gjson.JSON {
-		return nil, fmt.Errorf("path(%v) is not object", path)
-	}
+	return NewJsonFromEncodingJson(json), nil
+}
 
-	return &Json{
-		res: res,
-	}, nil
+func NewJsonFromBytes(b []byte) (*Json, error) {
+	json, err := encoding.NewJsonFromBytes(b)
+	if err != nil {
+		return nil, err
+	}
+	return NewJsonFromEncodingJson(json), nil
+}
+
+func NewJsonFromFile(filename string) (*Json, error) {
+	json, err := encoding.NewJsonFromFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	return NewJsonFromEncodingJson(json), nil
+}
+
+func (j *Json) GetConfig(path string) (*Json, error) {
+	json, err := j.GetJson(path)
+	if err != nil {
+		return nil, err
+	}
+	return NewJsonFromEncodingJson(json), nil
 }
 
 func (j *Json) GetBoolOrDefaullt(path string, defaultValue bool) bool {
@@ -60,41 +53,11 @@ func (j *Json) GetBoolOrDefaullt(path string, defaultValue bool) bool {
 	return defaultValue
 }
 
-func (j *Json) GetBool(path string) (bool, error) {
-	res, err := j.getResult(path)
-	if err != nil {
-		return false, err
-	}
-	switch res.Type {
-	case gjson.False:
-		return false, nil
-	case gjson.True:
-		return true, nil
-	}
-	return false, fmt.Errorf("path(%v) is not bool", path)
-}
-
 func (j *Json) GetInt64OrDefaullt(path string, defaultValue int64) int64 {
 	if v, err := j.GetInt64(path); err == nil {
 		return v
 	}
 	return defaultValue
-}
-
-func (j *Json) GetInt64(path string) (int64, error) {
-	res, err := j.getResult(path)
-	if err != nil {
-		return 0, err
-	}
-	switch res.Type {
-	case gjson.Number:
-		v, err := strconv.ParseInt(res.String(), 10, 64)
-		if err != nil {
-			return 0, fmt.Errorf("path(%v) is not int64. val: %v", res.String(), err)
-		}
-		return v, nil
-	}
-	return 0, fmt.Errorf("path(%v) is not bool", path)
 }
 
 func (j *Json) GetFloat64OrDefaullt(path string, defaultValue float64) float64 {
@@ -104,184 +67,44 @@ func (j *Json) GetFloat64OrDefaullt(path string, defaultValue float64) float64 {
 	return defaultValue
 }
 
-func (j *Json) GetFloat64(path string) (float64, error) {
-	res, err := j.getResult(path)
-	if err != nil {
-		return 0, err
-	}
-	switch res.Type {
-	case gjson.Number:
-		v, err := strconv.ParseFloat(res.String(), 64)
-		if err != nil {
-			return 0, fmt.Errorf("path(%v) is not float64. val: %v", res.String(), err)
-		}
-		return v, nil
-	}
-	return 0, fmt.Errorf("path(%v) is not bool", path)
-}
-
 func (j *Json) GetStringOrDefaullt(path string, defaultValue string) string {
-	if v, err := j.GetString(path); err == nil {
+	if v, err := j.Json.GetString(path); err == nil {
 		return v
 	}
 	return defaultValue
 }
 
-func (j *Json) GetString(path string) (string, error) {
-	res, err := j.getResult(path)
-	if err != nil {
-		return "", err
-	}
-	switch res.Type {
-	case gjson.String:
-		return res.String(), nil
-	}
-	return "", fmt.Errorf("path(%v) is not string", path)
-}
-
-func (j *Json) GetArray(path string) ([]*Json, error) {
-	res, err := j.getResult(path)
+func (j *Json) GetConfigArray(path string) ([]*Json, error) {
+	a, err := j.Json.GetArray(path)
 	if err != nil {
 		return nil, err
 	}
-	switch {
-	case res.IsArray():
-		var jsons []*Json
-		a := res.Array()
-		for _, v := range a {
-			jsons = append(jsons, &Json{res: v})
-		}
-		return jsons, nil
+
+	var jsons []*Json
+
+	for i := range a {
+		jsons = append(jsons, NewJsonFromEncodingJson(a[i]))
 	}
-	return nil, fmt.Errorf("path(%v) is not array", path)
+
+	return jsons, nil
 }
 
-func (j *Json) GetMap(path string) (map[string]*Json, error) {
-	res, err := j.getResult(path)
+func (j *Json) GetConfigMap(path string) (map[string]*Json, error) {
+	m, err := j.Json.GetMap(path)
 	if err != nil {
 		return nil, err
 	}
-	switch {
-	case res.IsObject():
-		jsons := make(map[string]*Json)
-		m := res.Map()
-		for k, v := range m {
-			jsons[k] = &Json{res: v}
-		}
-		return jsons, nil
+
+	jsons := make(map[string]*Json)
+
+	for k, v := range m {
+		jsons[k] = NewJsonFromEncodingJson(v)
 	}
-	return nil, fmt.Errorf("path(%v) is not map", path)
+	return jsons, nil
 }
 
-func (j *Json) String() string {
-	return j.res.String()
-}
-
-func (j *Json) IsArray(path string) bool {
-	return j.res.Get(path).IsArray()
-}
-
-func (j *Json) IsNumber(path string) bool {
-	return j.res.Get(path).Type == gjson.Number
-}
-
-func (j *Json) IsObject(path string) bool {
-	return j.res.Get(path).IsArray()
-}
-
-func (j *Json) IsBool(path string) bool {
-	return j.res.Get(path).Type == gjson.False || j.res.Type == gjson.True
-}
-
-func (j *Json) IsString(path string) bool {
-	return j.res.Get(path).Type == gjson.String
-}
-
-func (j *Json) IsNull(path string) bool {
-	return j.res.Get(path).Type == gjson.Null
-}
-
-func (j *Json) Exists(path string) bool {
-	return j.res.Get(path).Exists()
-}
-
-func (j *Json) Set(path string, v interface{}) error {
-	s, err := sjson.Set(j.String(), path, v)
-	if err != nil {
-		return fmt.Errorf("path(%v) set fail. err: %v", path, err)
-	}
-	if err = j.FromString(s); err != nil {
-		return fmt.Errorf("path(%v) set fail. err: %v", path, err)
-	}
-	return nil
-}
-
-func (j *Json) SetRawBytes(path string, b []byte) error {
-	return j.SetRawString(path, string(b))
-}
-
-func (j *Json) SetRawString(path string, s string) error {
-	ns, err := sjson.SetRaw(j.String(), path, s)
-	if err != nil {
-		return fmt.Errorf("path(%v) set fail. err: %v", path, err)
-	}
-	if err = j.FromString(ns); err != nil {
-		return fmt.Errorf("path(%v) set fail. err: %v", path, err)
-	}
-	return nil
-}
-
-func (j *Json) Remove(path string) error {
-	s, err := sjson.Delete(j.String(), path)
-	if err != nil {
-		return fmt.Errorf("path(%v) remove fail. err: %v", path, err)
-	}
-	if err = j.FromString(s); err != nil {
-		return fmt.Errorf("path(%v) remove fail. err: %v", path, err)
-	}
-	return nil
-}
-
-func (j *Json) FromString(s string) error {
-	new, err := NewJsonFromString(s)
-	if err != nil {
-		return err
-	}
-	j.res = new.res
-	return nil
-}
-
-func (j *Json) FromBytes(b []byte) error {
-	new, err := NewJsonFromBytes(b)
-	if err != nil {
-		return err
-	}
-	j.res = new.res
-	return nil
-}
-
-func (j *Json) FromFile(filename string) error {
-	new, err := NewJsonFromFile(filename)
-	if err != nil {
-		return err
-	}
-	j.res = new.res
-	return nil
-}
-func (j *Json) Clone() *Json {
+func (j *Json) CloneConfig() *Json {
 	return &Json{
-		res: j.res,
+		Json: j.Json.Clone(),
 	}
-}
-func (j *Json) getResult(path string) (gjson.Result, error) {
-	res := j.res.Get(path)
-	if res.Exists() {
-		return res, nil
-	}
-	return gjson.Result{}, fmt.Errorf("path(%v) does not exist", path)
-}
-
-// todo: need to test
-func (j *Json) MarshalJSON() ([]byte, error) {
-	return []byte(j.String()), nil
 }
