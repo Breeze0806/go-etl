@@ -1,9 +1,11 @@
 package taskgroup
 
-import etllog "github.com/Breeze0806/go-etl/log"
+import mylog "github.com/Breeze0806/go/log"
 
-var log etllog.Logger
+var log mylog.Logger
 
-func LogInit() {
-	log = etllog.GetLogger()
+func init() {
+	mylog.RegisterInitFuncs(func() {
+		log = mylog.GetLogger()
+	})
 }
