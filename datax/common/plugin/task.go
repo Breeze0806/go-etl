@@ -18,6 +18,12 @@ type BaseTask struct {
 	collector   TaskCollector
 }
 
+func NewBaseTask() *BaseTask {
+	return &BaseTask{
+		BasePlugin: NewBasePlugin(),
+	}
+}
+
 func (b *BaseTask) TaskCollector() TaskCollector {
 	return b.collector
 }

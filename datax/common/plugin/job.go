@@ -11,6 +11,12 @@ type BaseJob struct {
 	collector JobCollector
 }
 
+func NewBaseJob() *BaseJob {
+	return &BaseJob{
+		BasePlugin: NewBasePlugin(),
+	}
+}
+
 func (b *BaseJob) Collector() JobCollector {
 	return b.collector
 }

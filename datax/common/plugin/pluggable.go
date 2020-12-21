@@ -39,6 +39,10 @@ type BasePluggable struct {
 	peerPluginJobConf *config.Json
 }
 
+func NewBasePluggable() *BasePluggable {
+	return &BasePluggable{}
+}
+
 func (b *BasePluggable) SetPluginConf(conf *config.Json) {
 	b.pluginConf = conf
 }

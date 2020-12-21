@@ -19,6 +19,12 @@ type BasePlugin struct {
 	*BasePluggable
 }
 
+func NewBasePlugin() *BasePlugin {
+	return &BasePlugin{
+		BasePluggable: NewBasePluggable(),
+	}
+}
+
 func (b *BasePlugin) PreCheck(ctx context.Context) error {
 	return nil
 }
