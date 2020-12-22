@@ -20,21 +20,22 @@ type taskWrapper struct {
 type TaskSchduler struct {
 	taskWrappers chan *taskWrapper
 	wg           sync.WaitGroup
-	close        chan struct{}
+	stop         chan struct{}
 	destroy      sync.Once
-	closed       int32
+	stopped      int32
 	size         *atomic.Int32
 }
 
 func NewTaskSchduler(workerNumer, chanCap int) *TaskSchduler {
 	t := &TaskSchduler{
 		taskWrappers: make(chan *taskWrapper, chanCap),
-		close:        make(chan struct{}),
-		closed:       0,
+		stop:         make(chan struct{}),
+		stopped:      0,
 		size:         atomic.NewInt32(0),
 	}
-	t.wg.Add(1)
+
 	for i := 0; i < workerNumer; i++ {
+		t.wg.Add(1)
 		go func() {
 			defer t.wg.Done()
 			t.processTask()
@@ -45,7 +46,7 @@ func NewTaskSchduler(workerNumer, chanCap int) *TaskSchduler {
 }
 
 func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
-	if goatomic.CompareAndSwapInt32(&t.closed, 1, 1) {
+	if goatomic.CompareAndSwapInt32(&t.stopped, 1, 1) {
 		return nil, ErrClose
 	}
 	tw := &taskWrapper{
@@ -57,7 +58,7 @@ func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
 	case t.taskWrappers <- tw:
 		t.size.Inc()
 		return tw.result, nil
-	case <-t.close:
+	case <-t.stop:
 		return nil, ErrClose
 	}
 }
@@ -67,10 +68,10 @@ func (t *TaskSchduler) Size() int32 {
 }
 
 func (t *TaskSchduler) Stop() {
-	if !goatomic.CompareAndSwapInt32(&t.closed, 0, 1) {
+	if !goatomic.CompareAndSwapInt32(&t.stopped, 0, 1) {
 		return
 	}
-	close(t.close)
+	close(t.stop)
 	t.wg.Wait()
 }
 
@@ -83,7 +84,7 @@ func (t *TaskSchduler) processTask() {
 			}
 			tw.result <- tw.task.Do()
 			t.size.Dec()
-		case <-t.close:
+		case <-t.stop:
 			return
 		}
 	}

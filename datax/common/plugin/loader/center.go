@@ -77,6 +77,11 @@ func (l *centor) registerReader(name string, reader spi.Reader) error {
 
 	l.readersMu.Lock()
 	defer l.readersMu.Unlock()
+
+	if reader == nil {
+		return fmt.Errorf("datax: reader %v is nil", name)
+	}
+
 	if reader.Task() == nil || reader.Job() == nil {
 		return fmt.Errorf("datax: reader %v has nil job or task", name)
 	}
@@ -99,9 +104,15 @@ func (l *centor) reader(name string) (reader spi.Reader, ok bool) {
 func (l *centor) registerWriter(name string, writer spi.Writer) error {
 	l.writersMu.Lock()
 	defer l.writersMu.Unlock()
+
+	if writer == nil {
+		return fmt.Errorf("datax: writer %v is nil", name)
+	}
+
 	if writer.Task() == nil || writer.Job() == nil {
 		return fmt.Errorf("datax: writer %v has nil job or task", name)
 	}
+
 	if _, ok := l.writers[name]; ok {
 		return fmt.Errorf("datax: writer %v has already registered", name)
 	}

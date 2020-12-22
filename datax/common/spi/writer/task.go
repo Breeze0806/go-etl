@@ -11,3 +11,17 @@ type Task interface {
 	StartWrite(ctx context.Context, receiver plugin.RecordReceiver) error
 	SupportFailOver() bool
 }
+
+type BaseTask struct {
+	*plugin.BaseTask
+}
+
+func NewBaseTask() *BaseTask {
+	return &BaseTask{
+		BaseTask: plugin.NewBaseTask(),
+	}
+}
+
+func (b *BaseTask) SupportFailOver() bool {
+	return false
+}

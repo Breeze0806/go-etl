@@ -1,16 +1,109 @@
 package loader
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
+	"github.com/Breeze0806/go-etl/datax/common/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 )
 
+type mockTaskPlugin struct {
+}
+
+func (m *mockTaskPlugin) Init(ctx context.Context) error {
+	return nil
+}
+
+func (m *mockTaskPlugin) Destroy(ctx context.Context) error {
+	return nil
+}
+
+type mockReaderJob struct {
+	*defaultJobPlugin
+}
+
+func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+	return nil, nil
+}
+
+type mockReaderTask struct {
+	*plugin.BaseTask
+	*mockTaskPlugin
+}
+
+func (m *mockReaderTask) StartRead(ctx context.Context, sender plugin.RecordSender) error {
+	return nil
+}
+
+type mockWriterJob struct {
+	*defaultJobPlugin
+}
+
+func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+	return nil, nil
+}
+
+type mockWriterTask struct {
+	*mockTaskPlugin
+	*writer.BaseTask
+}
+
+func (m *mockWriterTask) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) error {
+	return nil
+}
+
+type mockNilReader struct{}
+
+func (m *mockNilReader) Job() reader.Job {
+	return nil
+}
+
+func (m *mockNilReader) Task() reader.Task {
+	return nil
+}
+
+type mockNilWriter struct{}
+
+func (m *mockNilWriter) Job() writer.Job {
+	return nil
+}
+
+func (m *mockNilWriter) Task() writer.Task {
+	return nil
+}
+
+type mockReader struct{}
+
+func (m *mockReader) Job() reader.Job {
+	return &mockReaderJob{}
+}
+
+func (m *mockReader) Task() reader.Task {
+	return &mockReaderTask{}
+}
+
+type mockWriter struct{}
+
+func (m *mockWriter) Job() writer.Job {
+	return &mockWriterJob{}
+}
+
+func (m *mockWriter) Task() writer.Task {
+	return &mockWriterTask{}
+}
+
 func TestRegisterReader(t *testing.T) {
+	_centor = &centor{
+		readers: map[string]spi.Reader{
+			"mock": &mockReader{},
+		},
+	}
+
 	type args struct {
 		name   string
 		reader spi.Reader
@@ -25,27 +118,98 @@ func TestRegisterReader(t *testing.T) {
 			args:    args{},
 			wantErr: true,
 		},
+		{
+			name: "2",
+			args: args{
+				name:   "mock",
+				reader: &mockNilReader{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			args: args{
+				name:   "mock1",
+				reader: &mockReader{},
+			},
+			wantErr: false,
+		},
+		{
+			name: "4",
+			args: args{
+				name:   "mock",
+				reader: &mockReader{},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); (err != nil) != tt.wantErr {
+					t.Errorf("panic err: %v wantErr %v", err, tt.wantErr)
+				}
+			}()
+
 			RegisterReader(tt.args.name, tt.args.reader)
 		})
 	}
 }
 
 func TestRegisterWriter(t *testing.T) {
+	_centor = &centor{
+		writers: map[string]spi.Writer{
+			"mock": &mockWriter{},
+		},
+	}
+
 	type args struct {
 		name   string
 		writer spi.Writer
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:    "1",
+			args:    args{},
+			wantErr: true,
+		},
+		{
+			name: "2",
+			args: args{
+				name:   "mock",
+				writer: &mockNilWriter{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			args: args{
+				name:   "mock1",
+				writer: &mockWriter{},
+			},
+			wantErr: false,
+		},
+		{
+			name: "4",
+			args: args{
+				name:   "mock",
+				writer: &mockWriter{},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); (err != nil) != tt.wantErr {
+					t.Errorf("panic err: %v wantErr %v", err, tt.wantErr)
+				}
+			}()
+
 			RegisterWriter(tt.args.name, tt.args.writer)
 		})
 	}
@@ -62,7 +226,14 @@ func TestLoadJobPlugin(t *testing.T) {
 		want    plugin.Job
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			args: args{
+				typ:  plugin.Writer,
+				name: "1111",
+			},
+			want: &defaultJobPlugin{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -79,6 +250,12 @@ func TestLoadJobPlugin(t *testing.T) {
 }
 
 func TestLoadReaderJob(t *testing.T) {
+	_centor = &centor{
+		readers: map[string]spi.Reader{
+			"mock": &mockReader{},
+		},
+	}
+
 	type args struct {
 		name string
 	}
@@ -88,7 +265,22 @@ func TestLoadReaderJob(t *testing.T) {
 		want  reader.Job
 		want1 bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			args: args{
+				name: "mock",
+			},
+			want:  &mockReaderJob{},
+			want1: true,
+		},
+		{
+			name: "2",
+			args: args{
+				name: "mock1",
+			},
+			want:  nil,
+			want1: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -104,6 +296,11 @@ func TestLoadReaderJob(t *testing.T) {
 }
 
 func TestLoadReaderTask(t *testing.T) {
+	_centor = &centor{
+		readers: map[string]spi.Reader{
+			"mock": &mockReader{},
+		},
+	}
 	type args struct {
 		name string
 	}
@@ -113,7 +310,22 @@ func TestLoadReaderTask(t *testing.T) {
 		want  reader.Task
 		want1 bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			args: args{
+				name: "mock",
+			},
+			want:  &mockReaderTask{},
+			want1: true,
+		},
+		{
+			name: "2",
+			args: args{
+				name: "mock1",
+			},
+			want:  nil,
+			want1: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -129,6 +341,11 @@ func TestLoadReaderTask(t *testing.T) {
 }
 
 func TestLoadWriterJob(t *testing.T) {
+	_centor = &centor{
+		writers: map[string]spi.Writer{
+			"mock": &mockWriter{},
+		},
+	}
 	type args struct {
 		name string
 	}
@@ -138,7 +355,22 @@ func TestLoadWriterJob(t *testing.T) {
 		want  writer.Job
 		want1 bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			args: args{
+				name: "mock",
+			},
+			want:  &mockWriterJob{},
+			want1: true,
+		},
+		{
+			name: "2",
+			args: args{
+				name: "mock1",
+			},
+			want:  nil,
+			want1: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -154,6 +386,11 @@ func TestLoadWriterJob(t *testing.T) {
 }
 
 func TestLoadWriterTask(t *testing.T) {
+	_centor = &centor{
+		writers: map[string]spi.Writer{
+			"mock": &mockWriter{},
+		},
+	}
 	type args struct {
 		name string
 	}
@@ -163,7 +400,22 @@ func TestLoadWriterTask(t *testing.T) {
 		want  writer.Task
 		want1 bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			args: args{
+				name: "mock",
+			},
+			want:  &mockWriterTask{},
+			want1: true,
+		},
+		{
+			name: "2",
+			args: args{
+				name: "mock1",
+			},
+			want:  nil,
+			want1: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -175,5 +427,15 @@ func TestLoadWriterTask(t *testing.T) {
 				t.Errorf("LoadWriterTask() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
+	}
+}
+
+func Test_defaultJobPlugin(t *testing.T) {
+	d := &defaultJobPlugin{}
+	if err := d.Init(context.Background()); err != nil {
+		t.Errorf("Init() err = %v", err)
+	}
+	if err := d.Destroy(context.Background()); err != nil {
+		t.Errorf("Destroy() err = %v", err)
 	}
 }
