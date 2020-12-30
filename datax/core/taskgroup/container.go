@@ -2,36 +2,34 @@ package taskgroup
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/Breeze0806/go-etl/datax/common/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
-	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/schedule"
 	"github.com/Breeze0806/go-etl/datax/core"
-	"github.com/Breeze0806/go-etl/datax/core/statistics/communication"
-	"github.com/Breeze0806/go-etl/datax/core/taskgroup/runner"
-	"github.com/Breeze0806/go-etl/datax/core/transport/channel"
-	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
 )
 
 type Container struct {
 	*core.BaseCotainer
-	jobId       int64
-	taskGroupId int64
-	scheduler   *schedule.TaskSchduler
-	wg          sync.WaitGroup
-	tasks       *taskMap
-	ctx         context.Context
+	jobId         int64
+	taskGroupId   int64
+	scheduler     *schedule.TaskSchduler
+	wg            sync.WaitGroup
+	tasks         *taskManager
+	ctx           context.Context
+	sleepInterval time.Duration
+	retryInterval time.Duration
+	retryMaxCount int32
 }
 
 func NewContainer(ctx context.Context, conf *config.Json) (c *Container, err error) {
 	c = &Container{
-		tasks: newTaskMap(),
-		ctx:   ctx,
+		BaseCotainer: core.NewBaseCotainer(),
+		tasks:        newTaskManager(),
+		ctx:          ctx,
 	}
 	c.SetConfig(conf)
 	c.jobId, err = c.Config().GetInt64(coreconst.DataxCoreContainerJobId)
@@ -42,6 +40,14 @@ func NewContainer(ctx context.Context, conf *config.Json) (c *Container, err err
 	if err != nil {
 		return nil, err
 	}
+
+	c.sleepInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 100)) * time.Millisecond
+	c.retryInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 10000)) * time.Millisecond
+	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
+	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v",
+		c.jobId, c.taskGroupId, c.sleepInterval, c.retryInterval, c.retryMaxCount)
 	return
 }
 
@@ -58,12 +64,17 @@ func (c *Container) Do() error {
 }
 
 func (c *Container) Start() (err error) {
+	log.Infof("datax job(%v) taskgruop(%v)  start", c.jobId, c.taskGroupId)
+	defer log.Infof("datax job(%v) taskgruop(%v)  end", c.jobId, c.taskGroupId)
 	var taskConfigs []*config.Json
 	if taskConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent); err != nil {
 		return err
 	}
-	c.scheduler = schedule.NewTaskSchduler(len(taskConfigs), len(taskConfigs))
+	c.scheduler = schedule.NewTaskSchduler(
+		int(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(taskConfigs))
+	defer c.scheduler.Stop()
 	prefixKey := strconv.FormatInt(c.jobId, 10) + "-" + strconv.FormatInt(c.taskGroupId, 10)
+	log.Infof("datax job(%v) taskgruop(%v) manager config", c.jobId, c.taskGroupId)
 	for i := range taskConfigs {
 		var taskExecer *taskExecer
 
@@ -73,251 +84,80 @@ func (c *Container) Start() (err error) {
 		}
 		c.tasks.pushRemain(taskExecer)
 	}
-	sleepIntervalInMillSec := time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 100)) * time.Millisecond
-	for {
-		if c.tasks.isEmpty() {
-			break
-		}
+	log.Infof("datax job(%v) taskgruop(%v) start tasks", c.jobId, c.taskGroupId)
+	for i := 0; i < len(taskConfigs); i++ {
 		te, ok := c.tasks.popRemainAndAddRun()
 		if !ok {
 			continue
 		}
-		c.wg.Add(1)
-		var errChan <-chan error
-		errChan, err = c.scheduler.Push(te)
-		if err != nil {
-			c.tasks.removeRun(te)
-			c.wg.Done()
-			return err
+		if err = c.startTaskExecer(te); err != nil {
+			return
 		}
-
-		go func(te *taskExecer) {
-			defer c.wg.Done()
-			select {
-			case err := <-errChan:
-				if err != nil {
-					c.tasks.removeRunAndPushRemain(te)
-				} else {
-					c.tasks.removeRun(te)
-				}
-			case <-c.ctx.Done():
-			}
-		}(te)
-
+	}
+	log.Infof("datax job(%v) taskgruop(%v) manage tasks", c.jobId, c.taskGroupId)
+	ticker := time.NewTicker(c.sleepInterval)
+	defer ticker.Stop()
+QueueLoop:
+	for !c.tasks.isEmpty() {
 		select {
-		case <-time.After(sleepIntervalInMillSec):
+		case <-c.ctx.Done():
+			break QueueLoop
+		default:
+		}
+		te, ok := c.tasks.popRemainAndAddRun()
+		if !ok {
+			select {
+			case <-ticker.C:
+			case <-c.ctx.Done():
+				break QueueLoop
+			}
+			continue
+		}
+		if err = c.startTaskExecer(te); err != nil {
+			return
+		}
+	}
+	log.Infof("datax job(%v) taskgruop(%v) wait tasks end", c.jobId, c.taskGroupId)
+	c.wg.Wait()
+	if c.ctx.Err() != nil {
+		return c.ctx.Err()
+	}
+
+	return nil
+}
+
+func (c *Container) startTaskExecer(te *taskExecer) (err error) {
+	log.Debugf("datax job(%v) taskgruop(%v) task(%v) push", c.jobId, c.taskGroupId, te.Key())
+	c.wg.Add(1)
+	var errChan <-chan error
+	errChan, err = c.scheduler.Push(te)
+	if err != nil {
+		c.tasks.removeRun(te)
+		c.wg.Done()
+		return err
+	}
+	log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobId, c.taskGroupId, te.Key())
+	go func(te *taskExecer) {
+		defer c.wg.Done()
+		timer := time.NewTimer(c.retryInterval)
+		defer timer.Stop()
+		select {
+		case err := <-errChan:
+			if err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
+				log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
+					c.jobId, c.taskGroupId, te.Key(), te.AttemptCount(), err)
+				te.Shutdown()
+				select {
+				case <-timer.C:
+				case <-c.ctx.Done():
+				}
+				c.tasks.removeRunAndPushRemain(te)
+			} else {
+				log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobId, c.taskGroupId, te.Key())
+				c.tasks.removeRun(te)
+			}
 		case <-c.ctx.Done():
 		}
-	}
-	c.wg.Wait()
-	c.scheduler.Stop()
-	return nil
-}
-
-type taskExecer struct {
-	taskConf     *config.Json
-	taskId       int64
-	ctx          context.Context
-	cancel       context.CancelFunc
-	channel      *channel.Channel
-	writerRunner runner.Runner
-	readerRunner runner.Runner
-	wg           sync.WaitGroup
-	errors       chan error
-	//todo: 初始化
-	taskCommunication communication.Communication
-	destroy           sync.Once
-	key               string
-}
-
-func newTaskExecer(ctx context.Context, taskConf *config.Json, prefixKey string, attemptCount int) (t *taskExecer, err error) {
-	t = &taskExecer{
-		taskConf: taskConf,
-		errors:   make(chan error),
-	}
-	t.ctx, t.cancel = context.WithCancel(ctx)
-	t.channel, err = channel.NewChannel()
-	if err != nil {
-		return nil, err
-	}
-
-	t.taskId, err = taskConf.GetInt64(coreconst.TaskId)
-	if err != nil {
-		return nil, err
-	}
-	t.key = prefixKey + "-" + strconv.FormatInt(t.taskId, 10)
-	name := ""
-	name, err = taskConf.GetString(coreconst.JobReaderName)
-	if err != nil {
-		return nil, err
-	}
-
-	readTask, ok := loader.LoadReaderTask(name)
-	if !ok {
-		return nil, fmt.Errorf("reader task name (%v) does not exist", name)
-	}
-	exchanger := exchange.NewRecordExchangerWithoutTransformer(t.channel)
-	t.readerRunner = runner.NewReader(ctx, readTask, exchanger)
-
-	name, err = taskConf.GetString(coreconst.JobWriterName)
-	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	writeTask, ok := loader.LoadWriterTask(name)
-	if !ok {
-		return nil, fmt.Errorf("writer task name (%v) does not exist", name)
-	}
-	t.writerRunner = runner.NewWriter(ctx, writeTask, exchanger)
-
-	return
-}
-
-func (t *taskExecer) Start() {
-	t.wg.Add(1)
-	var writerWg sync.WaitGroup
-	writerWg.Add(1)
-	go func() {
-		defer t.wg.Done()
-		writerWg.Done()
-		if err := t.writerRunner.Run(); err != nil {
-			t.errors <- fmt.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
-		}
-	}()
-	writerWg.Wait()
-	var readWg sync.WaitGroup
-	t.wg.Add(1)
-	readWg.Add(1)
-	go func() {
-		defer t.wg.Done()
-		readWg.Done()
-		if err := t.readerRunner.Run(); err != nil {
-			t.errors <- fmt.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
-		}
-	}()
-	readWg.Wait()
-}
-
-func (t *taskExecer) Do() error {
-	defer t.Shutdown()
-	t.Start()
-	var errors []error
-RunLoop:
-	for {
-		select {
-		case err := <-t.errors:
-			errors = append(errors, err)
-		case <-t.ctx.Done():
-			break RunLoop
-		}
-	}
-
-ErrorLoop:
-	for {
-		select {
-		case err := <-t.errors:
-			errors = append(errors, err)
-		default:
-			break ErrorLoop
-		}
-	}
-
-	s := ""
-	for i, v := range errors {
-		if i > 0 {
-			s += " "
-		}
-		s += v.Error()
-	}
-	if s != "" {
-		return fmt.Errorf("%v", s)
-	}
-	return nil
-}
-
-func (t *taskExecer) Key() string {
-	return t.key
-}
-
-func (t *taskExecer) Shutdown() {
-	t.destroy.Do(func() {
-		t.readerRunner.Shutdown()
-		t.writerRunner.Shutdown()
-		t.cancel()
-		t.wg.Wait()
-	})
-}
-
-type taskMap struct {
-	sync.Mutex
-	remain []*taskExecer
-	run    map[string]*taskExecer
-}
-
-func newTaskMap() *taskMap {
-	return &taskMap{
-		run: make(map[string]*taskExecer),
-	}
-}
-
-func (t *taskMap) isEmpty() bool {
-	t.Lock()
-	defer t.Unlock()
-	return len(t.remain)+len(t.run) == 0
-}
-
-func (t *taskMap) removeRunAndPushRemain(te *taskExecer) {
-	t.Lock()
-	defer t.Unlock()
-	t.lockedRemoveRun(te)
-	t.lockedPushRemain(te)
-}
-
-func (t *taskMap) pushRemain(te *taskExecer) {
-	t.Lock()
-	defer t.Unlock()
-	t.lockedPushRemain(te)
-}
-
-func (t *taskMap) removeRun(te *taskExecer) {
-	t.Lock()
-	defer t.Unlock()
-	t.lockedRemoveRun(te)
-}
-
-func (t *taskMap) popRemainAndAddRun() (te *taskExecer, ok bool) {
-	t.Lock()
-	defer t.Unlock()
-	te, ok = t.lockedPopRemain()
-	if ok {
-		t.lockedAddRun(te)
-	}
-	return
-}
-
-func (t *taskMap) lockedRemoveRun(te *taskExecer) {
-	t.run[te.Key()] = nil
-	delete(t.run, te.Key())
-}
-
-func (t *taskMap) lockedPushRemain(te *taskExecer) {
-	t.remain = append(t.remain, te)
-}
-
-func (t *taskMap) lockedAddRun(te *taskExecer) {
-	t.run[te.Key()] = te
-}
-
-func (t *taskMap) lockedPopRemain() (te *taskExecer, ok bool) {
-	if len(t.remain) == 0 {
-		return nil, false
-	}
-	te, ok = t.remain[0], true
-	t.remain, t.remain[0] = t.remain[1:], nil
+	}(te)
 	return
 }

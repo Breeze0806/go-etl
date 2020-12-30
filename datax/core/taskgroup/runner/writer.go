@@ -13,13 +13,11 @@ type Writer struct {
 	task     writer.Task
 }
 
-func NewWriter(ctx context.Context, task writer.Task, receiver plugin.RecordReceiver) *Writer {
+func NewWriter(task writer.Task, receiver plugin.RecordReceiver) *Writer {
 	return &Writer{
-		baseRunner: &baseRunner{
-			ctx: ctx,
-		},
-		receiver: receiver,
-		task:     task,
+		baseRunner: &baseRunner{},
+		receiver:   receiver,
+		task:       task,
 	}
 }
 
@@ -27,26 +25,30 @@ func (w *Writer) Plugin() plugin.Task {
 	return w.task
 }
 
-func (w *Writer) Run() (err error) {
+func (w *Writer) Run(ctx context.Context) (err error) {
 	defer func() {
-		if err = w.task.Destroy(w.ctx); err != nil {
-			log.Errorf("task destroy fail, err: %v", err)
+		if destroyErr := w.task.Destroy(ctx); destroyErr != nil {
+			log.Errorf("task destroy fail, err: %v", destroyErr)
 		}
 	}()
-	if err = w.task.Init(w.ctx); err != nil {
-		return err
+	if err = w.task.Init(ctx); err != nil {
+		log.Errorf("task init fail, err: %v", err)
+		return
 	}
 
-	if err = w.task.Prepare(w.ctx); err != nil {
-		return err
+	if err = w.task.Prepare(ctx); err != nil {
+		log.Errorf("task prepare fail, err: %v", err)
+		return
 	}
 
-	if err = w.task.StartWrite(w.ctx, w.receiver); err != nil {
-		return err
+	if err = w.task.StartWrite(ctx, w.receiver); err != nil {
+		log.Errorf("task startWrite fail, err: %v", err)
+		return
 	}
 
-	if err = w.task.Post(w.ctx); err != nil {
-		return err
+	if err = w.task.Post(ctx); err != nil {
+		log.Errorf("task post fail, err: %v", err)
+		return
 	}
 	return
 }

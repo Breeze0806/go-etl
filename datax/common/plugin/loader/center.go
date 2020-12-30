@@ -28,6 +28,14 @@ func RegisterWriter(name string, writer spi.Writer) {
 	}
 }
 
+func UnregisterReaders() {
+	_centor.unregisterReaders()
+}
+
+func UnregisterWriters() {
+	_centor.unregisterWriters()
+}
+
 //LoadJobPlugin 目前未正常实现该函数，仅仅是个架子
 func LoadJobPlugin(typ plugin.Type, name string) (plugin.Job, error) {
 	return &defaultJobPlugin{}, nil
@@ -125,6 +133,24 @@ func (l *centor) writer(name string) (writer spi.Writer, ok bool) {
 	defer l.writersMu.RUnlock()
 	writer, ok = l.writers[name]
 	return
+}
+
+func (l *centor) unregisterReaders() {
+	l.readersMu.Lock()
+	defer l.readersMu.Unlock()
+	for k := range l.readers {
+		l.readers[k] = nil
+	}
+	l.readers = make(map[string]spi.Reader)
+}
+
+func (l *centor) unregisterWriters() {
+	l.writersMu.Lock()
+	defer l.writersMu.Unlock()
+	for k := range l.writers {
+		l.writers[k] = nil
+	}
+	l.writers = make(map[string]spi.Writer)
 }
 
 type defaultJobPlugin struct {

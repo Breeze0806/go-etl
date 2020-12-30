@@ -439,3 +439,43 @@ func Test_defaultJobPlugin(t *testing.T) {
 		t.Errorf("Destroy() err = %v", err)
 	}
 }
+
+func TestUnregisterReaders(t *testing.T) {
+	_centor = &centor{
+		readers: map[string]spi.Reader{
+			"mock": &mockReader{},
+		},
+	}
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			UnregisterReaders()
+		})
+	}
+}
+
+func TestUnregisterWriters(t *testing.T) {
+	_centor = &centor{
+		writers: map[string]spi.Writer{
+			"mock": &mockWriter{},
+		},
+	}
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			UnregisterWriters()
+		})
+	}
+}

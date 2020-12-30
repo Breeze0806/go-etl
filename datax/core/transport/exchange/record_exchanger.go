@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrTerminate = errors.New("reader is terminated")
-	ErrEmpty     = errors.New("chan is empty")
+	ErrClose     = errors.New("chan close")
 	ErrShutdown  = errors.New("exchange is shutdowned")
 )
 
@@ -37,14 +37,14 @@ func (r *RecordExchanger) GetFromReader() (element.Record, error) {
 	}
 	record, ok := r.ch.Pop()
 	if !ok {
-		return nil, ErrEmpty
+		return nil, ErrClose
 	}
 
 	switch record.(type) {
-	case *element.DefaultRecord:
-		return record, nil
-	default:
+	case *element.TerminateRecord:
 		return nil, ErrTerminate
+	default:
+		return record, nil
 	}
 }
 

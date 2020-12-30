@@ -14,6 +14,10 @@ type BaseCotainer struct {
 	com  communication.Communication
 }
 
+func NewBaseCotainer() *BaseCotainer {
+	return &BaseCotainer{}
+}
+
 func (b *BaseCotainer) SetConfig(conf *config.Json) {
 	b.conf = conf
 }

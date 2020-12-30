@@ -9,9 +9,8 @@ import (
 type Runner interface {
 	Plugin() plugin.Task
 	Shutdown() error
-	Run() error
+	Run(ctx context.Context) error
 }
 
 type baseRunner struct {
-	ctx context.Context
 }

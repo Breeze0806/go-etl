@@ -1,8 +1,12 @@
 package job
 
-import mylog "github.com/Breeze0806/go/log"
+import (
+	"os"
 
-var log mylog.Logger
+	mylog "github.com/Breeze0806/go/log"
+)
+
+var log mylog.Logger = mylog.NewDefaultLogger(os.Stderr, mylog.DebugLevel, "[datax]")
 
 func init() {
 	mylog.RegisterInitFuncs(func() {
