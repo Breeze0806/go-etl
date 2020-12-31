@@ -22,7 +22,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "1",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -32,7 +32,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "2",
 			w: NewWriter(newMockWriterTask([]error{
 				errMockTest, nil, nil, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -42,7 +42,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "3",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, errMockTest, nil, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -52,7 +52,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "4",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, errMockTest, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -62,7 +62,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "5",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, nil, errMockTest, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -72,7 +72,7 @@ func TestWriter_Run(t *testing.T) {
 			name: "6",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, nil, nil, errMockTest,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -98,7 +98,7 @@ func TestWriter_Plugin(t *testing.T) {
 			name: "1",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			want: newMockWriterTask([]error{
 				nil, nil, nil, nil, nil,
 			}),
@@ -123,7 +123,7 @@ func TestWriter_Shutdown(t *testing.T) {
 			name: "1",
 			w: NewWriter(newMockWriterTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordReceiver{}),
+			}), &mockRecordReceiver{}, "mock"),
 			wantErr: false,
 		},
 	}

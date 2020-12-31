@@ -6,7 +6,7 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
-var log mylog.Logger = mylog.NewDefaultLogger(os.Stderr, mylog.DebugLevel, "[datax]")
+var log mylog.Logger = mylog.NewDefaultLogger(os.Stderr, mylog.InfoLevel, "[datax]")
 
 func init() {
 	mylog.RegisterInitFuncs(func() {

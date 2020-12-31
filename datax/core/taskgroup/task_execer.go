@@ -64,7 +64,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.Json, prefixKey string,
 		return nil, fmt.Errorf("reader task name (%v) does not exist", name)
 	}
 	exchanger := exchange.NewRecordExchangerWithoutTransformer(t.channel)
-	t.readerRunner = runner.NewReader(readTask, exchanger)
+	t.readerRunner = runner.NewReader(readTask, exchanger, t.key)
 
 	name, err = taskConf.GetString(coreconst.JobWriterName)
 	if err != nil {
@@ -75,7 +75,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.Json, prefixKey string,
 	if !ok {
 		return nil, fmt.Errorf("writer task name (%v) does not exist", name)
 	}
-	t.writerRunner = runner.NewWriter(writeTask, exchanger)
+	t.writerRunner = runner.NewWriter(writeTask, exchanger, t.key)
 
 	return
 }
@@ -85,7 +85,7 @@ func (t *taskExecer) Start() {
 	t.cancalMutex.Lock()
 	ctx, t.cancel = context.WithCancel(t.ctx)
 	t.cancalMutex.Unlock()
-
+	log.Debugf("taskExecer %v start to run writer", t.key)
 	t.wg.Add(1)
 	var writerWg sync.WaitGroup
 	writerWg.Add(1)
@@ -97,6 +97,7 @@ func (t *taskExecer) Start() {
 		}
 	}()
 	writerWg.Wait()
+	log.Debugf("taskExecer %v start to run reader", t.key)
 	var readerWg sync.WaitGroup
 	t.wg.Add(1)
 	readerWg.Add(1)
@@ -115,8 +116,13 @@ func (t *taskExecer) AttemptCount() int32 {
 }
 
 func (t *taskExecer) Do() error {
-	defer t.attemptCount.Inc()
+	log.Debugf("taskExecer %v start to do", t.key)
+	defer func() {
+		t.attemptCount.Inc()
+		log.Debugf("taskExecer %v end to do", t.key)
+	}()
 	t.Start()
+	log.Debugf("taskExecer %v do wait runner stop", t.key)
 	t.wg.Wait()
 
 	var errs []error
@@ -152,12 +158,15 @@ func (t *taskExecer) WriterSuportFailOverport() bool {
 }
 
 func (t *taskExecer) Shutdown() {
+	log.Debugf("taskExecer %v starts to shutdown", t.key)
+	defer log.Debugf("taskExecer %v ends to shutdown", t.key)
 	t.cancalMutex.Lock()
 	if t.cancel != nil {
 		t.cancel()
 	}
 
 	t.cancalMutex.Unlock()
+	log.Debugf("taskExecer %v shutdown wait runner stop", t.key)
 	t.wg.Wait()
 
 	t.readerRunner.Shutdown()

@@ -71,7 +71,7 @@ func (c *Container) Start() (err error) {
 		return err
 	}
 	c.scheduler = schedule.NewTaskSchduler(
-		int(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(taskConfigs))
+		int(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupMaxWorkerNumber, 4)), len(taskConfigs))
 	defer c.scheduler.Stop()
 	prefixKey := strconv.FormatInt(c.jobId, 10) + "-" + strconv.FormatInt(c.taskGroupId, 10)
 	log.Infof("datax job(%v) taskgruop(%v) manager config", c.jobId, c.taskGroupId)

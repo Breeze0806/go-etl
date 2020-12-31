@@ -25,7 +25,7 @@ func TestReader_Run(t *testing.T) {
 			name: "1",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -35,7 +35,7 @@ func TestReader_Run(t *testing.T) {
 			name: "2",
 			r: NewReader(newMockReaderTask([]error{
 				errMockTest, nil, nil, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -45,7 +45,7 @@ func TestReader_Run(t *testing.T) {
 			name: "3",
 			r: NewReader(newMockReaderTask([]error{
 				nil, errMockTest, nil, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -55,7 +55,7 @@ func TestReader_Run(t *testing.T) {
 			name: "4",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, errMockTest, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -65,7 +65,7 @@ func TestReader_Run(t *testing.T) {
 			name: "5",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, nil, errMockTest, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -75,7 +75,7 @@ func TestReader_Run(t *testing.T) {
 			name: "6",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, nil, nil, errMockTest,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -101,7 +101,7 @@ func TestReader_Plugin(t *testing.T) {
 			name: "1",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 			want: newMockReaderTask([]error{
 				nil, nil, nil, nil, nil,
 			}),
@@ -126,7 +126,7 @@ func TestReader_Shutdown(t *testing.T) {
 			name: "1",
 			r: NewReader(newMockReaderTask([]error{
 				nil, nil, nil, nil, nil,
-			}), &mockRecordSender{}),
+			}), &mockRecordSender{}, "mock"),
 
 			wantErr: false,
 		},

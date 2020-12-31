@@ -12,6 +12,7 @@ var (
 	DataxCoreContainerTaskGroupId                     = "core.container.taskGroup.id"
 	DataxCoreContainerTaskGroupSleepinterval          = "core.container.taskGroup.sleepInterval"
 	DataxCoreContainerTaskGroupReportinterval         = "core.container.taskGroup.reportInterval"
+	DataxCoreContainerTaskGroupMaxWorkerNumber        = "core.container.taskGroup.maxWorkerNumber"
 	DataxCoreContainerTaskFailoverMaxretrytimes       = "core.container.task.failover.maxRetryTimes"
 	DataxCoreContainerTaskFailoverRetryintervalinmsec = "core.container.task.failover.retryIntervalInMsec"
 	DataxCoreContainerTaskFailoverMaxwaitinmsec       = "core.container.task.failover.maxWaitInMsec"

@@ -38,7 +38,7 @@ func UnregisterWriters() {
 
 //LoadJobPlugin 目前未正常实现该函数，仅仅是个架子
 func LoadJobPlugin(typ plugin.Type, name string) (plugin.Job, error) {
-	return &defaultJobPlugin{}, nil
+	return newdefaultJobPlugin(), nil
 }
 
 func LoadReaderJob(name string) (reader.Job, bool) {
@@ -155,6 +155,12 @@ func (l *centor) unregisterWriters() {
 
 type defaultJobPlugin struct {
 	*plugin.BaseJob
+}
+
+func newdefaultJobPlugin() *defaultJobPlugin {
+	return &defaultJobPlugin{
+		BaseJob: plugin.NewBaseJob(),
+	}
 }
 
 func (d *defaultJobPlugin) Init(ctx context.Context) error {

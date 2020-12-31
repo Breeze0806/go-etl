@@ -232,7 +232,7 @@ func TestLoadJobPlugin(t *testing.T) {
 				typ:  plugin.Writer,
 				name: "1111",
 			},
-			want: &defaultJobPlugin{},
+			want: newdefaultJobPlugin(),
 		},
 	}
 	for _, tt := range tests {

@@ -41,7 +41,8 @@ type Container struct {
 
 func NewContainer(conf *config.Json) (c *Container, err error) {
 	c = &Container{
-		ctx: context.Background(),
+		BaseCotainer: core.NewBaseCotainer(),
+		ctx:          context.Background(),
 	}
 	c.SetConfig(conf)
 	c.jobId = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobId, -1)
@@ -55,6 +56,10 @@ func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobId)
 	defer c.destroy()
 	c.userConf = c.Config().CloneConfig()
+	log.Debugf("DataX jobContainer %v starts to init.", c.jobId)
+	if err = c.init(); err != nil {
+		return
+	}
 	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobId)
 	if err = c.preHandle(); err != nil {
 		return
@@ -86,20 +91,21 @@ func (c *Container) Start() (err error) {
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
 		if err = c.jobReader.Destroy(c.ctx); err != nil {
-			log.Errorf("jobReader %s destroy error: %v", c.readerPluginName, err)
+			log.Errorf("DataX jobContainer %v jobReader %s destroy error: %v",
+				c.jobId, c.readerPluginName, err)
 		}
 	}
 
 	if c.jobWriter != nil {
 		if err = c.jobWriter.Destroy(c.ctx); err != nil {
-			log.Errorf("jobWriter %s destroy error: %v", c.writerPluginName, err)
+			log.Errorf("DataX jobContainer %v jobWriter %s destroy error: %v",
+				c.jobId, c.writerPluginName, err)
 		}
 	}
 	return
 }
 
 func (c *Container) init() (err error) {
-
 	c.readerPluginName, err = c.Config().GetString(coreconst.DataxJobContentReaderName)
 	if err != nil {
 		return
@@ -126,12 +132,12 @@ func (c *Container) init() (err error) {
 	if err != nil {
 		return
 	}
-	log.Infof("reader %v inited", c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v inited", c.jobId, c.readerPluginName)
 	c.jobWriter, err = c.initWriterJob(collector, readerConfig, writerConfig)
 	if err != nil {
 		return
 	}
-	log.Infof("writer %v inited", c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v inited", c.jobId, c.writerPluginName)
 	return
 }
 
@@ -139,11 +145,11 @@ func (c *Container) prepare() (err error) {
 	if err = c.prepareReaderJob(); err != nil {
 		return err
 	}
-	log.Infof("reader %v prepared", c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v prepared", c.jobId, c.readerPluginName)
 	if err = c.prepareWriterJob(); err != nil {
 		return err
 	}
-	log.Infof("writer %v prepared", c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v prepared", c.jobId, c.writerPluginName)
 	return
 }
 
@@ -175,7 +181,7 @@ func (c *Container) split() (err error) {
 	}
 
 	taskNumber := len(readerConfs)
-	log.Infof("datax job %v reader %v split %v tasks", c.jobId, c.readerPluginName, taskNumber)
+	log.Infof("DataX jobContainer %v reader %v split %v tasks", c.jobId, c.readerPluginName, taskNumber)
 	writerConfs, err = c.jobReader.Split(c.ctx, taskNumber)
 	if err != nil {
 		return
@@ -185,7 +191,7 @@ func (c *Container) split() (err error) {
 		err = fmt.Errorf("writer split fail config is empty")
 		return
 	}
-	log.Infof("datax job %v writer %v split %v tasks", c.jobId, c.readerPluginName, len(writerConfs))
+	log.Infof("DataX jobContainer %v writer %v split %v tasks", c.jobId, c.readerPluginName, len(writerConfs))
 
 	tasksConfigs, err = c.mergeTaskConfigs(readerConfs, writerConfs)
 	if err != nil {
@@ -240,11 +246,11 @@ func (c *Container) post() (err error) {
 	if err = c.jobReader.Post(c.ctx); err != nil {
 		return err
 	}
-	log.Infof("datax job %v reader %v posted", c.jobId, c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v posted", c.jobId, c.readerPluginName)
 	if err = c.jobWriter.Post(c.ctx); err != nil {
 		return err
 	}
-	log.Infof("datax job %v writer %v posted", c.jobId, c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v posted", c.jobId, c.writerPluginName)
 	return
 }
 
@@ -259,7 +265,7 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (t
 		return
 	}
 	conf, _ := c.Config().GetConfig(coreconst.DataxJobContentTransformer)
-	log.Infof("datax job %v  tansformer config is %v", conf.String())
+	log.Infof("DataX jobContainer %v  tansformer config is %v", conf.String())
 	for i := range readerConfs {
 		var taskConfig *config.Json
 		taskConfig, err = config.NewJsonFromString("{}")
@@ -311,7 +317,7 @@ func (c *Container) adjustChannelNumber() error {
 		if needChannelNumberByByte < 1 {
 			needChannelNumberByByte = 1
 		}
-		log.Infof("job set  Max-Byte-Speed to %v bytes", globalLimitedByteSpeed)
+		log.Infof("DataX jobContainer %v set Max-Byte-Speed to %v bytes", c.jobId, globalLimitedByteSpeed)
 	}
 
 	if isRecordLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, 0) > 0; isRecordLimit {
@@ -327,7 +333,7 @@ func (c *Container) adjustChannelNumber() error {
 		if needChannelNumberByRecord < 1 {
 			needChannelNumberByByte = 1
 		}
-		log.Infof("job %v set Max-Record-Speed to %v records", c.jobId, globalLimitedRecordSpeed)
+		log.Infof("DataX jobContainer %v  set Max-Record-Speed to %v records", c.jobId, globalLimitedRecordSpeed)
 	}
 
 	if needChannelNumberByByte > needChannelNumberByRecord {
@@ -343,7 +349,7 @@ func (c *Container) adjustChannelNumber() error {
 	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
 		//此时 DataxJobSettingSpeedChannel必然存在
 		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
-		log.Infof("job %v set Channel-Number to %v channels.", c.jobId, c.needChannelNumber)
+		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobId, c.needChannelNumber)
 	}
 
 	return fmt.Errorf("job speed should be setted")

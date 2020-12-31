@@ -443,7 +443,7 @@ func TestNewContainer(t *testing.T) {
 					"core" : {
 						"container": {
 							"job":{
-								"id": "30000000",
+								"id": 30000002,
 								"sleepInterval":100
 							},
 							"taskGroup":{
