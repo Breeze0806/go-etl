@@ -108,3 +108,12 @@ func TestTaskSchduler_Size(t *testing.T) {
 		t.Errorf("Size() = %v want: 0", schduler.Size())
 	}
 }
+
+func TestTaskSchduler_Stop(t *testing.T) {
+	schduler := NewTaskSchduler(1, 0)
+	schduler.Stop()
+	_, err := schduler.Push(&mockTask{})
+	if err != ErrClose {
+		t.Errorf("Push = %v", err)
+	}
+}

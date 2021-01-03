@@ -1,5 +1,5 @@
-github.com/Breeze0806/go v0.0.0-20201221054556-044ad2224aae h1:bsI9R79DS/G/D9T6rEQ0o+jo8V9Af4gUHYiOESRqX9s=
-github.com/Breeze0806/go v0.0.0-20201221054556-044ad2224aae/go.mod h1:niKvfH8yV5Md3olFV9MOthNo1S7FqRaultp24pfAoIU=
+github.com/Breeze0806/go v0.0.0-20210103061143-9ef8afd97a59 h1:URCQKbBeVIckjyKdnYZIDIHsU2ZkVBRrxXxrAGag514=
+github.com/Breeze0806/go v0.0.0-20210103061143-9ef8afd97a59/go.mod h1:niKvfH8yV5Md3olFV9MOthNo1S7FqRaultp24pfAoIU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -15,8 +15,6 @@ github.com/tidwall/gjson v1.6.4 h1:JKsCsJqRVFz8eYCsQ5E/ANRbK6CanAtA9IUvGsXklyo=
 github.com/tidwall/gjson v1.6.4/go.mod h1:BaHyNc5bjzYkPqgLq7mdVzeiRtULKULXLgZFKsxEHI0=
 github.com/tidwall/match v1.0.1 h1:PnKP62LPNxHKTwvHHZZzdOAOCtsJTjo6dZLCwpKm5xc=
 github.com/tidwall/match v1.0.1/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
-github.com/tidwall/match v1.0.2 h1:uuqvHuBGSedK7awZ2YoAtpnimfwBGFjHuWLuLqQj+bU=
-github.com/tidwall/match v1.0.2/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
 github.com/tidwall/pretty v1.0.2 h1:Z7S3cePv9Jwm1KwS0513MRaoUe3S01WPbLNV40pwWZU=
 github.com/tidwall/pretty v1.0.2/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/tidwall/sjson v1.1.2 h1:NC5okI+tQ8OG/oyzchvwXXxRxCV/FVdhODbPKkQ25jQ=

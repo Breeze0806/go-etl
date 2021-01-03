@@ -37,6 +37,7 @@ func UnregisterWriters() {
 }
 
 //LoadJobPlugin 目前未正常实现该函数，仅仅是个架子
+// todo: 实现handle ?
 func LoadJobPlugin(typ plugin.Type, name string) (plugin.Job, error) {
 	return newdefaultJobPlugin(), nil
 }

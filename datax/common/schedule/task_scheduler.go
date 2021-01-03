@@ -21,7 +21,6 @@ type TaskSchduler struct {
 	taskWrappers chan *taskWrapper
 	wg           sync.WaitGroup
 	stop         chan struct{}
-	destroy      sync.Once
 	stopped      int32
 	size         *atomic.Int32
 }

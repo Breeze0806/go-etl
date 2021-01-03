@@ -2,6 +2,8 @@ package job
 
 import (
 	"context"
+	"encoding/json"
+	"reflect"
 
 	"github.com/Breeze0806/go-etl/datax/common/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
@@ -202,4 +204,17 @@ func (m *mockWriter) Job() writer.Job {
 
 func (m *mockWriter) Task() writer.Task {
 	return newMockWriterTask()
+}
+
+func equalConfigJson(gotConfig, wantConfig *config.Json) bool {
+	var got, want interface{}
+	err := json.Unmarshal([]byte(gotConfig.String()), &got)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(wantConfig.String()), &want)
+	if err != nil {
+		panic(err)
+	}
+	return reflect.DeepEqual(got, want)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
+	"github.com/Breeze0806/go-etl/datax/common/schedule"
 )
 
 func testContainer(ctx context.Context, conf *config.Json) *Container {
@@ -156,101 +157,7 @@ func TestContainer_DoCancel2(t *testing.T) {
 		t.Errorf("Do error: %v", err)
 	}
 }
-func TestContainer_DoStopScheduler1(t *testing.T) {
-	resetLoader()
-	loader.RegisterReader("mock", newMockRandReader([]error{
-		nil, nil, errors.New("mock test error"), nil, nil,
-	}))
-	loader.RegisterWriter("mock", newMockWriter([]error{
-		nil, nil, nil, nil, nil,
-	}))
-	content := testJsonFromString(`{
-		"core" : {
-			"container": {
-				"job":{
-					"id": 1,
-					"sleepInterval":100
-				},
-				"taskGroup":{
-					"id": 1,
-					"failover":{
-						"retryIntervalInMsec":10
-					}
-				}
-			}
-		}
-	}`)
-	for i := 0; i < 1000; i++ {
-		content.SetRawString(coreconst.DataxJobContent+fmt.Sprintf(".%d", i), fmt.Sprintf(`{
-			"taskId": %d,
-			"reader":{
-				"name":"mock"
-			},
-			"writer":{
-				"name":"mock"
-			}
-		}`, i))
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	c, _ := NewContainer(ctx, content)
-	go func() {
-		time.Sleep(200 * time.Millisecond)
-		c.scheduler.Stop()
-	}()
 
-	if err := c.Do(); err == nil {
-		t.Errorf("Do error: %v", err)
-	}
-}
-
-func TestContainer_DoStopScheduler2(t *testing.T) {
-	resetLoader()
-	loader.RegisterReader("mock", newMockRandReader([]error{
-		nil, nil, errors.New("mock test error"), nil, nil,
-	}))
-	loader.RegisterWriter("mock", newMockWriter([]error{
-		nil, nil, nil, nil, nil,
-	}))
-	content := testJsonFromString(`{
-		"core" : {
-			"container": {
-				"job":{
-					"id": 1,
-					"sleepInterval":100
-				},
-				"taskGroup":{
-					"id": 1,
-					"failover":{
-						"retryIntervalInMsec":10
-					}
-				}
-			}
-		}
-	}`)
-	for i := 0; i < 1000; i++ {
-		content.SetRawString(coreconst.DataxJobContent+fmt.Sprintf(".%d", i), fmt.Sprintf(`{
-			"taskId": %d,
-			"reader":{
-				"name":"mock"
-			},
-			"writer":{
-				"name":"mock"
-			}
-		}`, i))
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	c, _ := NewContainer(ctx, content)
-	go func() {
-		time.Sleep(4 * time.Second)
-		c.scheduler.Stop()
-	}()
-
-	if err := c.Do(); err == nil {
-		t.Errorf("Do error: %v", err)
-	}
-}
 func TestContainer_JobId(t *testing.T) {
 	tests := []struct {
 		name string
@@ -471,5 +378,46 @@ func TestNewContainer(t *testing.T) {
 				t.Errorf("NewContainer() = %v, want %v", gotC, tt.wantC)
 			}
 		})
+	}
+}
+
+func TestContainer_startTaskExecer(t *testing.T) {
+	resetLoader()
+	loader.RegisterReader("mock", newMockRandReader([]error{
+		nil, nil, errors.New("mock test error"), nil, nil,
+	}))
+	loader.RegisterWriter("mock", newMockWriter([]error{
+		nil, nil, nil, nil, nil,
+	}))
+
+	c := testContainer(context.Background(), testJsonFromString(`{
+		"core" : {
+			"container": {
+				"job":{
+					"id": 30000000,
+					"sleepInterval":100
+				},
+				"taskGroup":{
+					"id": 30000001,
+					"failover":{
+						"retryIntervalInMsec":0
+					}
+				}
+			}
+		}
+	}`))
+	c.scheduler = schedule.NewTaskSchduler(4, 0)
+	c.scheduler.Stop()
+	te, _ := newTaskExecer(c.ctx, testJsonFromString(`{
+		"taskId": 1,
+		"reader":{
+			"name":"mock"
+		},
+		"writer":{
+			"name":"mock"
+		}
+	}`), "mock", 0)
+	if err := c.startTaskExecer(te); err != nil {
+		t.Errorf("Container.startTaskExecer() error = %v, wantErr true", err)
 	}
 }

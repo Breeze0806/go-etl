@@ -1,5 +1,5 @@
 package communication
 
-//Communication 暂时未实现
+//Communication todo 暂时未实现
 type Communication struct {
 }

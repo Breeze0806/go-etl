@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
+	"strconv"
 	"sync"
 
 	"github.com/Breeze0806/go-etl/datax/common/config"
@@ -56,12 +58,13 @@ func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobId)
 	defer c.destroy()
 	c.userConf = c.Config().CloneConfig()
-	log.Debugf("DataX jobContainer %v starts to init.", c.jobId)
-	if err = c.init(); err != nil {
-		return
-	}
+
 	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobId)
 	if err = c.preHandle(); err != nil {
+		return
+	}
+	log.Infof("DataX jobContainer %v starts to init.", c.jobId)
+	if err = c.init(); err != nil {
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to prepare.", c.jobId)
@@ -90,16 +93,18 @@ func (c *Container) Start() (err error) {
 
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
-		if err = c.jobReader.Destroy(c.ctx); err != nil {
+		if rerr := c.jobReader.Destroy(c.ctx); rerr != nil {
 			log.Errorf("DataX jobContainer %v jobReader %s destroy error: %v",
-				c.jobId, c.readerPluginName, err)
+				c.jobId, c.readerPluginName, rerr)
+			err = rerr
 		}
 	}
 
 	if c.jobWriter != nil {
-		if err = c.jobWriter.Destroy(c.ctx); err != nil {
+		if werr := c.jobWriter.Destroy(c.ctx); werr != nil {
 			log.Errorf("DataX jobContainer %v jobWriter %s destroy error: %v",
-				c.jobId, c.writerPluginName, err)
+				c.jobId, c.writerPluginName, werr)
+			err = werr
 		}
 	}
 	return
@@ -176,19 +181,19 @@ func (c *Container) split() (err error) {
 	}
 
 	if len(readerConfs) == 0 {
-		err = fmt.Errorf("reader split fail config is empty")
+		err = fmt.Errorf("reader split fail, config is empty")
 		return
 	}
 
 	taskNumber := len(readerConfs)
 	log.Infof("DataX jobContainer %v reader %v split %v tasks", c.jobId, c.readerPluginName, taskNumber)
-	writerConfs, err = c.jobReader.Split(c.ctx, taskNumber)
+	writerConfs, err = c.jobWriter.Split(c.ctx, taskNumber)
 	if err != nil {
 		return
 	}
 
 	if len(writerConfs) == 0 {
-		err = fmt.Errorf("writer split fail config is empty")
+		err = fmt.Errorf("writer split fail, config is empty")
 		return
 	}
 	log.Infof("DataX jobContainer %v writer %v split %v tasks", c.jobId, c.readerPluginName, len(writerConfs))
@@ -208,25 +213,26 @@ func (c *Container) split() (err error) {
 
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.Json
-	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
+	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
 	if err != nil {
 		return err
 	}
-	//todo worknumber?
-	c.taskSchduler = schedule.NewTaskSchduler(len(tasksConfigs), len(tasksConfigs))
 
+	c.taskSchduler = schedule.NewTaskSchduler(int(c.Config().GetInt64OrDefaullt(
+		coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(tasksConfigs))
+	defer c.taskSchduler.Stop()
 	for i := range tasksConfigs {
 		var taskGroup *taskgroup.Container
 		taskGroup, err = taskgroup.NewContainer(c.ctx, tasksConfigs[i])
 		if err != nil {
-			return err
+			goto End
 		}
 		c.wg.Add(1)
 		var errChan <-chan error
 		errChan, err = c.taskSchduler.Push(taskGroup)
 		if err != nil {
 			c.wg.Done()
-			return err
+			goto End
 		}
 
 		go func() {
@@ -237,8 +243,9 @@ func (c *Container) schedule() (err error) {
 			}
 		}()
 	}
+End:
 	c.wg.Wait()
-	c.taskSchduler.Stop()
+
 	return
 }
 
@@ -264,14 +271,10 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (t
 	if err != nil {
 		return
 	}
-	conf, _ := c.Config().GetConfig(coreconst.DataxJobContentTransformer)
-	log.Infof("DataX jobContainer %v  tansformer config is %v", conf.String())
+	log.Infof("DataX jobContainer %v  tansformer config is %v", c.jobId, transformConfs)
 	for i := range readerConfs {
 		var taskConfig *config.Json
-		taskConfig, err = config.NewJsonFromString("{}")
-		if err != nil {
-			return
-		}
+		taskConfig, _ = config.NewJsonFromString("{}")
 		err = taskConfig.Set(coreconst.JobReaderName, c.readerPluginName)
 		if err != nil {
 			return
@@ -290,12 +293,51 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (t
 			return
 		}
 		if len(transformConfs) != 0 {
-			err = taskConfig.SetRawString(coreconst.JobTransformer, conf.String())
+			err = taskConfig.Set(coreconst.JobTransformer, transformConfs)
 			if err != nil {
 				return
 			}
 		}
+		taskConfig.Set(coreconst.TaskId, i)
 		taskConfigs = append(taskConfigs, taskConfig)
+	}
+	return
+}
+
+func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.Json, err error) {
+	var tasksConfigs []*config.Json
+	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
+	if err != nil {
+		return
+	}
+
+	channelsPerTaskGroup := c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskgroupChannel, 5)
+	channelNumber := c.needChannelNumber
+	if channelNumber > int64(len(tasksConfigs)) {
+		channelNumber = int64(len(tasksConfigs))
+	}
+	taskGroupNumber := int(math.Ceil(1.0 * float64(channelNumber) / float64(channelsPerTaskGroup)))
+	taskIdMap := parseAndGetResourceMarkAndTaskIdMap(tasksConfigs)
+	ss := doAssign(taskIdMap, taskGroupNumber)
+	template := c.Config().CloneConfig()
+	if err = template.Remove(coreconst.DataxJobContent); err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < taskGroupNumber; i++ {
+		conf := template.CloneConfig()
+		if err = conf.Set(coreconst.DataxCoreContainerTaskGroupId, i); err != nil {
+			return nil, err
+		}
+		confs = append(confs, conf)
+	}
+
+	for i, v := range ss {
+		for j, vj := range v {
+			if err = confs[i].Set(coreconst.DataxJobContent+"."+strconv.Itoa(j), tasksConfigs[vj]); err != nil {
+				return nil, err
+			}
+		}
 	}
 	return
 }
@@ -321,28 +363,28 @@ func (c *Container) adjustChannelNumber() error {
 	}
 
 	if isRecordLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, 0) > 0; isRecordLimit {
-		globalLimitedRecordSpeed := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedByte, 10*1024*1024)
-		channelLimitedRecordSpeed, err := c.Config().GetInt64(coreconst.DataxCoreTransportChannelSpeedByte)
+		globalLimitedRecordSpeed := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, 10*1024*1024)
+		channelLimitedRecordSpeed, err := c.Config().GetInt64(coreconst.DataxCoreTransportChannelSpeedRecord)
 		if err != nil {
 			return err
 		}
 		if channelLimitedRecordSpeed <= 0 {
 			return fmt.Errorf("%v should be positive", coreconst.DataxCoreTransportChannelSpeedByte)
 		}
+
 		needChannelNumberByRecord = globalLimitedRecordSpeed / channelLimitedRecordSpeed
 		if needChannelNumberByRecord < 1 {
-			needChannelNumberByByte = 1
+			needChannelNumberByRecord = 1
 		}
 		log.Infof("DataX jobContainer %v  set Max-Record-Speed to %v records", c.jobId, globalLimitedRecordSpeed)
 	}
-
 	if needChannelNumberByByte > needChannelNumberByRecord {
 		c.needChannelNumber = needChannelNumberByRecord
 	} else {
 		c.needChannelNumber = needChannelNumberByByte
 	}
 
-	if c.needChannelNumber <= math.MaxInt32 {
+	if c.needChannelNumber < math.MaxInt32 {
 		return nil
 	}
 
@@ -350,6 +392,7 @@ func (c *Container) adjustChannelNumber() error {
 		//此时 DataxJobSettingSpeedChannel必然存在
 		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
 		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobId, c.needChannelNumber)
+		return nil
 	}
 
 	return fmt.Errorf("job speed should be setted")
@@ -451,4 +494,46 @@ func (c *Container) postHandle() (err error) {
 		return
 	}
 	return
+}
+
+func doAssign(taskIdMap map[string][]int, taskGroupNumber int) [][]int {
+	taskGroups := make([][]int, taskGroupNumber)
+	var taskMasks []string
+	var maxLen int = 0
+	for k, v := range taskIdMap {
+		if maxLen < len(v) {
+			maxLen = len(v)
+		}
+		taskMasks = append(taskMasks, k)
+	}
+
+	sort.Sort(sort.StringSlice(taskMasks))
+
+	index := 0
+	for i := 0; i < maxLen; i++ {
+		for _, v := range taskMasks {
+			if len(taskIdMap[v]) > 0 {
+				last := 0
+				last, taskIdMap[v] = taskIdMap[v][0], taskIdMap[v][1:]
+				taskGroups[index%taskGroupNumber] = append(taskGroups[index%taskGroupNumber], last)
+				index++
+			}
+		}
+	}
+	return taskGroups
+}
+
+func parseAndGetResourceMarkAndTaskIdMap(tasksConfigs []*config.Json) map[string][]int {
+	writerMap := make(map[string][]int)
+	readerMap := make(map[string][]int)
+	for i, v := range tasksConfigs {
+		key := v.GetStringOrDefaullt(coreconst.JobReaderParameterLoadBalanceResourceMark, "aFakeResourceMarkForLoadBalance")
+		readerMap[key] = append(readerMap[key], i)
+		key = v.GetStringOrDefaullt(coreconst.JobWriterParameterLoadBalanceResourceMark, "aFakeResourceMarkForLoadBalance")
+		writerMap[key] = append(writerMap[key], i)
+	}
+	if len(readerMap) > len(writerMap) {
+		return readerMap
+	}
+	return writerMap
 }
