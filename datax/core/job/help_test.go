@@ -21,7 +21,7 @@ func testJsonFromString(s string) *config.Json {
 }
 
 func testContainer(conf *config.Json) *Container {
-	c, err := NewContainer(conf)
+	c, err := NewContainer(context.TODO(), conf)
 	if err != nil {
 		panic(err)
 	}

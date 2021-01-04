@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"errors"
 	"math"
 	"reflect"
@@ -70,7 +71,7 @@ func TestNewContainer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotC, err := NewContainer(tt.args.conf)
+			gotC, err := NewContainer(context.TODO(), tt.args.conf)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewContainer() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -3103,6 +3104,432 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 					t.Fatalf("Container.distributeTaskIntoTaskGroup()[%v]  = %v, wantTaskConfigs[%v]] = %v",
 						i, gotConfs[i], i, tt.wantConfs[i])
 				}
+			}
+		})
+	}
+}
+
+func TestContainer_Start(t *testing.T) {
+
+	resetLoader()
+	loader.RegisterReader("mock", newMockReader([]error{
+		nil, nil, nil, nil, nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+
+	loader.RegisterReader("mock0", newMockReader([]error{
+		errors.New("mock test error"), nil, nil, nil, nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+
+	loader.RegisterReader("mock1", newMockReader([]error{
+		nil, errors.New("mock test error"), nil, nil, nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+
+	loader.RegisterReader("mock2", newMockReader([]error{
+		nil, nil, errors.New("mock test error"), nil, nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+	loader.RegisterReader("mock3", newMockReader([]error{
+		nil, nil, nil, errors.New("mock test error"), nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+	loader.RegisterReader("mock4", newMockReader([]error{
+		nil, nil, nil, nil, errors.New("mock test error"),
+	}, []*config.Json{
+		testJsonFromString(`{"id":1}`),
+		testJsonFromString(`{"id":2}`),
+		testJsonFromString(`{"id":3}`),
+	}))
+	loader.RegisterWriter("mock", newMockWriter([]error{
+		nil, nil, nil, nil, nil,
+	}, []*config.Json{
+		testJsonFromString(`{"id":4}`),
+		testJsonFromString(`{"id":5}`),
+		testJsonFromString(`{"id":6}`),
+	}))
+	tests := []struct {
+		name    string
+		c       *Container
+		wantErr bool
+	}{
+		{
+			name: "1",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+		},
+
+		{
+			name: "2",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": 1
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+
+		{
+			name: "3",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": 1
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+
+		{
+			name: "4",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock1",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+		{
+			name: "5",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock2",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+		{
+			name: "6",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock3",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+		{
+			name: "7",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock4",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+
+			wantErr: false,
+		},
+
+		{
+			name: "8",
+			c: testContainer(testJsonFromString(`{
+				"core": {
+					"container": {
+						"job": {
+							"id": 1
+						},
+						"taskGroup": {
+							"channel": 2
+						}
+					}
+				},
+				"job": {
+					"preHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"postHandler": {
+						"pluginType": "handler",
+						"pluginName": "mock"
+					},
+					"setting": {
+						"speed": {
+							"channel": 4
+						}
+					},
+					"content": [{
+						"reader": {
+							"name": "mock0",
+							"parameter": {
+			
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {}
+						},
+						"transformer": ["1", "2"]
+					}]
+				}
+			}`)),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.c.Start(); (err != nil) != tt.wantErr {
+				t.Errorf("Container.Start() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

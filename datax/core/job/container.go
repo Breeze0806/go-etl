@@ -41,10 +41,10 @@ type Container struct {
 	wg                     sync.WaitGroup
 }
 
-func NewContainer(conf *config.Json) (c *Container, err error) {
+func NewContainer(ctx context.Context, conf *config.Json) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
-		ctx:          context.Background(),
+		ctx:          ctx,
 	}
 	c.SetConfig(conf)
 	c.jobId = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobId, -1)
