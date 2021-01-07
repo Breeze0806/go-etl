@@ -1,30 +1,28 @@
-package channel
+package element
 
 import (
 	"fmt"
 	"sync"
 	"testing"
-
-	"github.com/Breeze0806/go-etl/datax/common/element"
 )
 
 type mockRecord struct {
 	i int
 }
 
-func (m *mockRecord) Add(element.Column) error {
+func (m *mockRecord) Add(Column) error {
 	return nil
 }
 
-func (m *mockRecord) GetByIndex(i int) (element.Column, error) {
+func (m *mockRecord) GetByIndex(i int) (Column, error) {
 	return nil, nil
 }
 
-func (m *mockRecord) GetByName(name string) (element.Column, error) {
+func (m *mockRecord) GetByName(name string) (Column, error) {
 	return nil, nil
 }
 
-func (m *mockRecord) Set(i int, c element.Column) error {
+func (m *mockRecord) Set(i int, c Column) error {
 	return nil
 }
 
@@ -105,7 +103,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PushBackAll(func() (element.Record, error) {
+		c.PushBackAll(func() (Record, error) {
 			if i == 1500 {
 				return nil, fmt.Errorf("test over")
 			}
@@ -118,7 +116,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PushBackAll(func() (element.Record, error) {
+		c.PushBackAll(func() (Record, error) {
 			if i == 1500 {
 				return nil, fmt.Errorf("test over")
 			}
@@ -131,7 +129,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PopFrontAll(func(element.Record) error {
+		c.PopFrontAll(func(Record) error {
 			if i == 999 {
 				return fmt.Errorf("test over")
 			}
@@ -144,7 +142,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PopFrontAll(func(element.Record) error {
+		c.PopFrontAll(func(Record) error {
 			if i == 999 {
 				return fmt.Errorf("test over")
 			}
@@ -158,7 +156,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PopFrontAll(func(element.Record) error {
+		c.PopFrontAll(func(Record) error {
 			if i == 999 {
 				return fmt.Errorf("test over")
 			}
@@ -185,7 +183,7 @@ func TestRecordChan_Close(t *testing.T) {
 	var err error
 	go func() {
 		defer wg.Done()
-		err = c.PopFrontAll(func(element.Record) error {
+		err = c.PopFrontAll(func(Record) error {
 			return nil
 		})
 	}()
@@ -207,7 +205,7 @@ func TestRecordChan_Close(t *testing.T) {
 		}
 		t.Log(myerr)
 	}()
-	c.PushBack(element.NewDefaultRecord())
+	c.PushBack(NewDefaultRecord())
 }
 
 func TestRecordChan_Order(t *testing.T) {
@@ -219,7 +217,7 @@ func TestRecordChan_Order(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PushBackAll(func() (element.Record, error) {
+		c.PushBackAll(func() (Record, error) {
 			i++
 			if i == 1001 {
 				return nil, fmt.Errorf("test over")
@@ -232,7 +230,7 @@ func TestRecordChan_Order(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		c.PopFrontAll(func(r element.Record) error {
+		c.PopFrontAll(func(r Record) error {
 			i++
 			if r.(*mockRecord).i != i {
 				err = fmt.Errorf("got ：%v want: %v", r.(*mockRecord).i, i)

@@ -3,8 +3,8 @@ package runner
 import (
 	"context"
 
-	"github.com/Breeze0806/go-etl/datax/common/element"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/element"
 )
 
 type mockTaskPlugin struct {

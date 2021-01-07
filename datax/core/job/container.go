@@ -8,17 +8,17 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/Breeze0806/go-etl/datax/common/config"
+	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
-	"github.com/Breeze0806/go-etl/datax/common/schedule"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/common/util"
 	"github.com/Breeze0806/go-etl/datax/core"
 	statplugin "github.com/Breeze0806/go-etl/datax/core/statistics/container/plugin"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
+	"github.com/Breeze0806/go-etl/schedule"
 )
 
 type Container struct {

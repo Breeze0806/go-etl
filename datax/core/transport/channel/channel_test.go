@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/common/element"
+	"github.com/Breeze0806/go-etl/element"
 )
 
 func TestChannel_PushPop(t *testing.T) {

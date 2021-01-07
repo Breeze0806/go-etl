@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/common/config"
+	"github.com/Breeze0806/go-etl/config"
 )
 
 func TestBasePlugin(t *testing.T) {

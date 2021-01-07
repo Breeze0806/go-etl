@@ -3,9 +3,9 @@ package exchange
 import (
 	"errors"
 
-	"github.com/Breeze0806/go-etl/datax/common/element"
 	"github.com/Breeze0806/go-etl/datax/core/transport/channel"
 	"github.com/Breeze0806/go-etl/datax/transform"
+	"github.com/Breeze0806/go-etl/element"
 )
 
 var (

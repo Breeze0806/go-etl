@@ -3,7 +3,7 @@ package plugin
 import (
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/common/config"
+	"github.com/Breeze0806/go-etl/config"
 )
 
 func testJsonFromString(s string) *config.Json {

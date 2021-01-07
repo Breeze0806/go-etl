@@ -4,8 +4,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/common/element"
 	"github.com/Breeze0806/go-etl/datax/core/transport/channel"
+	"github.com/Breeze0806/go-etl/element"
 )
 
 type mockRecord struct {

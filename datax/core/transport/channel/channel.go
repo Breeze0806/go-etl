@@ -1,14 +1,14 @@
 package channel
 
-import "github.com/Breeze0806/go-etl/datax/common/element"
+import "github.com/Breeze0806/go-etl/element"
 
 type Channel struct {
-	records *RecordChan
+	records *element.RecordChan
 }
 
 func NewChannel() (*Channel, error) {
 	return &Channel{
-		records: NewRecordChan(),
+		records: element.NewRecordChan(),
 	}, nil
 }
 

@@ -1,6 +1,6 @@
 package transform
 
-import "github.com/Breeze0806/go-etl/datax/common/element"
+import "github.com/Breeze0806/go-etl/element"
 
 type Transformer interface {
 	DoTransform(element.Record) (element.Record, error)

@@ -1,17 +1,15 @@
-package channel
+package element
 
 import (
 	"sync"
-
-	"github.com/Breeze0806/go-etl/datax/common/element"
 )
 
 type RecordChan struct {
 	lock sync.Mutex
 	cond *sync.Cond
 
-	data []element.Record
-	buff []element.Record
+	data []Record
+	buff []Record
 
 	waits  int
 	closed bool
@@ -28,7 +26,7 @@ func NewRecordChanBuffer(n int) *RecordChan {
 		n = DefaultRequestChanBuffer
 	}
 	var ch = &RecordChan{
-		buff: make([]element.Record, n),
+		buff: make([]Record, n),
 	}
 	ch.cond = sync.NewCond(&ch.lock)
 	return ch
@@ -50,21 +48,21 @@ func (c *RecordChan) Buffered() int {
 	return n
 }
 
-func (c *RecordChan) PushBack(r element.Record) int {
+func (c *RecordChan) PushBack(r Record) int {
 	c.lock.Lock()
 	n := c.lockedPushBack(r)
 	c.lock.Unlock()
 	return n
 }
 
-func (c *RecordChan) PopFront() (element.Record, bool) {
+func (c *RecordChan) PopFront() (Record, bool) {
 	c.lock.Lock()
 	r, ok := c.lockedPopFront()
 	c.lock.Unlock()
 	return r, ok
 }
 
-func (c *RecordChan) lockedPushBack(r element.Record) int {
+func (c *RecordChan) lockedPushBack(r Record) int {
 	if c.closed {
 		panic("send on closed chan")
 	}
@@ -75,7 +73,7 @@ func (c *RecordChan) lockedPushBack(r element.Record) int {
 	return len(c.data)
 }
 
-func (c *RecordChan) lockedPopFront() (element.Record, bool) {
+func (c *RecordChan) lockedPopFront() (Record, bool) {
 	for len(c.data) == 0 {
 		if c.closed {
 			return nil, false
@@ -90,7 +88,7 @@ func (c *RecordChan) lockedPopFront() (element.Record, bool) {
 	return r, true
 }
 
-func (c *RecordChan) PushBackAll(fetchRecord func() (element.Record, error)) error {
+func (c *RecordChan) PushBackAll(fetchRecord func() (Record, error)) error {
 	for {
 		r, err := fetchRecord()
 		if err != nil {
@@ -100,7 +98,7 @@ func (c *RecordChan) PushBackAll(fetchRecord func() (element.Record, error)) err
 	}
 }
 
-func (c *RecordChan) PopFrontAll(onRecord func(element.Record) error) error {
+func (c *RecordChan) PopFrontAll(onRecord func(Record) error) error {
 	for {
 		r, ok := c.PopFront()
 		if ok {
