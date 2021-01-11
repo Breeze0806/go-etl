@@ -14,7 +14,18 @@ func TestTransformError_Error(t *testing.T) {
 	}{
 		{
 			name: "1",
-			e:    NewTransformError(TypeString, TypeBigInt, fmt.Errorf("test")),
+			e:    NewTransformErrorFormColumnTypes(TypeString, TypeBigInt, fmt.Errorf("test")),
+			want: "test",
+		},
+		{
+			name: "2",
+			e:    NewTransformErrorFormColumnTypes(TypeString, TypeBigInt, (NewTransformErrorFormColumnTypes(TypeString, TypeBigInt, fmt.Errorf("test1")))),
+			want: "test1",
+		},
+
+		{
+			name: "3",
+			e:    NewTransformErrorFormColumnTypes(TypeString, TypeBigInt, nil),
 			want: "transform",
 		},
 	}
@@ -36,6 +47,16 @@ func TestSetError_Error(t *testing.T) {
 		{
 			name: "1",
 			e:    NewSetError(TypeString, TypeBigInt, fmt.Errorf("test")),
+			want: "test",
+		},
+		{
+			name: "2",
+			e:    NewSetError(TypeString, TypeBigInt, NewSetError(TypeString, TypeBigInt, fmt.Errorf("test1"))),
+			want: "test1",
+		},
+		{
+			name: "3",
+			e:    NewSetError(TypeString, TypeBigInt, NewSetError(TypeString, TypeBigInt, nil)),
 			want: "set",
 		},
 	}

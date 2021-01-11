@@ -3,42 +3,50 @@ package database
 import (
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 
 	"github.com/Breeze0806/go-etl/element"
 )
 
-type Type int
+type GoType int
 
-const (
-	TypeUnknow Type = iota
-	TypeBool
-	TypeInt64
-	TypeUint64
-	TypeBigInt
-	TypeFloat64
-	TypeDecimal
-	TypeString
-	TypeBytes
-	TypeTime
+var (
+	ErrNotValuerGoType = errors.New("field type is not ValuerGoType")
 )
 
-var typeMap = map[Type]string{
-	TypeUnknow:  "unknow",
-	TypeBool:    "bool",
-	TypeInt64:   "int64",
-	TypeUint64:  "uint64",
-	TypeBigInt:  "bigInt",
-	TypeFloat64: "float64",
-	TypeDecimal: "decimal",
-	TypeString:  "string",
-	TypeBytes:   "bytes",
-	TypeTime:    "time",
+const (
+	GoTypeUnknow GoType = iota
+	GoTypeBool
+	GoTypeInt8
+	GoTypeInt16
+	GoTypeInt32
+	GoTypeInt64
+	GoTypeFloat32
+	GoTypeFloat64
+	GoTypeDecimal
+	GoTypeString
+	GoTypeBytes
+	GoTypeTime
+)
+
+var goTypeMap = map[GoType]string{
+	GoTypeUnknow:  "unknow",
+	GoTypeBool:    "bool",
+	GoTypeInt8:    "int8",
+	GoTypeInt16:   "int16",
+	GoTypeInt32:   "int32",
+	GoTypeInt64:   "int64",
+	GoTypeFloat32: "float32",
+	GoTypeFloat64: "float64",
+	GoTypeString:  "string",
+	GoTypeBytes:   "bytes",
+	GoTypeTime:    "time",
 }
 
-func (t Type) String() string {
-	if s, ok := typeMap[t]; ok {
+func (t GoType) String() string {
+	if s, ok := goTypeMap[t]; ok {
 		return s
 	}
 	return "unknow"
@@ -73,7 +81,10 @@ type FieldType interface {
 	ScanType() reflect.Type
 	Nullable() (nullable, ok bool)
 	DatabaseTypeName() string
-	Type() Type
+}
+
+type ValuerGoType interface {
+	GoType() GoType
 }
 
 type BaseField struct {
@@ -108,4 +119,58 @@ func NewBaseFieldType(columnType *sql.ColumnType) *BaseFieldType {
 	return &BaseFieldType{
 		ColumnType: columnType,
 	}
+}
+
+type BaseScanner struct {
+	c element.Column
+}
+
+func (b *BaseScanner) SetColumn(c element.Column) {
+	b.c = c
+}
+
+func (b *BaseScanner) Column() element.Column {
+	return b.c
+}
+
+type GoValuer struct {
+	f Field
+	c element.Column
+}
+
+func NewGoValuer(f Field, c element.Column) *GoValuer {
+	return &GoValuer{
+		f: f,
+		c: c,
+	}
+}
+
+func (g *GoValuer) Value() (driver.Value, error) {
+	typ, ok := g.f.Type().(ValuerGoType)
+	if !ok {
+		return nil, ErrNotValuerGoType
+	}
+	switch typ.GoType() {
+	case GoTypeBool:
+		return g.c.AsBool()
+	case GoTypeInt8:
+		return g.c.AsInt8()
+	case GoTypeInt16:
+		return g.c.AsInt16()
+	case GoTypeInt32:
+		return g.c.AsInt32()
+	case GoTypeInt64:
+		return g.c.AsInt64()
+	case GoTypeFloat32:
+		return g.c.AsFloat32()
+	case GoTypeFloat64:
+		return g.c.AsFloat64()
+	case GoTypeString:
+		return g.c.AsString()
+	case GoTypeBytes:
+		return g.c.AsBytes()
+	case GoTypeTime:
+		return g.c.AsTime()
+	}
+	return nil, fmt.Errorf("%v type", typ.GoType())
 }

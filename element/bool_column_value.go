@@ -75,7 +75,7 @@ func (b *BoolColumnValue) AsBytes() ([]byte, error) {
 }
 
 func (b *BoolColumnValue) AsTime() (time.Time, error) {
-	return time.Time{}, NewTransformError(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
+	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
 
 func (b *BoolColumnValue) String() string {

@@ -84,7 +84,7 @@ func (b *BigIntColumnValue) AsBytes() ([]byte, error) {
 }
 
 func (b *BigIntColumnValue) AsTime() (time.Time, error) {
-	return time.Time{}, NewTransformError(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
+	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
 
 func (b *BigIntColumnValue) String() string {

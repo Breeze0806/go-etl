@@ -1,6 +1,6 @@
 module github.com/Breeze0806/go-etl
 
-go 1.15
+go 1.11
 
 require (
 	github.com/Breeze0806/go v0.0.0-20210107031505-04c665dd8036

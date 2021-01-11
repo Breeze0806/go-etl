@@ -249,7 +249,17 @@ func TestStringColumnValue_AsDecimal(t *testing.T) {
 			want: testDecimalFormString("12345.6"),
 		},
 		{
-			name:    "6",
+			name: "6",
+			s:    NewStringColumnValue("1e100").(*StringColumnValue),
+			want: testDecimalFormString("1e100"),
+		},
+		{
+			name:    "7",
+			s:       NewStringColumnValue("1.23456e4adad").(*StringColumnValue),
+			wantErr: true,
+		},
+		{
+			name:    "8",
 			s:       NewStringColumnValue("1.23456e4adad").(*StringColumnValue),
 			wantErr: true,
 		},

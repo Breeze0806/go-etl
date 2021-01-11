@@ -19,7 +19,7 @@ type BaseSource struct {
 
 func NewBaseSource(conf *config.Json) *BaseSource {
 	return &BaseSource{
-		conf: conf,
+		conf: conf.CloneConfig(),
 	}
 }
 

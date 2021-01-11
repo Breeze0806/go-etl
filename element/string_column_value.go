@@ -53,7 +53,7 @@ func (s *StringColumnValue) Type() ColumnType {
 func (s *StringColumnValue) AsBool() (v bool, err error) {
 	v, err = strconv.ParseBool(s.val)
 	if err != nil {
-		return false, NewTransformError(s.Type(), TypeBool, fmt.Errorf("err: %v, val: %v ", err, s.val))
+		return false, NewTransformErrorFormColumnTypes(s.Type(), TypeBool, fmt.Errorf("err: %v, val: %v ", err, s.val))
 	}
 	return
 }
@@ -61,7 +61,7 @@ func (s *StringColumnValue) AsBool() (v bool, err error) {
 func (s *StringColumnValue) AsBigInt() (*big.Int, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
-		return nil, NewTransformError(s.Type(), TypeBigInt, fmt.Errorf("err: %v, val: %v ", err, s.val))
+		return nil, NewTransformErrorFormColumnTypes(s.Type(), TypeBigInt, fmt.Errorf("err: %v, val: %v ", err, s.val))
 	}
 	return v.AsBigInt()
 }
@@ -69,7 +69,8 @@ func (s *StringColumnValue) AsBigInt() (*big.Int, error) {
 func (s *StringColumnValue) AsDecimal() (decimal.Decimal, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
-		return decimal.Decimal{}, NewTransformError(s.Type(), TypeDecimal, fmt.Errorf("err: %v, val: %v ", err, s.val))
+		return decimal.Decimal{}, NewTransformErrorFormColumnTypes(s.Type(), TypeDecimal,
+			fmt.Errorf("err: %v, val: %v ", err, s.val))
 	}
 	return v.AsDecimal()
 }
@@ -85,7 +86,7 @@ func (s *StringColumnValue) AsBytes() ([]byte, error) {
 func (s *StringColumnValue) AsTime() (t time.Time, err error) {
 	t, err = s.TimeEncode(s.val)
 	if err != nil {
-		return time.Time{}, NewTransformError(s.Type(), TypeTime, fmt.Errorf(" val: %v", s.val))
+		return time.Time{}, NewTransformErrorFormColumnTypes(s.Type(), TypeTime, fmt.Errorf(" val: %v", s.val))
 	}
 	return
 }

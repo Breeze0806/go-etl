@@ -1,8 +1,10 @@
 package element
 
 import (
+	"math"
 	"math/big"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -339,32 +341,6 @@ func TestDefaultColumn_MemorySize(t *testing.T) {
 	}
 }
 
-func TestColumnType_IsSupported(t *testing.T) {
-	tests := []struct {
-		name string
-		c    ColumnType
-		want bool
-	}{
-		{
-			name: "1",
-			c:    TypeBigInt,
-			want: true,
-		},
-		{
-			name: "2",
-			c:    TypeUnknown,
-			want: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.IsSupported(); got != tt.want {
-				t.Errorf("ColumnType.IsSupported() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestColumnType_String(t *testing.T) {
 	tests := []struct {
 		name string
@@ -373,14 +349,286 @@ func TestColumnType_String(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c:    ColumnType(100),
-			want: "unknown",
+			c:    ColumnType("yyy"),
+			want: "yyy",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.c.String(); got != tt.want {
 				t.Errorf("ColumnType.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsInt8(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    int8
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("13.34"), "test", 0).(*DefaultColumn),
+			want:    13,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("129"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "4",
+			d:       NewDefaultColumn(NewStringColumnValue("1e22"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsInt8()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsInt8() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsInt8() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsInt16(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    int16
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("13.34"), "test", 0).(*DefaultColumn),
+			want:    13,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("6e4"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "4",
+			d:       NewDefaultColumn(NewStringColumnValue("1e22"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsInt16()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsInt16() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsInt16() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsInt32(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    int32
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("13.34"), "test", 0).(*DefaultColumn),
+			want:    13,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("1e10"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "4",
+			d:       NewDefaultColumn(NewStringColumnValue("1e22"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsInt32()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsInt32() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsInt32() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsInt64(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    int64
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("1e10"), "test", 0).(*DefaultColumn),
+			want:    10000000000,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("1e22"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsInt64()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsInt64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsInt64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsFloat32(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    float32
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("-1.23456789e10"), "test", 0).(*DefaultColumn),
+			want:    -1.23456789e10,
+			wantErr: false,
+		},
+		{
+			name: "2",
+			d: NewDefaultColumn(NewStringColumnValue(strconv.FormatFloat(float64(math.MaxFloat32),
+				'f', -1, 32)), "test", 0).(*DefaultColumn),
+			want:    float32(math.MaxFloat32),
+			wantErr: false,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "4",
+			d:       NewDefaultColumn(NewStringColumnValue("1e100"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsFloat32()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsFloat32() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsFloat32() = %v errror: %v, want %v", got, err, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_AsFloat64(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    float64
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDefaultColumn(NewStringColumnValue("-1.23456789e10"), "test", 0).(*DefaultColumn),
+			want:    -1.23456789e10,
+			wantErr: false,
+		},
+		{
+			name: "2",
+			d: NewDefaultColumn(NewStringColumnValue(strconv.FormatFloat(float64(math.MaxFloat64),
+				'f', -1, 64)), "test", 0).(*DefaultColumn),
+			want:    float64(math.MaxFloat64),
+			wantErr: false,
+		},
+		{
+			name:    "3",
+			d:       NewDefaultColumn(NewStringColumnValue("13.3z"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "4",
+			d:       NewDefaultColumn(NewStringColumnValue("1e1000"), "test", 0).(*DefaultColumn),
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsFloat64()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.AsFloat64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.AsFloat64() = %v, want %v", got, tt.want)
 			}
 		})
 	}

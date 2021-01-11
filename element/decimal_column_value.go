@@ -93,7 +93,7 @@ func (d *DecimalColumnValue) AsBytes() ([]byte, error) {
 }
 
 func (d *DecimalColumnValue) AsTime() (time.Time, error) {
-	return time.Time{}, NewTransformError(d.Type(), TypeTime, fmt.Errorf(" val: %v", d.String()))
+	return time.Time{}, NewTransformErrorFormColumnTypes(d.Type(), TypeTime, fmt.Errorf(" val: %v", d.String()))
 }
 
 func (d *DecimalColumnValue) String() string {
