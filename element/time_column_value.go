@@ -9,25 +9,23 @@ import (
 )
 
 type NilTimeColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilTimeColumnValue() ColumnValue {
-	return &NilTimeColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilTimeColumnValue{}
 }
 
 func (n *NilTimeColumnValue) Type() ColumnType {
 	return TypeTime
 }
 
-func (n *NilTimeColumnValue) clone() ColumnValue {
+func (n *NilTimeColumnValue) Clone() ColumnValue {
 	return NewNilTimeColumnValue()
 }
 
 type TimeColumnValue struct {
-	*notNilColumnValue
+	notNilColumnValue
 	TimeDecoder
 	val time.Time
 }
@@ -38,7 +36,6 @@ func NewTimeColumnValue(t time.Time) ColumnValue {
 
 func NewTimeColumnValueWithDecoder(t time.Time, d TimeDecoder) ColumnValue {
 	return &TimeColumnValue{
-		notNilColumnValue: &notNilColumnValue{},
 		TimeDecoder:       d,
 		val:               t,
 	}
@@ -86,7 +83,7 @@ func (t *TimeColumnValue) String() string {
 	return t.val.Format(defaultTimeFormat)
 }
 
-func (t *TimeColumnValue) clone() ColumnValue {
+func (t *TimeColumnValue) Clone() ColumnValue {
 	return &TimeColumnValue{
 		val: t.val,
 	}

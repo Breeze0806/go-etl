@@ -6,13 +6,14 @@ import (
 )
 
 var (
-	ErrPrecisionNotEnough = errors.New("precision is not enough")
-	ErrColumnExist        = errors.New("column exist")
-	ErrColumnNotExist     = errors.New("column does not exist")
-	ErrNilValue           = errors.New("column value is nil")
-	ErrIndexOutOfRange    = errors.New("column index is out of range")
-	ErrValueNotInt64      = errors.New("value is not int64")
-	ErrValueInfinity      = errors.New("Value is infinity")
+	ErrPrecisionNotEnough     = errors.New("precision is not enough")
+	ErrColumnExist            = errors.New("column exist")
+	ErrColumnNotExist         = errors.New("column does not exist")
+	ErrNilValue               = errors.New("column value is nil")
+	ErrIndexOutOfRange        = errors.New("column index is out of range")
+	ErrValueNotInt64          = errors.New("value is not int64")
+	ErrValueInfinity          = errors.New("value is infinity")
+	ErrNotColumnValueClonable = errors.New("columnValue is not clonable")
 )
 
 type TransformError struct {

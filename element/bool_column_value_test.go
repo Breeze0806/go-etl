@@ -30,7 +30,7 @@ func TestNilBoolColumnValue_Type(t *testing.T) {
 	}
 }
 
-func TestNilBoolColumnValue_clone(t *testing.T) {
+func TestNilBoolColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		n    *NilBoolColumnValue
@@ -39,16 +39,14 @@ func TestNilBoolColumnValue_clone(t *testing.T) {
 		{
 			name: "1",
 			n:    NewNilBoolColumnValue().(*NilBoolColumnValue),
-			want: &NilBoolColumnValue{
-				nilColumnValue: &nilColumnValue{},
-			},
+			want: NewNilBoolColumnValue(),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.n.clone()
+			got := tt.n.Clone()
 			if got == tt.n {
-				t.Errorf("NilBigIntColumnValue.clone() = %p, n %p want %p", got, tt.n, tt.want)
+				t.Errorf("NilBigIntColumnValue.Clone() = %p, n %p want %p", got, tt.n, tt.want)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NilBoolColumnValue.clone() = %v, want %v", got, tt.want)
@@ -291,7 +289,7 @@ func TestBoolColumnValue_String(t *testing.T) {
 	}
 }
 
-func TestBoolColumnValue_clone(t *testing.T) {
+func TestBoolColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BoolColumnValue
@@ -305,12 +303,12 @@ func TestBoolColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.b.clone()
+			got := tt.b.Clone()
 			if got == tt.b {
-				t.Errorf("BoolColumnValue.clone() = %p, b %p", got, tt.b)
+				t.Errorf("BoolColumnValue.Clone() = %p, b %p", got, tt.b)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("BoolColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("BoolColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}

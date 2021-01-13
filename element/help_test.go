@@ -14,6 +14,20 @@ func (m *mockTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
 	return time.Time{}, fmt.Errorf("mockTimeDecoder error")
 }
 
+type mockColumnValue struct {
+	*nilColumnValue
+}
+
+func newMockColumnValue() ColumnValue {
+	return &mockColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
+}
+
+func (m *mockColumnValue) Type() ColumnType {
+	return ColumnType("mock")
+}
+
 func testBigIntFromString(v string) *big.Int {
 	bi, ok := new(big.Int).SetString(v, 10)
 	if !ok {

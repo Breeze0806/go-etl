@@ -36,7 +36,10 @@ type ColumnValue interface {
 	AsBytes() ([]byte, error)
 	AsTime() (time.Time, error)
 	String() string
-	clone() ColumnValue
+}
+
+type ColumnValueClonable interface {
+	Clone() ColumnValue
 }
 
 type Column interface {
@@ -47,7 +50,7 @@ type Column interface {
 	AsInt64() (int64, error)
 	AsFloat32() (float32, error)
 	AsFloat64() (float64, error)
-	Clone() Column
+	Clone() (Column, error)
 	Name() string
 	ByteSize() int64
 	MemorySize() int64
@@ -116,12 +119,17 @@ func (d *DefaultColumn) Name() string {
 	return d.name
 }
 
-func (d *DefaultColumn) Clone() Column {
+func (d *DefaultColumn) Clone() (Column, error) {
+	colnable, ok := d.ColumnValue.(ColumnValueClonable)
+	if !ok {
+		return nil, ErrNotColumnValueClonable
+	}
+
 	return &DefaultColumn{
-		ColumnValue: d.clone(),
+		ColumnValue: colnable.Clone(),
 		name:        d.name,
 		byteSize:    d.byteSize,
-	}
+	}, nil
 }
 
 func (d *DefaultColumn) ByteSize() int64 {

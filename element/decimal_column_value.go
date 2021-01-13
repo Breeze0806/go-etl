@@ -10,20 +10,18 @@ import (
 )
 
 type NilDecimalColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilDecimalColumnValue() ColumnValue {
-	return &NilDecimalColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilDecimalColumnValue{}
 }
 
 func (n *NilDecimalColumnValue) Type() ColumnType {
 	return TypeDecimal
 }
 
-func (n *NilDecimalColumnValue) clone() ColumnValue {
+func (n *NilDecimalColumnValue) Clone() ColumnValue {
 	return NewNilDecimalColumnValue()
 }
 
@@ -100,7 +98,7 @@ func (d *DecimalColumnValue) String() string {
 	return d.val.String()
 }
 
-func (d *DecimalColumnValue) clone() ColumnValue {
+func (d *DecimalColumnValue) Clone() ColumnValue {
 	return &DecimalColumnValue{
 		val: d.val,
 	}

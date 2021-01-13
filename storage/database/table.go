@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 
 	"github.com/Breeze0806/go-etl/element"
@@ -110,7 +111,7 @@ func (i *InsertParam) TxOptions() *sql.TxOptions {
 	return i.txOps
 }
 
-func (i *InsertParam) Query(records []element.Record) (s string, err error) {
+func (i *InsertParam) Query(records []element.Record) (query string, err error) {
 	buf := bytes.NewBufferString("insert into ")
 	if _, err = buf.WriteString(i.table.Quoted()); err != nil {
 		return
@@ -148,7 +149,7 @@ func (i *InsertParam) Query(records []element.Record) (s string, err error) {
 				}
 			}
 			if _, err = buf.WriteString(
-				f.BindVar(ri*len(i.table.Fields()) + ri + 1)); err != nil {
+				f.BindVar(ri*len(i.table.Fields()) + fi + 1)); err != nil {
 				return
 			}
 		}
@@ -166,7 +167,12 @@ func (i *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err
 			if c, err = r.GetByName(f.Name()); err != nil {
 				return nil, fmt.Errorf("GetByName(%v) err: %v", f.Name(), err)
 			}
-			valuers = append(valuers, f.Valuer(c))
+			var v driver.Value
+			if v, err = f.Valuer(c).Value(); err != nil {
+				return nil, err
+			}
+
+			valuers = append(valuers, interface{}(v))
 		}
 	}
 	return
@@ -188,7 +194,7 @@ func (t *TableQueryParam) TxOptions() *sql.TxOptions {
 
 func (t *TableQueryParam) Query(records []element.Record) (s string, err error) {
 	s = "select * from "
-	s += t.table.Quoted() + "where 1 = 2"
+	s += t.table.Quoted() + " where 1 = 2"
 	return s, nil
 }
 

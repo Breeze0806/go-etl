@@ -10,7 +10,7 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-type GoType int
+type GoType uint8
 
 var (
 	ErrNotValuerGoType = errors.New("field type is not ValuerGoType")
@@ -25,7 +25,6 @@ const (
 	GoTypeInt64
 	GoTypeFloat32
 	GoTypeFloat64
-	GoTypeDecimal
 	GoTypeString
 	GoTypeBytes
 	GoTypeTime
@@ -74,11 +73,12 @@ type Valuer interface {
 	driver.Valuer
 }
 
+//FieldType  抽象 sql.ColumnType，也方便自行实现对应函数
 type FieldType interface {
 	Name() string
+	ScanType() reflect.Type
 	Length() (length int64, ok bool)
 	DecimalSize() (precision, scale int64, ok bool)
-	ScanType() reflect.Type
 	Nullable() (nullable, ok bool)
 	DatabaseTypeName() string
 }
@@ -88,14 +88,14 @@ type ValuerGoType interface {
 }
 
 type BaseField struct {
-	name       string
-	columnType *sql.ColumnType
+	name      string
+	fieldType FieldType
 }
 
-func NewBaseField(name string, columnType *sql.ColumnType) *BaseField {
+func NewBaseField(name string, fieldType FieldType) *BaseField {
 	return &BaseField{
-		columnType: columnType,
-		name:       name,
+		fieldType: fieldType,
+		name:      name,
 	}
 }
 
@@ -103,8 +103,8 @@ func (b *BaseField) Name() string {
 	return b.name
 }
 
-func (b *BaseField) ColumnType() *sql.ColumnType {
-	return b.columnType
+func (b *BaseField) FieldType() FieldType {
+	return b.fieldType
 }
 
 func (b *BaseField) String() string {
@@ -112,12 +112,12 @@ func (b *BaseField) String() string {
 }
 
 type BaseFieldType struct {
-	*sql.ColumnType
+	FieldType
 }
 
-func NewBaseFieldType(columnType *sql.ColumnType) *BaseFieldType {
+func NewBaseFieldType(fieldType FieldType) *BaseFieldType {
 	return &BaseFieldType{
-		ColumnType: columnType,
+		FieldType: fieldType,
 	}
 }
 
@@ -150,6 +150,11 @@ func (g *GoValuer) Value() (driver.Value, error) {
 	if !ok {
 		return nil, ErrNotValuerGoType
 	}
+
+	if g.c.IsNil() {
+		return nil, nil
+	}
+
 	switch typ.GoType() {
 	case GoTypeBool:
 		return g.c.AsBool()

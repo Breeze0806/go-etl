@@ -10,25 +10,23 @@ import (
 )
 
 type NilBytesColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilBytesColumnValue() ColumnValue {
-	return &NilBytesColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilBytesColumnValue{}
 }
 
 func (n *NilBytesColumnValue) Type() ColumnType {
 	return TypeBytes
 }
 
-func (n *NilBytesColumnValue) clone() ColumnValue {
+func (n *NilBytesColumnValue) Clone() ColumnValue {
 	return NewNilBytesColumnValue()
 }
 
 type BytesColumnValue struct {
-	*notNilColumnValue
+	notNilColumnValue
 	TimeEncoder
 	val []byte
 }
@@ -39,7 +37,6 @@ func NewBytesColumnValue(v []byte) ColumnValue {
 
 func NewBytesColumnValueWithEncoder(v []byte, e TimeEncoder) ColumnValue {
 	return &BytesColumnValue{
-		notNilColumnValue: &notNilColumnValue{},
 		val:               v,
 		TimeEncoder:       e,
 	}
@@ -95,7 +92,7 @@ func (b *BytesColumnValue) String() string {
 	return string(b.val)
 }
 
-func (b *BytesColumnValue) clone() ColumnValue {
+func (b *BytesColumnValue) Clone() ColumnValue {
 	v := make([]byte, len(b.val))
 	copy(v, b.val)
 	return NewBytesColumnValue(v)

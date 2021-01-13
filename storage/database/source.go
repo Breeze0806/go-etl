@@ -5,6 +5,11 @@ import (
 	"github.com/Breeze0806/go/time2"
 )
 
+const (
+	DefaultMaxOpenConns = 4
+	DefaultMaxIdleConns = 4
+)
+
 //Source 数据源
 type Source interface {
 	Config() *config.Json   //配置信息
@@ -35,15 +40,15 @@ type Config struct {
 }
 
 func (c *Config) GetMaxOpenConns() int {
-	if c.MaxOpenConns == 0 {
-		return 4
+	if c.MaxOpenConns <= 0 {
+		return DefaultMaxOpenConns
 	}
 	return c.MaxOpenConns
 }
 
 func (c *Config) GetMaxIdleConns() int {
-	if c.MaxIdleConns == 0 {
-		return 2
+	if c.MaxIdleConns <= 0 {
+		return DefaultMaxIdleConns
 	}
 	return c.MaxIdleConns
 }

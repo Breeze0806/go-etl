@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/storage/database"
@@ -55,10 +56,6 @@ func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-func Quoted(s string) string {
-	return "`" + s + "`"
-}
-
 type Config struct {
 	URL      string `json:"url"`
 	Username string `json:"username"`
@@ -76,12 +73,17 @@ func NewConfig(conf *config.Json) (c *Config, err error) {
 
 func (c *Config) FormatDSN() (dsn string, err error) {
 	var mysqlConf *mysql.Config
-	if mysqlConf, err = mysql.ParseDSN(dsn); err != nil {
+	if mysqlConf, err = mysql.ParseDSN(c.URL); err != nil {
 		return
 	}
+	fmt.Printf("%+v", mysqlConf)
 	mysqlConf.User = c.Username
 	mysqlConf.Passwd = c.Password
 	mysqlConf.ParseTime = true
 	dsn = mysqlConf.FormatDSN()
 	return
+}
+
+func Quoted(s string) string {
+	return "`" + s + "`"
 }

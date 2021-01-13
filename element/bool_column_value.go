@@ -9,20 +9,18 @@ import (
 )
 
 type NilBoolColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilBoolColumnValue() ColumnValue {
-	return &NilBoolColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilBoolColumnValue{}
 }
 
 func (n *NilBoolColumnValue) Type() ColumnType {
 	return TypeBool
 }
 
-func (n *NilBoolColumnValue) clone() ColumnValue {
+func (n *NilBoolColumnValue) Clone() ColumnValue {
 	return NewNilBoolColumnValue()
 }
 
@@ -85,6 +83,6 @@ func (b *BoolColumnValue) String() string {
 	return "false"
 }
 
-func (b *BoolColumnValue) clone() ColumnValue {
+func (b *BoolColumnValue) Clone() ColumnValue {
 	return NewBoolColumnValue(b.val)
 }

@@ -30,7 +30,7 @@ func TestNilStringColumnValue_Type(t *testing.T) {
 	}
 }
 
-func TestNilStringColumnValue_clone(t *testing.T) {
+func TestNilStringColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		n    *NilStringColumnValue
@@ -44,12 +44,12 @@ func TestNilStringColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.n.clone()
+			got := tt.n.Clone()
 			if got == tt.n {
-				t.Errorf("NilStringColumnValue.clone() = %p, n %p", got, tt.n)
+				t.Errorf("NilStringColumnValue.Clone() = %p, n %p", got, tt.n)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NilStringColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("NilStringColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -385,7 +385,7 @@ func TestStringColumnValue_String(t *testing.T) {
 	}
 }
 
-func TestStringColumnValue_clone(t *testing.T) {
+func TestStringColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		s    *StringColumnValue
@@ -399,13 +399,13 @@ func TestStringColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.s.clone()
+			got := tt.s.Clone()
 			if got == tt.s {
-				t.Errorf("StringColumnValue.clone() = %p, s %v", got, tt.s)
+				t.Errorf("StringColumnValue.Clone() = %p, s %v", got, tt.s)
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("StringColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("StringColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -6,7 +6,7 @@ type Table struct {
 	*database.BaseTable
 }
 
-func NewTable(b *database.BaseTable) database.Table {
+func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: database.NewBaseTable(b.Instance(), b.Schema(), b.Name()),
 	}

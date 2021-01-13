@@ -12,20 +12,18 @@ var _IntZero = big.NewInt(0)
 var _IntTen = big.NewInt(10)
 
 type NilBigIntColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilBigIntColumnValue() ColumnValue {
-	return &NilBigIntColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilBigIntColumnValue{}
 }
 
 func (n *NilBigIntColumnValue) Type() ColumnType {
 	return TypeBigInt
 }
 
-func (n *NilBigIntColumnValue) clone() ColumnValue {
+func (n *NilBigIntColumnValue) Clone() ColumnValue {
 	return NewNilBigIntColumnValue()
 }
 
@@ -91,6 +89,6 @@ func (b *BigIntColumnValue) String() string {
 	return b.val.String()
 }
 
-func (b *BigIntColumnValue) clone() ColumnValue {
+func (b *BigIntColumnValue) Clone() ColumnValue {
 	return NewBigIntColumnValue(b.val)
 }

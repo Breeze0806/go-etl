@@ -10,26 +10,24 @@ import (
 )
 
 type NilStringColumnValue struct {
-	*nilColumnValue
+	nilColumnValue
 }
 
 func NewNilStringColumnValue() ColumnValue {
-	return &NilStringColumnValue{
-		nilColumnValue: &nilColumnValue{},
-	}
+	return &NilStringColumnValue{}
 }
 
 func (n *NilStringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
-func (n *NilStringColumnValue) clone() ColumnValue {
+func (n *NilStringColumnValue) Clone() ColumnValue {
 	return NewNilStringColumnValue()
 }
 
 //StringColumnValue 注意：Decimal 123.0（val:1230,exp:-1）和123（val:123,exp:0）不一致
 type StringColumnValue struct {
-	*notNilColumnValue
+	notNilColumnValue
 	TimeEncoder
 	val string
 }
@@ -40,7 +38,6 @@ func NewStringColumnValue(s string) ColumnValue {
 
 func NewStringColumnValueWithEncoder(s string, e TimeEncoder) ColumnValue {
 	return &StringColumnValue{
-		notNilColumnValue: &notNilColumnValue{},
 		TimeEncoder:       e,
 		val:               s,
 	}
@@ -95,6 +92,6 @@ func (s *StringColumnValue) String() string {
 	return s.val
 }
 
-func (s *StringColumnValue) clone() ColumnValue {
+func (s *StringColumnValue) Clone() ColumnValue {
 	return NewStringColumnValue(s.val)
 }

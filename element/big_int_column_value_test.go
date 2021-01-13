@@ -17,9 +17,7 @@ func TestNewNilBigIntColumnValue(t *testing.T) {
 	}{
 		{
 			name: "1",
-			want: &NilBigIntColumnValue{
-				nilColumnValue: &nilColumnValue{},
-			},
+			want: NewNilBigIntColumnValue(),
 		},
 	}
 	for _, tt := range tests {
@@ -606,7 +604,7 @@ func TestBigIntColumnValue_String(t *testing.T) {
 	}
 }
 
-func TestBigIntColumnValue_clone(t *testing.T) {
+func TestBigIntColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BigIntColumnValue
@@ -620,18 +618,18 @@ func TestBigIntColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.b.clone()
+			got := tt.b.Clone()
 			if got == tt.b {
-				t.Errorf("NilBigIntColumnValue.clone() = %p, b %p want %p", got, tt.b, tt.want)
+				t.Errorf("NilBigIntColumnValue.Clone() = %p, b %p want %p", got, tt.b, tt.want)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NilBigIntColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("NilBigIntColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestNilBigIntColumnValue_clone(t *testing.T) {
+func TestNilBigIntColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		n    *NilBigIntColumnValue
@@ -645,12 +643,56 @@ func TestNilBigIntColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.n.clone()
+			got := tt.n.Clone()
 			if got == tt.n {
-				t.Errorf("NilBigIntColumnValue.clone() = %p, n %p want %p", got, tt.n, tt.want)
+				t.Errorf("NilBigIntColumnValue.Clone() = %p, n %p want %p", got, tt.n, tt.want)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NilBigIntColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("NilBigIntColumnValue.Clone() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNilBigIntColumnValue_IsNil(t *testing.T) {
+	tests := []struct {
+		name string
+		n    *NilBigIntColumnValue
+		want bool
+	}{
+		{
+			name: "1",
+			n:    NewNilBigIntColumnValue().(*NilBigIntColumnValue),
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.n.IsNil()
+			if got != tt.want {
+				t.Errorf("NilBigIntColumnValue.IsNil() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBigIntColumnValue_IsNil(t *testing.T) {
+	tests := []struct {
+		name string
+		n    *BigIntColumnValue
+		want bool
+	}{
+		{
+			name: "1",
+			n:    NewBigIntColumnValueFromInt64(11).(*BigIntColumnValue),
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.n.IsNil()
+			if got != tt.want {
+				t.Errorf("NilBigIntColumnValue.IsNil() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -277,28 +277,6 @@ func TestDefaultColumn_Name(t *testing.T) {
 		})
 	}
 }
-
-func TestDefaultColumn_Clone(t *testing.T) {
-	tests := []struct {
-		name string
-		d    *DefaultColumn
-		want Column
-	}{
-		{
-			name: "1",
-			d:    NewDefaultColumn(NewNilBigIntColumnValue(), "test", 12).(*DefaultColumn),
-			want: NewDefaultColumn(NewNilBigIntColumnValue(), "test", 12),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.d.Clone(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DefaultColumn.Clone() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestDefaultColumn_ByteSize(t *testing.T) {
 	tests := []struct {
 		name string
@@ -629,6 +607,41 @@ func TestDefaultColumn_AsFloat64(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("DefaultColumn.AsFloat64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_Clone(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		want    Column
+		wantErr bool
+	}{
+		{
+			name : "1",
+			d : NewDefaultColumn(NewNilBigIntColumnValue(),"test", 0).(*DefaultColumn),
+			want: NewDefaultColumn(NewNilBigIntColumnValue(),"test", 0),
+			wantErr: false,
+		},
+
+		{
+			name : "2",
+			d : NewDefaultColumn(newMockColumnValue(),"test", 0).(*DefaultColumn),
+			want: NewDefaultColumn(newMockColumnValue(),"test", 0),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.Clone()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.Clone() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultColumn.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}

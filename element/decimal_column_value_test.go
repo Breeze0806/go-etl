@@ -51,7 +51,7 @@ func TestNilDecimalColumnValue_Type(t *testing.T) {
 	}
 }
 
-func TestNilDecimalColumnValue_clone(t *testing.T) {
+func TestNilDecimalColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		n    *NilDecimalColumnValue
@@ -65,12 +65,12 @@ func TestNilDecimalColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.n.clone()
+			got := tt.n.Clone()
 			if got == tt.n {
-				t.Errorf("NilDecimalColumnValue.clone() = %p, n %p", got, tt.n)
+				t.Errorf("NilDecimalColumnValue.Clone() = %p, n %p", got, tt.n)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NilDecimalColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("NilDecimalColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -634,7 +634,7 @@ func TestDecimalColumnValue_String(t *testing.T) {
 	}
 }
 
-func TestDecimalColumnValue_clone(t *testing.T) {
+func TestDecimalColumnValue_Clone(t *testing.T) {
 	tests := []struct {
 		name string
 		d    *DecimalColumnValue
@@ -648,12 +648,12 @@ func TestDecimalColumnValue_clone(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.d.clone()
+			got := tt.d.Clone()
 			if got == tt.d {
-				t.Errorf("DecimalColumnValue.clone() = %p, d %p", got, tt.d)
+				t.Errorf("DecimalColumnValue.Clone() = %p, d %p", got, tt.d)
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DecimalColumnValue.clone() = %v, want %v", got, tt.want)
+				t.Errorf("DecimalColumnValue.Clone() = %v, want %v", got, tt.want)
 			}
 		})
 	}
