@@ -30,13 +30,13 @@ func Open(name string, conf *config.Json) (db *DB, err error) {
 
 	db.DB, err = sql.Open(db.Source.DriverName(), db.Source.ConnectName())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Open(%v, %v) error: %v", db.Source.DriverName(), db.Source.ConnectName(), err)
 	}
 
 	var c Config
 	err = json.Unmarshal([]byte(conf.String()), &c)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Unmarshal(%v) error: %v", conf.String(), err)
 	}
 
 	db.SetMaxOpenConns(c.GetMaxOpenConns())
@@ -67,31 +67,27 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 	if !ok {
 		return nil, fmt.Errorf("Table is not FieldAdder")
 	}
-	query, err := param.Query(nil)
+	query, agrs, err := getQueryAndAgrs(param, nil)
 	if err != nil {
-		return nil, fmt.Errorf("param.Query() err: %v", err)
-	}
-	agrs, err := param.Agrs(nil)
-	if err != nil {
-		return nil, fmt.Errorf("param.Agrs()  err: %v", err)
+		return nil, err
 	}
 	rows, err := d.QueryContext(ctx, query, agrs...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("QueryContext(%v) err: %v", query, err)
 	}
 	defer rows.Close()
 	names, err := rows.Columns()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rows.Columns() err: %v", err)
 	}
 	types, err := rows.ColumnTypes()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rows.ColumnTypes() err: %v", err)
 	}
 	for i := range names {
 		adder.AddField(NewBaseField(names[i], types[i]))
 	}
-	return table, err
+	return table, nil
 }
 
 func (d *DB) FetchRecord(ctx context.Context, param Parameter, onRecord func(element.Record) error) (err error) {
@@ -104,7 +100,7 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, onRecord func(ele
 
 	var rows *sql.Rows
 	if rows, err = d.QueryContext(ctx, query, agrs...); err != nil {
-		return err
+		return fmt.Errorf("QueryContext(%v) err: %v", query, err)
 	}
 	defer rows.Close()
 	return readRowsToRecord(rows, param, onRecord)
@@ -121,7 +117,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, onRecord fu
 	var tx *sql.Tx
 
 	if tx, err = d.BeginTx(ctx, param.TxOptions()); err != nil {
-		return fmt.Errorf("BeginTx() err: %v", err)
+		return fmt.Errorf("BeginTx(%+v) err: %v", param.TxOptions(), err)
 	}
 
 	defer func() {
@@ -134,7 +130,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, onRecord fu
 
 	var rows *sql.Rows
 	if rows, err = tx.QueryContext(ctx, query, agrs...); err != nil {
-		return err
+		return fmt.Errorf("QueryContext(%v) error: %v", query, err)
 	}
 	defer rows.Close()
 	return readRowsToRecord(rows, param, onRecord)
@@ -142,7 +138,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, onRecord fu
 
 func (d *DB) BatchExec(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
-	if param, err = d.execParam(opts); err != nil {
+	if param, err = execParam(opts); err != nil {
 		return
 	}
 	return d.batchExec(ctx, param, opts.Records)
@@ -150,7 +146,7 @@ func (d *DB) BatchExec(ctx context.Context, opts *ParameterOptions) (err error) 
 
 func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
-	if param, err = d.execParam(opts); err != nil {
+	if param, err = execParam(opts); err != nil {
 		return
 	}
 	return d.batchExecWithTx(ctx, param, opts.Records)
@@ -158,7 +154,7 @@ func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err e
 
 func (d *DB) BatchExecStmtWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
-	if param, err = d.execParam(opts); err != nil {
+	if param, err = execParam(opts); err != nil {
 		return
 	}
 	return d.batchExecStmtWithTx(ctx, param, opts.Records)
@@ -173,7 +169,7 @@ func (d *DB) batchExec(ctx context.Context, param Parameter, records []element.R
 	}
 
 	if _, err = d.ExecContext(ctx, query, agrs...); err != nil {
-		return err
+		return fmt.Errorf("ExecContext(%v) err: %v", query, err)
 	}
 	return nil
 }
@@ -188,7 +184,7 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 
 	var tx *sql.Tx
 	if tx, err = d.BeginTx(ctx, param.TxOptions()); err != nil {
-		return fmt.Errorf("BeginTx() err: %v", err)
+		return fmt.Errorf("BeginTx(%+v) err: %v", param.TxOptions(), err)
 	}
 	defer func() {
 		if err != nil {
@@ -199,7 +195,7 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 	}()
 
 	if _, err = tx.ExecContext(ctx, query, agrs...); err != nil {
-		return err
+		return fmt.Errorf("ExecContext(%v) err: %v", query, err)
 	}
 	return nil
 }
@@ -247,16 +243,22 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 	return
 }
 
-func (d *DB) execParam(opts *ParameterOptions) (param Parameter, err error) {
+func execParam(opts *ParameterOptions) (param Parameter, err error) {
+	param = NewInsertParam(opts.Table, opts.TxOptions)
 	execParams, ok := opts.Table.(ExecParameter)
 	if !ok {
 		if opts.Mode != "insert" {
 			err = fmt.Errorf("table is not ExecParameter and mode is not insert")
 			return
 		}
-		param = NewInsertParam(opts.Table, opts.TxOptions)
+	} else {
+		if param, ok = execParams.ExecParam(opts.Mode, opts.TxOptions); !ok {
+			if opts.Mode != "insert" {
+				err = fmt.Errorf("ExecParam is not exist and mode is not insert")
+				return
+			}
+		}
 	}
-	param = execParams.ExecParam(opts.Mode, opts.TxOptions)
 	return
 }
 
@@ -280,19 +282,19 @@ func readRowsToRecord(rows *sql.Rows, param Parameter, onRecord func(element.Rec
 
 	for rows.Next() {
 		if err = rows.Scan(scanners...); err != nil {
-			return err
+			return fmt.Errorf("rows.Scan err: %v", err)
 		}
 		record := element.NewDefaultRecord()
 		for _, v := range scanners {
 			record.Add(v.(Scanner).Column())
 		}
 		if err = onRecord(record); err != nil {
-			return err
+			return fmt.Errorf("onRecord err: %v", err)
 		}
 	}
 
 	if err = rows.Err(); err != nil {
-		return err
+		return fmt.Errorf("rows.Err() err: %v", err)
 	}
 	return nil
 }

@@ -5,6 +5,10 @@ import (
 )
 
 func TestRegisterDialect(t *testing.T) {
+	UnregisterAllDialects()
+	d1 := &mockDialect{
+		name: "nil",
+	}
 	type args struct {
 		name    string
 		dialect Dialect
@@ -30,20 +34,20 @@ func TestRegisterDialect(t *testing.T) {
 			name: "2",
 			args: args{
 				name:    "nil",
-				dialect: &mockNilDialect{},
+				dialect: d1,
 			},
 			wantOk: true,
-			want:   &mockNilDialect{},
+			want:   d1,
 		},
 		{
 			name: "3",
 			args: args{
 				name:    "nil",
-				dialect: &mockNilDialect{},
+				dialect: &mockDialect{},
 			},
 			wantErr: true,
 			wantOk:  true,
-			want:    &mockNilDialect{},
+			want:    d1,
 		},
 	}
 
@@ -66,6 +70,7 @@ func TestRegisterDialect(t *testing.T) {
 		got, gotOk := dialects.dialect(tt.args.name)
 		if gotOk != tt.wantOk {
 			t.Errorf("run %v dialects.dialect() gotOk = %v, wantOk %v", tt.name, gotOk, tt.wantOk)
+			return
 		}
 		if got != tt.want {
 			t.Errorf("run %v dialects.dialect() got = %v, want %v", tt.name, got, tt.want)
@@ -76,7 +81,7 @@ func TestRegisterDialect(t *testing.T) {
 
 func TestUnregisterAllDialects(t *testing.T) {
 	UnregisterAllDialects()
-	RegisterDialect("nil", &mockNilDialect{})
+	RegisterDialect("nil", &mockDialect{})
 	if len(dialects.dialects) == 0 {
 		t.Errorf("dialects is empty")
 		return

@@ -43,7 +43,7 @@ type FieldAdder interface {
 }
 
 type ExecParameter interface {
-	ExecParam(string, *sql.TxOptions) Parameter
+	ExecParam(string, *sql.TxOptions) (Parameter, bool)
 }
 
 type BaseTable struct {
@@ -71,6 +71,10 @@ func (b *BaseTable) Schema() string {
 
 func (b *BaseTable) Name() string {
 	return b.name
+}
+
+func (b *BaseTable) String() string {
+	return b.instance + "." + b.schema + "." + b.name
 }
 
 func (b *BaseTable) Fields() []Field {
