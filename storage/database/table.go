@@ -87,79 +87,67 @@ func (b *BaseTable) AppendField(f Field) {
 
 type BaseParam struct {
 	table Table
+	txOps *sql.TxOptions
 }
 
-func NewBaseParam(table Table) *BaseParam {
+func NewBaseParam(table Table, txOps *sql.TxOptions) *BaseParam {
 	return &BaseParam{
 		table: table,
+		txOps: txOps,
 	}
+}
+
+func (b *BaseParam) SetTable(t Table) {
+	b.table = t
+}
+
+func (b *BaseParam) SettxOps(txOps *sql.TxOptions) {
+	b.txOps = txOps
 }
 
 func (b *BaseParam) Table() Table {
 	return b.table
 }
 
+func (b *BaseParam) TxOptions() *sql.TxOptions {
+	return b.txOps
+}
+
 type InsertParam struct {
 	*BaseParam
-	txOps *sql.TxOptions
 }
 
 func NewInsertParam(t Table, txOps *sql.TxOptions) *InsertParam {
 	return &InsertParam{
-		BaseParam: NewBaseParam(t),
-		txOps:     txOps,
+		BaseParam: NewBaseParam(t, txOps),
 	}
-}
-
-func (i *InsertParam) TxOptions() *sql.TxOptions {
-	return i.txOps
 }
 
 func (i *InsertParam) Query(records []element.Record) (query string, err error) {
 	buf := bytes.NewBufferString("insert into ")
-	if _, err = buf.WriteString(i.table.Quoted()); err != nil {
-		return
-	}
-	if _, err = buf.WriteString("("); err != nil {
-		return
-	}
+	buf.WriteString(i.table.Quoted())
+	buf.WriteString("(")
 	for fi, f := range i.Table().Fields() {
 		if fi > 0 {
-			if _, err = buf.WriteString(","); err != nil {
-				return
-			}
+			buf.WriteString(",")
 		}
-		if _, err = buf.WriteString(f.Quoted()); err != nil {
-			return
-		}
+		_, err = buf.WriteString(f.Quoted())
 	}
-	if _, err = buf.WriteString(") values"); err != nil {
-		return
-	}
+	buf.WriteString(") values")
 
 	for ri := range records {
 		if ri > 0 {
-			if _, err = buf.WriteString(","); err != nil {
-				return
-			}
+			buf.WriteString(",")
 		}
-		if _, err = buf.WriteString("("); err != nil {
-			return
-		}
+		buf.WriteString("(")
 		for fi, f := range i.Table().Fields() {
 			if fi > 0 {
-				if _, err = buf.WriteString(","); err != nil {
-					return
-				}
+				buf.WriteString(",")
 			}
-			if _, err = buf.WriteString(
-				f.BindVar(ri*len(i.table.Fields()) + fi + 1)); err != nil {
-				return
-			}
+			buf.WriteString(
+				f.BindVar(ri*len(i.table.Fields()) + fi + 1))
 		}
-		if _, err = buf.WriteString(")"); err != nil {
-			return
-		}
+		buf.WriteString(")")
 	}
 	return buf.String(), nil
 }
@@ -188,12 +176,8 @@ type TableQueryParam struct {
 
 func NewTableQueryParam(table Table) *TableQueryParam {
 	return &TableQueryParam{
-		BaseParam: NewBaseParam(table),
+		BaseParam: NewBaseParam(table, nil),
 	}
-}
-
-func (t *TableQueryParam) TxOptions() *sql.TxOptions {
-	return nil
 }
 
 func (t *TableQueryParam) Query(records []element.Record) (s string, err error) {

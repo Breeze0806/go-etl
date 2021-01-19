@@ -210,13 +210,7 @@ func TestGoValuer_Value(t *testing.T) {
 			wantErr: true,
 			want:    int8(0),
 		},
-		{
-			name: "2",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt16)),
-				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
-			wantErr: true,
-			want:    int16(0),
-		},
+
 		{
 			name: "3",
 			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt32)),
@@ -277,6 +271,13 @@ func TestGoValuer_Value(t *testing.T) {
 			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt64)),
 				element.NewDefaultColumn(element.NewNilBigIntColumnValue(), "test", 0)),
 			wantErr: false,
+		},
+		{
+			name: "13",
+			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt16)),
+				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
+			wantErr: true,
+			want:    int16(0),
 		},
 	}
 	for _, tt := range tests {

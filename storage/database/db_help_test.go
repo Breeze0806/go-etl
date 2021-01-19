@@ -2,22 +2,61 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"io"
 	"reflect"
+
+	"github.com/Breeze0806/go-etl/config"
+	"github.com/Breeze0806/go-etl/element"
 )
 
-type mockFieldsFetcher struct {
+type mockTableWithOther struct {
 	*mockTable
-	err error
+	err        error
+	execParams map[string]func(t Table, txOpts *sql.TxOptions) Parameter
 }
 
-func (m *mockFieldsFetcher) FetchFields(ctx context.Context, db *DB) error {
+func (m *mockTableWithOther) FetchFields(ctx context.Context, db *DB) error {
 	if m.err != nil {
 		return m.err
 	}
-	db.FetchTableWithParam(ctx, NewInsertParam(m.mockTable, nil))
+	db.FetchTableWithParam(ctx, NewTableQueryParam(m.mockTable))
 	return nil
+}
+
+func (m *mockTableWithOther) ExecParam(mode string, txOpts *sql.TxOptions) (p Parameter, ok bool) {
+	var fn func(t Table, txOpts *sql.TxOptions) Parameter
+	if fn, ok = m.execParams[mode]; ok {
+		p = fn(m, txOpts)
+		return
+	}
+	return
+}
+
+type mockTableWithNoAdder struct {
+	*BaseTable
+}
+
+func (m *mockTableWithNoAdder) Quoted() string {
+	return m.Instance() + "." + m.Schema() + "." + m.Name()
+}
+
+type mockParameter struct {
+	*BaseParam
+	queryErr error
+	agrsErr  error
+}
+
+func (m *mockParameter) Query([]element.Record) (string, error) {
+	if m.queryErr != nil {
+		return "", m.queryErr
+	}
+	return "mock", nil
+}
+
+func (m *mockParameter) Agrs([]element.Record) ([]interface{}, error) {
+	return nil, m.agrsErr
 }
 
 type mockDriver struct {
@@ -174,4 +213,12 @@ func (m *mockRows) Next(dest []driver.Value) error {
 	}
 	m.readCnt++
 	return nil
+}
+
+func testDB(name string, conf *config.Json) *DB {
+	db, err := Open(name, conf)
+	if err != nil {
+		panic(err)
+	}
+	return db
 }

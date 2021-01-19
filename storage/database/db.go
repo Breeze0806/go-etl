@@ -244,19 +244,18 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 }
 
 func execParam(opts *ParameterOptions) (param Parameter, err error) {
-	param = NewInsertParam(opts.Table, opts.TxOptions)
 	execParams, ok := opts.Table.(ExecParameter)
 	if !ok {
 		if opts.Mode != "insert" {
-			err = fmt.Errorf("table is not ExecParameter and mode is not insert")
-			return
+			return nil, fmt.Errorf("table is not ExecParameter and mode is not insert")
 		}
+		param = NewInsertParam(opts.Table, opts.TxOptions)
 	} else {
 		if param, ok = execParams.ExecParam(opts.Mode, opts.TxOptions); !ok {
 			if opts.Mode != "insert" {
-				err = fmt.Errorf("ExecParam is not exist and mode is not insert")
-				return
+				return nil, fmt.Errorf("ExecParam is not exist and mode is not insert")
 			}
+			param = NewInsertParam(opts.Table, opts.TxOptions)
 		}
 	}
 	return
@@ -268,6 +267,7 @@ func getQueryAndAgrs(param Parameter, records []element.Record) (query string, a
 		return
 	}
 	if agrs, err = param.Agrs(records); err != nil {
+		query = ""
 		err = fmt.Errorf("param.Agrs() err: %v", err)
 		return
 	}
