@@ -28,71 +28,55 @@ func TestBaseSource_Config(t *testing.T) {
 	}
 }
 
-func TestConfig_GetMaxOpenConns(t *testing.T) {
-	tests := []struct {
+func TestNewSource(t *testing.T) {
+	registerMock()
+	type args struct {
 		name string
-		c    *Config
-		want int
+		conf *config.Json
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantSource Source
+		wantErr    bool
 	}{
 		{
 			name: "1",
-			c:    &Config{},
-			want: DefaultMaxOpenConns,
+			args: args{
+				name: "mock",
+				conf: testJsonFromString("{}"),
+			},
+			wantSource: &mockSource{
+				BaseSource: NewBaseSource(testJsonFromString("{}")),
+				name:       "mock",
+			},
 		},
 		{
 			name: "2",
-			c: &Config{
-				MaxOpenConns: 10,
+			args: args{
+				name: "test?",
+				conf: testJsonFromString("{}"),
 			},
-			want: 10,
+			wantErr: true,
 		},
 		{
 			name: "3",
-			c: &Config{
-				MaxOpenConns: -10,
+			args: args{
+				name: "mockErr",
+				conf: testJsonFromString("{}"),
 			},
-			want: DefaultMaxOpenConns,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.GetMaxOpenConns(); got != tt.want {
-				t.Errorf("Config.GetMaxOpenConns() = %v, want %v", got, tt.want)
+			gotSource, err := NewSource(tt.args.name, tt.args.conf)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewSource() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
-		})
-	}
-}
-
-func TestConfig_GetMaxIdleConns(t *testing.T) {
-	tests := []struct {
-		name string
-		c    *Config
-		want int
-	}{
-		{
-			name: "1",
-			c:    &Config{},
-			want: DefaultMaxIdleConns,
-		},
-		{
-			name: "2",
-			c: &Config{
-				MaxIdleConns: -10,
-			},
-			want: DefaultMaxIdleConns,
-		},
-		{
-			name: "3",
-			c: &Config{
-				MaxIdleConns: 10,
-			},
-			want: 10,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.GetMaxIdleConns(); got != tt.want {
-				t.Errorf("Config.GetMaxIdleConns() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(gotSource, tt.wantSource) {
+				t.Errorf("NewSource() = %v, want %v", gotSource, tt.wantSource)
 			}
 		})
 	}

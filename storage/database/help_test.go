@@ -33,6 +33,10 @@ func (m *mockSource) ConnectName() string {
 	return "mock dsn"
 }
 
+func (m *mockSource) Key() string {
+	return m.ConnectName()
+}
+
 func (m *mockSource) Table(bt *BaseTable) Table {
 	return &mockTable{
 		BaseTable: bt,

@@ -114,6 +114,6 @@ func TestTaskSchduler_Stop(t *testing.T) {
 	schduler.Stop()
 	_, err := schduler.Push(&mockTask{})
 	if err != ErrClose {
-		t.Errorf("Push = %v", err)
+		t.Errorf("Push() = %v want: %v", err, ErrClose)
 	}
 }

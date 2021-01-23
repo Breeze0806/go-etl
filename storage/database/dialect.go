@@ -13,6 +13,16 @@ var dialects = &dialectMap{
 	dialects: make(map[string]Dialect),
 }
 
+func RegisterDialect(name string, dialect Dialect) {
+	if err := dialects.register(name, dialect); err != nil {
+		panic(err)
+	}
+}
+
+func UnregisterAllDialects() {
+	dialects.unregisterAll()
+}
+
 type dialectMap struct {
 	sync.RWMutex
 	dialects map[string]Dialect
@@ -44,14 +54,4 @@ func (d *dialectMap) unregisterAll() {
 	d.Lock()
 	defer d.Unlock()
 	d.dialects = make(map[string]Dialect)
-}
-
-func RegisterDialect(name string, dialect Dialect) {
-	if err := dialects.register(name, dialect); err != nil {
-		panic(err)
-	}
-}
-
-func UnregisterAllDialects() {
-	dialects.unregisterAll()
 }

@@ -3,49 +3,39 @@ package database
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
-	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 )
 
 type DB struct {
-	*sql.DB
+	db *sql.DB
 	Source
 }
 
-func Open(name string, conf *config.Json) (db *DB, err error) {
-	db = &DB{}
-
-	d, ok := dialects.dialect(name)
-	if !ok {
-		return nil, fmt.Errorf("dialect %v does not exsit", name)
+func NewDB(source Source) (d *DB, err error) {
+	d = &DB{
+		Source: source,
 	}
 
-	db.Source, err = d.Source(NewBaseSource(conf))
+	d.db, err = sql.Open(d.Source.DriverName(), d.Source.ConnectName())
 	if err != nil {
-		return nil, fmt.Errorf("dialect %v Source() err: %v", name, err)
+		return nil, fmt.Errorf("Open(%v, %v) error: %v", d.Source.DriverName(), d.Source.ConnectName(), err)
 	}
 
-	db.DB, err = sql.Open(db.Source.DriverName(), db.Source.ConnectName())
+	var c *Config
+	c, err = NewConfig(d.Config())
 	if err != nil {
-		return nil, fmt.Errorf("Open(%v, %v) error: %v", db.Source.DriverName(), db.Source.ConnectName(), err)
+		return nil, err
 	}
 
-	var c Config
-	err = json.Unmarshal([]byte(conf.String()), &c)
-	if err != nil {
-		return nil, fmt.Errorf("Unmarshal(%v) error: %v", conf.String(), err)
+	d.db.SetMaxOpenConns(c.Pool.GetMaxOpenConns())
+	d.db.SetMaxIdleConns(c.Pool.GetMaxIdleConns())
+	if c.Pool.ConnMaxIdleTime.Duration != 0 {
+		d.db.SetConnMaxIdleTime(c.Pool.ConnMaxIdleTime.Duration)
 	}
-
-	db.SetMaxOpenConns(c.GetMaxOpenConns())
-	db.SetMaxIdleConns(c.GetMaxIdleConns())
-	if c.ConnMaxIdleTime.Duration != 0 {
-		db.SetConnMaxIdleTime(c.ConnMaxIdleTime.Duration)
-	}
-	if c.ConnMaxLifetime.Duration != 0 {
-		db.SetConnMaxLifetime(c.ConnMaxLifetime.Duration)
+	if c.Pool.ConnMaxLifetime.Duration != 0 {
+		d.db.SetConnMaxLifetime(c.Pool.ConnMaxLifetime.Duration)
 	}
 
 	return
@@ -160,6 +150,25 @@ func (d *DB) BatchExecStmtWithTx(ctx context.Context, opts *ParameterOptions) (e
 	return d.batchExecStmtWithTx(ctx, param, opts.Records)
 }
 
+func (d *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error) {
+	return d.db.BeginTx(ctx, opts)
+}
+
+func (d *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	return d.db.QueryContext(ctx, query, args...)
+}
+
+func (d *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	return d.db.ExecContext(ctx, query, args...)
+}
+
+func (d *DB) Close() (err error) {
+	if d.db != nil {
+		return d.db.Close()
+	}
+	return
+}
+
 func (d *DB) batchExec(ctx context.Context, param Parameter, records []element.Record) (err error) {
 	var query string
 	var agrs []interface{}
@@ -183,7 +192,7 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 	}
 
 	var tx *sql.Tx
-	if tx, err = d.BeginTx(ctx, param.TxOptions()); err != nil {
+	if tx, err = d.db.BeginTx(ctx, param.TxOptions()); err != nil {
 		return fmt.Errorf("BeginTx(%+v) err: %v", param.TxOptions(), err)
 	}
 	defer func() {
@@ -207,7 +216,7 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 	}
 
 	var tx *sql.Tx
-	if tx, err = d.BeginTx(ctx, param.TxOptions()); err != nil {
+	if tx, err = d.db.BeginTx(ctx, param.TxOptions()); err != nil {
 		return fmt.Errorf("BeginTx() err: %v", err)
 	}
 	defer func() {

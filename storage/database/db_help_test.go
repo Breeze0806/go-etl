@@ -4,12 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"io"
 	"reflect"
+	"sync"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 )
+
+var once sync.Once
 
 type mockTableWithOther struct {
 	*mockTable
@@ -215,10 +219,52 @@ func (m *mockRows) Next(dest []driver.Value) error {
 	return nil
 }
 
-func testDB(name string, conf *config.Json) *DB {
-	db, err := Open(name, conf)
+func testDB(name string, conf *config.Json) (db *DB, err error) {
+	var source Source
+	if source, err = NewSource(name, conf); err != nil {
+		return
+	}
+
+	return NewDB(source)
+}
+
+func testMustDB(name string, conf *config.Json) *DB {
+	db, err := testDB(name, conf)
 	if err != nil {
 		panic(err)
 	}
 	return db
+}
+
+func registerMock() {
+	UnregisterAllDialects()
+	RegisterDialect("mock", &mockDialect{
+		name: "mock",
+	})
+	RegisterDialect("mockErr", &mockDialect{
+		name: "",
+		err:  errors.New("mock error"),
+	})
+	RegisterDialect("test", &mockDialect{
+		name: "test",
+	})
+	once.Do(func() {
+		sql.Register("mock", &mockDriver{
+			rows: &mockRows{
+				columns: []string{
+					"f1", "f2", "f3", "f4",
+				},
+				types: []*mockFieldType{
+					newMockFieldType(GoTypeBool),
+					newMockFieldType(GoTypeInt64),
+					newMockFieldType(GoTypeFloat64),
+					newMockFieldType(GoTypeString),
+				},
+				columnValues: [][]driver.Value{
+					{false, int64(1), float64(1), string("1")},
+					{true, int64(2), float64(2), string("2")},
+				},
+			},
+		})
+	})
 }
