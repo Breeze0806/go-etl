@@ -1,0 +1,6 @@
+{
+    "name" : "mysqlwriter",
+    "developer":"Breeze0806",
+    "dialect":"mysql",
+    "description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
+}
