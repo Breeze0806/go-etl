@@ -29,7 +29,7 @@ type Container struct {
 	writerPluginName       string
 	jobReader              reader.Job
 	jobWriter              writer.Job
-	userConf               *config.Json
+	userConf               *config.JSON
 	startTimestamp         int64
 	endTimestamp           int64
 	startTransferTimeStamp int64
@@ -41,7 +41,7 @@ type Container struct {
 	wg                     sync.WaitGroup
 }
 
-func NewContainer(ctx context.Context, conf *config.Json) (c *Container, err error) {
+func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
 		ctx:          ctx,
@@ -121,7 +121,7 @@ func (c *Container) init() (err error) {
 		return
 	}
 
-	var readerConfig, writerConfig *config.Json
+	var readerConfig, writerConfig *config.JSON
 	readerConfig, err = c.Config().GetConfig(coreconst.DataxJobContentReaderParameter)
 	if err != nil {
 		return
@@ -174,7 +174,7 @@ func (c *Container) split() (err error) {
 	if c.needChannelNumber <= 0 {
 		c.needChannelNumber = 1
 	}
-	var readerConfs, writerConfs, tasksConfigs []*config.Json
+	var readerConfs, writerConfs, tasksConfigs []*config.JSON
 	readerConfs, err = c.jobReader.Split(c.ctx, int(c.needChannelNumber))
 	if err != nil {
 		return
@@ -212,7 +212,7 @@ func (c *Container) split() (err error) {
 }
 
 func (c *Container) schedule() (err error) {
-	var tasksConfigs []*config.Json
+	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
 	if err != nil {
 		return err
@@ -261,20 +261,20 @@ func (c *Container) post() (err error) {
 	return
 }
 
-func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (taskConfigs []*config.Json, err error) {
+func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
 		err = fmt.Errorf("the number of reader tasks are not equal to the number of writer tasks")
 		return
 	}
-	var transformConfs []*config.Json
+	var transformConfs []*config.JSON
 	transformConfs, err = c.Config().GetConfigArray(coreconst.DataxJobContentTransformer)
 	if err != nil {
 		return
 	}
 	log.Infof("DataX jobContainer %v  tansformer config is %v", c.jobId, transformConfs)
 	for i := range readerConfs {
-		var taskConfig *config.Json
-		taskConfig, _ = config.NewJsonFromString("{}")
+		var taskConfig *config.JSON
+		taskConfig, _ = config.NewJSONFromString("{}")
 		err = taskConfig.Set(coreconst.JobReaderName, c.readerPluginName)
 		if err != nil {
 			return
@@ -304,8 +304,8 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.Json) (t
 	return
 }
 
-func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.Json, err error) {
-	var tasksConfigs []*config.Json
+func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err error) {
+	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
 	if err != nil {
 		return
@@ -398,7 +398,7 @@ func (c *Container) adjustChannelNumber() error {
 	return fmt.Errorf("job speed should be setted")
 }
 
-func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.Json) (job reader.Job, err error) {
+func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job reader.Job, err error) {
 	ok := false
 	job, ok = loader.LoadReaderJob(c.readerPluginName)
 	if !ok {
@@ -416,7 +416,7 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.Json) (job writer.Job, err error) {
+func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job writer.Job, err error) {
 	ok := false
 	job, ok = loader.LoadWriterJob(c.writerPluginName)
 	if !ok {
@@ -523,7 +523,7 @@ func doAssign(taskIdMap map[string][]int, taskGroupNumber int) [][]int {
 	return taskGroups
 }
 
-func parseAndGetResourceMarkAndTaskIdMap(tasksConfigs []*config.Json) map[string][]int {
+func parseAndGetResourceMarkAndTaskIdMap(tasksConfigs []*config.JSON) map[string][]int {
 	writerMap := make(map[string][]int)
 	readerMap := make(map[string][]int)
 	for i, v := range tasksConfigs {

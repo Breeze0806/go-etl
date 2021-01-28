@@ -6,8 +6,8 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-func testJsonFromString(s string) *config.Json {
-	j, err := config.NewJsonFromString(s)
+func testJsonFromString(s string) *config.JSON {
+	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}
@@ -16,13 +16,13 @@ func testJsonFromString(s string) *config.Json {
 
 func TestBasePluggable_SetPluginJobConf(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name string
 		b    *BasePluggable
 		args args
-		want *config.Json
+		want *config.JSON
 	}{
 		{
 			name: "1",
@@ -74,14 +74,14 @@ func TestBasePluggable_SetPeerPluginName(t *testing.T) {
 
 func TestBasePluggable_SetPluginConf(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 
 	type want struct {
 		name        string
 		developer   string
 		description string
-		conf        *config.Json
+		conf        *config.JSON
 	}
 	tests := []struct {
 		name string
@@ -125,13 +125,13 @@ func TestBasePluggable_SetPluginConf(t *testing.T) {
 
 func TestBasePluggable_SetPeerPluginJobConf(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name string
 		b    *BasePluggable
 		args args
-		want *config.Json
+		want *config.JSON
 	}{
 		{
 			name: "1",

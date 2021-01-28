@@ -29,10 +29,10 @@ func (m Model) IsTaskGroup() bool {
 type Engine struct {
 	core.Container
 	ctx  context.Context
-	conf *config.Json
+	conf *config.JSON
 }
 
-func NewEngine(ctx context.Context, conf *config.Json) *Engine {
+func NewEngine(ctx context.Context, conf *config.JSON) *Engine {
 	return &Engine{
 		ctx:  ctx,
 		conf: conf,

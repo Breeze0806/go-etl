@@ -25,12 +25,12 @@ func init() {
 }
 
 type Reader struct {
-	pluginConf *config.Json
+	pluginConf *config.JSON
 }
 
 func NewReader(filename string) (r *Reader, err error) {
 	r = &Reader{}
-	r.pluginConf, err = config.NewJsonFromFile(filename)
+	r.pluginConf, err = config.NewJSONFromFile(filename)
 	if err != nil {
 		return nil, err
 	}

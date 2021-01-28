@@ -25,12 +25,12 @@ func init() {
 }
 
 type Writer struct {
-	pluginConf *config.Json
+	pluginConf *config.JSON
 }
 
 func NewWriter(filename string) (w *Writer, err error) {
 	w = &Writer{}
-	w.pluginConf, err = config.NewJsonFromFile(filename)
+	w.pluginConf, err = config.NewJSONFromFile(filename)
 	if err != nil {
 		return nil, err
 	}

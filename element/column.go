@@ -10,103 +10,122 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+//ColumnType 列类型
 type ColumnType string
 
+//列类型枚举
 const (
-	TypeUnknown ColumnType = "unknown"
-	TypeBool    ColumnType = "bool"
-	TypeBigInt  ColumnType = "bigInt"
-	TypeDecimal ColumnType = "decimal"
-	TypeString  ColumnType = "string"
-	TypeBytes   ColumnType = "bytes"
-	TypeTime    ColumnType = "time"
+	TypeUnknown ColumnType = "unknown" //未知类型
+	TypeBool    ColumnType = "bool"    //布尔类型
+	TypeBigInt  ColumnType = "bigInt"  //整数类型
+	TypeDecimal ColumnType = "decimal" //高精度实数类型
+	TypeString  ColumnType = "string"  //字符串类型
+	TypeBytes   ColumnType = "bytes"   //字节流类型
+	TypeTime    ColumnType = "time"    //时间类型
 )
 
+//String 打印显示
 func (c ColumnType) String() string {
 	return string(c)
 }
 
+//ColumnValue 列值
 type ColumnValue interface {
-	Type() ColumnType
-	IsNil() bool
-	AsBool() (bool, error)
-	AsBigInt() (*big.Int, error)
-	AsDecimal() (decimal.Decimal, error)
-	AsString() (string, error)
-	AsBytes() ([]byte, error)
-	AsTime() (time.Time, error)
-	String() string
+	fmt.Stringer
+
+	Type() ColumnType                    //列类型
+	IsNil() bool                         //是否为空
+	AsBool() (bool, error)               //转化为布尔值
+	AsBigInt() (*big.Int, error)         //转化为整数
+	AsDecimal() (decimal.Decimal, error) //转化为高精度实数
+	AsString() (string, error)           //转化为字符串
+	AsBytes() ([]byte, error)            //转化为字节流
+	AsTime() (time.Time, error)          // 转化为时间
 }
 
+//ColumnValueClonable 可克隆列值
 type ColumnValueClonable interface {
-	Clone() ColumnValue
+	Clone() ColumnValue //克隆
 }
 
+//Column 列
 type Column interface {
 	ColumnValue
-	AsInt8() (int8, error)
-	AsInt16() (int16, error)
-	AsInt32() (int32, error)
-	AsInt64() (int64, error)
-	AsFloat32() (float32, error)
-	AsFloat64() (float64, error)
-	Clone() (Column, error)
-	Name() string
-	ByteSize() int64
-	MemorySize() int64
+	AsInt8() (int8, error)       //转化为8位整数
+	AsInt16() (int16, error)     //转化为16位整数
+	AsInt32() (int32, error)     //转化为32位整数
+	AsInt64() (int64, error)     //转化为64位整数
+	AsFloat32() (float32, error) //转化为32位实数
+	AsFloat64() (float64, error) //转化为64位实数
+	Clone() (Column, error)      //克隆
+	Name() string                //列名
+	ByteSize() int64             //字节流大小
+	MemorySize() int64           //内存大小
 }
 
-type notNilColumnValue struct {
-}
+type notNilColumnValue struct{}
 
+//IsNil  是否为空
 func (n *notNilColumnValue) IsNil() bool {
 	return false
 }
 
 type nilColumnValue struct{}
 
+//Type  列类型
 func (n *nilColumnValue) Type() ColumnType {
 	return TypeUnknown
 }
 
+//IsNil  是否为空
 func (n *nilColumnValue) IsNil() bool {
 	return true
 }
 
+//AsBool 无法转化布尔值
 func (n *nilColumnValue) AsBool() (bool, error) {
 	return false, ErrNilValue
 }
 
+//AsBigInt 无法转化整数
 func (n *nilColumnValue) AsBigInt() (*big.Int, error) {
 	return nil, ErrNilValue
 }
 
+//AsDecimal 无法转化高精度实数
 func (n *nilColumnValue) AsDecimal() (decimal.Decimal, error) {
 	return decimal.Decimal{}, ErrNilValue
 }
 
+//AsString 无法转化字符串
 func (n *nilColumnValue) AsString() (string, error) {
 	return "", ErrNilValue
 }
 
+//AsBytes 无法转化字节流
 func (n *nilColumnValue) AsBytes() ([]byte, error) {
 	return nil, ErrNilValue
 }
 
+//AsTime 无法转化时间
 func (n *nilColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, ErrNilValue
 }
+
+//String 打印显示
 func (n *nilColumnValue) String() string {
 	return "<nil>"
 }
 
+//DefaultColumn 默认值
 type DefaultColumn struct {
-	ColumnValue
+	ColumnValue // 列值
 
 	name     string
 	byteSize int
 }
 
+//NewDefaultColumn 根据列值v,列名name,字节流大小byteSiz，生成默认列
 func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	return &DefaultColumn{
 		ColumnValue: v,
@@ -115,10 +134,12 @@ func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	}
 }
 
+//Name 列名
 func (d *DefaultColumn) Name() string {
 	return d.name
 }
 
+//Clone 克隆列，如果不是可克隆列值，就会报错
 func (d *DefaultColumn) Clone() (Column, error) {
 	colnable, ok := d.ColumnValue.(ColumnValueClonable)
 	if !ok {
@@ -132,14 +153,17 @@ func (d *DefaultColumn) Clone() (Column, error) {
 	}, nil
 }
 
+//ByteSize 字节流大小
 func (d *DefaultColumn) ByteSize() int64 {
 	return int64(d.byteSize)
 }
 
+//MemorySize 内存大小
 func (d *DefaultColumn) MemorySize() int64 {
 	return int64(d.byteSize + len(d.name) + 4)
 }
 
+//AsInt8 转化为8位整数
 func (d *DefaultColumn) AsInt8() (int8, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -156,6 +180,7 @@ func (d *DefaultColumn) AsInt8() (int8, error) {
 	return 0, NewTransformErrorFormString(d.Type().String(), "int8", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
 }
 
+//AsInt16 转化为16位整数
 func (d *DefaultColumn) AsInt16() (int16, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -171,6 +196,7 @@ func (d *DefaultColumn) AsInt16() (int16, error) {
 	return 0, NewTransformErrorFormString(d.Type().String(), "int16", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
 }
 
+//AsInt32 转化为32位整数
 func (d *DefaultColumn) AsInt32() (int32, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -186,6 +212,7 @@ func (d *DefaultColumn) AsInt32() (int32, error) {
 	return 0, NewTransformErrorFormString(d.Type().String(), "int32", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
 }
 
+//AsInt64 转化为64位整数
 func (d *DefaultColumn) AsInt64() (int64, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -197,6 +224,7 @@ func (d *DefaultColumn) AsInt64() (int64, error) {
 	return 0, NewTransformErrorFormString(d.Type().String(), "int64", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
 }
 
+//AsFloat32 转化为32位实数
 func (d *DefaultColumn) AsFloat32() (float32, error) {
 	dec, err := d.AsDecimal()
 	if err != nil {
@@ -210,6 +238,7 @@ func (d *DefaultColumn) AsFloat32() (float32, error) {
 	return v, nil
 }
 
+//AsFloat64 转化为64位实数
 func (d *DefaultColumn) AsFloat64() (float64, error) {
 	dec, err := d.AsDecimal()
 	if err != nil {

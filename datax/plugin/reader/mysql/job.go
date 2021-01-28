@@ -19,6 +19,6 @@ func (j *Job) Destroy(ctx context.Context) (err error) {
 	return
 }
 
-func (j *Job) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (j *Job) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return nil, nil
 }

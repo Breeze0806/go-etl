@@ -170,8 +170,8 @@ func (m *mockTable) AddField(bf *BaseField) {
 	m.AppendField(newMockField(bf, newMockFieldType(GoType(i))))
 }
 
-func testJsonFromString(s string) *config.Json {
-	json, err := config.NewJsonFromString(s)
+func testJSONFromString(s string) *config.JSON {
+	json, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}

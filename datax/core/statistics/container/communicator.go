@@ -8,7 +8,7 @@ import (
 type State int
 
 type Communicator interface {
-	RegisterCommunication(configs []*config.Json)
+	RegisterCommunication(configs []*config.JSON)
 
 	Collect() Communicator
 

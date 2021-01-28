@@ -27,7 +27,7 @@ type mockReaderJob struct {
 	*defaultJobPlugin
 }
 
-func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return nil, nil
 }
 
@@ -44,7 +44,7 @@ type mockWriterJob struct {
 	*defaultJobPlugin
 }
 
-func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return nil, nil
 }
 

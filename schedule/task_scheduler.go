@@ -8,8 +8,9 @@ import (
 	"go.uber.org/atomic"
 )
 
+//已关闭错误
 var (
-	ErrClose = errors.New("task schduler closed")
+	ErrClosed = errors.New("task schduler closed")
 )
 
 type taskWrapper struct {
@@ -17,17 +18,19 @@ type taskWrapper struct {
 	result chan error
 }
 
+//TaskSchduler 任务调度器
 type TaskSchduler struct {
-	taskWrappers chan *taskWrapper
+	taskWrappers chan *taskWrapper //待执行任务队列
 	wg           sync.WaitGroup
-	stop         chan struct{}
-	stopped      int32
-	size         *atomic.Int32
+	stop         chan struct{} //停止信号
+	stopped      int32         //停止标识
+	size         *atomic.Int32 //待执行队列大小
 }
 
-func NewTaskSchduler(workerNumer, chanCap int) *TaskSchduler {
+//NewTaskSchduler 根据执行者数workerNumer，待执行队列容量cao生成任务调度器
+func NewTaskSchduler(workerNumer, cap int) *TaskSchduler {
 	t := &TaskSchduler{
-		taskWrappers: make(chan *taskWrapper, chanCap),
+		taskWrappers: make(chan *taskWrapper, cap),
 		stop:         make(chan struct{}),
 		stopped:      0,
 		size:         atomic.NewInt32(0),
@@ -44,9 +47,10 @@ func NewTaskSchduler(workerNumer, chanCap int) *TaskSchduler {
 	return t
 }
 
+//Push 将任务task加入队列，获得执行结果通知信道，在已关闭时报错
 func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
 	if goatomic.CompareAndSwapInt32(&t.stopped, 1, 1) {
-		return nil, ErrClose
+		return nil, ErrClosed
 	}
 	tw := &taskWrapper{
 		task:   task,
@@ -58,14 +62,16 @@ func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
 		t.size.Inc()
 		return tw.result, nil
 	case <-t.stop:
-		return nil, ErrClose
+		return nil, ErrClosed
 	}
 }
 
+//Size 待执行队列大小
 func (t *TaskSchduler) Size() int32 {
 	return t.size.Load()
 }
 
+//Stop 停止任务调度器
 func (t *TaskSchduler) Stop() {
 	if !goatomic.CompareAndSwapInt32(&t.stopped, 0, 1) {
 		return

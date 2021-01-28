@@ -8,8 +8,8 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-func testJsonFromString(s string) *config.Json {
-	json, err := config.NewJsonFromString(s)
+func testJSONFromString(s string) *config.JSON {
+	json, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}
@@ -31,14 +31,14 @@ func TestDialect_Source(t *testing.T) {
 			name: "1",
 			d:    Dialect{},
 			args: args{
-				bs: database.NewBaseSource(testJsonFromString(`{
+				bs: database.NewBaseSource(testJSONFromString(`{
 					"url" : "tcp(192.168.1.1:3306)/db?parseTime=false",
 					"username" : "user",
 					"password": "passwd"
 				}`)),
 			},
 			want: &Source{
-				BaseSource: database.NewBaseSource(testJsonFromString(`{
+				BaseSource: database.NewBaseSource(testJSONFromString(`{
 					"url" : "tcp(192.168.1.1:3306)/db?parseTime=false",
 					"username" : "user",
 					"password": "passwd"
@@ -74,14 +74,14 @@ func TestNewSource(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				bs: database.NewBaseSource(testJsonFromString(`{
+				bs: database.NewBaseSource(testJSONFromString(`{
 					"url" : "tcp(192.168.1.1:3306)/db?parseTime=false",
 					"username" : "user",
 					"password": "passwd"
 				}`)),
 			},
 			wantS: &Source{
-				BaseSource: database.NewBaseSource(testJsonFromString(`{
+				BaseSource: database.NewBaseSource(testJSONFromString(`{
 					"url" : "tcp(192.168.1.1:3306)/db?parseTime=false",
 					"username" : "user",
 					"password": "passwd"
@@ -93,7 +93,7 @@ func TestNewSource(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				bs: database.NewBaseSource(testJsonFromString(`{
+				bs: database.NewBaseSource(testJSONFromString(`{
 					"url" : 1,
 					"username" : "user",
 					"password": "passwd"
@@ -105,7 +105,7 @@ func TestNewSource(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				bs: database.NewBaseSource(testJsonFromString(`{
+				bs: database.NewBaseSource(testJSONFromString(`{
 					"url" : "tcp(192.168.1.1:3306/db?parseTime=false",
 					"username" : "user",
 					"password": "passwd"
@@ -217,6 +217,29 @@ func TestDialect_Name(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.d.Name(); got != tt.want {
 				t.Errorf("Dialect.Name() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSource_Key(t *testing.T) {
+	tests := []struct {
+		name string
+		s    *Source
+		want string
+	}{
+		{
+			name: "1",
+			s: &Source{
+				dsn: "11111xxx",
+			},
+			want: "11111xxx",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.Key(); got != tt.want {
+				t.Errorf("Source.Key() = %v, want %v", got, tt.want)
 			}
 		})
 	}

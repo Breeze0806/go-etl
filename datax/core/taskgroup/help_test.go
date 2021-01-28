@@ -60,7 +60,7 @@ type mockReaderJob struct {
 	*mockJob
 }
 
-func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return nil, nil
 }
 
@@ -111,7 +111,7 @@ type mockWriterJob struct {
 	*mockJob
 }
 
-func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return nil, nil
 }
 
@@ -197,8 +197,8 @@ func (m *mockWriter) Task() writer.Task {
 	return newMockWriterTask(m.errs)
 }
 
-func testJsonFromString(s string) *config.Json {
-	j, err := config.NewJsonFromString(s)
+func testJsonFromString(s string) *config.JSON {
+	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}

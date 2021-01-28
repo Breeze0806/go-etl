@@ -1,110 +1,188 @@
+//Package config 提供JSON配置
 package config
 
 import (
 	"github.com/Breeze0806/go/encoding"
 )
 
-type Json struct {
-	*encoding.Json
+//JSON JSON格式配置文件
+type JSON struct {
+	*encoding.JSON
 }
 
-func NewJsonFromEncodingJson(j *encoding.Json) *Json {
-	return &Json{
-		Json: j,
+//NewJSONFromEncodingJSON 从编码JSON j中获取JSON
+func NewJSONFromEncodingJSON(j *encoding.JSON) *JSON {
+	return &JSON{
+		JSON: j,
 	}
 }
 
-func NewJsonFromString(s string) (*Json, error) {
-	json, err := encoding.NewJsonFromString(s)
+//NewJSONFromString 从字符串s 获取json配置 ，并在json格式错误时返回错误
+func NewJSONFromString(s string) (*JSON, error) {
+	JSON, err := encoding.NewJSONFromString(s)
 	if err != nil {
 		return nil, err
 	}
-	return NewJsonFromEncodingJson(json), nil
+	return NewJSONFromEncodingJSON(JSON), nil
 }
 
-func NewJsonFromBytes(b []byte) (*Json, error) {
-	json, err := encoding.NewJsonFromBytes(b)
+//NewJSONFromBytes 从字节流b 获取json配置 ，并在json格式错误时返回错误
+func NewJSONFromBytes(b []byte) (*JSON, error) {
+	JSON, err := encoding.NewJSONFromBytes(b)
 	if err != nil {
 		return nil, err
 	}
-	return NewJsonFromEncodingJson(json), nil
+	return NewJSONFromEncodingJSON(JSON), nil
 }
 
-func NewJsonFromFile(filename string) (*Json, error) {
-	json, err := encoding.NewJsonFromFile(filename)
+//NewJSONFromFile 从文件名为filename的文件中获取json配置
+//并在json格式错误或者读取文件错误时返回错误
+func NewJSONFromFile(filename string) (*JSON, error) {
+	JSON, err := encoding.NewJSONFromFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return NewJsonFromEncodingJson(json), nil
+	return NewJSONFromEncodingJSON(JSON), nil
 }
 
-func (j *Json) GetConfig(path string) (*Json, error) {
-	json, err := j.GetJson(path)
+//GetConfig 获取path路径对应的值配置文件,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是json结构或者不存在，就会返回错误
+func (j *JSON) GetConfig(path string) (*JSON, error) {
+	JSON, err := j.GetJSON(path)
 	if err != nil {
 		return nil, err
 	}
-	return NewJsonFromEncodingJson(json), nil
+	return NewJSONFromEncodingJSON(JSON), nil
 }
 
-func (j *Json) GetBoolOrDefaullt(path string, defaultValue bool) bool {
+//GetBoolOrDefaullt 获取path路径对应的BOOL值,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是int64或者不存在，就会返回defaultValue
+func (j *JSON) GetBoolOrDefaullt(path string, defaultValue bool) bool {
 	if v, err := j.GetBool(path); err == nil {
 		return v
 	}
 	return defaultValue
 }
 
-func (j *Json) GetInt64OrDefaullt(path string, defaultValue int64) int64 {
+//GetInt64OrDefaullt 获取path路径对应的int64值,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是int64或者不存在，就会返回defaultValue
+func (j *JSON) GetInt64OrDefaullt(path string, defaultValue int64) int64 {
 	if v, err := j.GetInt64(path); err == nil {
 		return v
 	}
 	return defaultValue
 }
 
-func (j *Json) GetFloat64OrDefaullt(path string, defaultValue float64) float64 {
+//GetFloat64OrDefaullt 获取path路径对应的float64值,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是float64或者不存在，就会返回defaultValue
+func (j *JSON) GetFloat64OrDefaullt(path string, defaultValue float64) float64 {
 	if v, err := j.GetFloat64(path); err == nil {
 		return v
 	}
 	return defaultValue
 }
 
-func (j *Json) GetStringOrDefaullt(path string, defaultValue string) string {
-	if v, err := j.Json.GetString(path); err == nil {
+//GetStringOrDefaullt 获取path路径对应的字符串值,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是字符串或者不存在，就会返回defaultValue
+func (j *JSON) GetStringOrDefaullt(path string, defaultValue string) string {
+	if v, err := j.JSON.GetString(path); err == nil {
 		return v
 	}
 	return defaultValue
 }
 
-func (j *Json) GetConfigArray(path string) ([]*Json, error) {
-	a, err := j.Json.GetArray(path)
+//GetConfigArray 获取path路径对应的配置数组,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是配置数组或者不存在，就会返回错误
+func (j *JSON) GetConfigArray(path string) ([]*JSON, error) {
+	a, err := j.JSON.GetArray(path)
 	if err != nil {
 		return nil, err
 	}
 
-	var jsons []*Json
+	var JSONs []*JSON
 
 	for i := range a {
-		jsons = append(jsons, NewJsonFromEncodingJson(a[i]))
+		JSONs = append(JSONs, NewJSONFromEncodingJSON(a[i]))
 	}
 
-	return jsons, nil
+	return JSONs, nil
 }
 
-func (j *Json) GetConfigMap(path string) (map[string]*Json, error) {
-	m, err := j.Json.GetMap(path)
+//GetConfigMap 获取path路径对应的配置映射,对于下列json
+//{
+//  "a":{
+//     "b":[{
+//        c:"x"
+//      }]
+//	}
+//}
+//要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+//如果path对应的不是配置映射或者不存在，就会返回错误
+func (j *JSON) GetConfigMap(path string) (map[string]*JSON, error) {
+	m, err := j.JSON.GetMap(path)
 	if err != nil {
 		return nil, err
 	}
 
-	jsons := make(map[string]*Json)
+	JSONs := make(map[string]*JSON)
 
 	for k, v := range m {
-		jsons[k] = NewJsonFromEncodingJson(v)
+		JSONs[k] = NewJSONFromEncodingJSON(v)
 	}
-	return jsons, nil
+	return JSONs, nil
 }
 
-func (j *Json) CloneConfig() *Json {
-	return &Json{
-		Json: j.Json.Clone(),
+//CloneConfig 克隆json配置文件
+func (j *JSON) CloneConfig() *JSON {
+	return &JSON{
+		JSON: j.JSON.Clone(),
 	}
 }

@@ -9,5 +9,5 @@ import (
 
 type Job interface {
 	plugin.Job
-	Split(ctx context.Context, number int) ([]*config.Json, error)
+	Split(ctx context.Context, number int) ([]*config.JSON, error)
 }

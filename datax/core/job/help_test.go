@@ -12,15 +12,15 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 )
 
-func testJsonFromString(s string) *config.Json {
-	j, err := config.NewJsonFromString(s)
+func testJsonFromString(s string) *config.JSON {
+	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}
 	return j
 }
 
-func testContainer(conf *config.Json) *Container {
+func testContainer(conf *config.JSON) *Container {
 	c, err := NewContainer(context.TODO(), conf)
 	if err != nil {
 		panic(err)
@@ -77,10 +77,10 @@ func (m *mockJob) Post(ctx context.Context) error {
 type mockReaderJob struct {
 	*mockJob
 	splitErr error
-	confs    []*config.Json
+	confs    []*config.JSON
 }
 
-func newMockReaderJob(errs []error, confs []*config.Json) *mockReaderJob {
+func newMockReaderJob(errs []error, confs []*config.JSON) *mockReaderJob {
 	return &mockReaderJob{
 		mockJob: &mockJob{
 			BaseJob: plugin.NewBaseJob(),
@@ -96,7 +96,7 @@ func newMockReaderJob(errs []error, confs []*config.Json) *mockReaderJob {
 	}
 }
 
-func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockReaderJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return m.confs, m.splitErr
 }
 
@@ -119,10 +119,10 @@ func (m *mockReaderTask) StartRead(ctx context.Context, sender plugin.RecordSend
 type mockWriterJob struct {
 	*mockJob
 	splitErr error
-	confs    []*config.Json
+	confs    []*config.JSON
 }
 
-func newMockWriterJob(errs []error, confs []*config.Json) *mockWriterJob {
+func newMockWriterJob(errs []error, confs []*config.JSON) *mockWriterJob {
 	return &mockWriterJob{
 		mockJob: &mockJob{
 			BaseJob: plugin.NewBaseJob(),
@@ -138,7 +138,7 @@ func newMockWriterJob(errs []error, confs []*config.Json) *mockWriterJob {
 	}
 }
 
-func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.Json, error) {
+func (m *mockWriterJob) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return m.confs, m.splitErr
 }
 
@@ -164,10 +164,10 @@ func (m *mockWriterTask) SupportFailOver() bool {
 
 type mockReader struct {
 	errs  []error
-	confs []*config.Json
+	confs []*config.JSON
 }
 
-func newMockReader(errs []error, confs []*config.Json) *mockReader {
+func newMockReader(errs []error, confs []*config.JSON) *mockReader {
 	return &mockReader{
 		errs:  errs,
 		confs: confs,
@@ -188,10 +188,10 @@ type mockRandReader struct {
 
 type mockWriter struct {
 	errs  []error
-	confs []*config.Json
+	confs []*config.JSON
 }
 
-func newMockWriter(errs []error, confs []*config.Json) *mockWriter {
+func newMockWriter(errs []error, confs []*config.JSON) *mockWriter {
 	return &mockWriter{
 		errs:  errs,
 		confs: confs,
@@ -206,7 +206,7 @@ func (m *mockWriter) Task() writer.Task {
 	return newMockWriterTask()
 }
 
-func equalConfigJson(gotConfig, wantConfig *config.Json) bool {
+func equalConfigJson(gotConfig, wantConfig *config.JSON) bool {
 	var got, want interface{}
 	err := json.Unmarshal([]byte(gotConfig.String()), &got)
 	if err != nil {

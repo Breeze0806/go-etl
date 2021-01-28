@@ -11,12 +11,12 @@ func TestBaseSource_Config(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BaseSource
-		want *config.Json
+		want *config.JSON
 	}{
 		{
 			name: "1",
-			b:    NewBaseSource(testJsonFromString(`{}`)),
-			want: testJsonFromString(`{}`),
+			b:    NewBaseSource(testJSONFromString(`{}`)),
+			want: testJSONFromString(`{}`),
 		},
 	}
 	for _, tt := range tests {
@@ -32,7 +32,7 @@ func TestNewSource(t *testing.T) {
 	registerMock()
 	type args struct {
 		name string
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name       string
@@ -44,10 +44,10 @@ func TestNewSource(t *testing.T) {
 			name: "1",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantSource: &mockSource{
-				BaseSource: NewBaseSource(testJsonFromString("{}")),
+				BaseSource: NewBaseSource(testJSONFromString("{}")),
 				name:       "mock",
 			},
 		},
@@ -55,7 +55,7 @@ func TestNewSource(t *testing.T) {
 			name: "2",
 			args: args{
 				name: "test?",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantErr: true,
 		},
@@ -63,7 +63,7 @@ func TestNewSource(t *testing.T) {
 			name: "3",
 			args: args{
 				name: "mockErr",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantErr: true,
 		},

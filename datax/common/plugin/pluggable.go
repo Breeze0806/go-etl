@@ -13,19 +13,19 @@ type Pluggable interface {
 
 	PluginName() (string, error)
 
-	PluginJobConf() *config.Json
+	PluginJobConf() *config.JSON
 
 	PeerPluginName() string
 
-	PeerPluginJobConf() *config.Json
+	PeerPluginJobConf() *config.JSON
 
-	SetPluginJobConf(conf *config.Json)
+	SetPluginJobConf(conf *config.JSON)
 
-	SetPeerPluginJobConf(conf *config.Json)
+	SetPeerPluginJobConf(conf *config.JSON)
 
 	SetPeerPluginName(name string)
 
-	SetPluginConf(conf *config.Json)
+	SetPluginConf(conf *config.JSON)
 
 	Init(ctx context.Context) error
 
@@ -33,21 +33,21 @@ type Pluggable interface {
 }
 
 type BasePluggable struct {
-	pluginConf        *config.Json
-	pluginJobConf     *config.Json
+	pluginConf        *config.JSON
+	pluginJobConf     *config.JSON
 	peerPluginName    string
-	peerPluginJobConf *config.Json
+	peerPluginJobConf *config.JSON
 }
 
 func NewBasePluggable() *BasePluggable {
 	return &BasePluggable{}
 }
 
-func (b *BasePluggable) SetPluginConf(conf *config.Json) {
+func (b *BasePluggable) SetPluginConf(conf *config.JSON) {
 	b.pluginConf = conf
 }
 
-func (b *BasePluggable) SetPluginJobConf(conf *config.Json) {
+func (b *BasePluggable) SetPluginJobConf(conf *config.JSON) {
 	b.pluginJobConf = conf
 }
 
@@ -55,7 +55,7 @@ func (b *BasePluggable) SetPeerPluginName(name string) {
 	b.peerPluginName = name
 }
 
-func (b *BasePluggable) SetPeerPluginJobConf(conf *config.Json) {
+func (b *BasePluggable) SetPeerPluginJobConf(conf *config.JSON) {
 	b.peerPluginJobConf = conf
 }
 
@@ -71,11 +71,11 @@ func (b *BasePluggable) PluginName() (string, error) {
 	return b.pluginConf.GetString("name")
 }
 
-func (b *BasePluggable) PluginConf() *config.Json {
+func (b *BasePluggable) PluginConf() *config.JSON {
 	return b.pluginConf
 }
 
-func (b *BasePluggable) PluginJobConf() *config.Json {
+func (b *BasePluggable) PluginJobConf() *config.JSON {
 	return b.pluginJobConf
 }
 
@@ -83,6 +83,6 @@ func (b *BasePluggable) PeerPluginName() string {
 	return b.peerPluginName
 }
 
-func (b *BasePluggable) PeerPluginJobConf() *config.Json {
+func (b *BasePluggable) PeerPluginJobConf() *config.JSON {
 	return b.peerPluginJobConf
 }

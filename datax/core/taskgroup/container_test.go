@@ -14,7 +14,7 @@ import (
 	"github.com/Breeze0806/go-etl/schedule"
 )
 
-func testContainer(ctx context.Context, conf *config.Json) *Container {
+func testContainer(ctx context.Context, conf *config.JSON) *Container {
 	c, err := NewContainer(ctx, conf)
 	if err != nil {
 		panic(err)
@@ -310,7 +310,7 @@ func TestContainer_Start(t *testing.T) {
 func TestNewContainer(t *testing.T) {
 	type args struct {
 		ctx  context.Context
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string

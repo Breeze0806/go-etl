@@ -8,7 +8,7 @@ import (
 	"github.com/Breeze0806/go-etl/schedule"
 )
 
-func OpenNoErr(name string, conf *config.Json) *DBWrapper {
+func OpenNoErr(name string, conf *config.JSON) *DBWrapper {
 	d, err := Open(name, conf)
 	if err != nil {
 		panic(err)
@@ -21,7 +21,7 @@ func TestOpen(t *testing.T) {
 	registerMock()
 	type args struct {
 		name string
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
@@ -33,7 +33,7 @@ func TestOpen(t *testing.T) {
 			name: "1",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
 			},
 			wantErr: true,
 		},
@@ -41,12 +41,12 @@ func TestOpen(t *testing.T) {
 			name: "2",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantDw: &DBWrapper{
 				DB: &DB{
 					Source: &mockSource{
-						BaseSource: NewBaseSource(testJsonFromString("{}")),
+						BaseSource: NewBaseSource(testJSONFromString("{}")),
 						name:       "mock",
 					},
 				},
@@ -56,7 +56,7 @@ func TestOpen(t *testing.T) {
 			name: "3",
 			args: args{
 				name: "mockErr",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantErr: true,
 		},
@@ -64,12 +64,12 @@ func TestOpen(t *testing.T) {
 			name: "4",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantDw: &DBWrapper{
 				DB: &DB{
 					Source: &mockSource{
-						BaseSource: NewBaseSource(testJsonFromString("{}")),
+						BaseSource: NewBaseSource(testJSONFromString("{}")),
 						name:       "mock",
 					},
 				},
@@ -104,12 +104,12 @@ func TestDBWrapper_Close(t *testing.T) {
 
 		{
 			name: "1",
-			d:    OpenNoErr("mock", testJsonFromString("{}")),
+			d:    OpenNoErr("mock", testJSONFromString("{}")),
 			want: 1,
 		},
 		{
 			name: "2",
-			d:    OpenNoErr("mock", testJsonFromString("{}")),
+			d:    OpenNoErr("mock", testJSONFromString("{}")),
 			want: 0,
 		},
 		{

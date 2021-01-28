@@ -10,7 +10,7 @@ import (
 func TestBasePlugin(t *testing.T) {
 	ctx := context.Background()
 	p := NewBasePlugin()
-	if err := p.PreHandler(ctx, &config.Json{}); err != nil {
+	if err := p.PreHandler(ctx, &config.JSON{}); err != nil {
 		t.Errorf("PreHandler error  = %v", err)
 	}
 	if err := p.PreCheck(ctx); err != nil {
@@ -22,7 +22,7 @@ func TestBasePlugin(t *testing.T) {
 	if err := p.Post(ctx); err != nil {
 		t.Errorf("Post error  = %v", err)
 	}
-	if err := p.PostHandler(ctx, &config.Json{}); err != nil {
+	if err := p.PostHandler(ctx, &config.JSON{}); err != nil {
 		t.Errorf("PostHandler error  = %v", err)
 	}
 }

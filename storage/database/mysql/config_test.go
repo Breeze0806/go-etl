@@ -9,7 +9,7 @@ import (
 
 func TestNewConfig(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
@@ -20,7 +20,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"url" : "1",
 					"username" : "1",
 					"password": "1"
@@ -35,7 +35,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"url" : 1,
 					"username" : "1",
 					"password": "1"

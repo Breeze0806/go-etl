@@ -7,8 +7,8 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-func testJsonFromString(s string) *config.Json {
-	j, err := config.NewJsonFromString(s)
+func testJsonFromString(s string) *config.JSON {
+	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}

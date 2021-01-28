@@ -40,7 +40,8 @@ func TestResourceMap_Get(t *testing.T) {
 	resourceMap := NewResourceMap()
 
 	type args struct {
-		loadOrNew func() (MappedResource, error)
+		key    string
+		create func() (MappedResource, error)
 	}
 	tests := []struct {
 		name         string
@@ -52,7 +53,8 @@ func TestResourceMap_Get(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				loadOrNew: func() (MappedResource, error) {
+				key: "mock1",
+				create: func() (MappedResource, error) {
 					return r1, nil
 				},
 			},
@@ -61,7 +63,8 @@ func TestResourceMap_Get(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				loadOrNew: func() (MappedResource, error) {
+				key: "mock2",
+				create: func() (MappedResource, error) {
 					return r2, nil
 				},
 			},
@@ -70,8 +73,9 @@ func TestResourceMap_Get(t *testing.T) {
 		{
 			name: "3",
 			args: args{
-				loadOrNew: func() (MappedResource, error) {
-					return NewLoadMappedResource("mock1"), nil
+				key: "mock1",
+				create: func() (MappedResource, error) {
+					return newMockMappedResourceNoClose("mock1"), nil
 				},
 			},
 			wantResource: r1,
@@ -79,8 +83,9 @@ func TestResourceMap_Get(t *testing.T) {
 		{
 			name: "4",
 			args: args{
-				loadOrNew: func() (MappedResource, error) {
-					return NewLoadMappedResource("mock2"), nil
+				key: "mock2",
+				create: func() (MappedResource, error) {
+					return newMockMappedResourceNoClose("mock2"), nil
 				},
 			},
 			wantResource: r2,
@@ -88,7 +93,8 @@ func TestResourceMap_Get(t *testing.T) {
 		{
 			name: "5",
 			args: args{
-				loadOrNew: func() (MappedResource, error) {
+				key: "mock3",
+				create: func() (MappedResource, error) {
 					return nil, errors.New("mock error")
 				},
 			},
@@ -97,7 +103,7 @@ func TestResourceMap_Get(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotResource, err := resourceMap.Get(tt.args.loadOrNew)
+			gotResource, err := resourceMap.Get(tt.args.key, tt.args.create)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ResourceMap.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -123,7 +129,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "1",
 			args: args{
 				fn: func() {
-					resourceMap.Get(func() (MappedResource, error) {
+					resourceMap.Get("mock1", func() (MappedResource, error) {
 						return newMockMappedResourceNoClose("mock1"), nil
 					})
 				},
@@ -135,8 +141,8 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "2",
 			args: args{
 				fn: func() {
-					resourceMap.Get(func() (MappedResource, error) {
-						return NewLoadMappedResource("mock1"), nil
+					resourceMap.Get("mock1", func() (MappedResource, error) {
+						return newMockMappedResourceNoClose("mock1"), nil
 					})
 				},
 			},
@@ -147,7 +153,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "3",
 			args: args{
 				fn: func() {
-					resourceMap.Release(NewLoadMappedResource("mock1"))
+					resourceMap.Release(newMockMappedResourceNoClose("mock1"))
 				},
 			},
 			want: 1,
@@ -157,8 +163,8 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "4",
 			args: args{
 				fn: func() {
-					resourceMap.Get(func() (MappedResource, error) {
-						return NewLoadMappedResource("mock1"), nil
+					resourceMap.Get("mock1", func() (MappedResource, error) {
+						return newMockMappedResourceNoClose("mock1"), nil
 					})
 				},
 			},
@@ -168,8 +174,8 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "5",
 			args: args{
 				fn: func() {
-					resourceMap.Get(func() (MappedResource, error) {
-						return NewLoadMappedResource("mock1"), nil
+					resourceMap.Get("mock1", func() (MappedResource, error) {
+						return newMockMappedResourceNoClose("mock1"), nil
 					})
 				},
 			},
@@ -179,7 +185,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "6",
 			args: args{
 				fn: func() {
-					resourceMap.Release(NewLoadMappedResource("mock1"))
+					resourceMap.Release(newMockMappedResourceNoClose("mock1"))
 				},
 			},
 			want: 2,
@@ -188,7 +194,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "7",
 			args: args{
 				fn: func() {
-					resourceMap.Release(NewLoadMappedResource("mock1"))
+					resourceMap.Release(newMockMappedResourceNoClose("mock1"))
 				},
 			},
 			want: 1,
@@ -197,7 +203,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "8",
 			args: args{
 				fn: func() {
-					resourceMap.Release(NewLoadMappedResource("mock1"))
+					resourceMap.Release(newMockMappedResourceNoClose("mock1"))
 				},
 			},
 			want: 0,
@@ -206,7 +212,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 			name: "9",
 			args: args{
 				fn: func() {
-					resourceMap.Release(NewLoadMappedResource("mock1"))
+					resourceMap.Release(newMockMappedResourceNoClose("mock1"))
 				},
 			},
 			want: 0,
@@ -215,7 +221,7 @@ func TestResourceMap_UseCount(t *testing.T) {
 
 	for _, tt := range tests {
 		tt.args.fn()
-		if got := resourceMap.UseCount(NewLoadMappedResource("mock1")); got != tt.want {
+		if got := resourceMap.UseCount(newMockMappedResourceNoClose("mock1")); got != tt.want {
 			t.Errorf("run %v got: %v want: %v", tt.name, got, tt.want)
 		}
 	}
@@ -223,10 +229,10 @@ func TestResourceMap_UseCount(t *testing.T) {
 
 func TestResourceMap_Release(t *testing.T) {
 	resourceMap := NewResourceMap()
-	resourceMap.Get(func() (MappedResource, error) {
+	resourceMap.Get("mock1", func() (MappedResource, error) {
 		return newMockMappedResourceNoClose("mock1"), nil
 	})
-	resourceMap.Get(func() (MappedResource, error) {
+	resourceMap.Get("mock2", func() (MappedResource, error) {
 		return newMockMappedResource(func() error {
 			return errors.New("mock error")
 		}, "mock2"), nil
@@ -242,13 +248,13 @@ func TestResourceMap_Release(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				resource: NewLoadMappedResource("mock1"),
+				resource: newMockMappedResourceNoClose("mock1"),
 			},
 		},
 		{
 			name: "2",
 			args: args{
-				resource: NewLoadMappedResource("mock2"),
+				resource: newMockMappedResourceNoClose("mock2"),
 			},
 			wantErr: true,
 		},
@@ -266,7 +272,7 @@ func TestResourceMap_Block(t *testing.T) {
 	stop := make(chan struct{})
 	var wg2 sync.WaitGroup
 	resourceMap := NewResourceMap()
-	resourceMap.Get(func() (MappedResource, error) {
+	resourceMap.Get("mock2", func() (MappedResource, error) {
 		return newMockMappedResource(func() error {
 			wg2.Done()
 			select {
@@ -283,7 +289,7 @@ func TestResourceMap_Block(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		resourceMap.Get(func() (MappedResource, error) {
+		resourceMap.Get("mock1", func() (MappedResource, error) {
 			wg1.Done()
 			select {
 			case <-time.After(1 * time.Second):
@@ -303,7 +309,7 @@ func TestResourceMap_Block(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		wg2.Wait()
-		resourceMap.Get(func() (MappedResource, error) {
+		resourceMap.Get("mock1", func() (MappedResource, error) {
 			return newMockMappedResourceNoClose("mock1"), nil
 		})
 		resourceMap.Release(newMockMappedResourceNoClose("mock2"))

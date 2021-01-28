@@ -18,7 +18,7 @@ import (
 )
 
 type taskExecer struct {
-	taskConf     *config.Json
+	taskConf     *config.JSON
 	taskId       int64
 	ctx          context.Context
 	channel      *channel.Channel
@@ -36,7 +36,7 @@ type taskExecer struct {
 	attemptCount *atomic.Int32
 }
 
-func newTaskExecer(ctx context.Context, taskConf *config.Json, prefixKey string, attemptCount int) (t *taskExecer, err error) {
+func newTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string, attemptCount int) (t *taskExecer, err error) {
 	t = &taskExecer{
 		taskConf:     taskConf,
 		errors:       make(chan error, 2),

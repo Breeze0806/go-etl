@@ -25,7 +25,7 @@ type Container struct {
 	retryMaxCount int32
 }
 
-func NewContainer(ctx context.Context, conf *config.Json) (c *Container, err error) {
+func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
 		tasks:        newTaskManager(),
@@ -66,7 +66,7 @@ func (c *Container) Do() error {
 func (c *Container) Start() (err error) {
 	log.Infof("datax job(%v) taskgruop(%v)  start", c.jobId, c.taskGroupId)
 	defer log.Infof("datax job(%v) taskgruop(%v)  end", c.jobId, c.taskGroupId)
-	var taskConfigs []*config.Json
+	var taskConfigs []*config.JSON
 	if taskConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent); err != nil {
 		return err
 	}

@@ -533,7 +533,7 @@ func TestBaseParam_SettxOps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.b.SettxOps(tt.args.txOps)
+			tt.b.SetTxOps(tt.args.txOps)
 			if !reflect.DeepEqual(tt.b.TxOptions(), tt.want) {
 				t.Errorf("got: %v want: %v", tt.b.TxOptions(), tt.want)
 			}

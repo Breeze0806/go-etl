@@ -81,7 +81,7 @@ func TestConfig_GetMaxIdleConns(t *testing.T) {
 
 func TestNewConfig(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
@@ -92,7 +92,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
 			},
 			wantErr: true,
 		},
@@ -100,7 +100,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"1h","connMaxLifetime":"1h","maxOpenConns":10,"maxIdleConns":10}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1h","connMaxLifetime":"1h","maxOpenConns":10,"maxIdleConns":10}}`),
 			},
 			wantC: &Config{
 				Pool: PoolConfig{
@@ -114,7 +114,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"","connMaxLifetime":"","maxOpenConns":10,"maxIdleConns":10}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"","connMaxLifetime":"","maxOpenConns":10,"maxIdleConns":10}}`),
 			},
 			wantC: &Config{
 				Pool: PoolConfig{

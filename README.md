@@ -1,4 +1,5 @@
 # go-etl
+[![Go Report Card][report-img]][report][![GoDoc][doc-img]][doc][![LICENSE][license-img]][license]
 
 go-etl是一个集数据源抽取，转化，加载，同步校验的工具集，提供强大的数据同步，数据校验甚至数据转储的功能。
 
@@ -25,7 +26,7 @@ go-etl将提供的etl能力如下：
 - [x] 实现数据库的数据抽取以及数据加载框架，并单元测试
 - [x] 实现MySQL数据库数据抽取以及数据加载的相应接口，并单元测试
 - [ ] 结合MySQL测试系统测试数据库的数据抽取以及数据加载框架
-- [ ] 完善相关文档，包含代码注释（通过go lint 检查）
+- [x] 完善相关文档，包含代码注释（通过go lint 检查）
 
 ### libra
 
@@ -39,6 +40,12 @@ go-etl将提供的etl能力如下：
 
 目前计划中
 
+[report-img]:https://goreportcard.com/badge/github.com/Breeze0806/go-etl
+[report]:https://goreportcard.com/report/github.com/Breeze0806/go-etl
+[doc-img]:https://godoc.org/github.com/Breeze0806/go-etl?status.svg
+[doc]:https://godoc.org/github.com/Breeze0806/go-etl
+[license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+[license]: https://github.com/Breeze0806/go-etl/blob/main/LICENSE
 
 
 

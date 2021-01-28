@@ -125,54 +125,54 @@ var invlaidJSON = `{
 	}
 }`
 
-func testJsonFromString(s string) *Json {
-	return &Json{
-		Json: testEncodingJsonFromString(s),
+func testJSONFromString(s string) *JSON {
+	return &JSON{
+		JSON: testEncodingJSONFromString(s),
 	}
 }
 
-func testEncodingJsonFromString(s string) *encoding.Json {
-	json, err := encoding.NewJsonFromString(s)
+func testEncodingJSONFromString(s string) *encoding.JSON {
+	JSON, err := encoding.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
 	}
-	return json
+	return JSON
 }
 
-func TestNewJsonFromEncodingJson(t *testing.T) {
+func TestNewJSONFromEncodingJSON(t *testing.T) {
 	type args struct {
-		j *encoding.Json
+		j *encoding.JSON
 	}
 	tests := []struct {
 		name string
 		args args
-		want *Json
+		want *JSON
 	}{
 		{
 			name: "1",
 			args: args{
-				j: testEncodingJsonFromString(basicJSON),
+				j: testEncodingJSONFromString(basicJSON),
 			},
-			want: testJsonFromString(basicJSON),
+			want: testJSONFromString(basicJSON),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewJsonFromEncodingJson(tt.args.j); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewJsonFromEncodingJson() = %v, want %v", got, tt.want)
+			if got := NewJSONFromEncodingJSON(tt.args.j); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewJSONFromEncodingJSON() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestNewJsonFromString(t *testing.T) {
+func TestNewJSONFromString(t *testing.T) {
 	type args struct {
 		s string
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *Json
+		want    *JSON
 		wantErr bool
 	}{
 		{
@@ -180,7 +180,7 @@ func TestNewJsonFromString(t *testing.T) {
 			args: args{
 				s: basicJSON,
 			},
-			want: testJsonFromString(basicJSON),
+			want: testJSONFromString(basicJSON),
 		},
 
 		{
@@ -194,26 +194,26 @@ func TestNewJsonFromString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewJsonFromString(tt.args.s)
+			got, err := NewJSONFromString(tt.args.s)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewJsonFromString() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewJSONFromString() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewJsonFromString() = %v, want %v", got, tt.want)
+				t.Errorf("NewJSONFromString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestNewJsonFromBytes(t *testing.T) {
+func TestNewJSONFromBytes(t *testing.T) {
 	type args struct {
 		b []byte
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *Json
+		want    *JSON
 		wantErr bool
 	}{
 		{
@@ -221,7 +221,7 @@ func TestNewJsonFromBytes(t *testing.T) {
 			args: args{
 				b: []byte(basicJSON),
 			},
-			want: testJsonFromString(basicJSON),
+			want: testJSONFromString(basicJSON),
 		},
 
 		{
@@ -235,26 +235,26 @@ func TestNewJsonFromBytes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewJsonFromBytes(tt.args.b)
+			got, err := NewJSONFromBytes(tt.args.b)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewJsonFromBytes() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewJSONFromBytes() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewJsonFromBytes() = %v, want %v", got, tt.want)
+				t.Errorf("NewJSONFromBytes() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestNewJsonFromFile(t *testing.T) {
+func TestNewJSONFromFile(t *testing.T) {
 	type args struct {
 		filename string
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *Json
+		want    *JSON
 		wantErr bool
 	}{
 		{
@@ -269,41 +269,41 @@ func TestNewJsonFromFile(t *testing.T) {
 			args: args{
 				"test_data",
 			},
-			want: testJsonFromString(strings.ReplaceAll(basicJSON, "\n", "\r\n")),
+			want: testJSONFromString(strings.ReplaceAll(basicJSON, "\n", "\r\n")),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewJsonFromFile(tt.args.filename)
+			got, err := NewJSONFromFile(tt.args.filename)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewJsonFromFile() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewJSONFromFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewJsonFromFile() = %v, want %v", got, tt.want)
+				t.Errorf("NewJSONFromFile() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetConfig(t *testing.T) {
+func TestJSON_GetConfig(t *testing.T) {
 	type args struct {
 		path string
 	}
 	tests := []struct {
 		name    string
-		j       *Json
+		j       *JSON
 		args    args
-		want    *Json
+		want    *JSON
 		wantErr bool
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "loggy.programmers.0",
 			},
-			want: testJsonFromString(`{
+			want: testJSONFromString(`{
 				"firstName": "Brett",
 				"lastName": "McLaughlin",
 				"email": "aaaa",
@@ -314,7 +314,7 @@ func TestJson_GetConfig(t *testing.T) {
 
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "loggy.programmers.0.firstName",
 			},
@@ -322,7 +322,7 @@ func TestJson_GetConfig(t *testing.T) {
 		},
 		{
 			name: "3",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "loggy.programmers.0.1111",
 			},
@@ -333,7 +333,7 @@ func TestJson_GetConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.j.GetConfig(tt.args.path)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Json.GetConfig() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("JSON.GetConfig() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -341,26 +341,26 @@ func TestJson_GetConfig(t *testing.T) {
 				return
 			}
 			if got.String() != tt.want.String() {
-				t.Errorf("Json.GetConfig() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetConfig() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetBoolOrDefaullt(t *testing.T) {
+func TestJSON_GetBoolOrDefaullt(t *testing.T) {
 	type args struct {
 		path         string
 		defaultValue bool
 	}
 	tests := []struct {
 		name string
-		j    *Json
+		j    *JSON
 		args args
 		want bool
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "happy",
 			},
@@ -369,14 +369,14 @@ func TestJson_GetBoolOrDefaullt(t *testing.T) {
 
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "immortal",
 			},
 		},
 		{
 			name: "3",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path:         "loggy.programmers.0",
 				defaultValue: true,
@@ -387,26 +387,26 @@ func TestJson_GetBoolOrDefaullt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.j.GetBoolOrDefaullt(tt.args.path, tt.args.defaultValue); got != tt.want {
-				t.Errorf("Json.GetBoolOrDefaullt() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetBoolOrDefaullt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetInt64OrDefaullt(t *testing.T) {
+func TestJSON_GetInt64OrDefaullt(t *testing.T) {
 	type args struct {
 		path         string
 		defaultValue int64
 	}
 	tests := []struct {
 		name string
-		j    *Json
+		j    *JSON
 		args args
 		want int64
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "age",
 			},
@@ -414,7 +414,7 @@ func TestJson_GetInt64OrDefaullt(t *testing.T) {
 		},
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path:         "arr",
 				defaultValue: 1,
@@ -425,26 +425,26 @@ func TestJson_GetInt64OrDefaullt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.j.GetInt64OrDefaullt(tt.args.path, tt.args.defaultValue); got != tt.want {
-				t.Errorf("Json.GetInt64OrDefaullt() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetInt64OrDefaullt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetFloat64OrDefaullt(t *testing.T) {
+func TestJSON_GetFloat64OrDefaullt(t *testing.T) {
 	type args struct {
 		path         string
 		defaultValue float64
 	}
 	tests := []struct {
 		name string
-		j    *Json
+		j    *JSON
 		args args
 		want float64
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "loggy.programmers.3.firstName",
 			},
@@ -452,7 +452,7 @@ func TestJson_GetFloat64OrDefaullt(t *testing.T) {
 		},
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path:         "arr",
 				defaultValue: 10.1,
@@ -463,26 +463,26 @@ func TestJson_GetFloat64OrDefaullt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.j.GetFloat64OrDefaullt(tt.args.path, tt.args.defaultValue); got != tt.want {
-				t.Errorf("Json.GetFloat64OrDefaullt() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetFloat64OrDefaullt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetStringOrDefaullt(t *testing.T) {
+func TestJSON_GetStringOrDefaullt(t *testing.T) {
 	type args struct {
 		path         string
 		defaultValue string
 	}
 	tests := []struct {
 		name string
-		j    *Json
+		j    *JSON
 		args args
 		want string
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "name.first",
 			},
@@ -490,7 +490,7 @@ func TestJson_GetStringOrDefaullt(t *testing.T) {
 		},
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path:         "arr",
 				defaultValue: "test",
@@ -501,15 +501,15 @@ func TestJson_GetStringOrDefaullt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.j.GetStringOrDefaullt(tt.args.path, tt.args.defaultValue); got != tt.want {
-				t.Errorf("Json.GetStringOrDefaullt() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetStringOrDefaullt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJson_GetConfigArray(t *testing.T) {
-	forArray := func(s string, path string) []*encoding.Json {
-		a, err := testEncodingJsonFromString(s).GetArray(path)
+func TestJSON_GetConfigArray(t *testing.T) {
+	forArray := func(s string, path string) []*encoding.JSON {
+		a, err := testEncodingJSONFromString(s).GetArray(path)
 		if err != nil {
 			panic(err)
 		}
@@ -521,14 +521,14 @@ func TestJson_GetConfigArray(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		j       *Json
+		j       *JSON
 		args    args
-		want    []*encoding.Json
+		want    []*encoding.JSON
 		wantErr bool
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "vals",
 			},
@@ -536,7 +536,7 @@ func TestJson_GetConfigArray(t *testing.T) {
 		},
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "val",
 			},
@@ -547,26 +547,26 @@ func TestJson_GetConfigArray(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.j.GetConfigArray(tt.args.path)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Json.GetConfigArray() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("JSON.GetConfigArray() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if len(got) != len(tt.want) {
-				t.Errorf("Json.GetConfigArray() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetConfigArray() = %v, want %v", got, tt.want)
 				return
 			}
 
 			for i := range got {
 				if got[i].String() != tt.want[i].String() {
-					t.Errorf("Json.GetConfigArray() = %v, want %v", got, tt.want)
+					t.Errorf("JSON.GetConfigArray() = %v, want %v", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestJson_GetConfigMap(t *testing.T) {
-	forMap := func(s string, path string) map[string]*encoding.Json {
-		m, err := testEncodingJsonFromString(s).GetMap(path)
+func TestJSON_GetConfigMap(t *testing.T) {
+	forMap := func(s string, path string) map[string]*encoding.JSON {
+		m, err := testEncodingJSONFromString(s).GetMap(path)
 		if err != nil {
 			panic(err)
 		}
@@ -578,14 +578,14 @@ func TestJson_GetConfigMap(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		j       *Json
+		j       *JSON
 		args    args
-		want    map[string]*encoding.Json
+		want    map[string]*encoding.JSON
 		wantErr bool
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "name",
 			},
@@ -593,7 +593,7 @@ func TestJson_GetConfigMap(t *testing.T) {
 		},
 		{
 			name: "2",
-			j:    testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
 			args: args{
 				path: "vals",
 			},
@@ -604,33 +604,33 @@ func TestJson_GetConfigMap(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.j.GetConfigMap(tt.args.path)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Json.GetConfigMap() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("JSON.GetConfigMap() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if len(got) != len(tt.want) {
-				t.Errorf("Json.GetConfigArray() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.GetConfigArray() = %v, want %v", got, tt.want)
 				return
 			}
 
 			for k := range got {
 				if got[k].String() != tt.want[k].String() {
-					t.Errorf("Json.GetConfigArray() = %v, want %v", got, tt.want)
+					t.Errorf("JSON.GetConfigArray() = %v, want %v", got, tt.want)
 				}
 			}
 		})
 	}
 }
 
-func TestJson_CloneConfig(t *testing.T) {
+func TestJSON_CloneConfig(t *testing.T) {
 	tests := []struct {
 		name string
-		j    *Json
-		want *Json
+		j    *JSON
+		want *JSON
 	}{
 		{
 			name: "1",
-			j:    testJsonFromString(basicJSON),
-			want: testJsonFromString(basicJSON),
+			j:    testJSONFromString(basicJSON),
+			want: testJSONFromString(basicJSON),
 		},
 	}
 	for _, tt := range tests {
@@ -638,12 +638,12 @@ func TestJson_CloneConfig(t *testing.T) {
 			got := tt.j.CloneConfig()
 
 			if got == tt.want {
-				t.Errorf("Json.CloneConfig() = %p, want %p", got, tt.want)
+				t.Errorf("JSON.CloneConfig() = %p, want %p", got, tt.want)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Json.CloneConfig() = %v, want %v", got, tt.want)
+				t.Errorf("JSON.CloneConfig() = %v, want %v", got, tt.want)
 			}
 		})
 	}

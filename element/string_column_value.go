@@ -9,44 +9,53 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+//NilStringColumnValue 空值字符串列值
 type NilStringColumnValue struct {
 	nilColumnValue
 }
 
+//NewNilStringColumnValue 创建空值字符串列值
 func NewNilStringColumnValue() ColumnValue {
 	return &NilStringColumnValue{}
 }
 
+//Type 列类型
 func (n *NilStringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
+//Clone 克隆空值字符串
 func (n *NilStringColumnValue) Clone() ColumnValue {
 	return NewNilStringColumnValue()
 }
 
-//StringColumnValue 注意：Decimal 123.0（val:1230,exp:-1）和123（val:123,exp:0）不一致
+//StringColumnValue 字符串列名 注意：Decimal 123.0（val:1230,exp:-1）和123（val:123,exp:0）不一致
 type StringColumnValue struct {
 	notNilColumnValue
 	TimeEncoder
 	val string
 }
 
+//NewStringColumnValue 根据字符串s 生成字符串列值
 func NewStringColumnValue(s string) ColumnValue {
 	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(time.RFC3339Nano))
 }
 
+//NewStringColumnValueWithEncoder 根据字符串s 时间编码器e生成字符串列值
 func NewStringColumnValueWithEncoder(s string, e TimeEncoder) ColumnValue {
 	return &StringColumnValue{
-		TimeEncoder:       e,
-		val:               s,
+		TimeEncoder: e,
+		val:         s,
 	}
 }
 
+//Type 列类型
 func (s *StringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
+//AsBool 1, t, T, TRUE, true, True转化为true
+//0, f, F, FALSE, false, False转化为false，如果不是上述情况会报错
 func (s *StringColumnValue) AsBool() (v bool, err error) {
 	v, err = strconv.ParseBool(s.val)
 	if err != nil {
@@ -55,6 +64,8 @@ func (s *StringColumnValue) AsBool() (v bool, err error) {
 	return
 }
 
+//AsBigInt 转化为整数，实数型以及科学性计数法字符串会被取整，不是数值型的会报错
+//如123.67转化为123 123.12转化为123
 func (s *StringColumnValue) AsBigInt() (*big.Int, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
@@ -63,6 +74,7 @@ func (s *StringColumnValue) AsBigInt() (*big.Int, error) {
 	return v.AsBigInt()
 }
 
+//AsDecimal 转化为整数，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
 func (s *StringColumnValue) AsDecimal() (decimal.Decimal, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
@@ -72,14 +84,17 @@ func (s *StringColumnValue) AsDecimal() (decimal.Decimal, error) {
 	return v.AsDecimal()
 }
 
+//AsString 转化为字符串
 func (s *StringColumnValue) AsString() (string, error) {
 	return s.val, nil
 }
 
+//AsBytes 转化成字节流
 func (s *StringColumnValue) AsBytes() ([]byte, error) {
 	return []byte(s.val), nil
 }
 
+//AsTime 根据时间编码器转化成时间，不符合时间编码器格式会报错
 func (s *StringColumnValue) AsTime() (t time.Time, err error) {
 	t, err = s.TimeEncode(s.val)
 	if err != nil {
@@ -92,6 +107,7 @@ func (s *StringColumnValue) String() string {
 	return s.val
 }
 
+//Clone 克隆字符串列值
 func (s *StringColumnValue) Clone() ColumnValue {
 	return NewStringColumnValue(s.val)
 }

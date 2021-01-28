@@ -9,34 +9,43 @@ type mappedResouceWrapper struct {
 	useCount int
 }
 
+//ResourceMap 资源映射，每一个资源类似于智能指针
 type ResourceMap struct {
 	mu sync.Mutex
 
 	resources map[string]*mappedResouceWrapper
 }
 
+//NewResourceMap 创建资源映射
 func NewResourceMap() *ResourceMap {
 	return &ResourceMap{
 		resources: make(map[string]*mappedResouceWrapper),
 	}
 }
 
-func (r *ResourceMap) Get(loadOrNew func() (MappedResource, error)) (resource MappedResource, err error) {
-	var newResource MappedResource
-	ok := false
-	if newResource, err = loadOrNew(); err != nil {
-		return nil, err
-	}
-
+//Get 根据关键字key获取资源，若不存在，就通过函数create创建资源
+//若创建资源错误时，就会返回错误
+func (r *ResourceMap) Get(key string, create func() (MappedResource, error)) (resource MappedResource, err error) {
+	var ok bool
 	r.mu.Lock()
-	defer r.mu.Unlock()
-	if resource, ok = r.loadLocked(newResource); ok {
+	if resource, ok = r.loadLocked(key); ok {
+		r.mu.Unlock()
 		return
 	}
+	r.mu.Unlock()
+	var newResource MappedResource
+	if newResource, err = create(); err != nil {
+		return nil, err
+	}
+	r.mu.Lock()
 	r.storageLocked(newResource)
+	r.mu.Unlock()
+	resource = newResource
 	return
 }
 
+//Release 根据资源resource释放资源，若不存在，就通过函数create创建资源
+//若创建资源错误时，就会返回错误
 func (r *ResourceMap) Release(resource MappedResource) (err error) {
 	r.mu.Lock()
 	fn := r.releaseLocked(resource)
@@ -44,20 +53,20 @@ func (r *ResourceMap) Release(resource MappedResource) (err error) {
 	return fn()
 }
 
+//UseCount 根据资源resource计算已使用个数
 func (r *ResourceMap) UseCount(resource MappedResource) int {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	return r.useCountLocked(resource)
 }
 
-func (r *ResourceMap) loadLocked(newResource MappedResource) (resource MappedResource, ok bool) {
+func (r *ResourceMap) loadLocked(key string) (resource MappedResource, ok bool) {
 	var rw *mappedResouceWrapper
-	if rw, ok = r.resources[newResource.Key()]; ok {
+	if rw, ok = r.resources[key]; ok {
 		resource, rw.useCount = rw.resource, rw.useCount+1
+		resource = rw.resource
 		return
 	}
-
-	resource = newResource
 	return
 }
 

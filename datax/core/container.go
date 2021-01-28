@@ -10,7 +10,7 @@ type Container interface {
 }
 
 type BaseCotainer struct {
-	conf *config.Json
+	conf *config.JSON
 	com  communication.Communication
 }
 
@@ -18,11 +18,11 @@ func NewBaseCotainer() *BaseCotainer {
 	return &BaseCotainer{}
 }
 
-func (b *BaseCotainer) SetConfig(conf *config.Json) {
+func (b *BaseCotainer) SetConfig(conf *config.JSON) {
 	b.conf = conf
 }
 
-func (b *BaseCotainer) Config() *config.Json {
+func (b *BaseCotainer) Config() *config.JSON {
 	return b.conf
 }
 

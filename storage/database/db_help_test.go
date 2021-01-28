@@ -219,7 +219,7 @@ func (m *mockRows) Next(dest []driver.Value) error {
 	return nil
 }
 
-func testDB(name string, conf *config.Json) (db *DB, err error) {
+func testDB(name string, conf *config.JSON) (db *DB, err error) {
 	var source Source
 	if source, err = NewSource(name, conf); err != nil {
 		return
@@ -228,7 +228,7 @@ func testDB(name string, conf *config.Json) (db *DB, err error) {
 	return NewDB(source)
 }
 
-func testMustDB(name string, conf *config.Json) *DB {
+func testMustDB(name string, conf *config.JSON) *DB {
 	db, err := testDB(name, conf)
 	if err != nil {
 		panic(err)

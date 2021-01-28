@@ -14,7 +14,7 @@ import (
 
 func TestNewContainer(t *testing.T) {
 	type args struct {
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
@@ -1444,14 +1444,14 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 func TestContainer_mergeTaskConfigs(t *testing.T) {
 
 	type args struct {
-		readerConfs []*config.Json
-		writerConfs []*config.Json
+		readerConfs []*config.JSON
+		writerConfs []*config.JSON
 	}
 	tests := []struct {
 		name            string
 		c               *Container
 		args            args
-		wantTaskConfigs []*config.Json
+		wantTaskConfigs []*config.JSON
 		wantErr         bool
 	}{
 		{
@@ -1485,18 +1485,18 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 				}
 			}`)),
 			args: args{
-				readerConfs: []*config.Json{
+				readerConfs: []*config.JSON{
 					testJsonFromString(`{"id":1}`),
 					testJsonFromString(`{"id":2}`),
 					testJsonFromString(`{"id":3}`),
 				},
-				writerConfs: []*config.Json{
+				writerConfs: []*config.JSON{
 					testJsonFromString(`{"id":4}`),
 					testJsonFromString(`{"id":5}`),
 					testJsonFromString(`{"id":6}`),
 				},
 			},
-			wantTaskConfigs: []*config.Json{
+			wantTaskConfigs: []*config.JSON{
 				testJsonFromString(`{
 					"taskId":0,
 					"reader":{
@@ -1582,12 +1582,12 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 				}
 			}`)),
 			args: args{
-				readerConfs: []*config.Json{
+				readerConfs: []*config.JSON{
 					testJsonFromString(`{"id":1}`),
 					testJsonFromString(`{"id":2}`),
 					testJsonFromString(`{"id":3}`),
 				},
-				writerConfs: []*config.Json{
+				writerConfs: []*config.JSON{
 					testJsonFromString(`{"id":4}`),
 					testJsonFromString(`{"id":5}`),
 					testJsonFromString(`{"id":6}`),
@@ -1627,12 +1627,12 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 				}
 			}`)),
 			args: args{
-				readerConfs: []*config.Json{
+				readerConfs: []*config.JSON{
 					testJsonFromString(`{"id":1}`),
 					testJsonFromString(`{"id":2}`),
 					testJsonFromString(`{"id":3}`),
 				},
-				writerConfs: []*config.Json{
+				writerConfs: []*config.JSON{
 					testJsonFromString(`{"id":4}`),
 					testJsonFromString(`{"id":5}`),
 					testJsonFromString(`{"id":6}`),
@@ -1671,21 +1671,21 @@ func TestContainer_split(t *testing.T) {
 	resetLoader()
 	loader.RegisterReader("mock", newMockReader([]error{
 		nil, nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
 	}))
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":4}`),
 		testJsonFromString(`{"id":5}`),
 		testJsonFromString(`{"id":6}`),
 	}))
 	loader.RegisterWriter("mockx", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":4}`),
 		testJsonFromString(`{"id":5}`),
 	}))
@@ -1705,7 +1705,7 @@ func TestContainer_split(t *testing.T) {
 		name       string
 		c          *Container
 		wantErr    bool
-		wantConfig *config.Json
+		wantConfig *config.JSON
 	}{
 		{
 			name: "1",
@@ -2447,7 +2447,7 @@ func Test_doAssign(t *testing.T) {
 
 func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 	type args struct {
-		tasksConfigs []*config.Json
+		tasksConfigs []*config.JSON
 	}
 	tests := []struct {
 		name string
@@ -2457,7 +2457,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				tasksConfigs: []*config.Json{
+				tasksConfigs: []*config.JSON{
 					testJsonFromString(`{
 						"reader":{
 							"parameter":{
@@ -2581,7 +2581,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				tasksConfigs: []*config.Json{
+				tasksConfigs: []*config.JSON{
 					testJsonFromString(`{
 						"reader":{
 							"parameter":{
@@ -2715,7 +2715,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 	tests := []struct {
 		name              string
 		c                 *Container
-		wantConfs         []*config.Json
+		wantConfs         []*config.JSON
 		needChannelNumber int64
 		wantErr           bool
 	}{
@@ -2855,7 +2855,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 				}	
 			}`)),
 			needChannelNumber: 8,
-			wantConfs: []*config.Json{
+			wantConfs: []*config.JSON{
 				testJsonFromString(`{
 					"core":{
 						"container": {
@@ -3114,7 +3114,7 @@ func TestContainer_Start(t *testing.T) {
 	resetLoader()
 	loader.RegisterReader("mock", newMockReader([]error{
 		nil, nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
@@ -3122,7 +3122,7 @@ func TestContainer_Start(t *testing.T) {
 
 	loader.RegisterReader("mock0", newMockReader([]error{
 		errors.New("mock test error"), nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
@@ -3130,7 +3130,7 @@ func TestContainer_Start(t *testing.T) {
 
 	loader.RegisterReader("mock1", newMockReader([]error{
 		nil, errors.New("mock test error"), nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
@@ -3138,28 +3138,28 @@ func TestContainer_Start(t *testing.T) {
 
 	loader.RegisterReader("mock2", newMockReader([]error{
 		nil, nil, errors.New("mock test error"), nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
 	}))
 	loader.RegisterReader("mock3", newMockReader([]error{
 		nil, nil, nil, errors.New("mock test error"), nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
 	}))
 	loader.RegisterReader("mock4", newMockReader([]error{
 		nil, nil, nil, nil, errors.New("mock test error"),
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":1}`),
 		testJsonFromString(`{"id":2}`),
 		testJsonFromString(`{"id":3}`),
 	}))
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
-	}, []*config.Json{
+	}, []*config.JSON{
 		testJsonFromString(`{"id":4}`),
 		testJsonFromString(`{"id":5}`),
 		testJsonFromString(`{"id":6}`),

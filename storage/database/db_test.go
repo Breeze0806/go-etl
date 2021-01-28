@@ -13,7 +13,7 @@ import (
 
 func TestDB(t *testing.T) {
 	registerMock()
-	db, err := testDB("mock", testJsonFromString("{}"))
+	db, err := testDB("mock", testJSONFromString("{}"))
 	if err != nil {
 		t.Errorf("Open mock error %v", err)
 		return
@@ -66,7 +66,7 @@ func TestDB(t *testing.T) {
 		gotRecords = append(gotRecords, r)
 		return nil
 	}); err != nil {
-		t.Errorf("FetchTable error %v", err)
+		t.Errorf("FetchRecord error %v", err)
 		return
 	}
 	columns := [][]element.Column{
@@ -101,7 +101,7 @@ func TestDB(t *testing.T) {
 		gotRecords = append(gotRecords, r)
 		return nil
 	}); err != nil {
-		t.Errorf("FetchTable error %v", err)
+		t.Errorf("FetchRecordWithTx error %v", err)
 		return
 	}
 	if !reflect.DeepEqual(gotRecords, wantRecords) {
@@ -114,7 +114,7 @@ func TestDB(t *testing.T) {
 		Mode:      "insert",
 		Records:   wantRecords,
 	}); err != nil {
-		t.Errorf("FetchTable error %v", err)
+		t.Errorf("BatchExec error %v", err)
 		return
 	}
 
@@ -124,7 +124,7 @@ func TestDB(t *testing.T) {
 		Mode:      "insert",
 		Records:   wantRecords,
 	}); err != nil {
-		t.Errorf("FetchTable error %v", err)
+		t.Errorf("BatchExecWithTx error %v", err)
 		return
 	}
 
@@ -134,7 +134,7 @@ func TestDB(t *testing.T) {
 		Mode:      "insert",
 		Records:   wantRecords,
 	}); err != nil {
-		t.Errorf("FetchTable error %v", err)
+		t.Errorf("BatchExecStmtWithTx error %v", err)
 		return
 	}
 }
@@ -143,7 +143,7 @@ func TestNewDB(t *testing.T) {
 	registerMock()
 	type args struct {
 		name string
-		conf *config.Json
+		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
@@ -154,7 +154,7 @@ func TestNewDB(t *testing.T) {
 			name: "1",
 			args: args{
 				name: "test",
-				conf: testJsonFromString("{}"),
+				conf: testJSONFromString("{}"),
 			},
 			wantErr: true,
 		},
@@ -162,7 +162,7 @@ func TestNewDB(t *testing.T) {
 			name: "2",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
 			},
 			wantErr: true,
 		},
@@ -170,7 +170,7 @@ func TestNewDB(t *testing.T) {
 			name: "3",
 			args: args{
 				name: "mock",
-				conf: testJsonFromString(`{"pool":{"connMaxIdleTime":"1s","connMaxLifetime":"1s"}}`),
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1s","connMaxLifetime":"1s"}}`),
 			},
 		},
 	}
@@ -205,7 +205,7 @@ func TestDB_FetchTableWithParam(t *testing.T) {
 	}{
 		{
 			name: "1",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				param: NewTableQueryParam(&mockTableWithOther{
@@ -230,7 +230,7 @@ func TestDB_FetchTableWithParam(t *testing.T) {
 		},
 		{
 			name: "2",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				param: NewTableQueryParam(&mockTableWithOther{
@@ -244,7 +244,7 @@ func TestDB_FetchTableWithParam(t *testing.T) {
 		},
 		{
 			name: "3",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				param: NewTableQueryParam(&mockTableWithNoAdder{
@@ -255,7 +255,7 @@ func TestDB_FetchTableWithParam(t *testing.T) {
 		},
 		{
 			name: "4",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				param: &mockParameter{
@@ -498,7 +498,7 @@ func TestDB_BatchExec(t *testing.T) {
 	}{
 		{
 			name: "1",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -522,7 +522,7 @@ func TestDB_BatchExec(t *testing.T) {
 		},
 		{
 			name: "2",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -546,7 +546,7 @@ func TestDB_BatchExec(t *testing.T) {
 		},
 		{
 			name: "3",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -591,7 +591,7 @@ func TestDB_BatchExecWithTx(t *testing.T) {
 	}{
 		{
 			name: "1",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -615,7 +615,7 @@ func TestDB_BatchExecWithTx(t *testing.T) {
 		},
 		{
 			name: "2",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -639,7 +639,7 @@ func TestDB_BatchExecWithTx(t *testing.T) {
 		},
 		{
 			name: "3",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -684,7 +684,7 @@ func TestDB_BatchExecStmtWithTx(t *testing.T) {
 	}{
 		{
 			name: "1",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -708,7 +708,7 @@ func TestDB_BatchExecStmtWithTx(t *testing.T) {
 		},
 		{
 			name: "2",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -732,7 +732,7 @@ func TestDB_BatchExecStmtWithTx(t *testing.T) {
 		},
 		{
 			name: "3",
-			d:    testMustDB("mock", testJsonFromString("{}")),
+			d:    testMustDB("mock", testJSONFromString("{}")),
 			args: args{
 				ctx: context.TODO(),
 				opts: &ParameterOptions{
@@ -765,7 +765,7 @@ func TestDB_BatchExecStmtWithTx(t *testing.T) {
 
 func TestDB_FetchRecord(t *testing.T) {
 	registerMock()
-	db := testMustDB("mock", testJsonFromString("{}"))
+	db := testMustDB("mock", testJSONFromString("{}"))
 	defer db.Close()
 	table, _ := db.FetchTable(context.TODO(), NewBaseTable("db", "schema", "table"))
 	type args struct {
@@ -820,7 +820,7 @@ func TestDB_FetchRecord(t *testing.T) {
 
 func TestDB_FetchRecordWithTx(t *testing.T) {
 	registerMock()
-	db := testMustDB("mock", testJsonFromString("{}"))
+	db := testMustDB("mock", testJSONFromString("{}"))
 	defer db.Close()
 	table, _ := db.FetchTable(context.TODO(), NewBaseTable("db", "schema", "table"))
 	type args struct {

@@ -11,7 +11,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 )
 
-func testTaskExecer(ctx context.Context, taskConf *config.Json, prefixKey string, attemptCount int) *taskExecer {
+func testTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string, attemptCount int) *taskExecer {
 	t, err := newTaskExecer(ctx, taskConf, prefixKey, attemptCount)
 	if err != nil {
 		panic(err)
@@ -32,7 +32,7 @@ func Test_newTaskExecer(t *testing.T) {
 
 	type args struct {
 		ctx          context.Context
-		taskConf     *config.Json
+		taskConf     *config.JSON
 		prefixKey    string
 		attemptCount int
 	}
