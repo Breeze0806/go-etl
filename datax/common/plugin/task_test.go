@@ -21,9 +21,9 @@ func (m *mockTaskCollector) CollectDirtyRecord(record element.Record, err error,
 func (m *mockTaskCollector) CollectMessage(key string, value string) {
 	return
 }
-func TestBaseTask_SetTaskId(t *testing.T) {
+func TestBaseTask_SetTaskID(t *testing.T) {
 	type args struct {
-		taskId int
+		taskID int
 	}
 	tests := []struct {
 		name string
@@ -35,24 +35,24 @@ func TestBaseTask_SetTaskId(t *testing.T) {
 			name: "1",
 			b:    NewBaseTask(),
 			args: args{
-				taskId: 1,
+				taskID: 1,
 			},
 			want: 1,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.b.SetTaskId(tt.args.taskId)
-			if tt.b.TaskId() != tt.want {
-				t.Errorf("TaskId() = %v want %v", tt.b.TaskId(), tt.want)
+			tt.b.SetTaskID(tt.args.taskID)
+			if tt.b.TaskID() != tt.want {
+				t.Errorf("TaskId() = %v want %v", tt.b.TaskID(), tt.want)
 			}
 		})
 	}
 }
 
-func TestBaseTask_SetTaskGroupId(t *testing.T) {
+func TestBaseTask_SetTaskGroupID(t *testing.T) {
 	type args struct {
-		taskGroupId int
+		taskGroupID int
 	}
 	tests := []struct {
 		name string
@@ -64,16 +64,16 @@ func TestBaseTask_SetTaskGroupId(t *testing.T) {
 			name: "1",
 			b:    NewBaseTask(),
 			args: args{
-				taskGroupId: 1,
+				taskGroupID: 1,
 			},
 			want: 1,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.b.SetTaskGroupId(tt.args.taskGroupId)
-			if tt.b.TaskGroupId() != tt.want {
-				t.Errorf("TaskGroupId() = %v want %v", tt.b.TaskGroupId(), tt.want)
+			tt.b.SetTaskGroupID(tt.args.taskGroupID)
+			if tt.b.TaskGroupID() != tt.want {
+				t.Errorf("TaskGroupId() = %v want %v", tt.b.TaskGroupID(), tt.want)
 			}
 		})
 	}

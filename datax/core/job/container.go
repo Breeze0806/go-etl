@@ -21,10 +21,11 @@ import (
 	"github.com/Breeze0806/go-etl/schedule"
 )
 
+//Container 工作容器环境，所有的工作都在本容器环境中执行
 type Container struct {
 	ctx context.Context
 	*core.BaseCotainer
-	jobId                  int64
+	jobID                  int64
 	readerPluginName       string
 	writerPluginName       string
 	jobReader              reader.Job
@@ -36,54 +37,58 @@ type Container struct {
 	endTransferTimeStamp   int64
 	needChannelNumber      int64
 	totalStage             int
-	errorLimit             util.ErrorRecordChecker
-	taskSchduler           *schedule.TaskSchduler
-	wg                     sync.WaitGroup
+	//todo ErrorRecordChecker未使用
+	errorLimit   util.ErrorRecordChecker
+	taskSchduler *schedule.TaskSchduler
+	wg           sync.WaitGroup
 }
 
+//NewContainer 通过上下文ctx和JSON配置conf生成工作容器环境
+//当container job id小于0时，会报错
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
 		ctx:          ctx,
 	}
 	c.SetConfig(conf)
-	c.jobId = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobId, -1)
-	if c.jobId < 0 {
+	c.jobID = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobID, -1)
+	if c.jobID < 0 {
 		return nil, fmt.Errorf("container job id is invalid")
 	}
 	return
 }
 
+//Start 工作容器开始工作
 func (c *Container) Start() (err error) {
-	log.Infof("DataX jobContainer %v starts job.", c.jobId)
+	log.Infof("DataX jobContainer %v starts job.", c.jobID)
 	defer c.destroy()
 	c.userConf = c.Config().CloneConfig()
 
-	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobId)
+	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobID)
 	if err = c.preHandle(); err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to init.", c.jobId)
+	log.Infof("DataX jobContainer %v starts to init.", c.jobID)
 	if err = c.init(); err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to prepare.", c.jobId)
+	log.Infof("DataX jobContainer %v starts to prepare.", c.jobID)
 	if err = c.prepare(); err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to split.", c.jobId)
+	log.Infof("DataX jobContainer %v starts to split.", c.jobID)
 	if err = c.split(); err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to schedule.", c.jobId)
+	log.Infof("DataX jobContainer %v starts to schedule.", c.jobID)
 	if err = c.schedule(); err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to post.", c.jobId)
+	log.Infof("DataX jobContainer %v starts to post.", c.jobID)
 	if err = c.post(); err != nil {
 		return
 	}
-	log.Debugf("DataX jobContainer %v starts to postHandle.", c.jobId)
+	log.Debugf("DataX jobContainer %v starts to postHandle.", c.jobID)
 	if err = c.postHandle(); err != nil {
 		return
 	}
@@ -91,11 +96,13 @@ func (c *Container) Start() (err error) {
 	return nil
 }
 
+//destroy 销毁，在jobReader不为空时进行销毁
+//在jobWriter不为空时进行销毁
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
 		if rerr := c.jobReader.Destroy(c.ctx); rerr != nil {
 			log.Errorf("DataX jobContainer %v jobReader %s destroy error: %v",
-				c.jobId, c.readerPluginName, rerr)
+				c.jobID, c.readerPluginName, rerr)
 			err = rerr
 		}
 	}
@@ -103,13 +110,16 @@ func (c *Container) destroy() (err error) {
 	if c.jobWriter != nil {
 		if werr := c.jobWriter.Destroy(c.ctx); werr != nil {
 			log.Errorf("DataX jobContainer %v jobWriter %s destroy error: %v",
-				c.jobId, c.writerPluginName, werr)
+				c.jobID, c.writerPluginName, werr)
 			err = werr
 		}
 	}
 	return
 }
 
+//init 检查并初始化读取器和写入器工作
+//当配置文件读取器和写入器的名字和参数不存在的情况下会报错
+//另外，读取器和写入器工作初始化失败也会导致报错
 func (c *Container) init() (err error) {
 	c.readerPluginName, err = c.Config().GetString(coreconst.DataxJobContentReaderName)
 	if err != nil {
@@ -137,35 +147,43 @@ func (c *Container) init() (err error) {
 	if err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v reader %v inited", c.jobId, c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v inited", c.jobID, c.readerPluginName)
 	c.jobWriter, err = c.initWriterJob(collector, readerConfig, writerConfig)
 	if err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v writer %v inited", c.jobId, c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v inited", c.jobID, c.writerPluginName)
 	return
 }
 
+//prepare 准备读取器和写入器工作
+//如果读取器和写入器工作准备失败就会报错
 func (c *Container) prepare() (err error) {
 	if err = c.prepareReaderJob(); err != nil {
 		return err
 	}
-	log.Infof("DataX jobContainer %v reader %v prepared", c.jobId, c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v prepared", c.jobID, c.readerPluginName)
 	if err = c.prepareWriterJob(); err != nil {
 		return err
 	}
-	log.Infof("DataX jobContainer %v writer %v prepared", c.jobId, c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v prepared", c.jobID, c.writerPluginName)
 	return
 }
 
+//prepareReaderJob 准备读取工作
 func (c *Container) prepareReaderJob() error {
 	return c.jobReader.Prepare(c.ctx)
 }
 
+//prepareReaderJob 准备写入工作
 func (c *Container) prepareWriterJob() error {
 	return c.jobWriter.Prepare(c.ctx)
 }
 
+//split 切分读取器和写入器工作
+//先进行读取工作切分成多个任务，再根据读取工作切分的结果进行写入工作切分多个任务
+//然后逐个将单个读取任务、单个写入任务和转化器组合成完整任务组，由于reader，writer，channel模型
+//切分时读取器和写入器的比例为1:1，所以这里可以将reader和writer的配置整合到一起
 func (c *Container) split() (err error) {
 	if err = c.adjustChannelNumber(); err != nil {
 		return
@@ -186,7 +204,7 @@ func (c *Container) split() (err error) {
 	}
 
 	taskNumber := len(readerConfs)
-	log.Infof("DataX jobContainer %v reader %v split %v tasks", c.jobId, c.readerPluginName, taskNumber)
+	log.Infof("DataX jobContainer %v reader %v split %v tasks", c.jobID, c.readerPluginName, taskNumber)
 	writerConfs, err = c.jobWriter.Split(c.ctx, taskNumber)
 	if err != nil {
 		return
@@ -196,7 +214,7 @@ func (c *Container) split() (err error) {
 		err = fmt.Errorf("writer split fail, config is empty")
 		return
 	}
-	log.Infof("DataX jobContainer %v writer %v split %v tasks", c.jobId, c.readerPluginName, len(writerConfs))
+	log.Infof("DataX jobContainer %v writer %v split %v tasks", c.jobID, c.readerPluginName, len(writerConfs))
 
 	tasksConfigs, err = c.mergeTaskConfigs(readerConfs, writerConfs)
 	if err != nil {
@@ -211,6 +229,7 @@ func (c *Container) split() (err error) {
 	return nil
 }
 
+//schedule 使用调度器将任务组进行调度，进入执行队列中
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
@@ -249,18 +268,20 @@ End:
 	return
 }
 
+//post 后置通知
 func (c *Container) post() (err error) {
 	if err = c.jobReader.Post(c.ctx); err != nil {
 		return err
 	}
-	log.Infof("DataX jobContainer %v reader %v posted", c.jobId, c.readerPluginName)
+	log.Infof("DataX jobContainer %v reader %v posted", c.jobID, c.readerPluginName)
 	if err = c.jobWriter.Post(c.ctx); err != nil {
 		return err
 	}
-	log.Infof("DataX jobContainer %v writer %v posted", c.jobId, c.writerPluginName)
+	log.Infof("DataX jobContainer %v writer %v posted", c.jobID, c.writerPluginName)
 	return
 }
 
+//mergeTaskConfigs 逐个将单个读取任务、单个写入任务和转化器组合成完整任务组
 func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
 		err = fmt.Errorf("the number of reader tasks are not equal to the number of writer tasks")
@@ -271,7 +292,7 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	if err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v  tansformer config is %v", c.jobId, transformConfs)
+	log.Infof("DataX jobContainer %v  tansformer config is %v", c.jobID, transformConfs)
 	for i := range readerConfs {
 		var taskConfig *config.JSON
 		taskConfig, _ = config.NewJSONFromString("{}")
@@ -298,12 +319,14 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 				return
 			}
 		}
-		taskConfig.Set(coreconst.TaskId, i)
+		taskConfig.Set(coreconst.TaskID, i)
 		taskConfigs = append(taskConfigs, taskConfig)
 	}
 	return
 }
 
+//distributeTaskIntoTaskGroup 公平的分配 task 到对应的 taskGroup 中。
+//公平体现在：会考虑 task 中对资源负载作的 load 标识进行更均衡的作业分配操作。
 func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
@@ -317,8 +340,8 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 		channelNumber = int64(len(tasksConfigs))
 	}
 	taskGroupNumber := int(math.Ceil(1.0 * float64(channelNumber) / float64(channelsPerTaskGroup)))
-	taskIdMap := parseAndGetResourceMarkAndTaskIdMap(tasksConfigs)
-	ss := doAssign(taskIdMap, taskGroupNumber)
+	taskIDMap := parseAndGetResourceMarkAndTaskIDMap(tasksConfigs)
+	ss := doAssign(taskIDMap, taskGroupNumber)
 	template := c.Config().CloneConfig()
 	if err = template.Remove(coreconst.DataxJobContent); err != nil {
 		return nil, err
@@ -326,7 +349,7 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 
 	for i := 0; i < taskGroupNumber; i++ {
 		conf := template.CloneConfig()
-		if err = conf.Set(coreconst.DataxCoreContainerTaskGroupId, i); err != nil {
+		if err = conf.Set(coreconst.DataxCoreContainerTaskGroupID, i); err != nil {
 			return nil, err
 		}
 		confs = append(confs, conf)
@@ -342,6 +365,8 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	return
 }
 
+//adjustChannelNumber 自适应化通道数量
+//依次根据字节流大小，记录数大小以及通道数大小生成通道数量
 func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
@@ -359,7 +384,7 @@ func (c *Container) adjustChannelNumber() error {
 		if needChannelNumberByByte < 1 {
 			needChannelNumberByByte = 1
 		}
-		log.Infof("DataX jobContainer %v set Max-Byte-Speed to %v bytes", c.jobId, globalLimitedByteSpeed)
+		log.Infof("DataX jobContainer %v set Max-Byte-Speed to %v bytes", c.jobID, globalLimitedByteSpeed)
 	}
 
 	if isRecordLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, 0) > 0; isRecordLimit {
@@ -376,7 +401,7 @@ func (c *Container) adjustChannelNumber() error {
 		if needChannelNumberByRecord < 1 {
 			needChannelNumberByRecord = 1
 		}
-		log.Infof("DataX jobContainer %v  set Max-Record-Speed to %v records", c.jobId, globalLimitedRecordSpeed)
+		log.Infof("DataX jobContainer %v  set Max-Record-Speed to %v records", c.jobID, globalLimitedRecordSpeed)
 	}
 	if needChannelNumberByByte > needChannelNumberByRecord {
 		c.needChannelNumber = needChannelNumberByRecord
@@ -391,13 +416,15 @@ func (c *Container) adjustChannelNumber() error {
 	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
 		//此时 DataxJobSettingSpeedChannel必然存在
 		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
-		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobId, c.needChannelNumber)
+		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
 		return nil
 	}
 
 	return fmt.Errorf("job speed should be setted")
 }
 
+//initReaderJob 初始化读取工作
+//当读取插件名找不到读取工作或者初始化失败就会报错
 func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job reader.Job, err error) {
 	ok := false
 	job, ok = loader.LoadReaderJob(c.readerPluginName)
@@ -416,6 +443,8 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
+//initReaderJob 初始化写入工作
+//当写入插件名找不到写入工作或者初始化失败就会报错
 func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job writer.Job, err error) {
 	ok := false
 	job, ok = loader.LoadWriterJob(c.writerPluginName)
@@ -496,11 +525,23 @@ func (c *Container) postHandle() (err error) {
 	return
 }
 
-func doAssign(taskIdMap map[string][]int, taskGroupNumber int) [][]int {
+// doAssign 平均分配
+//   需要实现的效果通过例子来说是：
+//   a 库上有表：0, 1, 2
+//   a 库上有表：3, 4
+//   c 库上有表：5, 6, 7
+
+//   如果有 4个 taskGroup
+//   则 assign 后的结果为：
+//   taskGroup-0: 0,  4,
+//   taskGroup-1: 3,  6,
+//   taskGroup-2: 5,  2,
+//   taskGroup-3: 1,  7
+func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	taskGroups := make([][]int, taskGroupNumber)
 	var taskMasks []string
 	var maxLen int = 0
-	for k, v := range taskIdMap {
+	for k, v := range taskIDMap {
 		if maxLen < len(v) {
 			maxLen = len(v)
 		}
@@ -512,9 +553,9 @@ func doAssign(taskIdMap map[string][]int, taskGroupNumber int) [][]int {
 	index := 0
 	for i := 0; i < maxLen; i++ {
 		for _, v := range taskMasks {
-			if len(taskIdMap[v]) > 0 {
+			if len(taskIDMap[v]) > 0 {
 				last := 0
-				last, taskIdMap[v] = taskIdMap[v][0], taskIdMap[v][1:]
+				last, taskIDMap[v] = taskIDMap[v][0], taskIDMap[v][1:]
 				taskGroups[index%taskGroupNumber] = append(taskGroups[index%taskGroupNumber], last)
 				index++
 			}
@@ -523,7 +564,9 @@ func doAssign(taskIdMap map[string][]int, taskGroupNumber int) [][]int {
 	return taskGroups
 }
 
-func parseAndGetResourceMarkAndTaskIdMap(tasksConfigs []*config.JSON) map[string][]int {
+//parseAndGetResourceMarkAndTaskIDMap 根据task 配置，获取到：
+//资源名称 --> taskId(List) 的 map 映射关系(对资源负载作的 load 标识: 任务编号)
+func parseAndGetResourceMarkAndTaskIDMap(tasksConfigs []*config.JSON) map[string][]int {
 	writerMap := make(map[string][]int)
 	readerMap := make(map[string][]int)
 	for i, v := range tasksConfigs {

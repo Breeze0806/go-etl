@@ -13,7 +13,7 @@ func Test_taskManager(t *testing.T) {
 	m := newTaskManager()
 	for i := 0; i < 10000; i++ {
 		m.pushRemain(&taskExecer{
-			taskId: int64(i),
+			taskID: int64(i),
 		})
 	}
 	var wg sync.WaitGroup

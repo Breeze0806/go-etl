@@ -1,49 +1,65 @@
 package plugin
 
+//Task 任务接口
 type Task interface {
 	Plugin
+
+	//任务信息收集器，todo 未使用
 	TaskCollector() TaskCollector
+	//设置任务信息收集器，todo 未使用
 	SetTaskCollector(collector TaskCollector)
-	TaskId() int
-	SetTaskId(taskId int)
-	TaskGroupId() int
-	SetTaskGroupId(taskGroupId int)
+	//任务ID
+	TaskID() int
+	//设置任务ID
+	SetTaskID(taskID int)
+	//任务组ID
+	TaskGroupID() int
+	//设置任务组ID
+	SetTaskGroupID(taskGroupID int)
 }
 
+//BaseTask 基础任务，用于辅助和简化任务接口的实现
 type BaseTask struct {
 	*BasePlugin
 
-	taskId      int
-	taskGroupId int
+	taskID      int
+	taskGroupID int
 	collector   TaskCollector
 }
 
+//NewBaseTask 创建基础任务
 func NewBaseTask() *BaseTask {
 	return &BaseTask{
 		BasePlugin: NewBasePlugin(),
 	}
 }
 
+//TaskCollector 任务信息收集器
 func (b *BaseTask) TaskCollector() TaskCollector {
 	return b.collector
 }
 
+//SetTaskCollector 设置任务信息收集器
 func (b *BaseTask) SetTaskCollector(collector TaskCollector) {
 	b.collector = collector
 }
 
-func (b *BaseTask) TaskId() int {
-	return b.taskId
+//TaskID 任务ID
+func (b *BaseTask) TaskID() int {
+	return b.taskID
 }
 
-func (b *BaseTask) SetTaskId(taskId int) {
-	b.taskId = taskId
+//SetTaskID 设置任务ID
+func (b *BaseTask) SetTaskID(taskID int) {
+	b.taskID = taskID
 }
 
-func (b *BaseTask) TaskGroupId() int {
-	return b.taskGroupId
+//TaskGroupID 任务组ID
+func (b *BaseTask) TaskGroupID() int {
+	return b.taskGroupID
 }
 
-func (b *BaseTask) SetTaskGroupId(taskGroupId int) {
-	b.taskGroupId = taskGroupId
+//SetTaskGroupID 设置任务组ID
+func (b *BaseTask) SetTaskGroupID(taskGroupID int) {
+	b.taskGroupID = taskGroupID
 }

@@ -197,7 +197,7 @@ func (m *mockWriter) Task() writer.Task {
 	return newMockWriterTask(m.errs)
 }
 
-func testJsonFromString(s string) *config.JSON {
+func testJSONFromString(s string) *config.JSON {
 	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)

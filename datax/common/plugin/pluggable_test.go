@@ -6,7 +6,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-func testJsonFromString(s string) *config.JSON {
+func testJSONFromString(s string) *config.JSON {
 	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
@@ -28,9 +28,9 @@ func TestBasePluggable_SetPluginJobConf(t *testing.T) {
 			name: "1",
 			b:    NewBasePluggable(),
 			args: args{
-				conf: testJsonFromString(`{"name":"test"}`),
+				conf: testJSONFromString(`{"name":"test"}`),
 			},
-			want: testJsonFromString(`{"name":"test"}`),
+			want: testJSONFromString(`{"name":"test"}`),
 		},
 	}
 	for _, tt := range tests {
@@ -93,13 +93,13 @@ func TestBasePluggable_SetPluginConf(t *testing.T) {
 			name: "1",
 			b:    NewBasePluggable(),
 			args: args{
-				conf: testJsonFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
+				conf: testJSONFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
 			},
 			want: want{
 				name:        "test",
 				developer:   "fxd",
 				description: "test des",
-				conf:        testJsonFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
+				conf:        testJSONFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
 			},
 		},
 	}
@@ -137,9 +137,9 @@ func TestBasePluggable_SetPeerPluginJobConf(t *testing.T) {
 			name: "1",
 			b:    NewBasePluggable(),
 			args: args{
-				conf: testJsonFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
+				conf: testJSONFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
 			},
-			want: testJsonFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
+			want: testJSONFromString(`{"name":"test","description":"test des","developer":"fxd"}`),
 		},
 	}
 	for _, tt := range tests {

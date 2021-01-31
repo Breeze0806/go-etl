@@ -7,7 +7,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-func testJsonFromString(s string) *config.JSON {
+func testJSONFromString(s string) *config.JSON {
 	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
@@ -75,7 +75,7 @@ func TestEngine_Start(t *testing.T) {
 	}{
 		{
 			name: "1",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{
@@ -87,7 +87,7 @@ func TestEngine_Start(t *testing.T) {
 		},
 		{
 			name: "2",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{
@@ -99,7 +99,7 @@ func TestEngine_Start(t *testing.T) {
 		},
 		{
 			name: "3",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{
@@ -111,7 +111,7 @@ func TestEngine_Start(t *testing.T) {
 		},
 		{
 			name: "4",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{
@@ -123,7 +123,7 @@ func TestEngine_Start(t *testing.T) {
 
 		{
 			name: "5",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{
@@ -135,7 +135,7 @@ func TestEngine_Start(t *testing.T) {
 
 		{
 			name: "6",
-			e: NewEngine(context.TODO(), testJsonFromString(
+			e: NewEngine(context.TODO(), testJSONFromString(
 				`{
 					"core": {
 						"container":{

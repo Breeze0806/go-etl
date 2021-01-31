@@ -46,7 +46,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "1",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":1,
 						"reader":{
 							"name":"mock"
@@ -65,7 +65,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "2",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":2,
 						"reader":{
 							"name":"mock2"
@@ -83,7 +83,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "3",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":2,
 						"reader":{
 							"name":1
@@ -101,7 +101,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "4",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":3,
 						"reader":{
 							"name":"mock"
@@ -119,7 +119,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "5",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":2,
 						"reader":{
 							"name":"mock"
@@ -137,7 +137,7 @@ func Test_newTaskExecer(t *testing.T) {
 			name: "6",
 			args: args{
 				ctx: context.Background(),
-				taskConf: testJsonFromString(`{
+				taskConf: testJSONFromString(`{
 						"taskId":"6",
 						"reader":{
 							"name":"mock"
@@ -181,7 +181,7 @@ func Test_taskExecer_Do(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t: testTaskExecer(context.Background(), testJsonFromString(`{
+			t: testTaskExecer(context.Background(), testJSONFromString(`{
 				"taskId":1,
 				"reader":{
 					"name":"mock"
@@ -195,7 +195,7 @@ func Test_taskExecer_Do(t *testing.T) {
 
 		{
 			name: "2",
-			t: testTaskExecer(context.Background(), testJsonFromString(`{
+			t: testTaskExecer(context.Background(), testJSONFromString(`{
 				"taskId":1,
 				"reader":{
 					"name":"mock1"

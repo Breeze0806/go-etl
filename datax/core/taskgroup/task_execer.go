@@ -18,25 +18,29 @@ import (
 )
 
 type taskExecer struct {
-	taskConf     *config.JSON
-	taskId       int64
+	taskConf     *config.JSON //任务JSON配置
+	taskID       int64        //任务编号
 	ctx          context.Context
-	channel      *channel.Channel
-	writerRunner runner.Runner
-	readerRunner runner.Runner
+	channel      *channel.Channel //记录通道
+	writerRunner runner.Runner    //写入运行器
+	readerRunner runner.Runner    //执行运行器
 	wg           sync.WaitGroup
 	errors       chan error
-	//todo: 初始化
+	//todo: taskCommunication没用
 	taskCommunication communication.Communication
 	destroy           sync.Once
 	key               string
 
-	cancalMutex  sync.Mutex
-	cancel       context.CancelFunc
-	attemptCount *atomic.Int32
+	cancalMutex  sync.Mutex         //由于取消函数会被多线程调用,需要加锁
+	cancel       context.CancelFunc //取消函数
+	attemptCount *atomic.Int32      //执行次数
 }
 
-func newTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string, attemptCount int) (t *taskExecer, err error) {
+//newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
+//执行次数attemptCount生成任务执行器，当taskID不存在，工作器名字配置以及
+//对应写入器和读取器不存在时会报错
+func newTaskExecer(ctx context.Context, taskConf *config.JSON,
+	prefixKey string, attemptCount int) (t *taskExecer, err error) {
 	t = &taskExecer{
 		taskConf:     taskConf,
 		errors:       make(chan error, 2),
@@ -48,11 +52,11 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string,
 		return nil, err
 	}
 
-	t.taskId, err = taskConf.GetInt64(coreconst.TaskId)
+	t.taskID, err = taskConf.GetInt64(coreconst.TaskID)
 	if err != nil {
 		return nil, err
 	}
-	t.key = prefixKey + "-" + strconv.FormatInt(t.taskId, 10)
+	t.key = prefixKey + "-" + strconv.FormatInt(t.taskID, 10)
 	name := ""
 	name, err = taskConf.GetString(coreconst.JobReaderName)
 	if err != nil {
@@ -80,6 +84,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string,
 	return
 }
 
+//Start 读取运行器和写入运行器分别在携程中执行
 func (t *taskExecer) Start() {
 	var ctx context.Context
 	t.cancalMutex.Lock()
@@ -111,21 +116,26 @@ func (t *taskExecer) Start() {
 	readerWg.Wait()
 }
 
+//AttemptCount 执行次数
 func (t *taskExecer) AttemptCount() int32 {
 	return t.attemptCount.Load()
 }
 
+//Do 执行函数
 func (t *taskExecer) Do() error {
 	log.Debugf("taskExecer %v start to do", t.key)
 	defer func() {
 		t.attemptCount.Inc()
 		log.Debugf("taskExecer %v end to do", t.key)
 	}()
+	//执行读取写入运行器
 	t.Start()
 	log.Debugf("taskExecer %v do wait runner stop", t.key)
+	//等待读取写入运行器
 	t.wg.Wait()
-
 	var errs []error
+	log.Debugf("taskExecer %v do wait runner err chan", t.key)
+	//监听错误通道器获取错误
 ErrorLoop:
 	for {
 		select {
@@ -149,14 +159,21 @@ ErrorLoop:
 	return nil
 }
 
+//Key 关键之
 func (t *taskExecer) Key() string {
 	return t.key
 }
 
+//WriterSuportFailOverport 写入器是否支持错误重试
 func (t *taskExecer) WriterSuportFailOverport() bool {
-	return t.writerRunner.Plugin().(writer.Task).SupportFailOver()
+	task, ok := t.writerRunner.Plugin().(writer.Task)
+	if !ok {
+		return false
+	}
+	return task.SupportFailOver()
 }
 
+//Shutdown 通过cancel停止写入器，关闭reader和writer
 func (t *taskExecer) Shutdown() {
 	log.Debugf("taskExecer %v starts to shutdown", t.key)
 	defer log.Debugf("taskExecer %v ends to shutdown", t.key)
@@ -164,12 +181,12 @@ func (t *taskExecer) Shutdown() {
 	if t.cancel != nil {
 		t.cancel()
 	}
-
 	t.cancalMutex.Unlock()
 	log.Debugf("taskExecer %v shutdown wait runner stop", t.key)
 	t.wg.Wait()
-
+	log.Debugf("taskExecer %v shutdown reader", t.key)
 	t.readerRunner.Shutdown()
-	t.writerRunner.Shutdown()
 
+	log.Debugf("taskExecer %v shutdown writer", t.key)
+	t.writerRunner.Shutdown()
 }

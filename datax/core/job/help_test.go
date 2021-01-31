@@ -12,7 +12,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 )
 
-func testJsonFromString(s string) *config.JSON {
+func testJSONFromString(s string) *config.JSON {
 	j, err := config.NewJSONFromString(s)
 	if err != nil {
 		panic(err)
@@ -206,7 +206,7 @@ func (m *mockWriter) Task() writer.Task {
 	return newMockWriterTask()
 }
 
-func equalConfigJson(gotConfig, wantConfig *config.JSON) bool {
+func equalConfigJSON(gotConfig, wantConfig *config.JSON) bool {
 	var got, want interface{}
 	err := json.Unmarshal([]byte(gotConfig.String()), &got)
 	if err != nil {

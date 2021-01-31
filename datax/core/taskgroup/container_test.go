@@ -30,7 +30,7 @@ func TestContainer_Do(t *testing.T) {
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}))
-	content := testJsonFromString(`{
+	content := testJSONFromString(`{
 		"core" : {
 			"container": {
 				"job":{
@@ -72,7 +72,7 @@ func TestContainer_DoCancel1(t *testing.T) {
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}))
-	content := testJsonFromString(`{
+	content := testJSONFromString(`{
 		"core" : {
 			"container": {
 				"job":{
@@ -119,7 +119,7 @@ func TestContainer_DoCancel2(t *testing.T) {
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}))
-	content := testJsonFromString(`{
+	content := testJSONFromString(`{
 		"core" : {
 			"container": {
 				"job":{
@@ -166,7 +166,7 @@ func TestContainer_JobId(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(context.Background(), testJsonFromString(`{
+			c: testContainer(context.Background(), testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -186,7 +186,7 @@ func TestContainer_JobId(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(context.Background(), testJsonFromString(`{
+			c: testContainer(context.Background(), testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -207,7 +207,7 @@ func TestContainer_JobId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.JobId(); got != tt.want {
+			if got := tt.c.JobID(); got != tt.want {
 				t.Errorf("Container.JobId() = %v, want %v", got, tt.want)
 			}
 		})
@@ -223,7 +223,7 @@ func TestContainer_TaskGroupId(t *testing.T) {
 
 		{
 			name: "1",
-			c: testContainer(context.Background(), testJsonFromString(`{
+			c: testContainer(context.Background(), testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -243,7 +243,7 @@ func TestContainer_TaskGroupId(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(context.Background(), testJsonFromString(`{
+			c: testContainer(context.Background(), testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -264,7 +264,7 @@ func TestContainer_TaskGroupId(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.c.TaskGroupId(); got != tt.want {
+			if got := tt.c.TaskGroupID(); got != tt.want {
 				t.Errorf("Container.TaskGroupId() = %v, want %v", got, tt.want)
 			}
 		})
@@ -279,7 +279,7 @@ func TestContainer_Start(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(context.Background(), testJsonFromString(`{
+			c: testContainer(context.Background(), testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -322,7 +322,7 @@ func TestNewContainer(t *testing.T) {
 			name: "1",
 			args: args{
 				ctx: context.TODO(),
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -346,7 +346,7 @@ func TestNewContainer(t *testing.T) {
 			name: "2",
 			args: args{
 				ctx: context.TODO(),
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -390,7 +390,7 @@ func TestContainer_startTaskExecer(t *testing.T) {
 		nil, nil, nil, nil, nil,
 	}))
 
-	c := testContainer(context.Background(), testJsonFromString(`{
+	c := testContainer(context.Background(), testJSONFromString(`{
 		"core" : {
 			"container": {
 				"job":{
@@ -408,7 +408,7 @@ func TestContainer_startTaskExecer(t *testing.T) {
 	}`))
 	c.scheduler = schedule.NewTaskSchduler(4, 0)
 	c.scheduler.Stop()
-	te, _ := newTaskExecer(c.ctx, testJsonFromString(`{
+	te, _ := newTaskExecer(c.ctx, testJSONFromString(`{
 		"taskId": 1,
 		"reader":{
 			"name":"mock"

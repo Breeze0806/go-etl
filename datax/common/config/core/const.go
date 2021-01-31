@@ -1,15 +1,17 @@
 package core
 
+//datax 配置文件路径
 var (
+	//datax全局配置路劲
 	DataxCoreContainerTaskgroupChannel                = "core.container.taskGroup.channel"
 	DataxCoreContainerModel                           = "core.container.model"
-	DataxCoreContainerJobId                           = "core.container.job.id"
+	DataxCoreContainerJobID                           = "core.container.job.id"
 	DataxCoreContainerTraceEnable                     = "core.container.trace.enable"
 	DataxCoreContainerJobMode                         = "core.container.job.mode"
 	DataxCoreContainerJobReportinterval               = "core.container.job.reportInterval"
 	DataxCoreContainerJobSleepinterval                = "core.container.job.sleepInterval"
 	DataxCoreContainerJobMaxWorkerNumber              = "core.container.job.maxWorkerNumber"
-	DataxCoreContainerTaskGroupId                     = "core.container.taskGroup.id"
+	DataxCoreContainerTaskGroupID                     = "core.container.taskGroup.id"
 	DataxCoreContainerTaskGroupSleepinterval          = "core.container.taskGroup.sleepInterval"
 	DataxCoreContainerTaskGroupReportinterval         = "core.container.taskGroup.reportInterval"
 	DataxCoreContainerTaskGroupMaxWorkerNumber        = "core.container.taskGroup.maxWorkerNumber"
@@ -50,7 +52,7 @@ var (
 	DataxJobPreHandlerPluginName                      = "job.preHandler.pluginName"
 	DataxJobPostHandlerPluginType                     = "job.postHandler.pluginType"
 	DataxJobPostHandlerPluginName                     = "job.postHandler.pluginName"
-
+	//datax局部配置路径
 	JobWriter                                 = "writer"
 	JobReader                                 = "reader"
 	JobTransformer                            = "transformer"
@@ -63,7 +65,7 @@ var (
 	TransformerParameterContext               = "parameter.context"
 	TransformerParameterCode                  = "parameter.code"
 	TransformerParameterExtrapackage          = "parameter.extraPackage"
-	TaskId                                    = "taskId"
+	TaskID                                    = "taskId"
 	JobReaderParameterLoadBalanceResourceMark = "reader.parameter.loadBalanceResourceMark"
 	JobWriterParameterLoadBalanceResourceMark = "writer.parameter.loadBalanceResourceMark"
 )

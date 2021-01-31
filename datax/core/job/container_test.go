@@ -25,7 +25,7 @@ func TestNewContainer(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -48,7 +48,7 @@ func TestNewContainer(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				conf: testJsonFromString(`{
+				conf: testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -91,7 +91,7 @@ func TestContainer_preHandle(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -116,7 +116,7 @@ func TestContainer_preHandle(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -138,7 +138,7 @@ func TestContainer_preHandle(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -164,7 +164,7 @@ func TestContainer_preHandle(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -190,7 +190,7 @@ func TestContainer_preHandle(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -232,7 +232,7 @@ func TestContainer_postHandle(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -257,7 +257,7 @@ func TestContainer_postHandle(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -279,7 +279,7 @@ func TestContainer_postHandle(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -305,7 +305,7 @@ func TestContainer_postHandle(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -331,7 +331,7 @@ func TestContainer_postHandle(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -387,7 +387,7 @@ func TestContainer_init(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -424,7 +424,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -452,7 +452,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -484,7 +484,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -518,7 +518,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "5",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -553,7 +553,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "6",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -591,7 +591,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "7",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -629,7 +629,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "8",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -667,7 +667,7 @@ func TestContainer_init(t *testing.T) {
 		},
 		{
 			name: "9",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 					"core" : {
 						"container": {
 							"job":{
@@ -736,7 +736,7 @@ func TestContainer_prepare(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -773,7 +773,7 @@ func TestContainer_prepare(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -811,7 +811,7 @@ func TestContainer_prepare(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -880,7 +880,7 @@ func TestContainer_post(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -917,7 +917,7 @@ func TestContainer_post(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -955,7 +955,7 @@ func TestContainer_post(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -1023,7 +1023,7 @@ func TestContainer_destroy(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -1060,7 +1060,7 @@ func TestContainer_destroy(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -1098,7 +1098,7 @@ func TestContainer_destroy(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core" : {
 					"container": {
 						"job":{
@@ -1154,7 +1154,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1185,7 +1185,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1216,7 +1216,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1247,7 +1247,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1278,7 +1278,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "5",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1309,7 +1309,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "6",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1338,7 +1338,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "7",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1368,7 +1368,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "8",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1397,7 +1397,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 		},
 		{
 			name: "9",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1456,7 +1456,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1486,18 +1486,18 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 			}`)),
 			args: args{
 				readerConfs: []*config.JSON{
-					testJsonFromString(`{"id":1}`),
-					testJsonFromString(`{"id":2}`),
-					testJsonFromString(`{"id":3}`),
+					testJSONFromString(`{"id":1}`),
+					testJSONFromString(`{"id":2}`),
+					testJSONFromString(`{"id":3}`),
 				},
 				writerConfs: []*config.JSON{
-					testJsonFromString(`{"id":4}`),
-					testJsonFromString(`{"id":5}`),
-					testJsonFromString(`{"id":6}`),
+					testJSONFromString(`{"id":4}`),
+					testJSONFromString(`{"id":5}`),
+					testJSONFromString(`{"id":6}`),
 				},
 			},
 			wantTaskConfigs: []*config.JSON{
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"taskId":0,
 					"reader":{
 						"name" : "mock",
@@ -1515,7 +1515,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 						}
 					}
 				}`),
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"taskId":1,
 					"reader":{
 					"name" : "mock",
@@ -1531,7 +1531,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 					}
 				}
 			}`),
-				testJsonFromString(`{
+				testJSONFromString(`{
 				"taskId":2,
 				"reader":{
 				"name" : "mock",
@@ -1553,7 +1553,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1583,15 +1583,15 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 			}`)),
 			args: args{
 				readerConfs: []*config.JSON{
-					testJsonFromString(`{"id":1}`),
-					testJsonFromString(`{"id":2}`),
-					testJsonFromString(`{"id":3}`),
+					testJSONFromString(`{"id":1}`),
+					testJSONFromString(`{"id":2}`),
+					testJSONFromString(`{"id":3}`),
 				},
 				writerConfs: []*config.JSON{
-					testJsonFromString(`{"id":4}`),
-					testJsonFromString(`{"id":5}`),
-					testJsonFromString(`{"id":6}`),
-					testJsonFromString(`{"id":7}`),
+					testJSONFromString(`{"id":4}`),
+					testJSONFromString(`{"id":5}`),
+					testJSONFromString(`{"id":6}`),
+					testJSONFromString(`{"id":7}`),
 				},
 			},
 			wantTaskConfigs: nil,
@@ -1599,7 +1599,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1628,14 +1628,14 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 			}`)),
 			args: args{
 				readerConfs: []*config.JSON{
-					testJsonFromString(`{"id":1}`),
-					testJsonFromString(`{"id":2}`),
-					testJsonFromString(`{"id":3}`),
+					testJSONFromString(`{"id":1}`),
+					testJSONFromString(`{"id":2}`),
+					testJSONFromString(`{"id":3}`),
 				},
 				writerConfs: []*config.JSON{
-					testJsonFromString(`{"id":4}`),
-					testJsonFromString(`{"id":5}`),
-					testJsonFromString(`{"id":6}`),
+					testJSONFromString(`{"id":4}`),
+					testJSONFromString(`{"id":5}`),
+					testJSONFromString(`{"id":6}`),
 				},
 			},
 			wantTaskConfigs: nil,
@@ -1657,7 +1657,7 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 			}
 
 			for i := range gotTaskConfigs {
-				if !equalConfigJson(gotTaskConfigs[i], tt.wantTaskConfigs[i]) {
+				if !equalConfigJSON(gotTaskConfigs[i], tt.wantTaskConfigs[i]) {
 					t.Fatalf("Container.mergeTaskConfigs()[%v]  = %v, wantTaskConfigs[%v]] = %v",
 						i, gotTaskConfigs[i], i, tt.wantTaskConfigs[i])
 				}
@@ -1672,22 +1672,22 @@ func TestContainer_split(t *testing.T) {
 	loader.RegisterReader("mock", newMockReader([]error{
 		nil, nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":4}`),
-		testJsonFromString(`{"id":5}`),
-		testJsonFromString(`{"id":6}`),
+		testJSONFromString(`{"id":4}`),
+		testJSONFromString(`{"id":5}`),
+		testJSONFromString(`{"id":6}`),
 	}))
 	loader.RegisterWriter("mockx", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":4}`),
-		testJsonFromString(`{"id":5}`),
+		testJSONFromString(`{"id":4}`),
+		testJSONFromString(`{"id":5}`),
 	}))
 	loader.RegisterReader("mock1", newMockReader([]error{
 		nil, nil, nil, nil, nil,
@@ -1709,7 +1709,7 @@ func TestContainer_split(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1753,7 +1753,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: false,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 		"content":[
 			{
 				"taskId":0,
@@ -1807,7 +1807,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1851,7 +1851,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -1873,7 +1873,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1917,7 +1917,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -1939,7 +1939,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -1983,7 +1983,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -2005,7 +2005,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "5",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2049,7 +2049,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -2071,7 +2071,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "6",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2115,7 +2115,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -2137,7 +2137,7 @@ func TestContainer_split(t *testing.T) {
 		},
 		{
 			name: "7",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2181,7 +2181,7 @@ func TestContainer_split(t *testing.T) {
 				}
 			}`)),
 			wantErr: true,
-			wantConfig: testJsonFromString(`{
+			wantConfig: testJSONFromString(`{
 				"content":[
 					{
 						"reader":{
@@ -2215,7 +2215,7 @@ func TestContainer_split(t *testing.T) {
 			got, _ := tt.c.Config().GetConfig(coreconst.DataxJobContent)
 			want, _ := tt.wantConfig.GetConfig("content")
 
-			if !equalConfigJson(got, want) {
+			if !equalConfigJSON(got, want) {
 				t.Errorf("got: %v want: %v", got, want)
 			}
 		})
@@ -2231,7 +2231,7 @@ func TestContainer_schedule(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2261,7 +2261,7 @@ func TestContainer_schedule(t *testing.T) {
 		},
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2410,7 +2410,7 @@ func TestContainer_schedule(t *testing.T) {
 
 func Test_doAssign(t *testing.T) {
 	type args struct {
-		taskIdMap       map[string][]int
+		taskIDMap       map[string][]int
 		taskGroupNumber int
 	}
 	tests := []struct {
@@ -2421,7 +2421,7 @@ func Test_doAssign(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				taskIdMap: map[string][]int{
+				taskIDMap: map[string][]int{
 					"a": {0, 1, 2},
 					"b": {3, 4},
 					"c": {5, 6, 7},
@@ -2438,7 +2438,7 @@ func Test_doAssign(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := doAssign(tt.args.taskIdMap, tt.args.taskGroupNumber); !reflect.DeepEqual(got, tt.want) {
+			if got := doAssign(tt.args.taskIDMap, tt.args.taskGroupNumber); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("doAssign() = %v, want %v", got, tt.want)
 			}
 		})
@@ -2458,7 +2458,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 			name: "1",
 			args: args{
 				tasksConfigs: []*config.JSON{
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2472,7 +2472,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2486,7 +2486,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2500,7 +2500,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"b",
@@ -2514,7 +2514,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"b",
@@ -2528,7 +2528,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"c",
@@ -2542,7 +2542,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"c",
@@ -2556,7 +2556,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"c",
@@ -2582,7 +2582,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 			name: "2",
 			args: args{
 				tasksConfigs: []*config.JSON{
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2596,7 +2596,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2610,7 +2610,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2624,7 +2624,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2638,7 +2638,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2652,7 +2652,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2666,7 +2666,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2680,7 +2680,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 							}
 						}
 					}`),
-					testJsonFromString(`{
+					testJSONFromString(`{
 						"reader":{
 							"parameter":{
 								"loadBalanceResourceMark":"a",
@@ -2704,7 +2704,7 @@ func Test_parseAndGetResourceMarkAndTaskIdMap(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := parseAndGetResourceMarkAndTaskIdMap(tt.args.tasksConfigs); !reflect.DeepEqual(got, tt.want) {
+			if got := parseAndGetResourceMarkAndTaskIDMap(tt.args.tasksConfigs); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parseAndGetResourceMarkAndTaskIdMap() = %v, want %v", got, tt.want)
 			}
 		})
@@ -2721,7 +2721,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -2856,7 +2856,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 			}`)),
 			needChannelNumber: 8,
 			wantConfs: []*config.JSON{
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"core":{
 						"container": {
 							"job":{
@@ -2906,7 +2906,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 						]
 					}	
 				}`),
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"core":{
 						"container": {
 							"job":{
@@ -2956,7 +2956,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 						]
 					}	
 				}`),
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"core":{
 						"container": {
 							"job":{
@@ -3006,7 +3006,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 						]
 					}	
 				}`),
-				testJsonFromString(`{
+				testJSONFromString(`{
 					"core":{
 						"container": {
 							"job":{
@@ -3061,7 +3061,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core":{
 					"container": {
 						"job":{
@@ -3100,7 +3100,7 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 			}
 
 			for i := range gotConfs {
-				if !equalConfigJson(gotConfs[i], tt.wantConfs[i]) {
+				if !equalConfigJSON(gotConfs[i], tt.wantConfs[i]) {
 					t.Fatalf("Container.distributeTaskIntoTaskGroup()[%v]  = %v, wantTaskConfigs[%v]] = %v",
 						i, gotConfs[i], i, tt.wantConfs[i])
 				}
@@ -3115,54 +3115,54 @@ func TestContainer_Start(t *testing.T) {
 	loader.RegisterReader("mock", newMockReader([]error{
 		nil, nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 
 	loader.RegisterReader("mock0", newMockReader([]error{
 		errors.New("mock test error"), nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 
 	loader.RegisterReader("mock1", newMockReader([]error{
 		nil, errors.New("mock test error"), nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 
 	loader.RegisterReader("mock2", newMockReader([]error{
 		nil, nil, errors.New("mock test error"), nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 	loader.RegisterReader("mock3", newMockReader([]error{
 		nil, nil, nil, errors.New("mock test error"), nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 	loader.RegisterReader("mock4", newMockReader([]error{
 		nil, nil, nil, nil, errors.New("mock test error"),
 	}, []*config.JSON{
-		testJsonFromString(`{"id":1}`),
-		testJsonFromString(`{"id":2}`),
-		testJsonFromString(`{"id":3}`),
+		testJSONFromString(`{"id":1}`),
+		testJSONFromString(`{"id":2}`),
+		testJSONFromString(`{"id":3}`),
 	}))
 	loader.RegisterWriter("mock", newMockWriter([]error{
 		nil, nil, nil, nil, nil,
 	}, []*config.JSON{
-		testJsonFromString(`{"id":4}`),
-		testJsonFromString(`{"id":5}`),
-		testJsonFromString(`{"id":6}`),
+		testJSONFromString(`{"id":4}`),
+		testJSONFromString(`{"id":5}`),
+		testJSONFromString(`{"id":6}`),
 	}))
 	tests := []struct {
 		name    string
@@ -3171,7 +3171,7 @@ func TestContainer_Start(t *testing.T) {
 	}{
 		{
 			name: "1",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3215,7 +3215,7 @@ func TestContainer_Start(t *testing.T) {
 
 		{
 			name: "2",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3260,7 +3260,7 @@ func TestContainer_Start(t *testing.T) {
 
 		{
 			name: "3",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3305,7 +3305,7 @@ func TestContainer_Start(t *testing.T) {
 
 		{
 			name: "4",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3349,7 +3349,7 @@ func TestContainer_Start(t *testing.T) {
 		},
 		{
 			name: "5",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3393,7 +3393,7 @@ func TestContainer_Start(t *testing.T) {
 		},
 		{
 			name: "6",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3437,7 +3437,7 @@ func TestContainer_Start(t *testing.T) {
 		},
 		{
 			name: "7",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {
@@ -3483,7 +3483,7 @@ func TestContainer_Start(t *testing.T) {
 
 		{
 			name: "8",
-			c: testContainer(testJsonFromString(`{
+			c: testContainer(testJSONFromString(`{
 				"core": {
 					"container": {
 						"job": {

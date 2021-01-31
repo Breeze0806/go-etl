@@ -8,13 +8,16 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 )
 
+//Reader 读取运行器
 type Reader struct {
 	*baseRunner
+
 	sender   plugin.RecordSender
 	task     reader.Task
 	describe string
 }
 
+//NewReader 通过读取任务task、记录发送器sender以及任务关键字taskKey创建读取运行器
 func NewReader(task reader.Task, sender plugin.RecordSender, taskKey string) *Reader {
 	return &Reader{
 		baseRunner: &baseRunner{},
@@ -24,10 +27,12 @@ func NewReader(task reader.Task, sender plugin.RecordSender, taskKey string) *Re
 	}
 }
 
+//Plugin 插件任务
 func (r *Reader) Plugin() plugin.Task {
 	return r.task
 }
 
+//Run 运行，运行顺序：Init->Prepare->StartRead->Post->Destroy
 func (r *Reader) Run(ctx context.Context) (err error) {
 	defer func() {
 		log.Debugf("datax reader runner %v starts to destroy", r.describe)
@@ -58,6 +63,7 @@ func (r *Reader) Run(ctx context.Context) (err error) {
 	return
 }
 
+//Shutdown 关闭
 func (r *Reader) Shutdown() error {
 	return r.sender.Shutdown()
 }
