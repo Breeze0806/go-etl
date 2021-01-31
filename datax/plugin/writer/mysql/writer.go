@@ -24,10 +24,12 @@ func init() {
 	loader.RegisterWriter(name, writer)
 }
 
+//Writer 写入器
 type Writer struct {
 	pluginConf *config.JSON
 }
 
+//NewWriter 创建写入器
 func NewWriter(filename string) (w *Writer, err error) {
 	w = &Writer{}
 	w.pluginConf, err = config.NewJSONFromFile(filename)
@@ -37,6 +39,7 @@ func NewWriter(filename string) (w *Writer, err error) {
 	return
 }
 
+//Job 工作
 func (w *Writer) Job() writer.Job {
 	job := &Job{
 		BaseJob: plugin.NewBaseJob(),
@@ -45,6 +48,7 @@ func (w *Writer) Job() writer.Job {
 	return job
 }
 
+//Task 任务
 func (w *Writer) Task() writer.Task {
 	task := &Task{
 		BaseTask: writer.NewBaseTask(),

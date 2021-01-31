@@ -24,10 +24,12 @@ func init() {
 	loader.RegisterReader(name, reader)
 }
 
+//Reader 读取器
 type Reader struct {
 	pluginConf *config.JSON
 }
 
+//NewReader 创建读取器
 func NewReader(filename string) (r *Reader, err error) {
 	r = &Reader{}
 	r.pluginConf, err = config.NewJSONFromFile(filename)
@@ -37,6 +39,7 @@ func NewReader(filename string) (r *Reader, err error) {
 	return
 }
 
+//Job 工作
 func (r *Reader) Job() reader.Job {
 	job := &Job{
 		BaseJob: plugin.NewBaseJob(),
@@ -45,6 +48,7 @@ func (r *Reader) Job() reader.Job {
 	return job
 }
 
+//Task 任务
 func (r *Reader) Task() reader.Task {
 	task := &Task{
 		BaseTask: plugin.NewBaseTask(),
