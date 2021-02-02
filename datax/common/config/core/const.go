@@ -40,6 +40,7 @@ var (
 	DataxJobJobinfo                                   = "job.jobInfo"
 	DataxJobContent                                   = "job.content"
 	DataxJobContentTransformer                        = "job.content.0.transformer"
+	DataxJobSetting                                   = "job.setting"
 	DataxJobSettingKeyversion                         = "job.setting.keyVersion"
 	DataxJobSettingSpeedByte                          = "job.setting.speed.byte"
 	DataxJobSettingSpeedRecord                        = "job.setting.speed.record"

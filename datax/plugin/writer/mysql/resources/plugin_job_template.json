@@ -9,8 +9,11 @@
         "preSql": [],
         "connection": [
             {
-                "jdbcUrl": "",
-                "table": []
+                "url": "",
+                "table": {
+                    "db":"",
+                    "name":""
+                }
             }
         ]
     }

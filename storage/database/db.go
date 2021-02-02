@@ -8,6 +8,37 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
+//FetchHandler 获取记录句柄
+type FetchHandler interface {
+	OnRecord(element.Record) error
+	CreateRecord() (element.Record, error)
+}
+
+//BaseFetchHandler 基础获取记录句柄
+type BaseFetchHandler struct {
+	onRecord     func(element.Record) error
+	createRecord func() (element.Record, error)
+}
+
+//NewBaseFetchHandler 创建基础获取记录句柄
+func NewBaseFetchHandler(createRecord func() (element.Record, error),
+	onRecord func(element.Record) error) *BaseFetchHandler {
+	return &BaseFetchHandler{
+		onRecord:     onRecord,
+		createRecord: createRecord,
+	}
+}
+
+//OnRecord 处理记录r
+func (b *BaseFetchHandler) OnRecord(r element.Record) error {
+	return b.onRecord(r)
+}
+
+//CreateRecord 创建记录
+func (b *BaseFetchHandler) CreateRecord() (element.Record, error) {
+	return b.createRecord()
+}
+
 //DB 用户维护数据库连接池
 type DB struct {
 	Source
@@ -87,7 +118,7 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 
 //FetchRecord 通过上下文ctx，sql参数param以及记录处理函数onRecord
 //获取多行记录返回错误
-func (d *DB) FetchRecord(ctx context.Context, param Parameter, onRecord func(element.Record) error) (err error) {
+func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
 	var agrs []interface{}
 
@@ -100,12 +131,12 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, onRecord func(ele
 		return fmt.Errorf("QueryContext(%v) err: %v", query, err)
 	}
 	defer rows.Close()
-	return readRowsToRecord(rows, param, onRecord)
+	return readRowsToRecord(rows, param, handler)
 }
 
 //FetchRecordWithTx 通过上下文ctx，sql参数param以及记录处理函数onRecord
 //使用事务获取多行记录并返回错误
-func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, onRecord func(element.Record) error) (err error) {
+func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
 	var agrs []interface{}
 
@@ -132,7 +163,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, onRecord fu
 		return fmt.Errorf("QueryContext(%v) error: %v", query, err)
 	}
 	defer rows.Close()
-	return readRowsToRecord(rows, param, onRecord)
+	return readRowsToRecord(rows, param, handler)
 }
 
 //BatchExec 批量执行sql并处理多行记录
@@ -299,7 +330,7 @@ func getQueryAndAgrs(param Parameter, records []element.Record) (query string, a
 	return
 }
 
-func readRowsToRecord(rows *sql.Rows, param Parameter, onRecord func(element.Record) error) (err error) {
+func readRowsToRecord(rows *sql.Rows, param Parameter, handler FetchHandler) (err error) {
 	var scanners []interface{}
 	for _, f := range param.Table().Fields() {
 		scanners = append(scanners, f.Scanner())
@@ -309,12 +340,15 @@ func readRowsToRecord(rows *sql.Rows, param Parameter, onRecord func(element.Rec
 		if err = rows.Scan(scanners...); err != nil {
 			return fmt.Errorf("rows.Scan err: %v", err)
 		}
-		record := element.NewDefaultRecord()
+		var record element.Record
+		if record, err = handler.CreateRecord(); err != nil {
+			return fmt.Errorf("CreateRecord err: %v", err)
+		}
 		for _, v := range scanners {
 			record.Add(v.(Scanner).Column())
 		}
-		if err = onRecord(record); err != nil {
-			return fmt.Errorf("onRecord err: %v", err)
+		if err = handler.OnRecord(record); err != nil {
+			return fmt.Errorf("OnRecord err: %v", err)
 		}
 	}
 

@@ -1,17 +1,17 @@
 // Package datax 主要离线数据同步框架，框架如下
-// 	   Database->readerPlugin（reader）->Framework(Exchanger+Transformer) ->writerPlugin（writer）->Database
+//        Database->readerPlugin（reader）->Framework(Exchanger+Transformer) ->writerPlugin（writer）->Database
 //
 // 采用Framework + plugin架构构建。将数据源读取和写入抽象成为Reader/Writer插件，纳入到整个同步框架中。
 // Reader：Reader为数据采集模块，负责采集数据源的数据，将数据发送给Framework。
 // Writer： Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
 // Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
-//     JOB--split---|-- task1--|	        |--taskGroup1-------\______________________________________________
-// 				 |-- task2--|           |--taskGroup2       |   Reader1->Exchanger1(Transformer)->Writer1  |
-// 				 |-- task3--|-schedule--|--taskGroup3       |   Reader2->Exchanger2(Transformer)->Writer2  |
-// 					......                .....             |   Reader3->Exchanger3(Transformer)->Writer3  |
-// 				 |-- taskN--|    .      |--taskGroupM       |          .....                               |
-// 															|	ReaderN->ExchangerN(Transformer)->WriterN  |
-// 															|______________________________________________|
+//	JOB--split--+-- task1--+           +--taskGroup1-------+______________________________________________
+//	            |-- task2--|           |--taskGroup2       |   Reader1->Exchanger1(Transformer)->Writer1  |
+//	            |-- task3--|-schedule--|--taskGroup3       |   Reader2->Exchanger2(Transformer)->Writer2  |
+//	               ......                 ......           |   Reader3->Exchanger3(Transformer)->Writer3  |
+//	            |-- taskN--|           |--taskGroupM       |          .....                               |
+//	                                                       |   ReaderN->ExchangerN(Transformer)->WriterN  |
+//	                                                       |______________________________________________|
 //
 // 核心模块介绍：
 // DataX完成单个数据同步的作业，我们称之为Job，DataX接受到一个Job之后，将启动一个进程来完成整个作业同步过程。DataX Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
@@ -39,8 +39,8 @@
 // Prepare(ctx context.Context) error以及Post(ctx context.Context) error
 //
 // 2. Reader的Task组合*plugin.BaseTash,实现方法Init(ctx context.Context) (err error)
-// 	Destroy(ctx context.Context) (err error)，StartRead(ctx context.Context, sender plugin.RecordSender) error
-// 	Prepare(ctx context.Context) error以及Post(ctx context.Context) error
+// Destroy(ctx context.Context) (err error)，StartRead(ctx context.Context, sender plugin.RecordSender) error
+// Prepare(ctx context.Context) error以及Post(ctx context.Context) error
 //
 // 3. Reader的本身实现Job() reader.Job以及Task() reader.Task
 //
@@ -58,22 +58,23 @@
 // 实现上述接口后，需要将上述的reader和writer通过loader.RegisterReader以及loader.RegisterWriter注册到
 // 这些插件通过配置文件以下json配置描述：
 //
-// 	{
-// 		"name" : "mysqlreader",
-// 		"developer":"Breeze0806",
-// 		"description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
-// 	}
+//	{
+//	     "name" : "mysqlreader",
+//	     "developer":"Breeze0806",
+//	     "description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
+//	}
 //
-// 配置目录按照以下：
+// 上述接口配置目录按照以下：
 //
-//  plugin---- reader--mysql---------resources--|--plugin.json
-//        |                    |--job.go        |--plugin_job_template.json
-//        |                    |--reader.go
-//        |                    |--README.md
-//	      |		               |--task.go
-//        ---- reader--mysql---------resources--|--plugin.json
-//                    		   |--job.go        |--plugin_job_template.json
-//                             |--reader.go
-//                             |--README.md
-//	      		               |--task.go
+//	plugin+--- reader--mysql---+-----resources--+--plugin.json
+//	      |                    |--job.go        |--plugin_job_template.json
+//	      |                    |--reader.go
+//	      |                    |--README.md
+//	      |                    |--task.go
+//	      |
+//	      +--- reader--mysql---+-----resources--+--plugin.json
+//	                           |--job.go        |--plugin_job_template.json
+//	                           |--reader.go
+//	                           |--README.md
+//	                           |--task.go
 package datax

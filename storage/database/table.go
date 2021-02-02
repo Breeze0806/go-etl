@@ -207,13 +207,13 @@ func NewTableQueryParam(table Table) *TableQueryParam {
 }
 
 //Query 生成select * from table where 1=2来获取表结构
-func (t *TableQueryParam) Query(records []element.Record) (s string, err error) {
+func (t *TableQueryParam) Query(_ []element.Record) (s string, err error) {
 	s = "select * from "
 	s += t.table.Quoted() + " where 1 = 2"
 	return s, nil
 }
 
 //Agrs  生成参数，不过为空
-func (t *TableQueryParam) Agrs(records []element.Record) (a []interface{}, err error) {
+func (t *TableQueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
 	return nil, nil
 }

@@ -62,10 +62,14 @@ func TestDB(t *testing.T) {
 
 	var gotRecords []element.Record
 
-	if err = db.FetchRecord(context.TODO(), NewTableQueryParam(gotTable), func(r element.Record) error {
-		gotRecords = append(gotRecords, r)
-		return nil
-	}); err != nil {
+	if err = db.FetchRecord(context.TODO(), NewTableQueryParam(gotTable), NewBaseFetchHandler(
+		func() (element.Record, error) {
+			return element.NewDefaultRecord(), nil
+		},
+		func(r element.Record) error {
+			gotRecords = append(gotRecords, r)
+			return nil
+		})); err != nil {
 		t.Errorf("FetchRecord error %v", err)
 		return
 	}
@@ -97,10 +101,14 @@ func TestDB(t *testing.T) {
 	}
 
 	gotRecords = nil
-	if err = db.FetchRecordWithTx(context.TODO(), NewTableQueryParam(gotTable), func(r element.Record) error {
-		gotRecords = append(gotRecords, r)
-		return nil
-	}); err != nil {
+	if err = db.FetchRecordWithTx(context.TODO(), NewTableQueryParam(gotTable), NewBaseFetchHandler(
+		func() (element.Record, error) {
+			return element.NewDefaultRecord(), nil
+		},
+		func(r element.Record) error {
+			gotRecords = append(gotRecords, r)
+			return nil
+		})); err != nil {
 		t.Errorf("FetchRecordWithTx error %v", err)
 		return
 	}
@@ -769,9 +777,9 @@ func TestDB_FetchRecord(t *testing.T) {
 	defer db.Close()
 	table, _ := db.FetchTable(context.TODO(), NewBaseTable("db", "schema", "table"))
 	type args struct {
-		ctx      context.Context
-		param    Parameter
-		onRecord func(element.Record) error
+		ctx     context.Context
+		param   Parameter
+		handler FetchHandler
 	}
 	tests := []struct {
 		name    string
@@ -788,9 +796,14 @@ func TestDB_FetchRecord(t *testing.T) {
 					BaseParam: NewBaseParam(table, nil),
 					queryErr:  errors.New("mock error"),
 				},
-				onRecord: func(r element.Record) error {
-					return nil
-				},
+
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), nil
+					},
+					func(r element.Record) error {
+						return nil
+					}),
 			},
 			wantErr: true,
 		},
@@ -802,16 +815,38 @@ func TestDB_FetchRecord(t *testing.T) {
 				param: &mockParameter{
 					BaseParam: NewBaseParam(table, nil),
 				},
-				onRecord: func(r element.Record) error {
-					return errors.New("mock error")
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), nil
+					},
+					func(r element.Record) error {
+						return errors.New("mock error")
+					}),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			d:    db,
+			args: args{
+				ctx: context.TODO(),
+				param: &mockParameter{
+					BaseParam: NewBaseParam(table, nil),
 				},
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), errors.New("mock error")
+					},
+					func(r element.Record) error {
+						return nil
+					}),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.d.FetchRecord(tt.args.ctx, tt.args.param, tt.args.onRecord); (err != nil) != tt.wantErr {
+			if err := tt.d.FetchRecord(tt.args.ctx, tt.args.param, tt.args.handler); (err != nil) != tt.wantErr {
 				t.Errorf("DB.FetchRecord() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -824,9 +859,9 @@ func TestDB_FetchRecordWithTx(t *testing.T) {
 	defer db.Close()
 	table, _ := db.FetchTable(context.TODO(), NewBaseTable("db", "schema", "table"))
 	type args struct {
-		ctx      context.Context
-		param    Parameter
-		onRecord func(element.Record) error
+		ctx     context.Context
+		param   Parameter
+		handler FetchHandler
 	}
 	tests := []struct {
 		name    string
@@ -843,9 +878,13 @@ func TestDB_FetchRecordWithTx(t *testing.T) {
 					BaseParam: NewBaseParam(table, nil),
 					queryErr:  errors.New("mock error"),
 				},
-				onRecord: func(r element.Record) error {
-					return nil
+
+				handler: NewBaseFetchHandler(func() (element.Record, error) {
+					return element.NewDefaultRecord(), nil
 				},
+					func(r element.Record) error {
+						return nil
+					}),
 			},
 			wantErr: true,
 		},
@@ -857,16 +896,36 @@ func TestDB_FetchRecordWithTx(t *testing.T) {
 				param: &mockParameter{
 					BaseParam: NewBaseParam(table, nil),
 				},
-				onRecord: func(r element.Record) error {
-					return errors.New("mock error")
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), nil
+					},
+					func(r element.Record) error {
+						return errors.New("mock error")
+					}),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			d:    db,
+			args: args{
+				ctx: context.TODO(),
+				param: &mockParameter{
+					BaseParam: NewBaseParam(table, nil),
 				},
+				handler: NewBaseFetchHandler(func() (element.Record, error) {
+					return nil, errors.New("mock error")
+				}, func(r element.Record) error {
+					return nil
+				}),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tt.d.FetchRecordWithTx(tt.args.ctx, tt.args.param, tt.args.onRecord)
+			err := tt.d.FetchRecordWithTx(tt.args.ctx, tt.args.param, tt.args.handler)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DB.FetchRecordWithTx() error = %v, wantErr %v", err, tt.wantErr)
 			}
