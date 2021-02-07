@@ -16,7 +16,7 @@ go-etl将提供的etl能力如下：
 
 - [x] 实现datax的同步框架，不包含监控以及流控模块
 - [x] 单元测试datax的同步框架，不包含监控以及流控模块
-- [ ] 实现MySQL基于datax的同步接口，并单元测试
+- [x] 实现MySQL基于datax的同步接口，并单元测试
 - [ ] 系统测试MySQL数据库间的同步
 - [x] 完善相关文档，包含代码注释（通过go lint 检查）
 - [ ] 实现监控以及流控模块,并单元测试（延后实现）
@@ -46,15 +46,3 @@ go-etl将提供的etl能力如下：
 [doc]:https://godoc.org/github.com/Breeze0806/go-etl
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license]: https://github.com/Breeze0806/go-etl/blob/main/LICENSE
-
-
-
-
-
-
-
-
-
-
-
-

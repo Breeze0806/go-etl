@@ -7,6 +7,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
+	"github.com/Breeze0806/go-etl/storage/database"
 )
 
 func init() {
@@ -18,7 +19,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	if name != "" {
+	if name == "" {
 		panic("name is empty")
 	}
 	loader.RegisterReader(name, reader)
@@ -43,6 +44,9 @@ func NewReader(filename string) (r *Reader, err error) {
 func (r *Reader) Job() reader.Job {
 	job := &Job{
 		BaseJob: plugin.NewBaseJob(),
+		newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+			return database.Open(name, conf)
+		},
 	}
 	job.SetPluginConf(r.pluginConf)
 	return job
@@ -52,6 +56,9 @@ func (r *Reader) Job() reader.Job {
 func (r *Reader) Task() reader.Task {
 	task := &Task{
 		BaseTask: plugin.NewBaseTask(),
+		newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+			return database.Open(name, conf)
+		},
 	}
 	task.SetPluginConf(r.pluginConf)
 	return task

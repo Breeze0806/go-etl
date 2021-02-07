@@ -1,9 +1,7 @@
 package mysql
 
 import (
-	"bytes"
 	"context"
-	"errors"
 	"sync"
 	"time"
 
@@ -11,6 +9,7 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
@@ -19,9 +18,11 @@ import (
 type Task struct {
 	*writer.BaseTask
 
-	db           *database.DBWrapper
-	recordTimout time.Duration
-	param        *parameter
+	execer      Execer
+	newExecer   func(name string, conf *config.JSON) (Execer, error)
+	param       *parameter
+	jobID       int64
+	taskgroupID int
 }
 
 //Init 初始化
@@ -40,6 +41,15 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
+	if t.jobID, err = t.PluginJobConf().GetInt64(coreconst.DataxCoreContainerJobID); err != nil {
+		return
+	}
+	var taskgroupID int64
+	if taskgroupID, err = t.PluginJobConf().GetInt64(coreconst.DataxCoreContainerTaskGroupID); err != nil {
+		return
+	}
+	t.taskgroupID = int(taskgroupID)
+
 	var jobSettingConf *config.JSON
 	if jobSettingConf, err = t.PluginJobConf().GetConfig(coreconst.DataxJobSetting); err != nil {
 		jobSettingConf, _ = config.NewJSONFromString("{}")
@@ -57,20 +67,20 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if t.db, err = database.Open(name, jobSettingConf); err != nil {
+	if t.execer, err = t.newExecer(name, jobSettingConf); err != nil {
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	_, err = t.db.ExecContext(ctx, "select 1")
+	_, err = t.execer.QueryContext(ctx, "select 1")
 	if err != nil {
 		return
 	}
 
-	t.param = newParameter(paramConfig, t.db)
+	t.param = newParameter(paramConfig, t.execer)
 
 	param := newTableParam(t.param)
-	if _, err = t.db.FetchTableWithParam(ctx, param); err != nil {
+	if _, err = t.execer.FetchTableWithParam(ctx, param); err != nil {
 		return
 	}
 
@@ -79,7 +89,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
-	return t.db.Close()
+	return t.execer.Close()
 }
 
 //StartWrite 开始写
@@ -91,93 +101,76 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	}
 	recordChan := make(chan element.Record)
 	var rerr error
-
+	afterCtx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		defer close(recordChan)
+		defer func() {
+			wg.Done()
+			close(recordChan)
+			log.Debugf("job id: %v taskgroup id：%v get records end", t.jobID, t.taskgroupID)
+		}()
+		log.Debugf("job id: %v taskgroup id：%v start to get records", t.jobID, t.taskgroupID)
 		for {
 			select {
-			case <-ctx.Done():
+			case <-afterCtx.Done():
+				return
 			default:
 			}
 			var record element.Record
 			record, rerr = receiver.GetFromReader()
-			if rerr != nil {
+			if rerr != nil && rerr != exchange.ErrEmpty {
 				return
 			}
-			recordChan <- record
+
+			if rerr != exchange.ErrEmpty {
+				select {
+				case <-afterCtx.Done():
+					return
+				case recordChan <- record:
+				}
+
+			}
 		}
 	}()
-	ticker := time.NewTicker(t.recordTimout)
+	ticker := time.NewTicker(t.param.paramConfig.getBatchTimeout())
 	defer ticker.Stop()
 	var records []element.Record
+	log.Debugf("job id: %v taskgroup id：%v start to BatchExec", t.jobID, t.taskgroupID)
 	for {
 		select {
 		case record, ok := <-recordChan:
-			if ok {
-				return rerr
+			if !ok {
+				err = rerr
+				goto End
 			}
 			records = append(records, record)
 			opts.Records = records
-			if len(records) >= 1000 {
-				if err = t.db.BatchExec(ctx, opts); err != nil {
-					return err
+			if len(records) >= t.param.paramConfig.getBatchSize() {
+				if err = t.execer.BatchExec(ctx, opts); err != nil {
+					log.Debugf("job id: %v taskgroup id：%v BatchExec error: %v", t.jobID, t.taskgroupID, err)
+					goto End
 				}
 				records = nil
 			}
 		case <-ticker.C:
-			if err = t.db.BatchExec(ctx, opts); err != nil {
-				return err
+			if err = t.execer.BatchExec(ctx, opts); err != nil {
+				log.Debugf("job id: %v taskgroup id：%v BatchExec error: %v", t.jobID, t.taskgroupID, err)
+				goto End
 			}
 			records = nil
 		}
 	}
-}
-
-type parameter struct {
-	*database.BaseParam
-
-	paramConfig *paramConfig
-}
-
-func newParameter(paramConfig *paramConfig, db *database.DBWrapper) *parameter {
-	p := &parameter{
-		BaseParam: database.NewBaseParam(db.Table(database.NewBaseTable(
-			paramConfig.Connection.Table.Db, "", paramConfig.Connection.Table.Name)), nil),
+End:
+	cancel()
+	log.Debugf("job id: %v taskgroup id：%v wait all goroutine", t.jobID, t.taskgroupID)
+	wg.Wait()
+	log.Debugf("job id: %v taskgroup id：%v wait all goroutine end", t.jobID, t.taskgroupID)
+	switch {
+	case ctx.Err() != nil:
+		return nil
+	case err == exchange.ErrTerminate:
+		return nil
 	}
-	p.paramConfig = paramConfig
-	return nil
-}
-
-type tableParam struct {
-	*parameter
-}
-
-func newTableParam(p *parameter) *tableParam {
-	return &tableParam{
-		parameter: p,
-	}
-}
-
-func (t *tableParam) Query(_ []element.Record) (string, error) {
-	buf := bytes.NewBufferString("select ")
-	if len(t.paramConfig.Column) == 0 {
-		return "", errors.New("column is empty")
-	}
-	for i, v := range t.paramConfig.Column {
-		if i > 0 {
-			buf.WriteString(",")
-		}
-		buf.WriteString(v)
-	}
-	buf.WriteString(" from ")
-	buf.WriteString(t.Table().Quoted())
-	buf.WriteString(" where 1 = 2")
-	return buf.String(), nil
-}
-
-func (t *tableParam) Agrs(_ []element.Record) ([]interface{}, error) {
-	return nil, nil
+	return
 }

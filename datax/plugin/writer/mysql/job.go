@@ -7,14 +7,14 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/storage/database"
 )
 
 //Job 工作
 type Job struct {
 	*plugin.BaseJob
 
-	db *database.DBWrapper
+	execer    Execer
+	newExecer func(name string, conf *config.JSON) (Execer, error)
 }
 
 //Init 初始化
@@ -24,7 +24,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		return
 	}
 	var paramConf *config.JSON
-	if paramConf, err = j.PluginJobConf().GetConfig(coreconst.DataxJobContentReaderParameter); err != nil {
+	if paramConf, err = j.PluginJobConf().GetConfig(coreconst.DataxJobContentWriterParameter); err != nil {
 		return
 	}
 
@@ -50,12 +50,12 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if j.db, err = database.Open(name, jobSettingConf); err != nil {
+	if j.execer, err = j.newExecer(name, jobSettingConf); err != nil {
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	_, err = j.db.ExecContext(ctx, "select 1")
+	_, err = j.execer.QueryContext(ctx, "select 1")
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (j *Job) Destroy(ctx context.Context) (err error) {
-	return j.db.Close()
+	return j.execer.Close()
 }
 
 //Split 切分任务
