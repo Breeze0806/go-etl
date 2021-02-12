@@ -10,12 +10,14 @@ import (
 
 //NilTimeColumnValue 空值时间列值
 type NilTimeColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilTimeColumnValue 创建空值时间列值
 func NewNilTimeColumnValue() ColumnValue {
-	return &NilTimeColumnValue{}
+	return &NilTimeColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 列类型
@@ -103,4 +105,20 @@ func (t *TimeColumnValue) Clone() ColumnValue {
 	return &TimeColumnValue{
 		val: t.val,
 	}
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (t *TimeColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsTime()
+	if err != nil {
+		return 0, err
+	}
+
+	if t.val.After(rightValue) {
+		return 1, nil
+	}
+	if t.val.Before(rightValue) {
+		return -1, nil
+	}
+	return 0, nil
 }

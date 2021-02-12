@@ -21,6 +21,17 @@ type Table interface {
 	Fields() []Field  //显示所有列
 }
 
+//PrimaryKeyHolder 主键持有者
+type PrimaryKeyHolder interface {
+	PrimaryKey() PrimaryKey
+}
+
+//PrimaryKey 主键
+type PrimaryKey interface {
+	KeyFields() []Field
+	Key() string
+}
+
 //Parameter 带有表，事务模式，sql语句的执行参数
 type Parameter interface {
 	Table() Table                                 //表或者视图

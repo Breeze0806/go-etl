@@ -11,12 +11,14 @@ import (
 
 //NilBytesColumnValue 空值字节流列值
 type NilBytesColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilBytesColumnValue 创建空值字节流列值
 func NewNilBytesColumnValue() ColumnValue {
-	return &NilBytesColumnValue{}
+	return &NilBytesColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 返回列类型
@@ -114,4 +116,20 @@ func (b *BytesColumnValue) Clone() ColumnValue {
 	v := make([]byte, len(b.val))
 	copy(v, b.val)
 	return NewBytesColumnValue(v)
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (b *BytesColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsBytes()
+	if err != nil {
+		return 0, err
+	}
+
+	if string(b.val) > string(rightValue) {
+		return 1, nil
+	}
+	if string(b.val) == string(rightValue) {
+		return 0, nil
+	}
+	return -1, nil
 }

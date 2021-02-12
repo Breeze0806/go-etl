@@ -410,3 +410,83 @@ func TestStringColumnValue_Clone(t *testing.T) {
 		})
 	}
 }
+
+func TestStringColumnValue_Cmp(t *testing.T) {
+	type args struct {
+		right ColumnValue
+	}
+	tests := []struct {
+		name    string
+		s       *StringColumnValue
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s:    NewStringColumnValue("123").(*StringColumnValue),
+			args: args{
+				right: NewNilBigIntColumnValue(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "2",
+			s:    NewStringColumnValue("abc").(*StringColumnValue),
+			args: args{
+				right: NewStringColumnValue("abcd"),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+		{
+			name: "3",
+			s:    NewStringColumnValue("abc").(*StringColumnValue),
+			args: args{
+				right: NewStringColumnValue("abd"),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+		{
+			name: "4",
+			s:    NewStringColumnValue("abc").(*StringColumnValue),
+			args: args{
+				right: NewStringColumnValue("abc"),
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "5",
+			s:    NewStringColumnValue("abcd").(*StringColumnValue),
+			args: args{
+				right: NewStringColumnValue("abc"),
+			},
+			want:    1,
+			wantErr: false,
+		},
+		{
+			name: "6",
+			s:    NewStringColumnValue("abd").(*StringColumnValue),
+			args: args{
+				right: NewStringColumnValue("abc"),
+			},
+			want:    1,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.s.Cmp(tt.args.right)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("StringColumnValue.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("StringColumnValue.Cmp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

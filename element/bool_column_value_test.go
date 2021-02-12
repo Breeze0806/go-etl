@@ -313,3 +313,74 @@ func TestBoolColumnValue_Clone(t *testing.T) {
 		})
 	}
 }
+
+func TestBoolColumnValue_Cmp(t *testing.T) {
+	type args struct {
+		right ColumnValue
+	}
+	tests := []struct {
+		name    string
+		b       *BoolColumnValue
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			b:    NewBoolColumnValue(true).(*BoolColumnValue),
+			args: args{
+				right: NewNilBoolColumnValue(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "2",
+			b:    NewBoolColumnValue(true).(*BoolColumnValue),
+			args: args{
+				right: NewBoolColumnValue(true),
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "3",
+			b:    NewBoolColumnValue(false).(*BoolColumnValue),
+			args: args{
+				right: NewBoolColumnValue(false),
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "4",
+			b:    NewBoolColumnValue(true).(*BoolColumnValue),
+			args: args{
+				right: NewBoolColumnValue(false),
+			},
+			want:    1,
+			wantErr: false,
+		},
+		{
+			name: "5",
+			b:    NewBoolColumnValue(false).(*BoolColumnValue),
+			args: args{
+				right: NewBoolColumnValue(true),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.Cmp(tt.args.right)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BoolColumnValue.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("BoolColumnValue.Cmp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

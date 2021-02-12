@@ -9,16 +9,17 @@
 //	            |-- task2--|           |--taskGroup2       |   Reader1->Exchanger1(Transformer)->Writer1  |
 //	            |-- task3--|-schedule--|--taskGroup3       |   Reader2->Exchanger2(Transformer)->Writer2  |
 //	               ......                 ......           |   Reader3->Exchanger3(Transformer)->Writer3  |
-//	            |-- taskN--|           |--taskGroupM       |          .....                               |
+//	            |-- taskN--|           |--taskGroupM       |          ......                              |
 //	                                                       |   ReaderN->ExchangerN(Transformer)->WriterN  |
 //	                                                       |______________________________________________|
 //
-// 核心模块介绍：
+//
+// 核心模块介绍:
+//
 // DataX完成单个数据同步的作业，我们称之为Job，DataX接受到一个Job之后，将启动一个进程来完成整个作业同步过程。DataX Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
 // DataXJob启动后，会根据不同的源端切分策略，将Job切分成多个小的Task(子任务)，以便于并发执行。Task便是DataX作业的最小单元，每一个Task都会负责一部分数据的同步工作。
 // 切分多个Task之后，DataX Job会调用Scheduler模块，根据配置的并发数据量，将拆分成的Task重新组合，组装成TaskGroup(任务组)。每一个TaskGroup负责以一定的并发运行完毕分配好的所有Task，默认单个任务组的并发数量为5。
 // 每一个Task都由TaskGroup负责启动，Task启动后，会固定启动Reader—>Channel—>Writer的线程来完成任务同步工作。
-//
 // DataX作业运行起来之后， Job监控并等待多个TaskGroup模块任务完成，等待所有TaskGroup任务完成后Job成功退出。否则，异常退出，进程退出值非0
 //
 // DataX调度流程：
@@ -33,7 +34,9 @@
 // TaskGroup:  描述的是一组Task集合。在同一个TaskGroupContainer执行下的Task集合称之为TaskGroup
 // JobContainer:  Job执行器，负责Job全局拆分、调度、前置语句和后置语句等工作的工作单元。类似Yarn中的JobTracker
 // TaskGroupContainer: TaskGroup执行器，负责执行一组Task的工作单元，类似Yarn中的TaskTracker。
-// Reader需要实现以下接口
+//
+// Reader需要实现以下接口:
+//
 // 1. Reader的Job组合*plugin.BaseJob，实现方法Init(ctx context.Context) (err error)
 // Destroy(ctx context.Context) (err error)，Split(ctx context.Context, number int) ([]*config.JSON, error)
 // Prepare(ctx context.Context) error以及Post(ctx context.Context) error
@@ -44,7 +47,8 @@
 //
 // 3. Reader的本身实现Job() reader.Job以及Task() reader.Task
 //
-// Writer 需要实现以下接口
+// Writer 需要实现以下接口:
+//
 // 1. Writer的Job组合*plugin.BaseJob，实现方法Init(ctx context.Context) (err error)，
 // Destroy(ctx context.Context) (err error)，Split(ctx context.Context, number int) ([]*config.JSON, error)，
 // Prepare(ctx context.Context) error以及Post(ctx context.Context) error
@@ -64,7 +68,7 @@
 //	     "description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
 //	}
 //
-// 上述接口配置目录按照以下：
+// 上述接口配置目录按照以下
 //
 //	plugin+--- reader--mysql---+-----resources--+--plugin.json
 //	      |                    |--job.go        |--plugin_job_template.json

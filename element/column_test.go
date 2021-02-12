@@ -620,16 +620,15 @@ func TestDefaultColumn_Clone(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name : "1",
-			d : NewDefaultColumn(NewNilBigIntColumnValue(),"test", 0).(*DefaultColumn),
-			want: NewDefaultColumn(NewNilBigIntColumnValue(),"test", 0),
+			name:    "1",
+			d:       NewDefaultColumn(NewNilBigIntColumnValue(), "test", 0).(*DefaultColumn),
+			want:    NewDefaultColumn(NewNilBigIntColumnValue(), "test", 0),
 			wantErr: false,
 		},
 
 		{
-			name : "2",
-			d : NewDefaultColumn(newMockColumnValue(),"test", 0).(*DefaultColumn),
-			want: NewDefaultColumn(newMockColumnValue(),"test", 0),
+			name:    "2",
+			d:       NewDefaultColumn(newMockColumnValue(), "test", 0).(*DefaultColumn),
 			wantErr: true,
 		},
 	}
@@ -642,6 +641,59 @@ func TestDefaultColumn_Clone(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DefaultColumn.Clone() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultColumn_Cmp(t *testing.T) {
+	type args struct {
+		c Column
+	}
+	tests := []struct {
+		name    string
+		d       *DefaultColumn
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			d:    NewDefaultColumn(newMockColumnValue(), "f1", 0).(*DefaultColumn),
+			args: args{
+				c: NewDefaultColumn(newMockColumnValue(), "f2", 0),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "2",
+			d:    NewDefaultColumn(newMockColumnValue(), "f1", 0).(*DefaultColumn),
+			args: args{
+				c: NewDefaultColumn(newMockColumnValue(), "f1", 0),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "3",
+			d:    NewDefaultColumn(NewBigIntColumnValueFromInt64(1), "f1", 0).(*DefaultColumn),
+			args: args{
+				c: NewDefaultColumn(NewBigIntColumnValueFromInt64(1), "f1", 0),
+			},
+			want:    0,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.Cmp(tt.args.c)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultColumn.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DefaultColumn.Cmp() = %v, want %v", got, tt.want)
 			}
 		})
 	}

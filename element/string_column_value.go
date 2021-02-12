@@ -11,12 +11,14 @@ import (
 
 //NilStringColumnValue 空值字符串列值
 type NilStringColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilStringColumnValue 创建空值字符串列值
 func NewNilStringColumnValue() ColumnValue {
-	return &NilStringColumnValue{}
+	return &NilStringColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 列类型
@@ -110,4 +112,22 @@ func (s *StringColumnValue) String() string {
 //Clone 克隆字符串列值
 func (s *StringColumnValue) Clone() ColumnValue {
 	return NewStringColumnValue(s.val)
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (s *StringColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsString()
+	if err != nil {
+		return 0, err
+	}
+
+	if s.val > rightValue {
+		return 1, nil
+	}
+
+	if s.val == rightValue {
+		return 0, nil
+	}
+
+	return -1, nil
 }

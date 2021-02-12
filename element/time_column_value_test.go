@@ -264,3 +264,66 @@ func TestTimeColumnValue_Clone(t *testing.T) {
 		})
 	}
 }
+
+func TestTimeColumnValue_Cmp(t *testing.T) {
+	now := time.Now()
+	type args struct {
+		right ColumnValue
+	}
+	tests := []struct {
+		name    string
+		t       *TimeColumnValue
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			t:    NewTimeColumnValue(now).(*TimeColumnValue),
+			args: args{
+				right: NewNilTimeColumnValue(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "2",
+			t:    NewTimeColumnValue(now).(*TimeColumnValue),
+			args: args{
+				right: NewTimeColumnValue(now),
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "3",
+			t:    NewTimeColumnValue(now.Add(1 * time.Minute)).(*TimeColumnValue),
+			args: args{
+				right: NewTimeColumnValue(now),
+			},
+			want:    1,
+			wantErr: false,
+		},
+		{
+			name: "4",
+			t:    NewTimeColumnValue(now).(*TimeColumnValue),
+			args: args{
+				right: NewTimeColumnValue(now.Add(1 * time.Minute)),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.t.Cmp(tt.args.right)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TimeColumnValue.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("TimeColumnValue.Cmp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

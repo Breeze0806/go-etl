@@ -697,3 +697,66 @@ func TestBigIntColumnValue_IsNil(t *testing.T) {
 		})
 	}
 }
+
+func TestBigIntColumnValue_Cmp(t *testing.T) {
+	type args struct {
+		right ColumnValue
+	}
+	tests := []struct {
+		name    string
+		b       *BigIntColumnValue
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			b:    NewBigIntColumnValueFromInt64(int64(math.MaxInt64)).(*BigIntColumnValue),
+			args: args{
+				right: NewNilBigIntColumnValue(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+
+		{
+			name: "2",
+			b:    NewBigIntColumnValueFromInt64(int64(math.MaxInt64)).(*BigIntColumnValue),
+			args: args{
+				right: NewBigIntColumnValueFromInt64(int64(math.MaxInt64 - 1)),
+			},
+			want:    1,
+			wantErr: false,
+		},
+		{
+			name: "3",
+			b:    NewBigIntColumnValueFromInt64(int64(math.MaxInt64)).(*BigIntColumnValue),
+			args: args{
+				right: NewBigIntColumnValueFromInt64(int64(math.MaxInt64)),
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "4",
+			b:    NewBigIntColumnValueFromInt64(int64(math.MinInt64)).(*BigIntColumnValue),
+			args: args{
+				right: NewBigIntColumnValueFromInt64(int64(math.MinInt64 + 1)),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.Cmp(tt.args.right)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BigIntColumnValue.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("BigIntColumnValue.Cmp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

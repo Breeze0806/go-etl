@@ -13,12 +13,14 @@ var _IntTen = big.NewInt(10)
 
 //NilBigIntColumnValue 空值整数列值
 type NilBigIntColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilBigIntColumnValue 创建空值整数列值
 func NewNilBigIntColumnValue() ColumnValue {
-	return &NilBigIntColumnValue{}
+	return &NilBigIntColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 返回列类型
@@ -109,4 +111,13 @@ func (b *BigIntColumnValue) String() string {
 //Clone 克隆整数列属性
 func (b *BigIntColumnValue) Clone() ColumnValue {
 	return NewBigIntColumnValue(b.val)
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (b *BigIntColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsBigInt()
+	if err != nil {
+		return 0, err
+	}
+	return b.val.Cmp(rightValue), nil
 }

@@ -11,12 +11,14 @@ import (
 
 //NilDecimalColumnValue 空值高精度实数型列值
 type NilDecimalColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilDecimalColumnValue 生成空值高精度实数型列值
 func NewNilDecimalColumnValue() ColumnValue {
-	return &NilDecimalColumnValue{}
+	return &NilDecimalColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 列类型
@@ -120,4 +122,14 @@ func (d *DecimalColumnValue) Clone() ColumnValue {
 	return &DecimalColumnValue{
 		val: d.val,
 	}
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (d *DecimalColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsDecimal()
+	if err != nil {
+		return 0, err
+	}
+
+	return d.val.Cmp(rightValue), nil
 }

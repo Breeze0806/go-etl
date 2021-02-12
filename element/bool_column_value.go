@@ -10,12 +10,14 @@ import (
 
 //NilBoolColumnValue 空值布尔列值
 type NilBoolColumnValue struct {
-	nilColumnValue
+	*nilColumnValue
 }
 
 //NewNilBoolColumnValue 生成空值布尔列值
 func NewNilBoolColumnValue() ColumnValue {
-	return &NilBoolColumnValue{}
+	return &NilBoolColumnValue{
+		nilColumnValue: &nilColumnValue{},
+	}
 }
 
 //Type 返回列类型
@@ -99,4 +101,21 @@ func (b *BoolColumnValue) String() string {
 //Clone 克隆布尔列值
 func (b *BoolColumnValue) Clone() ColumnValue {
 	return NewBoolColumnValue(b.val)
+}
+
+//Cmp  返回1代表大于， 0代表相等， -1代表小于
+func (b *BoolColumnValue) Cmp(right ColumnValue) (int, error) {
+	rightValue, err := right.AsBool()
+	if err != nil {
+		return 0, err
+	}
+
+	if b.val == rightValue {
+		return 0, nil
+	}
+
+	if b.val && !rightValue {
+		return 1, nil
+	}
+	return -1, nil
 }

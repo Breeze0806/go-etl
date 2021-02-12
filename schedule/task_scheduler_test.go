@@ -6,16 +6,6 @@ import (
 	"time"
 )
 
-type mockTask struct {
-	d time.Duration
-}
-
-func (m *mockTask) Do() error {
-	if m.d != 0 {
-		time.Sleep(m.d)
-	}
-	return nil
-}
 func TestTaskSchduler_Once(t *testing.T) {
 	schduler := NewTaskSchduler(2, 0)
 	wait := make(chan struct{})

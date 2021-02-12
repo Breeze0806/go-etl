@@ -48,6 +48,12 @@ type ColumnValueClonable interface {
 	Clone() ColumnValue //克隆
 }
 
+//ColumnValueComparabale 可比较列值
+type ColumnValueComparabale interface {
+	//比较 1代表大于， 0代表相等， -1代表小于
+	Cmp(ColumnValue) (int, error)
+}
+
 //Column 列
 type Column interface {
 	ColumnValue
@@ -58,6 +64,7 @@ type Column interface {
 	AsFloat32() (float32, error) //转化为32位实数
 	AsFloat64() (float64, error) //转化为64位实数
 	Clone() (Column, error)      //克隆
+	Cmp(Column) (int, error)     //比较, 1代表大于， 0代表相等， -1代表小于
 	Name() string                //列名
 	ByteSize() int64             //字节流大小
 	MemorySize() int64           //内存大小
@@ -137,6 +144,18 @@ func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 //Name 列名
 func (d *DefaultColumn) Name() string {
 	return d.name
+}
+
+//Cmp 比较列，如果不是可比较列值，就会报错
+func (d *DefaultColumn) Cmp(c Column) (int, error) {
+	if d.Name() != c.Name() {
+		return 0, ErrColumnNameNotEqual
+	}
+	comparabale, ok := d.ColumnValue.(ColumnValueComparabale)
+	if !ok {
+		return 0, ErrNotColumnValueComparable
+	}
+	return comparabale.Cmp(c)
 }
 
 //Clone 克隆列，如果不是可克隆列值，就会报错

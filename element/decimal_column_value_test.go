@@ -658,3 +658,65 @@ func TestDecimalColumnValue_Clone(t *testing.T) {
 		})
 	}
 }
+
+func TestDecimalColumnValue_Cmp(t *testing.T) {
+	type args struct {
+		right ColumnValue
+	}
+	tests := []struct {
+		name    string
+		d       *DecimalColumnValue
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "1",
+			d:    NewDecimalColumnValueFromFloat(math.MaxFloat64).(*DecimalColumnValue),
+			args: args{
+				right: NewNilDecimalColumnValue(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "2",
+			d:    NewDecimalColumnValueFromFloat(math.MaxFloat64).(*DecimalColumnValue),
+			args: args{
+				right: NewDecimalColumnValueFromFloat(math.MaxFloat32),
+			},
+			want:    1,
+			wantErr: false,
+		},
+		{
+			name: "2",
+			d:    NewDecimalColumnValueFromFloat(math.MaxFloat32).(*DecimalColumnValue),
+			args: args{
+				right: NewDecimalColumnValueFromFloat(math.MaxFloat64),
+			},
+			want:    -1,
+			wantErr: false,
+		},
+		{
+			name: "2",
+			d:    NewDecimalColumnValueFromFloat(math.MaxFloat64).(*DecimalColumnValue),
+			args: args{
+				right: NewDecimalColumnValueFromFloat(math.MaxFloat64),
+			},
+			want:    0,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.Cmp(tt.args.right)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DecimalColumnValue.Cmp() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("DecimalColumnValue.Cmp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
