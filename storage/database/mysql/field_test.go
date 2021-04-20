@@ -52,7 +52,7 @@ func TestField_Quoted(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
 			want: "`table`",
 		},
 	}
@@ -77,7 +77,7 @@ func TestField_BindVar(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
 			args: args{
 				i: 0,
 			},
@@ -85,7 +85,7 @@ func TestField_BindVar(t *testing.T) {
 		},
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
 			args: args{
 				i: 100000,
 			},
@@ -109,7 +109,7 @@ func TestField_Select(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
 			want: "`table`",
 		},
 	}
@@ -130,7 +130,7 @@ func TestField_Type(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
 			want: NewFieldType(&sql.ColumnType{}),
 		},
 	}
@@ -151,8 +151,8 @@ func TestField_Scanner(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("table", &sql.ColumnType{})),
-			want: NewScanner(NewField(database.NewBaseField("table", &sql.ColumnType{}))),
+			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			want: NewScanner(NewField(database.NewBaseField(0, "table", &sql.ColumnType{}))),
 		},
 	}
 	for _, tt := range tests {
@@ -176,11 +176,11 @@ func TestField_Valuer(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField("f1", NewFieldType(&sql.ColumnType{}))),
+			f:    NewField(database.NewBaseField(0, "f1", NewFieldType(&sql.ColumnType{}))),
 			args: args{
 				c: element.NewDefaultColumn(nil, "", 0),
 			},
-			want: database.NewGoValuer(NewField(database.NewBaseField("f1", NewFieldType(&sql.ColumnType{}))), element.NewDefaultColumn(nil, "", 0)),
+			want: database.NewGoValuer(NewField(database.NewBaseField(0, "f1", NewFieldType(&sql.ColumnType{}))), element.NewDefaultColumn(nil, "", 0)),
 		},
 	}
 	for _, tt := range tests {
@@ -359,7 +359,7 @@ func TestScanner_Scan(t *testing.T) {
 		//"MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR"
 		{
 			name: "BIGINT",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("BIGINT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BIGINT")))),
 			args: args{
 				src: []byte("123123456789"),
 			},
@@ -367,7 +367,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "MEDIUMINT",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("MEDIUMINT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("MEDIUMINT")))),
 			args: args{
 				src: []byte("123123456789e"),
 			},
@@ -375,7 +375,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "YEAR",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("YEAR")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("YEAR")))),
 			args: args{
 				src: nil,
 			},
@@ -383,7 +383,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "TINYINT",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("TINYINT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TINYINT")))),
 			args: args{
 				src: int64(123),
 			},
@@ -392,7 +392,7 @@ func TestScanner_Scan(t *testing.T) {
 		//"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"
 		{
 			name: "BLOB",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("BLOB")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BLOB")))),
 			args: args{
 				src: []byte("123123456789"),
 			},
@@ -400,7 +400,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "BINARY",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("BINARY")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BINARY")))),
 			args: args{
 				src: nil,
 			},
@@ -408,7 +408,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "VARBINARY",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("BINARY")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BINARY")))),
 			args: args{
 				src: "nil",
 			},
@@ -417,7 +417,7 @@ func TestScanner_Scan(t *testing.T) {
 		//"DATE", "DATETIME", "TIMESTAMP"
 		{
 			name: "DATE",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("DATE")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATE")))),
 			args: args{
 				src: time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local),
 			},
@@ -425,7 +425,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "DATETIME",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("DATETIME")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATETIME")))),
 			args: args{
 				src: nil,
 			},
@@ -433,7 +433,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "TIMESTAMP",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("TIMESTAMP")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TIMESTAMP")))),
 			args: args{
 				src: "nil",
 			},
@@ -442,7 +442,7 @@ func TestScanner_Scan(t *testing.T) {
 		//"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR", "TIME"
 		{
 			name: "TEXT",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("TEXT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TEXT")))),
 			args: args{
 				src: []byte("中文abc%$`\""),
 			},
@@ -450,7 +450,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "CHAR",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("CHAR")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CHAR")))),
 			args: args{
 				src: nil,
 			},
@@ -458,7 +458,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "TIME",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("TIME")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TIME")))),
 			args: args{
 				src: int16(0),
 			},
@@ -467,7 +467,7 @@ func TestScanner_Scan(t *testing.T) {
 		//"DOUBLE", "FLOAT", "DECIMAL"
 		{
 			name: "DOUBLE",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("DOUBLE")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DOUBLE")))),
 			args: args{
 				src: []byte("123456.7123456"),
 			},
@@ -475,7 +475,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "DOUBLE",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("DOUBLE")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DOUBLE")))),
 			args: args{
 				src: []byte("123456.7123456e"),
 			},
@@ -483,7 +483,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "FLOAT",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("FLOAT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("FLOAT")))),
 			args: args{
 				src: nil,
 			},
@@ -491,7 +491,7 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "DECIMAL",
-			s:    NewScanner(NewField(database.NewBaseField("test", newMockFieldType("DECIMAL")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DECIMAL")))),
 			args: args{
 				src: int16(0),
 			},

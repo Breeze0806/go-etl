@@ -111,7 +111,7 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 		return nil, fmt.Errorf("rows.ColumnTypes() err: %v", err)
 	}
 	for i := range names {
-		adder.AddField(NewBaseField(names[i], types[i]))
+		adder.AddField(NewBaseField(i, names[i], types[i]))
 	}
 	return table, nil
 }

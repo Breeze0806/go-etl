@@ -9,7 +9,7 @@ import (
 type DefaultJobCollector struct{}
 
 //NewDefaultJobCollector 创建默认工作收集器
-func NewDefaultJobCollector(communication.Communication) plugin.JobCollector {
+func NewDefaultJobCollector(*communication.Communication) plugin.JobCollector {
 	return &DefaultJobCollector{}
 }
 

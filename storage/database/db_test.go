@@ -31,10 +31,10 @@ func TestDB(t *testing.T) {
 			schema:   "schema",
 			name:     "table",
 			fields: []Field{
-				newMockField(NewBaseField("f1", newMockFieldType(GoTypeBool)), newMockFieldType(GoTypeBool)),
-				newMockField(NewBaseField("f2", newMockFieldType(GoTypeInt64)), newMockFieldType(GoTypeInt64)),
-				newMockField(NewBaseField("f3", newMockFieldType(GoTypeFloat64)), newMockFieldType(GoTypeFloat64)),
-				newMockField(NewBaseField("f4", newMockFieldType(GoTypeString)), newMockFieldType(GoTypeString)),
+				newMockField(NewBaseField(0, "f1", newMockFieldType(GoTypeBool)), newMockFieldType(GoTypeBool)),
+				newMockField(NewBaseField(1, "f2", newMockFieldType(GoTypeInt64)), newMockFieldType(GoTypeInt64)),
+				newMockField(NewBaseField(2, "f3", newMockFieldType(GoTypeFloat64)), newMockFieldType(GoTypeFloat64)),
+				newMockField(NewBaseField(3, "f4", newMockFieldType(GoTypeString)), newMockFieldType(GoTypeString)),
 			},
 		},
 	}
@@ -50,11 +50,17 @@ func TestDB(t *testing.T) {
 	}
 
 	for i, v := range gotTable.Fields() {
+		if !reflect.DeepEqual(v.Index(), wantTable.Fields()[i].Index()) {
+			t.Errorf("field %v got.Index: %v want.Index: %v", i, v.Index(), wantTable.Fields()[i].Index())
+			return
+		}
+
 		if !reflect.DeepEqual(v.Name(), wantTable.Fields()[i].Name()) {
 			t.Errorf("field %v got.name: %v want.name: %v", i, v.Name(), wantTable.Fields()[i].Name())
 			return
 		}
-		if !reflect.DeepEqual(v.Name(), wantTable.Fields()[i].Name()) {
+
+		if !reflect.DeepEqual(v.Type().DatabaseTypeName(), wantTable.Fields()[i].Type().DatabaseTypeName()) {
 			t.Errorf("field %v got.type: %v want.type: %v", i, v.Type().DatabaseTypeName(), wantTable.Fields()[i].Type().DatabaseTypeName())
 			return
 		}
@@ -228,10 +234,10 @@ func TestDB_FetchTableWithParam(t *testing.T) {
 					schema:   "schema",
 					name:     "table",
 					fields: []Field{
-						newMockField(NewBaseField("f1", newMockFieldType(GoTypeBool)), newMockFieldType(GoTypeBool)),
-						newMockField(NewBaseField("f2", newMockFieldType(GoTypeInt64)), newMockFieldType(GoTypeInt64)),
-						newMockField(NewBaseField("f3", newMockFieldType(GoTypeFloat64)), newMockFieldType(GoTypeFloat64)),
-						newMockField(NewBaseField("f4", newMockFieldType(GoTypeString)), newMockFieldType(GoTypeString)),
+						newMockField(NewBaseField(0, "f1", newMockFieldType(GoTypeBool)), newMockFieldType(GoTypeBool)),
+						newMockField(NewBaseField(1, "f2", newMockFieldType(GoTypeInt64)), newMockFieldType(GoTypeInt64)),
+						newMockField(NewBaseField(2, "f3", newMockFieldType(GoTypeFloat64)), newMockFieldType(GoTypeFloat64)),
+						newMockField(NewBaseField(3, "f4", newMockFieldType(GoTypeString)), newMockFieldType(GoTypeString)),
 					},
 				},
 			},
@@ -759,6 +765,33 @@ func TestDB_BatchExecStmtWithTx(t *testing.T) {
 					Mode: "mock",
 				},
 			},
+		},
+		{
+			name: "4",
+			d:    testMustDB("mock", testJSONFromString("{}")),
+			args: args{
+				ctx: context.TODO(),
+				opts: &ParameterOptions{
+					Table: &mockTableWithOther{
+						mockTable: &mockTable{
+							BaseTable: NewBaseTable("db", "schema", "table"),
+						},
+						execParams: map[string]func(t Table, txOpts *sql.TxOptions) Parameter{
+							"mock": func(t Table, txOpts *sql.TxOptions) Parameter {
+								return &mockParameter{
+									BaseParam: NewBaseParam(t, txOpts),
+									agrsErr:   errors.New("mock error"),
+								}
+							},
+						},
+					},
+					Mode: "mock",
+					Records: []element.Record{
+						element.NewDefaultRecord(),
+					},
+				},
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

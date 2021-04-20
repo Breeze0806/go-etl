@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -38,4 +39,12 @@ func (m *mockAsyncTask) Do() error {
 
 func (m *mockAsyncTask) Post() error {
 	return m.postErr
+}
+
+type mockMappedTask struct {
+	taskID int64
+}
+
+func (m *mockMappedTask) Key() string {
+	return strconv.FormatInt(m.taskID, 10)
 }

@@ -76,9 +76,9 @@
 //	      |                    |--README.md
 //	      |                    |--task.go
 //	      |
-//	      +--- reader--mysql---+-----resources--+--plugin.json
+//	      +--- writer--mysql---+-----resources--+--plugin.json
 //	                           |--job.go        |--plugin_job_template.json
-//	                           |--reader.go
+//	                           |--writer.go
 //	                           |--README.md
 //	                           |--task.go
 package datax

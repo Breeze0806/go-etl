@@ -13,7 +13,7 @@ type Container interface {
 //BaseCotainer 基础容器
 type BaseCotainer struct {
 	conf *config.JSON
-	com  communication.Communication
+	com  *communication.Communication
 }
 
 //NewBaseCotainer 创建基础容器
@@ -32,11 +32,11 @@ func (b *BaseCotainer) Config() *config.JSON {
 }
 
 //SetCommunication 未真正使用
-func (b *BaseCotainer) SetCommunication(com communication.Communication) {
+func (b *BaseCotainer) SetCommunication(com *communication.Communication) {
 	b.com = com
 }
 
 //Communication  未真正使用
-func (b *BaseCotainer) Communication() communication.Communication {
+func (b *BaseCotainer) Communication() *communication.Communication {
 	return b.com
 }

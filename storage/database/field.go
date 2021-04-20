@@ -60,6 +60,7 @@ func (t GoType) String() string {
 type Field interface {
 	fmt.Stringer
 
+	Index() int                   //索引
 	Name() string                 //字段名
 	Quoted() string               //引用字段名
 	BindVar(int) string           //占位符号
@@ -99,17 +100,24 @@ type ValuerGoType interface {
 
 //BaseField 基础字段，主要存储列名name和列类型fieldType
 type BaseField struct {
+	index     int
 	name      string
 	fieldType FieldType
 }
 
 //NewBaseField 根据列名name和列类型fieldType获取基础字段
 //用于嵌入其他Field，方便实现各个数据库的Field
-func NewBaseField(name string, fieldType FieldType) *BaseField {
+func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	return &BaseField{
+		index:     index,
 		fieldType: fieldType,
 		name:      name,
 	}
+}
+
+//Index 返回字段名
+func (b *BaseField) Index() int {
+	return b.index
 }
 
 //Name 返回字段名

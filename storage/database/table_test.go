@@ -86,31 +86,31 @@ func TestBaseTable_Fields(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				f: newMockField(NewBaseField("1", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 			want: []Field{
-				newMockField(NewBaseField("1", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 		},
 		{
 			name: "2",
 			args: args{
-				f: newMockField(NewBaseField("2", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 			want: []Field{
-				newMockField(NewBaseField("1", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField("2", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 		},
 		{
 			name: "3",
 			args: args{
-				f: newMockField(NewBaseField("3", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "3", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 			want: []Field{
-				newMockField(NewBaseField("1", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField("2", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField("3", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "3", &sql.ColumnType{}), &sql.ColumnType{}),
 			},
 		},
 	}
@@ -209,9 +209,9 @@ func TestInsertParam_Query(t *testing.T) {
 					},
 				},
 				fields: []Field{
-					newMockField(NewBaseField("f1", nil), newMockFieldType(GoTypeInt64)),
-					newMockField(NewBaseField("f2", nil), newMockFieldType(GoTypeFloat64)),
-					newMockField(NewBaseField("f3", nil), newMockFieldType(GoTypeString)),
+					newMockField(NewBaseField(0, "f1", nil), newMockFieldType(GoTypeInt64)),
+					newMockField(NewBaseField(1, "f2", nil), newMockFieldType(GoTypeFloat64)),
+					newMockField(NewBaseField(2, "f3", nil), newMockFieldType(GoTypeString)),
 				},
 				t: NewBaseTable("db", "schema", "table"),
 			},
@@ -282,9 +282,9 @@ func TestInsertParam_Agrs(t *testing.T) {
 					},
 				},
 				fields: []Field{
-					newMockField(NewBaseField("f1", nil), newMockFieldType(GoTypeInt64)),
-					newMockField(NewBaseField("f2", nil), newMockFieldType(GoTypeFloat64)),
-					newMockField(NewBaseField("f3", nil), newMockFieldType(GoTypeString)),
+					newMockField(NewBaseField(0, "f1", nil), newMockFieldType(GoTypeInt64)),
+					newMockField(NewBaseField(1, "f2", nil), newMockFieldType(GoTypeFloat64)),
+					newMockField(NewBaseField(2, "f3", nil), newMockFieldType(GoTypeString)),
 				},
 				t: NewBaseTable("db", "schema", "table"),
 			},
@@ -320,9 +320,9 @@ func TestInsertParam_Agrs(t *testing.T) {
 					},
 				},
 				fields: []Field{
-					newMockField(NewBaseField("f1", nil), newMockFieldType(GoTypeInt64)),
-					newMockField(NewBaseField("f2", nil), newMockFieldType(GoTypeFloat64)),
-					newMockField(NewBaseField("f3", nil), newMockFieldType(GoTypeString)),
+					newMockField(NewBaseField(0, "f1", nil), newMockFieldType(GoTypeInt64)),
+					newMockField(NewBaseField(1, "f2", nil), newMockFieldType(GoTypeFloat64)),
+					newMockField(NewBaseField(2, "f3", nil), newMockFieldType(GoTypeString)),
 				},
 				t: NewBaseTable("db", "schema", "table"),
 			},
@@ -354,9 +354,9 @@ func TestInsertParam_Agrs(t *testing.T) {
 					},
 				},
 				fields: []Field{
-					newMockField(NewBaseField("f1", nil), newMockFieldType(GoTypeInt64)),
-					newMockField(NewBaseField("f2", nil), newMockFieldType(GoTypeFloat64)),
-					newMockField(NewBaseField("f3", nil), newMockFieldType(GoTypeTime)),
+					newMockField(NewBaseField(0, "f1", nil), newMockFieldType(GoTypeInt64)),
+					newMockField(NewBaseField(1, "f2", nil), newMockFieldType(GoTypeFloat64)),
+					newMockField(NewBaseField(2, "f3", nil), newMockFieldType(GoTypeTime)),
 				},
 				t: NewBaseTable("db", "schema", "table"),
 			},

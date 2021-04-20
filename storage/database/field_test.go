@@ -19,7 +19,7 @@ func TestBaseField_Name(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    NewBaseField("f1", &sql.ColumnType{}),
+			b:    NewBaseField(1, "f1", &sql.ColumnType{}),
 			want: "f1",
 		},
 	}
@@ -40,7 +40,7 @@ func TestBaseField_ColumnType(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    NewBaseField("f1", &sql.ColumnType{}),
+			b:    NewBaseField(1, "f1", &sql.ColumnType{}),
 			want: &sql.ColumnType{},
 		},
 	}
@@ -61,7 +61,7 @@ func TestBaseField_String(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    NewBaseField("f1", &sql.ColumnType{}),
+			b:    NewBaseField(1, "f1", &sql.ColumnType{}),
 			want: "f1",
 		},
 	}
@@ -199,13 +199,13 @@ func TestGoValuer_Value(t *testing.T) {
 	}{
 		{
 			name: "1",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeBool)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeBool)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: true,
 		},
 		{
 			name: "2",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt8)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt8)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 			want:    int8(0),
@@ -213,68 +213,68 @@ func TestGoValuer_Value(t *testing.T) {
 
 		{
 			name: "3",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt32)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt32)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: int32(1234567890),
 		},
 		{
 			name: "4",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt64)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt64)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: int64(1234567890),
 		},
 		{
 			name: "5",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeFloat32)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeFloat32)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: float32(1234567890.23),
 		},
 		{
 			name: "6",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeFloat64)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeFloat64)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: float64(1234567890.23),
 		},
 		{
 			name: "7",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeString)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeString)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: "1234567890.23",
 		},
 		{
 			name: "8",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeBytes)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeBytes)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			want: []byte("1234567890.23"),
 		},
 		{
 			name: "9",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeTime)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeTime)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 			want:    time.Time{},
 		},
 		{
 			name: "10",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeUnknow)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeUnknow)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 		},
 		{
 			name: "11",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), &sql.ColumnType{}),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), &sql.ColumnType{}),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 		},
 		{
 			name: "12",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt64)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt64)),
 				element.NewDefaultColumn(element.NewNilBigIntColumnValue(), "test", 0)),
 			wantErr: false,
 		},
 		{
 			name: "13",
-			g: NewGoValuer(newMockField(NewBaseField("f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt16)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", &sql.ColumnType{}), newMockFieldType(GoTypeInt16)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 			want:    int16(0),
@@ -289,6 +289,27 @@ func TestGoValuer_Value(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GoValuer.Value() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseField_Index(t *testing.T) {
+	tests := []struct {
+		name string
+		b    *BaseField
+		want int
+	}{
+		{
+			name: "1",
+			b:    NewBaseField(1, "f1", &sql.ColumnType{}),
+			want: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.b.Index(); got != tt.want {
+				t.Errorf("BaseField.Index() = %v, want %v", got, tt.want)
 			}
 		})
 	}
