@@ -4,15 +4,13 @@
         "username": "",
         "password": "",
         "column": [],
-        "connection": [
-            {
+        "connection":  {
                 "url": "",
                 "table": {
                     "db":"",
                     "name":""
                 }
-            }
-        ],
+        },
         "where": ""
     }
 }

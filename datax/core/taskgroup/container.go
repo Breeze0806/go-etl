@@ -2,7 +2,6 @@ package taskgroup
 
 import (
 	"context"
-	"strconv"
 	"sync"
 	"time"
 
@@ -81,12 +80,11 @@ func (c *Container) Start() (err error) {
 	c.scheduler = schedule.NewTaskSchduler(
 		int(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupMaxWorkerNumber, 4)), len(taskConfigs))
 	defer c.scheduler.Stop()
-	prefixKey := strconv.FormatInt(c.jobID, 10) + "-" + strconv.FormatInt(c.taskGroupID, 10)
 	log.Infof("datax job(%v) taskgruop(%v) manager config", c.jobID, c.taskGroupID)
 	for i := range taskConfigs {
 		var taskExecer *taskExecer
 
-		taskExecer, err = newTaskExecer(c.ctx, taskConfigs[i], prefixKey, 0)
+		taskExecer, err = newTaskExecer(c.ctx, taskConfigs[i], c.jobID, c.taskGroupID, 0)
 		if err != nil {
 			return err
 		}

@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -34,20 +33,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
 			}`),
 		},
 		{
@@ -61,21 +48,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -89,45 +63,9 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader"
-							}
-						}
-					]
-				}
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "4",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{}, nil
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-									"username": 1
-								}
-							}
-						}
-					]
-				}
+				"username": 1
 			}`),
 			wantErr: true,
 		},
@@ -142,19 +80,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
 			}`),
 			wantErr: true,
 		},
@@ -171,19 +98,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
 			}`),
 			wantErr: true,
 		},
@@ -252,33 +168,9 @@ func TestJob_Split(t *testing.T) {
 				ctx:    context.TODO(),
 				number: 1,
 			},
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			jobConf: testJSONFromString(`{}`),
 			want: []*config.JSON{
-				testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+				testJSONFromString(`{}`),
 			},
 		},
 	}

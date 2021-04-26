@@ -7,16 +7,14 @@
         "column": [],
         "session": [],
         "preSql": [],
-        "connection": [
-            {
+        "connection": {
                 "url": "",
                 "table": {
                     "db":"",
                     "name":""
                 }
-            }
-        ],
+         },
         "batchTimeout": "1s",
-        "batchSize":"1000"
+        "batchSize":1000
     }
 }

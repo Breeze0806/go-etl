@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -58,21 +57,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(_pluginConfig),
+			jobConf: testJSONFromString(`{}`),
 		},
 		{
 			name: "2",
@@ -85,21 +71,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -113,50 +86,14 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader"
-							}
-						}
-					]
-				}
+				"username": 1		
 			}`),
 			wantErr: true,
 		},
 		{
 			name: "4",
-			t: &Task{
-				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{}, nil
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-									"username": 1
-								}
-							}
-						}
-					]
-				}
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "5",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
 				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
@@ -166,24 +103,12 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(_pluginConfig),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
-			name: "6",
+			name: "5",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
 				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
@@ -195,24 +120,12 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(_pluginConfig),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
-			name: "7",
+			name: "6",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
 				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
@@ -224,20 +137,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(_pluginConfig),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}

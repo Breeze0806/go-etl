@@ -111,7 +111,13 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 		return nil, fmt.Errorf("rows.ColumnTypes() err: %v", err)
 	}
 	for i := range names {
-		adder.AddField(NewBaseField(i, names[i], types[i]))
+		adder.AddField(NewBaseField(i, names[i], NewBaseFieldType(types[i])))
+	}
+
+	for _, v := range table.Fields() {
+		if !v.Type().IsSupportted() {
+			return nil, fmt.Errorf("table: %v filed:%v type(%v) is not supportted", table.Quoted(), v.Name(), v.Type().DatabaseTypeName())
+		}
 	}
 	return table, nil
 }

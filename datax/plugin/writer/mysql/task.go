@@ -18,11 +18,9 @@ import (
 type Task struct {
 	*writer.BaseTask
 
-	execer      Execer
-	newExecer   func(name string, conf *config.JSON) (Execer, error)
-	param       *parameter
-	jobID       int64
-	taskgroupID int
+	execer    Execer
+	newExecer func(name string, conf *config.JSON) (Execer, error)
+	param     *parameter
 }
 
 //Init 初始化
@@ -31,24 +29,11 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
 		return
 	}
-	var paramConf *config.JSON
-	if paramConf, err = t.PluginJobConf().GetConfig(coreconst.DataxJobContentReaderParameter); err != nil {
-		return
-	}
 
 	var paramConfig *paramConfig
-	if paramConfig, err = newParamConfig(paramConf); err != nil {
+	if paramConfig, err = newParamConfig(t.PluginJobConf()); err != nil {
 		return
 	}
-
-	if t.jobID, err = t.PluginJobConf().GetInt64(coreconst.DataxCoreContainerJobID); err != nil {
-		return
-	}
-	var taskgroupID int64
-	if taskgroupID, err = t.PluginJobConf().GetInt64(coreconst.DataxCoreContainerTaskGroupID); err != nil {
-		return
-	}
-	t.taskgroupID = int(taskgroupID)
 
 	var jobSettingConf *config.JSON
 	if jobSettingConf, err = t.PluginJobConf().GetConfig(coreconst.DataxJobSetting); err != nil {
@@ -89,7 +74,10 @@ func (t *Task) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
-	return t.execer.Close()
+	if t.execer != nil {
+		err = t.execer.Close()
+	}
+	return
 }
 
 //StartWrite 开始写
@@ -108,9 +96,9 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 		defer func() {
 			wg.Done()
 			close(recordChan)
-			log.Debugf("job id: %v taskgroup id：%v get records end", t.jobID, t.taskgroupID)
+			log.Debugf("jobID: %v taskgroupID:%v taskID: %v get records end", t.JobID(), t.TaskGroupID(), t.TaskID())
 		}()
-		log.Debugf("job id: %v taskgroup id：%v start to get records", t.jobID, t.taskgroupID)
+		log.Debugf("jobID: %v taskgroupID:%v taskID: %v start to get records", t.JobID(), t.TaskGroupID(), t.TaskID())
 		for {
 			select {
 			case <-afterCtx.Done():
@@ -136,36 +124,45 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	ticker := time.NewTicker(t.param.paramConfig.getBatchTimeout())
 	defer ticker.Stop()
 	var records []element.Record
-	log.Debugf("job id: %v taskgroup id：%v start to BatchExec", t.jobID, t.taskgroupID)
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchExec", t.JobID(), t.TaskGroupID(), t.TaskID())
 	for {
 		select {
 		case record, ok := <-recordChan:
 			if !ok {
+				opts.Records = records
+				if err = t.execer.BatchExec(ctx, opts); err != nil {
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+				}
+				opts.Records = nil
 				err = rerr
 				goto End
 			}
 			records = append(records, record)
-			opts.Records = records
+
 			if len(records) >= t.param.paramConfig.getBatchSize() {
+				opts.Records = records
 				if err = t.execer.BatchExec(ctx, opts); err != nil {
-					log.Debugf("job id: %v taskgroup id：%v BatchExec error: %v", t.jobID, t.taskgroupID, err)
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
 					goto End
 				}
+				opts.Records = nil
 				records = nil
 			}
 		case <-ticker.C:
+			opts.Records = records
 			if err = t.execer.BatchExec(ctx, opts); err != nil {
-				log.Debugf("job id: %v taskgroup id：%v BatchExec error: %v", t.jobID, t.taskgroupID, err)
+				log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
 				goto End
 			}
+			opts.Records = nil
 			records = nil
 		}
 	}
 End:
 	cancel()
-	log.Debugf("job id: %v taskgroup id：%v wait all goroutine", t.jobID, t.taskgroupID)
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine", t.JobID(), t.TaskGroupID(), t.TaskID())
 	wg.Wait()
-	log.Debugf("job id: %v taskgroup id：%v wait all goroutine end", t.jobID, t.taskgroupID)
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine end", t.JobID(), t.TaskGroupID(), t.TaskID())
 	switch {
 	case ctx.Err() != nil:
 		return nil

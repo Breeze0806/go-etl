@@ -68,6 +68,7 @@ func (c *Container) Start() (err error) {
 	if err = c.preHandle(); err != nil {
 		return
 	}
+
 	log.Infof("DataX jobContainer %v starts to init.", c.jobID)
 	if err = c.init(); err != nil {
 		return
@@ -131,14 +132,29 @@ func (c *Container) init() (err error) {
 		return
 	}
 
-	var readerConfig, writerConfig *config.JSON
+	var readerConfig *config.JSON
 	readerConfig, err = c.Config().GetConfig(coreconst.DataxJobContentReaderParameter)
 	if err != nil {
 		return
 	}
 
+	var writerConfig *config.JSON
 	writerConfig, err = c.Config().GetConfig(coreconst.DataxJobContentWriterParameter)
 	if err != nil {
+		return
+	}
+
+	var jobSettingConf *config.JSON
+	if jobSettingConf, err = c.Config().GetConfig(coreconst.DataxJobSetting); err != nil {
+		jobSettingConf, _ = config.NewJSONFromString("{}")
+		err = nil
+	}
+
+	if err = readerConfig.Set(coreconst.DataxJobSetting, jobSettingConf); err != nil {
+		return
+	}
+
+	if err = writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf); err != nil {
 		return
 	}
 

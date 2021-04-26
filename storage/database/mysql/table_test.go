@@ -66,33 +66,33 @@ func TestTable_AddField(t *testing.T) {
 			name: "1",
 			t:    table,
 			args: args{
-				baseField: database.NewBaseField(0, "f1", &sql.ColumnType{}),
+				baseField: database.NewBaseField(0, "f1", database.NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []database.Field{
-				NewField(database.NewBaseField(0, "f1", &sql.ColumnType{})),
+				NewField(database.NewBaseField(0, "f1", database.NewBaseFieldType(&sql.ColumnType{}))),
 			},
 		},
 		{
 			name: "2",
 			t:    table,
 			args: args{
-				baseField: database.NewBaseField(1, "f2", &sql.ColumnType{}),
+				baseField: database.NewBaseField(1, "f2", database.NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []database.Field{
-				NewField(database.NewBaseField(0, "f1", &sql.ColumnType{})),
-				NewField(database.NewBaseField(1, "f2", &sql.ColumnType{})),
+				NewField(database.NewBaseField(0, "f1", database.NewBaseFieldType(&sql.ColumnType{}))),
+				NewField(database.NewBaseField(1, "f2", database.NewBaseFieldType(&sql.ColumnType{}))),
 			},
 		},
 		{
 			name: "3",
 			t:    table,
 			args: args{
-				baseField: database.NewBaseField(2, "f3", &sql.ColumnType{}),
+				baseField: database.NewBaseField(2, "f3", database.NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []database.Field{
-				NewField(database.NewBaseField(0, "f1", &sql.ColumnType{})),
-				NewField(database.NewBaseField(1, "f2", &sql.ColumnType{})),
-				NewField(database.NewBaseField(2, "f3", &sql.ColumnType{})),
+				NewField(database.NewBaseField(0, "f1", database.NewBaseFieldType(&sql.ColumnType{}))),
+				NewField(database.NewBaseField(1, "f2", database.NewBaseFieldType(&sql.ColumnType{}))),
+				NewField(database.NewBaseField(2, "f3", database.NewBaseFieldType(&sql.ColumnType{}))),
 			},
 		},
 	}

@@ -3,7 +3,6 @@ package taskgroup
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"sync"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -40,7 +39,7 @@ type taskExecer struct {
 //执行次数attemptCount生成任务执行器，当taskID不存在，工作器名字配置以及
 //对应写入器和读取器不存在时会报错
 func newTaskExecer(ctx context.Context, taskConf *config.JSON,
-	prefixKey string, attemptCount int) (t *taskExecer, err error) {
+	jobID, taskGroupID int64, attemptCount int) (t *taskExecer, err error) {
 	t = &taskExecer{
 		taskConf:     taskConf,
 		errors:       make(chan error, 2),
@@ -56,29 +55,52 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	if err != nil {
 		return nil, err
 	}
-	t.key = prefixKey + "-" + strconv.FormatInt(t.taskID, 10)
-	name := ""
-	name, err = taskConf.GetString(coreconst.JobReaderName)
+	t.key = fmt.Sprintf("%v-%v-%v", jobID, taskGroupID, t.taskID)
+	readName, writeName := "", ""
+	readName, err = taskConf.GetString(coreconst.JobReaderName)
 	if err != nil {
 		return nil, err
 	}
 
-	readTask, ok := loader.LoadReaderTask(name)
-	if !ok {
-		return nil, fmt.Errorf("reader task name (%v) does not exist", name)
+	writeName, err = taskConf.GetString(coreconst.JobWriterName)
+	if err != nil {
+		return nil, err
 	}
+
+	var readConf, writeConf *config.JSON
+	readConf, err = taskConf.GetConfig(coreconst.JobReaderParameter)
+	if err != nil {
+		return nil, err
+	}
+
+	writeConf, err = taskConf.GetConfig(coreconst.JobWriterParameter)
+	if err != nil {
+		return nil, err
+	}
+
+	readTask, ok := loader.LoadReaderTask(readName)
+	if !ok {
+		return nil, fmt.Errorf("reader task name (%v) does not exist", readName)
+	}
+	readTask.SetJobID(jobID)
+	readTask.SetTaskGroupID(taskGroupID)
+	readTask.SetTaskID(t.taskID)
+	readTask.SetPluginJobConf(readConf)
+	readTask.SetPeerPluginName(writeName)
+	readTask.SetPeerPluginJobConf(writeConf)
 	exchanger := exchange.NewRecordExchangerWithoutTransformer(t.channel)
 	t.readerRunner = runner.NewReader(readTask, exchanger, t.key)
 
-	name, err = taskConf.GetString(coreconst.JobWriterName)
-	if err != nil {
-		return nil, err
-	}
-
-	writeTask, ok := loader.LoadWriterTask(name)
+	writeTask, ok := loader.LoadWriterTask(writeName)
 	if !ok {
-		return nil, fmt.Errorf("writer task name (%v) does not exist", name)
+		return nil, fmt.Errorf("writer task name (%v) does not exist", writeName)
 	}
+	writeTask.SetJobID(jobID)
+	writeTask.SetTaskGroupID(taskGroupID)
+	writeTask.SetTaskID(t.taskID)
+	writeTask.SetPluginJobConf(writeConf)
+	writeTask.SetPeerPluginName(readName)
+	writeTask.SetPeerPluginJobConf(readConf)
 	t.writerRunner = runner.NewWriter(writeTask, exchanger, t.key)
 
 	return

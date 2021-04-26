@@ -23,13 +23,9 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	if name, err = j.PluginConf().GetString("dialect"); err != nil {
 		return
 	}
-	var paramConf *config.JSON
-	if paramConf, err = j.PluginJobConf().GetConfig(coreconst.DataxJobContentReaderParameter); err != nil {
-		return
-	}
 
 	var paramConfig *paramConfig
-	if paramConfig, err = newParamConfig(paramConf); err != nil {
+	if paramConfig, err = newParamConfig(j.PluginJobConf()); err != nil {
 		return
 	}
 
@@ -64,7 +60,10 @@ func (j *Job) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (j *Job) Destroy(ctx context.Context) (err error) {
-	return j.querier.Close()
+	if j.querier != nil {
+		err = j.querier.Close()
+	}
+	return
 }
 
 //Split 切分

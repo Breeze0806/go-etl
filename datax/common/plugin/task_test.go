@@ -23,13 +23,13 @@ func (m *mockTaskCollector) CollectMessage(key string, value string) {
 }
 func TestBaseTask_SetTaskID(t *testing.T) {
 	type args struct {
-		taskID int
+		taskID int64
 	}
 	tests := []struct {
 		name string
 		b    *BaseTask
 		args args
-		want int
+		want int64
 	}{
 		{
 			name: "1",
@@ -52,13 +52,13 @@ func TestBaseTask_SetTaskID(t *testing.T) {
 
 func TestBaseTask_SetTaskGroupID(t *testing.T) {
 	type args struct {
-		taskGroupID int
+		taskGroupID int64
 	}
 	tests := []struct {
 		name string
 		b    *BaseTask
 		args args
-		want int
+		want int64
 	}{
 		{
 			name: "1",
@@ -103,6 +103,49 @@ func TestBaseTask_SetTaskCollector(t *testing.T) {
 			tt.b.SetTaskCollector(tt.args.collector)
 			if tt.b.TaskCollector() != tt.want {
 				t.Errorf("TaskCollector() = %p want %p", tt.b.TaskCollector(), tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseTask_SetJobID(t *testing.T) {
+	type fields struct {
+		BasePlugin  *BasePlugin
+		jobID       int64
+		taskID      int64
+		taskGroupID int64
+		collector   TaskCollector
+	}
+	type args struct {
+		jobID int64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   int64
+	}{
+		{
+			name:   "1",
+			fields: fields{},
+			args: args{
+				jobID: 1,
+			},
+			want: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &BaseTask{
+				BasePlugin:  tt.fields.BasePlugin,
+				jobID:       tt.fields.jobID,
+				taskID:      tt.fields.taskID,
+				taskGroupID: tt.fields.taskGroupID,
+				collector:   tt.fields.collector,
+			}
+			b.SetJobID(tt.args.jobID)
+			if b.JobID() != tt.want {
+				t.Errorf("JobID() = %v want %v", b.JobID(), tt.want)
 			}
 		})
 	}

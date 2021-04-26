@@ -1,17 +1,28 @@
 package mysql
 
 import (
+	"fmt"
 	"path/filepath"
+	"runtime"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/storage/database"
+	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
 )
 
+var _pluginConfig string
+
 func init() {
-	reader, err := NewReader(filepath.Join("resources", "plugin.json"))
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		panic(fmt.Errorf("fail to get filename"))
+	}
+	path := filepath.Dir(file)
+	_pluginConfig = filepath.Join(path, "resources", "plugin.json")
+	reader, err := NewReader(_pluginConfig)
 	if err != nil {
 		panic(err)
 	}

@@ -11,8 +11,8 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 )
 
-func testTaskExecer(ctx context.Context, taskConf *config.JSON, prefixKey string, attemptCount int) *taskExecer {
-	t, err := newTaskExecer(ctx, taskConf, prefixKey, attemptCount)
+func testTaskExecer(ctx context.Context, taskConf *config.JSON, jobID, taskGroupID int64, attemptCount int) *taskExecer {
+	t, err := newTaskExecer(ctx, taskConf, jobID, taskGroupID, attemptCount)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +33,8 @@ func Test_newTaskExecer(t *testing.T) {
 	type args struct {
 		ctx          context.Context
 		taskConf     *config.JSON
-		prefixKey    string
+		jobID        int64
+		taskGroupID  int64
 		attemptCount int
 	}
 	tests := []struct {
@@ -55,7 +56,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":"mock"
 						}
 					}`),
-				prefixKey:    "mock",
+				jobID:        1,
+				taskGroupID:  1,
 				attemptCount: 0,
 			},
 			wantErr: false,
@@ -74,7 +76,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":"mock2"
 						}
 					}`),
-				prefixKey:    "mock2",
+				jobID:        2,
+				taskGroupID:  2,
 				attemptCount: 0,
 			},
 			wantErr: true,
@@ -92,7 +95,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":"mock2"
 						}
 					}`),
-				prefixKey:    "mock2",
+				jobID:        3,
+				taskGroupID:  3,
 				attemptCount: 0,
 			},
 			wantErr: true,
@@ -110,7 +114,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":"mock2"
 						}
 					}`),
-				prefixKey:    "mock2",
+				jobID:        4,
+				taskGroupID:  4,
 				attemptCount: 0,
 			},
 			wantErr: true,
@@ -128,7 +133,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":2
 						}
 					}`),
-				prefixKey:    "mock2",
+				jobID:        5,
+				taskGroupID:  5,
 				attemptCount: 0,
 			},
 			wantErr: true,
@@ -146,7 +152,8 @@ func Test_newTaskExecer(t *testing.T) {
 							"name":"mock"
 						}
 					}`),
-				prefixKey:    "mock",
+				jobID:        6,
+				taskGroupID:  6,
 				attemptCount: 0,
 			},
 			wantErr: true,
@@ -154,7 +161,7 @@ func Test_newTaskExecer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotT, err := newTaskExecer(tt.args.ctx, tt.args.taskConf, tt.args.prefixKey, tt.args.attemptCount)
+			gotT, err := newTaskExecer(tt.args.ctx, tt.args.taskConf, tt.args.jobID, tt.args.taskGroupID, tt.args.attemptCount)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("newTaskExecer() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -189,7 +196,7 @@ func Test_taskExecer_Do(t *testing.T) {
 				"writer":{
 					"name":"mock"
 				}
-			}`), `mock`, 0),
+			}`), 1, 1, 0),
 			wantErr: false,
 		},
 
@@ -203,7 +210,7 @@ func Test_taskExecer_Do(t *testing.T) {
 				"writer":{
 					"name":"mock1"
 				}
-			}`), `mock1`, 0),
+			}`), 2, 2, 0),
 			wantErr: true,
 		},
 	}

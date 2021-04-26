@@ -26,13 +26,9 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
 		return
 	}
-	var paramConf *config.JSON
-	if paramConf, err = t.PluginJobConf().GetConfig(coreconst.DataxJobContentReaderParameter); err != nil {
-		return
-	}
 
 	var paramConfig *paramConfig
-	if paramConfig, err = newParamConfig(paramConf); err != nil {
+	if paramConfig, err = newParamConfig(t.PluginJobConf()); err != nil {
 		return
 	}
 
@@ -75,7 +71,10 @@ func (t *Task) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
-	return t.querier.Close()
+	if t.querier != nil {
+		err = t.querier.Close()
+	}
+	return
 }
 
 //StartRead 开始读
@@ -90,5 +89,5 @@ func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err e
 	if err = t.querier.FetchRecord(ctx, param, handler); err != nil {
 		return
 	}
-	return nil
+	return sender.Terminate()
 }

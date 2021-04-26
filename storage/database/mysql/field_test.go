@@ -44,6 +44,10 @@ func (m *mockFieldType) DatabaseTypeName() string {
 	return m.name
 }
 
+func (m *mockFieldType) IsSupportted() bool {
+	return true
+}
+
 func TestField_Quoted(t *testing.T) {
 	tests := []struct {
 		name string
@@ -52,7 +56,7 @@ func TestField_Quoted(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
 			want: "`table`",
 		},
 	}
@@ -77,7 +81,7 @@ func TestField_BindVar(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
 			args: args{
 				i: 0,
 			},
@@ -85,7 +89,7 @@ func TestField_BindVar(t *testing.T) {
 		},
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
 			args: args{
 				i: 100000,
 			},
@@ -109,7 +113,7 @@ func TestField_Select(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
 			want: "`table`",
 		},
 	}
@@ -130,13 +134,13 @@ func TestField_Type(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
 			want: NewFieldType(&sql.ColumnType{}),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.Type(); !reflect.DeepEqual(got, tt.want) {
+			if got := tt.f.Type(); !reflect.DeepEqual(got.DatabaseTypeName(), tt.want.DatabaseTypeName()) {
 				t.Errorf("Field.Type() = %v, want %v", got, tt.want)
 			}
 		})
@@ -151,8 +155,8 @@ func TestField_Scanner(t *testing.T) {
 	}{
 		{
 			name: "1",
-			f:    NewField(database.NewBaseField(0, "table", &sql.ColumnType{})),
-			want: NewScanner(NewField(database.NewBaseField(0, "table", &sql.ColumnType{}))),
+			f:    NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{}))),
+			want: NewScanner(NewField(database.NewBaseField(0, "table", database.NewBaseFieldType(&sql.ColumnType{})))),
 		},
 	}
 	for _, tt := range tests {
@@ -506,6 +510,159 @@ func TestScanner_Scan(t *testing.T) {
 			}
 			if !reflect.DeepEqual(tt.s.Column(), tt.want) {
 				t.Errorf("Scanner.Column() = %v, want %v", tt.s.Column(), tt.want)
+			}
+		})
+	}
+}
+
+func TestFieldType_IsSupportted(t *testing.T) {
+	tests := []struct {
+		name string
+		f    *FieldType
+		want bool
+	}{
+		// "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT",
+		// "TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR",
+		// "TIME", "YEAR",
+		// "DECIMAL"
+		{
+			name: "MEDIUMINT",
+			f:    NewFieldType(newMockFieldType("MEDIUMINT")),
+			want: true,
+		},
+		{
+			name: "INT",
+			f:    NewFieldType(newMockFieldType("INT")),
+			want: true,
+		},
+		{
+			name: "BIGINT",
+			f:    NewFieldType(newMockFieldType("BIGINT")),
+			want: true,
+		},
+		{
+			name: "SMALLINT",
+			f:    NewFieldType(newMockFieldType("SMALLINT")),
+			want: true,
+		},
+		{
+			name: "TINYINT",
+			f:    NewFieldType(newMockFieldType("TINYINT")),
+			want: true,
+		},
+		{
+			name: "TEXT",
+			f:    NewFieldType(newMockFieldType("TEXT")),
+			want: true,
+		},
+		{
+			name: "LONGTEXT",
+			f:    NewFieldType(newMockFieldType("LONGTEXT")),
+			want: true,
+		},
+		{
+			name: "MEDIUMTEXT",
+			f:    NewFieldType(newMockFieldType("MEDIUMTEXT")),
+			want: true,
+		},
+		{
+			name: "TINYTEXT",
+			f:    NewFieldType(newMockFieldType("TINYTEXT")),
+			want: true,
+		},
+		{
+			name: "CHAR",
+			f:    NewFieldType(newMockFieldType("CHAR")),
+			want: true,
+		},
+		{
+			name: "VARCHAR",
+			f:    NewFieldType(newMockFieldType("VARCHAR")),
+			want: true,
+		},
+		{
+			name: "TIME",
+			f:    NewFieldType(newMockFieldType("TIME")),
+			want: true,
+		},
+		{
+			name: "YEAR",
+			f:    NewFieldType(newMockFieldType("YEAR")),
+			want: true,
+		},
+		{
+			name: "DECIMAL",
+			f:    NewFieldType(newMockFieldType("DECIMAL")),
+			want: true,
+		},
+		//"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"
+		{
+			name: "BLOB",
+			f:    NewFieldType(newMockFieldType("BLOB")),
+			want: true,
+		},
+		{
+			name: "LONGBLOB",
+			f:    NewFieldType(newMockFieldType("LONGBLOB")),
+			want: true,
+		},
+		{
+			name: "MEDIUMBLOB",
+			f:    NewFieldType(newMockFieldType("MEDIUMBLOB")),
+			want: true,
+		},
+		{
+			name: "BINARY",
+			f:    NewFieldType(newMockFieldType("BINARY")),
+			want: true,
+		},
+		{
+			name: "TINYBLOB",
+			f:    NewFieldType(newMockFieldType("TINYBLOB")),
+			want: true,
+		},
+		{
+			name: "VARBINARY",
+			f:    NewFieldType(newMockFieldType("VARBINARY")),
+			want: true,
+		},
+		//"DOUBLE", "FLOAT"
+		{
+			name: "FLOAT",
+			f:    NewFieldType(newMockFieldType("FLOAT")),
+			want: true,
+		},
+		{
+			name: "DOUBLE",
+			f:    NewFieldType(newMockFieldType("DOUBLE")),
+			want: true,
+		},
+		//"DATE", "DATETIME", "TIMESTAMP"
+		{
+			name: "DATE",
+			f:    NewFieldType(newMockFieldType("DATE")),
+			want: true,
+		},
+		{
+			name: "DATETIME",
+			f:    NewFieldType(newMockFieldType("DATETIME")),
+			want: true,
+		},
+		{
+			name: "TIMESTAMP",
+			f:    NewFieldType(newMockFieldType("TIMESTAMP")),
+			want: true,
+		},
+		{
+			name: "NEWDATE",
+			f:    NewFieldType(newMockFieldType("NEWDATE")),
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.IsSupportted(); got != tt.want {
+				t.Errorf("FieldType.IsSupportted() = %v, want %v", got, tt.want)
 			}
 		})
 	}

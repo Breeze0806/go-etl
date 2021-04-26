@@ -86,31 +86,31 @@ func TestBaseTable_Fields(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				f: newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "1", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []Field{
-				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 		},
 		{
 			name: "2",
 			args: args{
-				f: newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "2", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []Field{
-				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
+				newMockField(NewBaseField(1, "2", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 		},
 		{
 			name: "3",
 			args: args{
-				f: newMockField(NewBaseField(1, "3", &sql.ColumnType{}), &sql.ColumnType{}),
+				f: newMockField(NewBaseField(1, "3", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 			want: []Field{
-				newMockField(NewBaseField(1, "1", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField(1, "2", &sql.ColumnType{}), &sql.ColumnType{}),
-				newMockField(NewBaseField(1, "3", &sql.ColumnType{}), &sql.ColumnType{}),
+				newMockField(NewBaseField(1, "1", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
+				newMockField(NewBaseField(1, "2", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
+				newMockField(NewBaseField(1, "3", NewBaseFieldType(&sql.ColumnType{})), NewBaseFieldType(&sql.ColumnType{})),
 			},
 		},
 	}

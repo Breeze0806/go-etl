@@ -27,11 +27,11 @@ func TestWriter_Job(t *testing.T) {
 	}{
 		{
 			name: "1",
-			w:    testWriter(filepath.Join("resources", "plugin.json")),
+			w:    testWriter(_pluginConfig),
 			want: &Job{
 				BaseJob: plugin.NewBaseJob(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -53,11 +53,11 @@ func TestWriter_Task(t *testing.T) {
 	}{
 		{
 			name: "1",
-			w:    testWriter(filepath.Join("resources", "plugin.json")),
+			w:    testWriter(_pluginConfig),
 			want: &Task{
 				BaseTask: writer.NewBaseTask(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -83,10 +83,10 @@ func TestNewWriter(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				filename: filepath.Join("resources", "plugin.json"),
+				filename: _pluginConfig,
 			},
 			wantW: &Writer{
-				pluginConf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+				pluginConf: testJSONFromFile(_pluginConfig),
 			},
 		},
 		{

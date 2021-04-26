@@ -28,14 +28,14 @@ func TestReader_Job(t *testing.T) {
 	}{
 		{
 			name: "1",
-			r:    testReader(filepath.Join("resources", "plugin.json")),
+			r:    testReader(_pluginConfig),
 			want: &Job{
 				BaseJob: plugin.NewBaseJob(),
 				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
 					return database.Open(name, conf)
 				},
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -57,14 +57,14 @@ func TestReader_Task(t *testing.T) {
 	}{
 		{
 			name: "1",
-			r:    testReader(filepath.Join("resources", "plugin.json")),
+			r:    testReader(_pluginConfig),
 			want: &Task{
 				BaseTask: plugin.NewBaseTask(),
 				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
 					return database.Open(name, conf)
 				},
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: testJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -90,9 +90,9 @@ func TestNewReader(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				filename: filepath.Join("resources", "plugin.json"),
+				filename: _pluginConfig,
 			},
-			wantR: testReader(filepath.Join("resources", "plugin.json")),
+			wantR: testReader(_pluginConfig),
 		},
 		{
 			name: "2",

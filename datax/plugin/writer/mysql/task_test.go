@@ -75,31 +75,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: testJSONFromString(`{}`),
 		},
 		{
 			name: "2",
@@ -112,31 +89,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{
-				"job":{
-					"core":{
-						"container":{
-							"job":{
-								"id" : 1
-							},
-							"taskGroup":{
-								"id":  1
-							}
-						}
-					},
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -152,68 +106,12 @@ func TestTask_Init(t *testing.T) {
 			},
 			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
 			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader"
-							}
-						}
-					]
-				}
+				"username": 1
 			}`),
 			wantErr: true,
 		},
 		{
 			name: "4",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-									"username": 1
-								}
-							}
-						}
-					]
-				}
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "5",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
 				newExecer: func(name string, conf *config.JSON) (Execer, error) {
@@ -223,34 +121,12 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
-			name: "6",
+			name: "5",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
 				newExecer: func(name string, conf *config.JSON) (Execer, error) {
@@ -262,34 +138,12 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
-			name: "7",
+			name: "6",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
 				newExecer: func(name string, conf *config.JSON) (Execer, error) {
@@ -301,108 +155,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-								}
-							}
-						}
-					]
-				}
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "8",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : "1"
-						},
-						"taskGroup":{
-							"id":  1
-						}
-					}
-				},
-				"job":{
-
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "9",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
-				"core":{
-					"container":{
-						"job":{
-							"id" : 1
-						},
-						"taskGroup":{
-							"id":  "1"
-						}
-					}
-				},
-				"job":{
-
-					"content":[
-						{
-							"reader": {
-								"name":"mysqlreader",
-								"parameter":{
-
-								}
-							}
-						}
-					]
-				}
-			}`),
+			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}

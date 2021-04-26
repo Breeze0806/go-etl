@@ -416,7 +416,7 @@ func TestContainer_startTaskExecer(t *testing.T) {
 		"writer":{
 			"name":"mock"
 		}
-	}`), "mock", 0)
+	}`), 3, 3, 0)
 	if err := c.startTaskExecer(te); err == nil {
 		t.Errorf("Container.startTaskExecer() error = %v, wantErr true", err)
 	}

@@ -53,14 +53,19 @@ func (f *Field) Valuer(c element.Column) database.Valuer {
 //FieldType 字段类型
 type FieldType struct {
 	*database.BaseFieldType
+
 	goType database.GoType
 }
 
 //NewFieldType 创建新的字段类型
-func NewFieldType(fieldType database.FieldType) *FieldType {
+func NewFieldType(typ database.ColumnType) *FieldType {
 	return &FieldType{
-		BaseFieldType: database.NewBaseFieldType(fieldType),
+		BaseFieldType: database.NewBaseFieldType(typ),
 	}
+}
+
+func (f *FieldType) IsSupportted() bool {
+	return f.GoType() != database.GoTypeUnknow
 }
 
 //GoType 返回处理数值时的Golang类型

@@ -82,14 +82,21 @@ type Valuer interface {
 	driver.Valuer
 }
 
-//FieldType  列类型,抽象 sql.ColumnType，也方便自行实现对应函数
-type FieldType interface {
+//ColumnType 列类型,抽象 sql.ColumnType，也方便自行实现对应函数
+type ColumnType interface {
 	Name() string                                   //列名
 	ScanType() reflect.Type                         //扫描类型
 	Length() (length int64, ok bool)                //长度
 	DecimalSize() (precision, scale int64, ok bool) //精度
 	Nullable() (nullable, ok bool)                  //是否为空
 	DatabaseTypeName() string                       //列数据库类型名
+}
+
+//FieldType 字段类型
+type FieldType interface {
+	ColumnType
+
+	IsSupportted() bool //是否支持
 }
 
 //ValuerGoType 用于赋值器的golang类型判定,是Field的可选功能，
@@ -137,14 +144,18 @@ func (b *BaseField) String() string {
 
 //BaseFieldType 基础字段类型，嵌入其他各种数据库字段类型实现
 type BaseFieldType struct {
-	FieldType
+	ColumnType
 }
 
 //NewBaseFieldType 获取字段类型
-func NewBaseFieldType(fieldType FieldType) *BaseFieldType {
+func NewBaseFieldType(typ ColumnType) *BaseFieldType {
 	return &BaseFieldType{
-		FieldType: fieldType,
+		ColumnType: typ,
 	}
+}
+
+func (*BaseFieldType) IsSupportted() bool {
+	return true
 }
 
 //BaseScanner 基础扫描器，嵌入其他各种数据库扫描器实现
