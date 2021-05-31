@@ -19,6 +19,7 @@ const (
 	DifferTypeOnlyMaster                   //只有主数据库有
 	DifferTypeOnlySlave                    //只有从数据库有
 	DifferTypeValue                        //两边列值不同
+	DifferTypeError                        //差异无法因特殊原因无法比较
 )
 
 var differTypeMap = map[DifferType]string{
@@ -26,6 +27,7 @@ var differTypeMap = map[DifferType]string{
 	DifferTypeOnlyMaster: "only master",
 	DifferTypeOnlySlave:  "only slave",
 	DifferTypeValue:      "value differ",
+	DifferTypeError:      "error",
 }
 
 var differTypeChineseMap = map[DifferType]string{
@@ -33,6 +35,7 @@ var differTypeChineseMap = map[DifferType]string{
 	DifferTypeOnlyMaster: "只有主数据库有",
 	DifferTypeOnlySlave:  "只有从数据库有",
 	DifferTypeValue:      "值不同",
+	DifferTypeError:      "差异无法因特殊原因无法比较",
 }
 
 func (d DifferType) String() string {
@@ -52,7 +55,9 @@ func (d DifferType) Chinese() string {
 
 //Differ 差异
 type Differ struct {
-	Type         DifferType     //标识差异类型
-	MasterColumn element.Column //类型为DifferTypeOnlyMaster或DifferTypeValue时，主数据库列有值
-	SlaveColumn  element.Column //类型为DifferTypeOnlySlave或DifferTypeValue时，从数据库列有值
+	Type         DifferType       //标识差异类型
+	Offset       Offset           //值不同的偏移量
+	MasterColumn []element.Column //类型为DifferTypeValue或者DifferTypeOnlyMaster有值
+	SlaveColumn  []element.Column //类型为DifferTypeValue或者DifferTypeOnlySlave有值
+	Errer        error            //类型为DifferTypeError有值
 }

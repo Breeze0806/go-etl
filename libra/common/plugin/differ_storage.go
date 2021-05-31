@@ -15,8 +15,11 @@ type TableDiffer struct {
 
 //DifferStorage 差异存储
 type DifferStorage interface {
-	Write(ctx context.Context,
-		fetchDiffer func() (TableDiffer, error)) error
+	Write(ctx context.Context, differs []TableDiffer) error
 	Read(ctx context.Context,
 		onDiffer func(differ TableDiffer) error) error
+}
+
+type DifferStorageMaker interface {
+	DifferStorage() DifferStorage
 }

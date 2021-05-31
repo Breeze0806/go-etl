@@ -10,8 +10,8 @@ import (
 var _centor = &center{
 	dbStorages:     make(map[string]plugin.DBStorage),
 	comparables:    make(map[string]plugin.RecordComparable),
-	differStorages: make(map[string]plugin.DifferStorage),
-	tableNameMaps:  make(map[string]plugin.TableNameMap),
+	differStorages: make(map[string]plugin.DifferStorageMaker),
+	tableNameMaps:  make(map[string]plugin.TableNameMapMaker),
 	trackers:       make(map[string]plugin.Tracker),
 }
 
@@ -22,13 +22,10 @@ func RegisterDBStorage(name string, storage plugin.DBStorage) {
 	}
 }
 
-//LoadDBStorage 通过存储名name加载存储, name不存在则会panic
-func LoadDBStorage(name string) plugin.DBStorage {
+//LoadDBStorage 通过存储名name加载存储, name不存在则会报错
+func LoadDBStorage(name string) (plugin.DBStorage, error) {
 	storage, err := _centor.dbStorage(name)
-	if err != nil {
-		panic(err)
-	}
-	return storage
+	return storage, err
 }
 
 //RegisterRecordComparable 通过存储名name 注册存储comparable，name重复或者comparable为空时则会panic
@@ -39,28 +36,22 @@ func RegisterRecordComparable(name string, comparable plugin.RecordComparable) {
 }
 
 //LoadRecordComparabale 通过存储名name加载comparable, name不存在则会panic
-func LoadRecordComparabale(name string) plugin.RecordComparable {
+func LoadRecordComparabale(name string) (plugin.RecordComparable, error) {
 	comparabale, err := _centor.recordComparabale(name)
-	if err != nil {
-		panic(err)
-	}
-	return comparabale
+	return comparabale, err
 }
 
-//RegisterTableNameMap 通过存储名name 注册存储表名映射，name重复或者comparable为空时则会panic
-func RegisterTableNameMap(name string, comparable plugin.RecordComparable) {
-	if err := _centor.registerRecordComparable(name, comparable); err != nil {
+//RegisterTableNameMapMaker 通过存储名name 注册存储表名映射，name重复或者comparable为空时则会panic
+func RegisterTableNameMapMaker(name string, maker plugin.TableNameMapMaker) {
+	if err := _centor.registerTableNameMapMaker(name, maker); err != nil {
 		panic(err)
 	}
 }
 
-//LoadTableNameMap 通过存储名name加载存储表名映射, name不存在则会panic
-func LoadTableNameMap(name string) plugin.TableNameMap {
-	tableMap, err := _centor.tableNameMap(name)
-	if err != nil {
-		panic(err)
-	}
-	return tableMap
+//LoadTableNameMapMaker 通过存储名name加载存储表名映射, name不存在则会报错
+func LoadTableNameMapMaker(name string) (plugin.TableNameMapMaker, error) {
+	tableMap, err := _centor.tableNameMapMaker(name)
+	return tableMap, err
 }
 
 //RegisterTracker 通过存储名name 注册加载追踪器，name重复或者comparable为空时则会panic
@@ -70,13 +61,23 @@ func RegisterTracker(name string, tracker plugin.Tracker) {
 	}
 }
 
-//LoadTracker 通过存储名name加载追踪器, name不存在则会panic
-func LoadTracker(name string) plugin.Tracker {
+//LoadTracker 通过存储名name加载追踪器, name不存在则会报错
+func LoadTracker(name string) (plugin.Tracker, error) {
 	tracker, err := _centor.tracker(name)
-	if err != nil {
+	return tracker, err
+}
+
+//RegisterTracker 通过存储名name 注册加载追踪器，name重复或者comparable为空时则会panic
+func RegisterDifferStorageMaker(name string, maker plugin.DifferStorageMaker) {
+	if err := _centor.registerDifferStorageMaker(name, maker); err != nil {
 		panic(err)
 	}
-	return tracker
+}
+
+//LoadTracker 通过存储名name加载追踪器, name不存在则会panic
+func LoadDifferStorageMaker(name string) (plugin.DifferStorageMaker, error) {
+	tracker, err := _centor.differStorageMaker(name)
+	return tracker, err
 }
 
 type center struct {
@@ -87,10 +88,10 @@ type center struct {
 	comparables   map[string]plugin.RecordComparable
 
 	differStoragesMu sync.Mutex
-	differStorages   map[string]plugin.DifferStorage
+	differStorages   map[string]plugin.DifferStorageMaker
 
 	tableNameMapsMu sync.Mutex
-	tableNameMaps   map[string]plugin.TableNameMap
+	tableNameMaps   map[string]plugin.TableNameMapMaker
 
 	trackersMu sync.Mutex
 	trackers   map[string]plugin.Tracker
@@ -149,8 +150,8 @@ func (c *center) recordComparabale(name string) (plugin.RecordComparable, error)
 	return comparable, nil
 }
 
-func (c *center) registerDifferStorage(name string,
-	differStorage plugin.DifferStorage) error {
+func (c *center) registerDifferStorageMaker(name string,
+	differStorage plugin.DifferStorageMaker) error {
 	if differStorage == nil {
 		return fmt.Errorf("libra: differStorage(%v) is nil", name)
 	}
@@ -165,7 +166,7 @@ func (c *center) registerDifferStorage(name string,
 	return nil
 }
 
-func (c *center) recordDifferStorage(name string) (plugin.DifferStorage, error) {
+func (c *center) differStorageMaker(name string) (plugin.DifferStorageMaker, error) {
 	c.differStoragesMu.Lock()
 	defer c.differStoragesMu.Unlock()
 	differStorage, ok := c.differStorages[name]
@@ -176,8 +177,8 @@ func (c *center) recordDifferStorage(name string) (plugin.DifferStorage, error) 
 	return differStorage, nil
 }
 
-func (c *center) registerTableNameMap(name string,
-	tableNameMap plugin.TableNameMap) error {
+func (c *center) registerTableNameMapMaker(name string,
+	tableNameMap plugin.TableNameMapMaker) error {
 	if tableNameMap == nil {
 		return fmt.Errorf("libra: tableNameMap(%v) is nil", name)
 	}
@@ -192,7 +193,7 @@ func (c *center) registerTableNameMap(name string,
 	return nil
 }
 
-func (c *center) tableNameMap(name string) (plugin.TableNameMap, error) {
+func (c *center) tableNameMapMaker(name string) (plugin.TableNameMapMaker, error) {
 	c.tableNameMapsMu.Lock()
 	defer c.tableNameMapsMu.Unlock()
 	tableNameMap, ok := c.tableNameMaps[name]

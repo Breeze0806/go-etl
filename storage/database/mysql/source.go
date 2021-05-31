@@ -65,7 +65,7 @@ func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-//Quoted mysql应用函数
+//Quoted mysql引用函数
 func Quoted(s string) string {
 	return "`" + s + "`"
 }

@@ -8,3 +8,7 @@ type TableNameMap interface {
 	SlaveTableName(master *database.BaseTable) (slave *database.BaseTable, err error)
 	Close() error
 }
+
+type TableNameMapMaker interface {
+	TableNameMap() TableNameMap
+}
