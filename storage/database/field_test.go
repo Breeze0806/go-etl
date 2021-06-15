@@ -93,7 +93,7 @@ func TestGoType_String(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t:    GoTypeUnknow,
+			t:    GoTypeUnknown,
 			want: "unknow",
 		},
 		{
@@ -256,7 +256,7 @@ func TestGoValuer_Value(t *testing.T) {
 		},
 		{
 			name: "10",
-			g: NewGoValuer(newMockField(NewBaseField(1, "f1", NewBaseFieldType(&sql.ColumnType{})), newMockFieldType(GoTypeUnknow)),
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", NewBaseFieldType(&sql.ColumnType{})), newMockFieldType(GoTypeUnknown)),
 				element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.23), "test", 0)),
 			wantErr: true,
 		},

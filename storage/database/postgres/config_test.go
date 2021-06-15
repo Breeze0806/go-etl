@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"reflect"
@@ -6,6 +6,14 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 )
+
+func testJSONFromString(s string) *config.JSON {
+	json, err := config.NewJSONFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return json
+}
 
 func TestNewConfig(t *testing.T) {
 	type args struct {
@@ -68,20 +76,20 @@ func TestConfig_FormatDSN(t *testing.T) {
 		{
 			name: "1",
 			c: &Config{
-				URL:      "tcp(192.168.1.1:3306)/db?parseTime=false",
+				URL:      "postgres://hostname:5432/db",
 				Username: "user",
-				Password: "passwd",
+				Password: "password",
 			},
-			wantDsn: "user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true",
+			wantDsn: "postgres://user:password@hostname:5432/db",
 		},
 		{
 			name: "2",
 			c: &Config{
-				URL:      "tcp(192.168.1.1:3306/db?parseTime=false",
+				URL:      "postgres://hostname:5432/db",
 				Username: "user",
-				Password: "passwd",
+				Password: "",
 			},
-			wantErr: true,
+			wantDsn: "postgres://user@hostname:5432/db",
 		},
 	}
 	for _, tt := range tests {

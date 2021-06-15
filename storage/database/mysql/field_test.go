@@ -337,7 +337,7 @@ func TestFieldType_GoType(t *testing.T) {
 		{
 			name: "NEWDATE",
 			f:    NewFieldType(newMockFieldType("NEWDATE")),
-			want: database.GoTypeUnknow,
+			want: database.GoTypeUnknown,
 		},
 	}
 	for _, tt := range tests {

@@ -20,7 +20,7 @@ var (
 
 //golang的类型枚举
 const (
-	GoTypeUnknow  GoType = iota //未知类型
+	GoTypeUnknown GoType = iota //未知类型
 	GoTypeBool                  //布尔类型
 	GoTypeInt8                  //Int8类型
 	GoTypeInt16                 //Int16类型
@@ -35,7 +35,7 @@ const (
 
 //golang的类型枚举字符串
 var goTypeMap = map[GoType]string{
-	GoTypeUnknow:  "unknow",
+	GoTypeUnknown: "unknow",
 	GoTypeBool:    "bool",
 	GoTypeInt8:    "int8",
 	GoTypeInt16:   "int16",
