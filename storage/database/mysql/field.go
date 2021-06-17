@@ -165,6 +165,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
 		}
+	default:
+		return fmt.Errorf("src is %v(%T), but db type is %v", src, src, s.f.Type().DatabaseTypeName())
 	}
 	s.SetColumn(element.NewDefaultColumn(cv, s.f.Name(), byteSize))
 	return

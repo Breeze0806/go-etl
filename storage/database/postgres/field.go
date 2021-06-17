@@ -97,8 +97,9 @@ func (f *FieldType) GoType() database.GoType {
 
 //Scanner 扫描器
 type Scanner struct {
-	f *Field
 	database.BaseScanner
+
+	f *Field
 }
 
 //NewScanner 根据列类型生成扫描器
@@ -175,8 +176,10 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 				return
 			}
 		default:
-			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
+			return fmt.Errorf("src is %v(%T), but type is %v", src, src, element.TypeDecimal)
 		}
+	default:
+		return fmt.Errorf("src is %v(%T), but db type is %v", src, src, s.f.Type().DatabaseTypeName())
 	}
 	s.SetColumn(element.NewDefaultColumn(cv, s.f.Name(), byteSize))
 	return

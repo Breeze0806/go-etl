@@ -501,6 +501,15 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			wantErr: true,
 		},
+
+		{
+			name: "DECIMAL1",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DECIMAL1")))),
+			args: args{
+				src: int16(0),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
