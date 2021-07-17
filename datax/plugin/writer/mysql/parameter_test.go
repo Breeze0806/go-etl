@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 )
 
@@ -20,7 +21,7 @@ func Test_tableParam_Query(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &mockExecer{})),
+			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockExecer{})),
 			args: args{
 				in0: nil,
 			},
@@ -38,7 +39,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockExecer{})),
+			}, &rdbm.MockExecer{})),
 			args: args{
 				in0: nil,
 			},
@@ -56,7 +57,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockExecer{})),
+			}, &rdbm.MockExecer{})),
 			args: args{
 				in0: nil,
 			},
@@ -74,7 +75,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockExecer{})),
+			}, &rdbm.MockExecer{})),
 			args: args{
 				in0: nil,
 			},
@@ -108,7 +109,7 @@ func Test_tableParam_Agrs(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &mockExecer{})),
+			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockExecer{})),
 			args: args{
 				in0: nil,
 			},

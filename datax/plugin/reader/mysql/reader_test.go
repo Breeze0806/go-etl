@@ -8,6 +8,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -31,11 +32,11 @@ func TestReader_Job(t *testing.T) {
 			r:    testReader(_pluginConfig),
 			want: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
 					return database.Open(name, conf)
 				},
 			},
-			conf: testJSONFromFile(_pluginConfig),
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -60,11 +61,11 @@ func TestReader_Task(t *testing.T) {
 			r:    testReader(_pluginConfig),
 			want: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
 					return database.Open(name, conf)
 				},
 			},
-			conf: testJSONFromFile(_pluginConfig),
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -97,7 +98,7 @@ func TestNewReader(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				filename: filepath.Join("tmpresources", "tmpplugin.json"),
+				filename: filepath.Join("tmrdbmesources", "tmpplugin.json"),
 			},
 			wantErr: true,
 		},

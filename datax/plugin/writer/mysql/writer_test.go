@@ -8,6 +8,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 )
 
 func testWriter(filename string) *Writer {
@@ -31,7 +32,7 @@ func TestWriter_Job(t *testing.T) {
 			want: &Job{
 				BaseJob: plugin.NewBaseJob(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -57,7 +58,7 @@ func TestWriter_Task(t *testing.T) {
 			want: &Task{
 				BaseTask: writer.NewBaseTask(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
 		},
 	}
 	for _, tt := range tests {
@@ -86,7 +87,7 @@ func TestNewWriter(t *testing.T) {
 				filename: _pluginConfig,
 			},
 			wantW: &Writer{
-				pluginConf: testJSONFromFile(_pluginConfig),
+				pluginConf: rdbm.TestJSONFromFile(_pluginConfig),
 			},
 		},
 		{

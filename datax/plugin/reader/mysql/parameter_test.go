@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 )
 
@@ -20,7 +21,7 @@ func Test_tableParam_Query(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &mockQuerier{})),
+			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -38,7 +39,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -56,7 +57,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -74,7 +75,7 @@ func Test_tableParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -108,7 +109,7 @@ func Test_tableParam_Agrs(t *testing.T) {
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &mockQuerier{})),
+			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -141,7 +142,7 @@ func Test_queryParam_Query(t *testing.T) {
 	}{
 		{
 			name: "1",
-			q:    newQueryParam(newParameter(&paramConfig{}, &mockQuerier{})),
+			q:    newQueryParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -159,7 +160,7 @@ func Test_queryParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -177,7 +178,7 @@ func Test_queryParam_Query(t *testing.T) {
 						Name: "table",
 					},
 				},
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -196,7 +197,7 @@ func Test_queryParam_Query(t *testing.T) {
 					},
 				},
 				Where: "a <> 1",
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -216,7 +217,7 @@ func Test_queryParam_Query(t *testing.T) {
 					},
 				},
 				Where: "a <> 1",
-			}, &mockQuerier{})),
+			}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},
@@ -250,7 +251,7 @@ func Test_queryParam_Agrs(t *testing.T) {
 	}{
 		{
 			name: "1",
-			q:    newQueryParam(newParameter(&paramConfig{}, &mockQuerier{})),
+			q:    newQueryParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
 			args: args{
 				in0: nil,
 			},

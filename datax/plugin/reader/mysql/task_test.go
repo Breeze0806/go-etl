@@ -7,6 +7,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 )
 
@@ -50,44 +51,44 @@ func TestTask_Init(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{}, nil
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+					return &rdbm.MockQuerier{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 		},
 		{
 			name: "2",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{}, nil
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+					return &rdbm.MockQuerier{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromString(`{}`),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "3",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{}, nil
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+					return &rdbm.MockQuerier{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{
 				"username": 1		
 			}`),
 			wantErr: true,
@@ -96,49 +97,49 @@ func TestTask_Init(t *testing.T) {
 			name: "4",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
 					return nil, errors.New("mock error")
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "5",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{
-						queryErr: errors.New("mock error"),
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+					return &rdbm.MockQuerier{
+						QueryErr: errors.New("mock error"),
 					}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "6",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (Querier, error) {
-					return &mockQuerier{
-						fetchErr: errors.New("mock error"),
+				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+					return &rdbm.MockQuerier{
+						FetchErr: errors.New("mock error"),
 					}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}
@@ -167,7 +168,7 @@ func TestTask_Destroy(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				querier:  &mockQuerier{},
+				querier:  &rdbm.MockQuerier{},
 			},
 			args: args{
 				ctx: context.TODO(),
@@ -199,7 +200,7 @@ func TestTask_StartRead(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				querier:  &mockQuerier{},
+				querier:  &rdbm.MockQuerier{},
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -211,7 +212,7 @@ func TestTask_StartRead(t *testing.T) {
 			name: "2",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				querier:  &mockQuerier{},
+				querier:  &rdbm.MockQuerier{},
 			},
 			args: args{
 				ctx: context.TODO(),

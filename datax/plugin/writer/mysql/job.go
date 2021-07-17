@@ -7,14 +7,15 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 )
 
 //Job 工作
 type Job struct {
 	*plugin.BaseJob
 
-	execer    Execer
-	newExecer func(name string, conf *config.JSON) (Execer, error)
+	execer    rdbm.Execer
+	newExecer func(name string, conf *config.JSON) (rdbm.Execer, error)
 }
 
 //Init 初始化

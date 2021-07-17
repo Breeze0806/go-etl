@@ -8,6 +8,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 )
 
 func TestJob_Init(t *testing.T) {
@@ -26,30 +27,30 @@ func TestJob_Init(t *testing.T) {
 			name: "1",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{
 			}`),
 		},
 		{
 			name: "2",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromString(`{}`),
+			jobConf: rdbm.TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -57,15 +58,15 @@ func TestJob_Init(t *testing.T) {
 			name: "3",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{
 				"username": 1
 			}`),
 			wantErr: true,
@@ -74,15 +75,15 @@ func TestJob_Init(t *testing.T) {
 			name: "4",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
 					return nil, errors.New("mock error")
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -90,17 +91,17 @@ func TestJob_Init(t *testing.T) {
 			name: "5",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{
-						queryErr: errors.New("mock error"),
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{
+						QueryErr: errors.New("mock error"),
 					}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(_pluginConfig),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(_pluginConfig),
+			jobConf: rdbm.TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -130,7 +131,7 @@ func TestJob_Destroy(t *testing.T) {
 			name: "1",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				execer:  &mockExecer{},
+				execer:  &rdbm.MockExecer{},
 			},
 			args: args{
 				ctx: context.TODO(),
@@ -169,9 +170,9 @@ func TestJob_Split(t *testing.T) {
 				ctx:    context.TODO(),
 				number: 1,
 			},
-			jobConf: testJSONFromString(`{}`),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			want: []*config.JSON{
-				testJSONFromString(`{}`),
+				rdbm.TestJSONFromString(`{}`),
 			},
 		},
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
@@ -14,7 +15,7 @@ type parameter struct {
 	paramConfig *paramConfig
 }
 
-func newParameter(paramConfig *paramConfig, execer Execer) *parameter {
+func newParameter(paramConfig *paramConfig, execer rdbm.Execer) *parameter {
 	p := &parameter{
 		BaseParam: database.NewBaseParam(execer.Table(database.NewBaseTable(
 			paramConfig.Connection.Table.Db, "", paramConfig.Connection.Table.Name)), nil),

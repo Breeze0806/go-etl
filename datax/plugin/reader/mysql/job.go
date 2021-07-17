@@ -7,14 +7,15 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 )
 
 //Job 工作
 type Job struct {
 	*plugin.BaseJob
 
-	querier    Querier
-	newQuerier func(name string, conf *config.JSON) (Querier, error)
+	querier    rdbm.Querier
+	newQuerier func(name string, conf *config.JSON) (rdbm.Querier, error)
 }
 
 //Init 初始化

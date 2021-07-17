@@ -11,29 +11,30 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 )
 
-type mockReceiver struct {
+type MockReceiver struct {
 	err    error
 	n      int
 	ticker *time.Ticker
 }
 
-func newMockReceiver(n int, err error, wait time.Duration) *mockReceiver {
-	return &mockReceiver{
+func NewMockReceiver(n int, err error, wait time.Duration) *MockReceiver {
+	return &MockReceiver{
 		err:    err,
 		n:      n,
 		ticker: time.NewTicker(wait),
 	}
 }
-func newMockReceiverWithoutWait(n int, err error) *mockReceiver {
-	return &mockReceiver{
+func newMockReceiverWithoutWait(n int, err error) *MockReceiver {
+	return &MockReceiver{
 		err: err,
 		n:   n,
 	}
 }
-func (m *mockReceiver) GetFromReader() (element.Record, error) {
+func (m *MockReceiver) GetFromReader() (element.Record, error) {
 	m.n--
 	if m.n <= 0 {
 		return nil, m.err
@@ -47,7 +48,7 @@ func (m *mockReceiver) GetFromReader() (element.Record, error) {
 	return element.NewDefaultRecord(), nil
 }
 
-func (m *mockReceiver) Shutdown() error {
+func (m *MockReceiver) Shutdown() error {
 	m.ticker.Stop()
 	return nil
 }
@@ -68,44 +69,44 @@ func TestTask_Init(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 		},
 		{
 			name: "2",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromString(`{}`),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromString(`{}`),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "3",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{}, nil
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{
+			conf: rdbm.TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: rdbm.TestJSONFromString(`{
 				"username": 1
 			}`),
 			wantErr: true,
@@ -114,49 +115,49 @@ func TestTask_Init(t *testing.T) {
 			name: "4",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
 					return nil, errors.New("mock error")
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "5",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{
-						queryErr: errors.New("mock error"),
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{
+						QueryErr: errors.New("mock error"),
 					}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "6",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				newExecer: func(name string, conf *config.JSON) (Execer, error) {
-					return &mockExecer{
-						fetchErr: errors.New("mock error"),
+				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
+					return &rdbm.MockExecer{
+						FetchErr: errors.New("mock error"),
 					}, nil
 				},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromFile(filepath.Join("resources", "plugin.json")),
-			jobConf: testJSONFromString(`{}`),
+			conf:    rdbm.TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: rdbm.TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}
@@ -186,7 +187,7 @@ func TestTask_Destroy(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				execer:   &mockExecer{},
+				execer:   &rdbm.MockExecer{},
 			},
 			args: args{
 				ctx: context.TODO(),
@@ -212,106 +213,37 @@ func TestTask_StartWrite(t *testing.T) {
 		name    string
 		t       *Task
 		args    args
-		wait    time.Duration
 		wantErr bool
 	}{
 		{
 			name: "1",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				execer:   &mockExecer{},
-				param:    newParameter(&paramConfig{}, &mockExecer{}),
+				execer:   &rdbm.MockExecer{},
+				param:    newParameter(&paramConfig{}, &rdbm.MockExecer{}),
 			},
 			args: args{
 				ctx:      context.TODO(),
-				receiver: newMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
+				receiver: newMockReceiverWithoutWait(10000, exchange.ErrTerminate),
 			},
 		},
 		{
 			name: "2",
 			t: &Task{
 				BaseTask: writer.NewBaseTask(),
-				execer:   &mockExecer{},
-				param:    newParameter(&paramConfig{}, &mockExecer{}),
-			},
-			args: args{
-				ctx:      context.TODO(),
-				receiver: newMockReceiverWithoutWait(10000, exchange.ErrTerminate),
-			},
-		},
-
-		{
-			name: "3",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				execer:   &mockExecer{},
-				param:    newParameter(&paramConfig{}, &mockExecer{}),
+				execer:   &rdbm.MockExecer{},
+				param:    newParameter(&paramConfig{}, &rdbm.MockExecer{}),
 			},
 			args: args{
 				ctx:      context.TODO(),
 				receiver: newMockReceiverWithoutWait(10000, errors.New("mock error")),
-			},
-			wantErr: true,
-		},
-
-		{
-			name: "4",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				execer:   &mockExecer{},
-				param:    newParameter(&paramConfig{}, &mockExecer{}),
-			},
-			args: args{
-				ctx:      context.TODO(),
-				receiver: newMockReceiverWithoutWait(10000, errors.New("mock error")),
-			},
-			wait:    100 * time.Microsecond,
-			wantErr: false,
-		},
-		{
-			name: "5",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				execer: &mockExecer{
-					batchErr: errors.New("mock error"),
-					batchN:   1,
-				},
-				param: newParameter(&paramConfig{}, &mockExecer{}),
-			},
-			args: args{
-				ctx:      context.TODO(),
-				receiver: newMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
-			},
-			wantErr: true,
-		},
-		{
-			name: "6",
-			t: &Task{
-				BaseTask: writer.NewBaseTask(),
-				execer: &mockExecer{
-					batchErr: errors.New("mock error"),
-					batchN:   1,
-				},
-				param: newParameter(&paramConfig{}, &mockExecer{}),
-			},
-			args: args{
-				ctx:      context.TODO(),
-				receiver: newMockReceiverWithoutWait(10000, exchange.ErrTerminate),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, cancel := context.WithCancel(tt.args.ctx)
-			defer cancel()
-			if tt.wait != 0 {
-				go func() {
-					<-time.After(tt.wait)
-					cancel()
-				}()
-			}
-			if err := tt.t.StartWrite(ctx, tt.args.receiver); (err != nil) != tt.wantErr {
+			if err := tt.t.StartWrite(tt.args.ctx, tt.args.receiver); (err != nil) != tt.wantErr {
 				t.Errorf("Task.StartWrite() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

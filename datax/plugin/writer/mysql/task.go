@@ -2,15 +2,13 @@ package mysql
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
-	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
-	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -18,8 +16,8 @@ import (
 type Task struct {
 	*writer.BaseTask
 
-	execer    Execer
-	newExecer func(name string, conf *config.JSON) (Execer, error)
+	execer    rdbm.Execer
+	newExecer func(name string, conf *config.JSON) (rdbm.Execer, error)
 	param     *parameter
 }
 
@@ -80,94 +78,41 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return
 }
 
+type batchWriter struct {
+	*Task
+
+	opts *database.ParameterOptions
+}
+
+func newBatchWriter(t *Task, opts *database.ParameterOptions) *batchWriter {
+	return &batchWriter{
+		Task: t,
+		opts: opts,
+	}
+}
+
+func (m *batchWriter) BatchSize() int {
+	return m.param.paramConfig.getBatchSize()
+}
+
+func (m *batchWriter) BatchTimeout() time.Duration {
+	return m.param.paramConfig.getBatchTimeout()
+}
+
+func (m *batchWriter) BatchWrite(ctx context.Context) error {
+	return m.execer.BatchExec(ctx, m.opts)
+}
+
+func (m *batchWriter) Options() *database.ParameterOptions {
+	return m.opts
+}
+
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
-	opts := &database.ParameterOptions{
+	writer := newBatchWriter(t, &database.ParameterOptions{
 		TxOptions: nil,
 		Table:     t.param.Table(),
 		Mode:      t.param.paramConfig.WriteMode,
-	}
-	recordChan := make(chan element.Record)
-	var rerr error
-	afterCtx, cancel := context.WithCancel(ctx)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer func() {
-			wg.Done()
-			close(recordChan)
-			log.Debugf("jobID: %v taskgroupID:%v taskID: %v get records end", t.JobID(), t.TaskGroupID(), t.TaskID())
-		}()
-		log.Debugf("jobID: %v taskgroupID:%v taskID: %v start to get records", t.JobID(), t.TaskGroupID(), t.TaskID())
-		for {
-			select {
-			case <-afterCtx.Done():
-				return
-			default:
-			}
-			var record element.Record
-			record, rerr = receiver.GetFromReader()
-			if rerr != nil && rerr != exchange.ErrEmpty {
-				return
-			}
-
-			if rerr != exchange.ErrEmpty {
-				select {
-				case <-afterCtx.Done():
-					return
-				case recordChan <- record:
-				}
-
-			}
-		}
-	}()
-	ticker := time.NewTicker(t.param.paramConfig.getBatchTimeout())
-	defer ticker.Stop()
-	var records []element.Record
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchExec", t.JobID(), t.TaskGroupID(), t.TaskID())
-	for {
-		select {
-		case record, ok := <-recordChan:
-			if !ok {
-				opts.Records = records
-				if err = t.execer.BatchExec(ctx, opts); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
-				}
-				opts.Records = nil
-				err = rerr
-				goto End
-			}
-			records = append(records, record)
-
-			if len(records) >= t.param.paramConfig.getBatchSize() {
-				opts.Records = records
-				if err = t.execer.BatchExec(ctx, opts); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
-					goto End
-				}
-				opts.Records = nil
-				records = nil
-			}
-		case <-ticker.C:
-			opts.Records = records
-			if err = t.execer.BatchExec(ctx, opts); err != nil {
-				log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v", t.JobID(), t.TaskGroupID(), t.TaskID(), err)
-				goto End
-			}
-			opts.Records = nil
-			records = nil
-		}
-	}
-End:
-	cancel()
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine", t.JobID(), t.TaskGroupID(), t.TaskID())
-	wg.Wait()
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine end", t.JobID(), t.TaskGroupID(), t.TaskID())
-	switch {
-	case ctx.Err() != nil:
-		return nil
-	case err == exchange.ErrTerminate:
-		return nil
-	}
-	return
+	})
+	return rdbm.StartWrite(ctx, writer, receiver)
 }

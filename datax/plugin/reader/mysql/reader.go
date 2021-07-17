@@ -1,14 +1,10 @@
 package mysql
 
 import (
-	"fmt"
-	"path/filepath"
-	"runtime"
-
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
 	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
 )
@@ -16,24 +12,14 @@ import (
 var _pluginConfig string
 
 func init() {
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		panic(fmt.Errorf("fail to get filename"))
-	}
-	path := filepath.Dir(file)
-	_pluginConfig = filepath.Join(path, "resources", "plugin.json")
-	reader, err := NewReader(_pluginConfig)
-	if err != nil {
+	var err error
+	if _pluginConfig, err = rdbm.RegisterReader(
+		func(filename string) (rdbm.Reader, error) {
+			return NewReader(filename)
+		}); err != nil {
 		panic(err)
 	}
-	name, err := reader.pluginConf.GetString("name")
-	if err != nil {
-		panic(err)
-	}
-	if name == "" {
-		panic("name is empty")
-	}
-	loader.RegisterReader(name, reader)
+
 }
 
 //Reader 读取器
@@ -51,11 +37,15 @@ func NewReader(filename string) (r *Reader, err error) {
 	return
 }
 
+func (r *Reader) ResourcesConfig() *config.JSON {
+	return r.pluginConf
+}
+
 //Job 工作
 func (r *Reader) Job() reader.Job {
 	job := &Job{
 		BaseJob: plugin.NewBaseJob(),
-		newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+		newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
 			return database.Open(name, conf)
 		},
 	}
@@ -67,7 +57,7 @@ func (r *Reader) Job() reader.Job {
 func (r *Reader) Task() reader.Task {
 	task := &Task{
 		BaseTask: plugin.NewBaseTask(),
-		newQuerier: func(name string, conf *config.JSON) (Querier, error) {
+		newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
 			return database.Open(name, conf)
 		},
 	}
