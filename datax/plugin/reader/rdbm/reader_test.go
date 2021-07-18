@@ -47,7 +47,7 @@ type mockReader struct {
 	pluginConf *config.JSON
 }
 
-func NewMockReader(filename string) (r *mockReader, err error) {
+func newMockReader(filename string) (r *mockReader, err error) {
 	r = &mockReader{}
 	r.pluginConf, err = config.NewJSONFromFile(filename)
 	if err != nil {
@@ -81,7 +81,7 @@ func TestRegisterReader(t *testing.T) {
 			name: "1",
 			args: args{
 				new: func(path string) (Reader, error) {
-					return NewMockReader(path)
+					return newMockReader(path)
 				},
 			},
 			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\rdbm\\resources\\plugin.json",

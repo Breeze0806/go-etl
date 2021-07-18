@@ -50,9 +50,9 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	if j.querier, err = j.newQuerier(name, jobSettingConf); err != nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	_, err = j.querier.QueryContext(ctx, "select 1")
+	_, err = j.querier.QueryContext(timeoutCtx, "select 1")
 	if err != nil {
 		return
 	}

@@ -6,6 +6,8 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
+
+	// mysql driver
 	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
 )
 
@@ -37,6 +39,7 @@ func NewReader(filename string) (r *Reader, err error) {
 	return
 }
 
+//ResourcesConfig 插件资源配置
 func (r *Reader) ResourcesConfig() *config.JSON {
 	return r.pluginConf
 }

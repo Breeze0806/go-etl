@@ -6,6 +6,8 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
+
+	//msyql driver
 	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
 )
 
@@ -37,6 +39,7 @@ func NewWriter(filename string) (w *Writer, err error) {
 	return
 }
 
+//ResourcesConfig 插件资源配置
 func (w *Writer) ResourcesConfig() *config.JSON {
 	return w.pluginConf
 }

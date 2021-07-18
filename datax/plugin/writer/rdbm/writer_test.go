@@ -47,7 +47,7 @@ type mockWriter struct {
 	pluginConf *config.JSON
 }
 
-func NewMockWriter(filename string) (w *mockWriter, err error) {
+func newMockWriter(filename string) (w *mockWriter, err error) {
 	w = &mockWriter{}
 	w.pluginConf, err = config.NewJSONFromFile(filename)
 	if err != nil {
@@ -82,7 +82,7 @@ func TestRegisterWriter(t *testing.T) {
 			name: "1",
 			args: args{
 				new: func(path string) (Writer, error) {
-					return NewMockWriter(path)
+					return newMockWriter(path)
 				},
 			},
 			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\rdbm\\resources\\plugin.json",

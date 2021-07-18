@@ -50,9 +50,9 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	if j.execer, err = j.newExecer(name, jobSettingConf); err != nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	_, err = j.execer.QueryContext(ctx, "select 1")
+	_, err = j.execer.QueryContext(timeoutCtx, "select 1")
 	if err != nil {
 		return
 	}

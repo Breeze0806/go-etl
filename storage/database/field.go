@@ -154,6 +154,7 @@ func NewBaseFieldType(typ ColumnType) *BaseFieldType {
 	}
 }
 
+//IsSupportted 是否支持被解析
 func (*BaseFieldType) IsSupportted() bool {
 	return true
 }

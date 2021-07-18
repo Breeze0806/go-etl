@@ -53,9 +53,9 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	if t.querier, err = t.newQuerier(name, jobSettingConf); err != nil {
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	_, err = t.querier.QueryContext(ctx, "select 1")
+	_, err = t.querier.QueryContext(timeoutCtx, "select 1")
 	if err != nil {
 		return
 	}
@@ -86,6 +86,8 @@ func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err e
 		return sender.SendWriter(r)
 	})
 
+	log.Infof("jobid %v taskgroupid %v taskid %v startRead begin", t.JobID(), t.TaskGroupID(), t.TaskID())
+	defer log.Infof("jobid %v taskgroupid %v taskid %v startRead end", t.JobID(), t.TaskGroupID(), t.TaskID())
 	param := newQueryParam(t.param)
 	if err = t.querier.FetchRecord(ctx, param, handler); err != nil {
 		return

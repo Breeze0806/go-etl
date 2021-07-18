@@ -10,12 +10,14 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi"
 )
 
+//Reader 数据库读取器
 type Reader interface {
 	spi.Reader
 
-	ResourcesConfig() *config.JSON
+	ResourcesConfig() *config.JSON //插件资源配置
 }
 
+//RegisterReader 通过生成数据库读取器函数new注册到读取器，返回插件资源配置文件地址，在出错时会包err
 func RegisterReader(new func(string) (Reader, error)) (string, error) {
 	_, file, _, ok := runtime.Caller(1)
 	if !ok {
