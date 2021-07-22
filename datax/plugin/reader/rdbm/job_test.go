@@ -1,15 +1,19 @@
-package mysql
+package rdbm
 
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 )
+
+func newMockDbHandler(newQuerier func(name string, conf *config.JSON) (Querier, error)) DbHandler {
+	return NewBaseDbHandler(newQuerier, nil)
+}
 
 func TestJob_Init(t *testing.T) {
 	type args struct {
@@ -18,55 +22,71 @@ func TestJob_Init(t *testing.T) {
 	tests := []struct {
 		name    string
 		j       *Job
-		args    args
 		conf    *config.JSON
 		jobConf *config.JSON
+		args    args
 		wantErr bool
 	}{
 		{
 			name: "1",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 		},
 		{
 			name: "2",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromString(`{}`),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromString(`{}`),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "3",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 				"username": 1
+			}`),
+			wantErr: true,
+		},
+		{
+			name: "4",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return nil, errors.New("mock error")
+				}),
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -74,33 +94,17 @@ func TestJob_Init(t *testing.T) {
 			name: "5",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return nil, errors.New("mock error")
-				},
-			},
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
-			}`),
-			wantErr: true,
-		},
-		{
-			name: "6",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{
-						QueryErr: errors.New("mock error"),
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{
+						PingErr: errors.New("mock error"),
 					}, nil
-				},
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -126,16 +130,22 @@ func TestJob_Destroy(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
+
 		{
 			name: "1",
 			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				querier: &rdbm.MockQuerier{},
+				Querier: &MockQuerier{},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			wantErr: false,
+		},
+		{
+			name: "2",
+			j:    &Job{},
+			args: args{
+				ctx: context.TODO(),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -169,9 +179,9 @@ func TestJob_Split(t *testing.T) {
 				ctx:    context.TODO(),
 				number: 1,
 			},
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			jobConf: TestJSONFromString(`{}`),
 			want: []*config.JSON{
-				rdbm.TestJSONFromString(`{}`),
+				TestJSONFromString(`{}`),
 			},
 		},
 	}

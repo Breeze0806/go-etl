@@ -11,6 +11,8 @@ import (
 type Querier interface {
 	//通过基础表信息获取具体表
 	Table(*database.BaseTable) database.Table
+	//检测连通性
+	PingContext(ctx context.Context) error
 	//通过query查询语句进行查询
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
 	//通过参数param获取具体表

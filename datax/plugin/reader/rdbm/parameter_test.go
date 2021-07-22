@@ -1,10 +1,9 @@
-package mysql
+package rdbm
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/element"
 )
 
@@ -14,14 +13,14 @@ func Test_tableParam_Query(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *tableParam
+		t       *TableParam
 		args    args
 		want    string
 		wantErr bool
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
+			t:    NewTableParam(&BaseConfig{}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -29,17 +28,17 @@ func Test_tableParam_Query(t *testing.T) {
 		},
 		{
 			name: "2",
-			t: newTableParam(newParameter(&paramConfig{
+			t: NewTableParam(&BaseConfig{
 				Column: []string{
 					"f1", "f2", "f3",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -47,17 +46,17 @@ func Test_tableParam_Query(t *testing.T) {
 		},
 		{
 			name: "3",
-			t: newTableParam(newParameter(&paramConfig{
+			t: NewTableParam(&BaseConfig{
 				Column: []string{
 					"f1",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -65,17 +64,17 @@ func Test_tableParam_Query(t *testing.T) {
 		},
 		{
 			name: "4",
-			t: newTableParam(newParameter(&paramConfig{
+			t: NewTableParam(&BaseConfig{
 				Column: []string{
 					"*",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -102,14 +101,14 @@ func Test_tableParam_Agrs(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *tableParam
+		t       *TableParam
 		args    args
 		want    []interface{}
 		wantErr bool
 	}{
 		{
 			name: "1",
-			t:    newTableParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
+			t:    NewTableParam(&BaseConfig{}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -135,14 +134,14 @@ func Test_queryParam_Query(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		q       *queryParam
+		q       *QueryParam
 		args    args
 		want    string
 		wantErr bool
 	}{
 		{
 			name: "1",
-			q:    newQueryParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
+			q:    NewQueryParam(&BaseConfig{}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -150,17 +149,17 @@ func Test_queryParam_Query(t *testing.T) {
 		},
 		{
 			name: "2",
-			q: newQueryParam(newParameter(&paramConfig{
+			q: NewQueryParam(&BaseConfig{
 				Column: []string{
 					"f1", "f2", "f3",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -168,17 +167,17 @@ func Test_queryParam_Query(t *testing.T) {
 		},
 		{
 			name: "3",
-			q: newQueryParam(newParameter(&paramConfig{
+			q: NewQueryParam(&BaseConfig{
 				Column: []string{
 					"f1",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -186,18 +185,18 @@ func Test_queryParam_Query(t *testing.T) {
 		},
 		{
 			name: "3",
-			q: newQueryParam(newParameter(&paramConfig{
+			q: NewQueryParam(&BaseConfig{
 				Column: []string{
 					"f1",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
 				Where: "a <> 1",
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -206,18 +205,18 @@ func Test_queryParam_Query(t *testing.T) {
 
 		{
 			name: "4",
-			q: newQueryParam(newParameter(&paramConfig{
+			q: NewQueryParam(&BaseConfig{
 				Column: []string{
 					"*",
 				},
-				Connection: connConfig{
-					Table: tableConfig{
+				Connection: ConnConfig{
+					Table: TableConfig{
 						Db:   "db",
 						Name: "table",
 					},
 				},
 				Where: "a <> 1",
-			}, &rdbm.MockQuerier{})),
+			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
@@ -244,14 +243,14 @@ func Test_queryParam_Agrs(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		q       *queryParam
+		q       *QueryParam
 		args    args
 		want    []interface{}
 		wantErr bool
 	}{
 		{
 			name: "1",
-			q:    newQueryParam(newParameter(&paramConfig{}, &rdbm.MockQuerier{})),
+			q:    NewQueryParam(&BaseConfig{}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},

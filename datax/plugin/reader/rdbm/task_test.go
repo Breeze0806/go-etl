@@ -1,40 +1,15 @@
-package mysql
+package rdbm
 
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
-	"github.com/Breeze0806/go-etl/element"
 )
 
-type mockSender struct {
-	createErr error
-	sendErr   error
-}
-
-func (m *mockSender) CreateRecord() (element.Record, error) {
-	return element.NewDefaultRecord(), m.createErr
-}
-
-func (m *mockSender) SendWriter(record element.Record) error {
-	return m.sendErr
-}
-
-func (m *mockSender) Flush() error {
-	return nil
-}
-
-func (m *mockSender) Terminate() error {
-	return nil
-}
-
-func (m *mockSender) Shutdown() error {
-	return nil
-}
 func TestTask_Init(t *testing.T) {
 	type args struct {
 		ctx context.Context
@@ -51,44 +26,44 @@ func TestTask_Init(t *testing.T) {
 			name: "1",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{}`),
 		},
 		{
 			name: "2",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromString(`{}`),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromString(`{}`),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "3",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{}, nil
-				},
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 				"username": 1		
 			}`),
 			wantErr: true,
@@ -97,49 +72,49 @@ func TestTask_Init(t *testing.T) {
 			name: "4",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
 					return nil, errors.New("mock error")
-				},
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "5",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{
-						QueryErr: errors.New("mock error"),
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{
+						PingErr: errors.New("mock error"),
 					}, nil
-				},
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "6",
 			t: &Task{
 				BaseTask: plugin.NewBaseTask(),
-				newQuerier: func(name string, conf *config.JSON) (rdbm.Querier, error) {
-					return &rdbm.MockQuerier{
+				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{
 						FetchErr: errors.New("mock error"),
 					}, nil
-				},
+				}),
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}
@@ -167,13 +142,20 @@ func TestTask_Destroy(t *testing.T) {
 		{
 			name: "1",
 			t: &Task{
-				BaseTask: plugin.NewBaseTask(),
-				querier:  &rdbm.MockQuerier{},
+				Querier: &MockQuerier{},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			wantErr: false,
+		},
+		{
+			name: "2",
+			t: &Task{
+				Querier: nil,
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -185,39 +167,41 @@ func TestTask_Destroy(t *testing.T) {
 	}
 }
 
-func TestTask_StartRead(t *testing.T) {
+func TestStartRead(t *testing.T) {
 	type args struct {
 		ctx    context.Context
+		reader BatchReader
 		sender plugin.RecordSender
 	}
 	tests := []struct {
 		name    string
-		t       *Task
 		args    args
 		wantErr bool
 	}{
 		{
 			name: "1",
-			t: &Task{
-				BaseTask: plugin.NewBaseTask(),
-				querier:  &rdbm.MockQuerier{},
-			},
-			args: args{
-				ctx:    context.TODO(),
-				sender: &mockSender{},
-			},
-			wantErr: false,
-		},
-		{
-			name: "2",
-			t: &Task{
-				BaseTask: plugin.NewBaseTask(),
-				querier:  &rdbm.MockQuerier{},
-			},
 			args: args{
 				ctx: context.TODO(),
-				sender: &mockSender{
-					createErr: errors.New("mock error"),
+				reader: NewBaseBatchReader(&Task{
+					BaseTask: plugin.NewBaseTask(),
+					Querier:  &MockQuerier{},
+					Config:   &BaseConfig{},
+				}, "", nil),
+				sender: &MockSender{},
+			},
+		},
+
+		{
+			name: "2",
+			args: args{
+				ctx: context.TODO(),
+				reader: NewBaseBatchReader(&Task{
+					BaseTask: plugin.NewBaseTask(),
+					Querier:  &MockQuerier{},
+					Config:   &BaseConfig{},
+				}, "Tx", nil),
+				sender: &MockSender{
+					SendErr: errors.New("mock error"),
 				},
 			},
 			wantErr: true,
@@ -225,8 +209,8 @@ func TestTask_StartRead(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.t.StartRead(tt.args.ctx, tt.args.sender); (err != nil) != tt.wantErr {
-				t.Errorf("Task.StartRead() error = %v, wantErr %v", err, tt.wantErr)
+			if err := StartRead(tt.args.ctx, tt.args.reader, tt.args.sender); (err != nil) != tt.wantErr {
+				t.Errorf("StartRead() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

@@ -1,6 +1,6 @@
 {
     "name" : "rdbmreader",
     "developer":"Breeze0806",
-    "dialect":null,
+    "dialect": "rdbm",
     "description":"rdbm is base package for relational database"
 }

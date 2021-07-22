@@ -3,81 +3,11 @@ package rdbm
 import (
 	"context"
 	"database/sql"
-	"strconv"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
-
-//MockFieldType 模拟字段类型测试类
-type MockFieldType struct {
-	*database.BaseFieldType
-	goType database.GoType
-}
-
-//NewMockFieldType 新建模拟字段类型测试类
-func NewMockFieldType(goType database.GoType) *MockFieldType {
-	return &MockFieldType{
-		BaseFieldType: database.NewBaseFieldType(&sql.ColumnType{}),
-		goType:        goType,
-	}
-}
-
-//DatabaseTypeName 字段类型名称，如DECIMAL,VARCHAR, BIGINT等数据库类型
-func (m *MockFieldType) DatabaseTypeName() string {
-	return strconv.Itoa(int(m.goType))
-}
-
-//GoType 字段类型对应的golang类型
-func (m *MockFieldType) GoType() database.GoType {
-	return m.goType
-}
-
-//MockField 模拟列字段测试类
-type MockField struct {
-	*database.BaseField
-
-	typ database.FieldType
-}
-
-//NewMockField 新建模拟字段测试类
-func NewMockField(bf *database.BaseField, typ database.FieldType) *MockField {
-	return &MockField{
-		BaseField: bf,
-		typ:       typ,
-	}
-}
-
-//Type 字段类型
-func (m *MockField) Type() database.FieldType {
-	return m.typ
-}
-
-//Quoted 引用
-func (m *MockField) Quoted() string {
-	return m.Name()
-}
-
-//BindVar 占位符
-func (m *MockField) BindVar(i int) string {
-	return "$" + strconv.Itoa(i)
-}
-
-//Select 查询时使用的字段
-func (m *MockField) Select() string {
-	return m.Name()
-}
-
-//Scanner 空值
-func (m *MockField) Scanner() database.Scanner {
-	return nil
-}
-
-//Valuer 类型赋值器
-func (m *MockField) Valuer(c element.Column) database.Valuer {
-	return database.NewGoValuer(m, c)
-}
 
 //MockTable 模拟表测试类
 type MockTable struct {
@@ -96,14 +26,9 @@ func (m *MockTable) Quoted() string {
 	return m.Instance() + "." + m.Name()
 }
 
-//AddField 新增列
-func (m *MockTable) AddField(bf *database.BaseField) {
-	i, _ := strconv.Atoi(bf.FieldType().DatabaseTypeName())
-	m.AppendField(NewMockField(bf, NewMockFieldType(database.GoType(i))))
-}
-
 //MockQuerier 模拟查询器
 type MockQuerier struct {
+	PingErr  error
 	QueryErr error
 	FetchErr error
 }
@@ -111,6 +36,10 @@ type MockQuerier struct {
 //Table 新建表
 func (m *MockQuerier) Table(bt *database.BaseTable) database.Table {
 	return NewMockTable(bt)
+}
+
+func (m *MockQuerier) PingContext(ctx context.Context) error {
+	return m.PingErr
 }
 
 //QueryContext 查询
@@ -162,4 +91,29 @@ func TestJSONFromString(json string) *config.JSON {
 		panic(err)
 	}
 	return conf
+}
+
+type MockSender struct {
+	CreateErr error
+	SendErr   error
+}
+
+func (m *MockSender) CreateRecord() (element.Record, error) {
+	return element.NewDefaultRecord(), m.CreateErr
+}
+
+func (m *MockSender) SendWriter(record element.Record) error {
+	return m.SendErr
+}
+
+func (m *MockSender) Flush() error {
+	return nil
+}
+
+func (m *MockSender) Terminate() error {
+	return nil
+}
+
+func (m *MockSender) Shutdown() error {
+	return nil
 }

@@ -204,6 +204,11 @@ func (d *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error) 
 	return d.db.BeginTx(ctx, opts)
 }
 
+//PingContext 通过query查询多行数据
+func (d *DB) PingContext(ctx context.Context) error {
+	return d.db.PingContext(ctx)
+}
+
 //QueryContext 通过query查询多行数据
 func (d *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	return d.db.QueryContext(ctx, query, args...)
