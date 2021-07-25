@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"github.com/Breeze0806/go-etl/config"
-	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
@@ -47,15 +46,12 @@ func (r *Reader) ResourcesConfig() *config.JSON {
 //Job 工作
 func (r *Reader) Job() reader.Job {
 	job := &Job{
-		Job: &rdbm.Job{
-			BaseJob: plugin.NewBaseJob(),
-			Handler: rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
-				if q, err = database.Open(name, conf); err != nil {
-					return nil, err
-				}
-				return
-			}, nil),
-		},
+		Job: rdbm.NewJob(rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
+			if q, err = database.Open(name, conf); err != nil {
+				return nil, err
+			}
+			return
+		}, nil)),
 	}
 	job.SetPluginConf(r.pluginConf)
 	return job
@@ -64,15 +60,12 @@ func (r *Reader) Job() reader.Job {
 //Task 任务
 func (r *Reader) Task() reader.Task {
 	task := &Task{
-		Task: &rdbm.Task{
-			BaseTask: plugin.NewBaseTask(),
-			Handler: rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
-				if q, err = database.Open(name, conf); err != nil {
-					return nil, err
-				}
-				return
-			}, nil),
-		},
+		Task: rdbm.NewTask(rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
+			if q, err = database.Open(name, conf); err != nil {
+				return nil, err
+			}
+			return
+		}, nil)),
 	}
 	task.SetPluginConf(r.pluginConf)
 	return task

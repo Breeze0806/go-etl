@@ -10,6 +10,8 @@ import (
 	"github.com/lib/pq"
 )
 
+const WriteModeCopyIn = "copyIn"
+
 //Table postgres表
 type Table struct {
 	*database.BaseTable
@@ -39,7 +41,7 @@ func (t *Table) AddField(baseField *database.BaseField) {
 //ExecParam 获取执行参数，其中copy in的参数方式以及被注册
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	switch mode {
-	case "copyIn":
+	case WriteModeCopyIn:
 		return NewCopyInParam(t, txOpts), true
 	}
 	return nil, false

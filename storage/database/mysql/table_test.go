@@ -120,7 +120,7 @@ func TestTable_ExecParam(t *testing.T) {
 			name: "1",
 			t:    NewTable(database.NewBaseTable("db", "", "table")),
 			args: args{
-				mode:   "replace",
+				mode:   WriteModeReplace,
 				txOpts: nil,
 			},
 			want:  NewReplaceParam(NewTable(database.NewBaseTable("db", "", "table")), nil),
@@ -130,7 +130,7 @@ func TestTable_ExecParam(t *testing.T) {
 			name: "2",
 			t:    NewTable(database.NewBaseTable("db", "", "table")),
 			args: args{
-				mode:   "insert",
+				mode:   database.WriteModeInsert,
 				txOpts: nil,
 			},
 			want:  nil,

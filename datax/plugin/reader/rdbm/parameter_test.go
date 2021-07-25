@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/storage/database"
 )
 
 func Test_tableParam_Query(t *testing.T) {
@@ -34,15 +35,16 @@ func Test_tableParam_Query(t *testing.T) {
 				},
 				Connection: ConnConfig{
 					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
+						Db:     "db",
+						Schema: "schema",
+						Name:   "table",
 					},
 				},
 			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
-			want: "select f1,f2,f3 from db.table where 1 = 2",
+			want: "select f1,f2,f3 from db.schema.table where 1 = 2",
 		},
 		{
 			name: "3",
@@ -52,15 +54,16 @@ func Test_tableParam_Query(t *testing.T) {
 				},
 				Connection: ConnConfig{
 					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
+						Db:     "db",
+						Schema: "schema",
+						Name:   "table",
 					},
 				},
 			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
-			want: "select f1 from db.table where 1 = 2",
+			want: "select f1 from db.schema.table where 1 = 2",
 		},
 		{
 			name: "4",
@@ -70,15 +73,16 @@ func Test_tableParam_Query(t *testing.T) {
 				},
 				Connection: ConnConfig{
 					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
+						Db:     "db",
+						Schema: "schema",
+						Name:   "table",
 					},
 				},
 			}, &MockQuerier{}, nil),
 			args: args{
 				in0: nil,
 			},
-			want: "select * from db.table where 1 = 2",
+			want: "select * from db.schema.table where 1 = 2",
 		},
 	}
 	for _, tt := range tests {
@@ -134,14 +138,16 @@ func Test_queryParam_Query(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		q       *QueryParam
+		t       *MockTable
+		config  *BaseConfig
 		args    args
 		want    string
 		wantErr bool
 	}{
 		{
-			name: "1",
-			q:    NewQueryParam(&BaseConfig{}, &MockQuerier{}, nil),
+			name:   "1",
+			t:      NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{},
 			args: args{
 				in0: nil,
 			},
@@ -149,43 +155,34 @@ func Test_queryParam_Query(t *testing.T) {
 		},
 		{
 			name: "2",
-			q: NewQueryParam(&BaseConfig{
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
 				Column: []string{
 					"f1", "f2", "f3",
 				},
-				Connection: ConnConfig{
-					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
-					},
-				},
-			}, &MockQuerier{}, nil),
+			},
 			args: args{
 				in0: nil,
 			},
-			want: "select f1,f2,f3 from db.table",
+			want: "select f1,f2,f3 from db.schema.table",
 		},
 		{
 			name: "3",
-			q: NewQueryParam(&BaseConfig{
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
 				Column: []string{
 					"f1",
 				},
-				Connection: ConnConfig{
-					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
-					},
-				},
-			}, &MockQuerier{}, nil),
+			},
 			args: args{
 				in0: nil,
 			},
-			want: "select f1 from db.table",
+			want: "select f1 from db.schema.table",
 		},
 		{
 			name: "3",
-			q: NewQueryParam(&BaseConfig{
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
 				Column: []string{
 					"f1",
 				},
@@ -196,36 +193,20 @@ func Test_queryParam_Query(t *testing.T) {
 					},
 				},
 				Where: "a <> 1",
-			}, &MockQuerier{}, nil),
+			},
 			args: args{
 				in0: nil,
 			},
-			want: "select f1 from db.table where a <> 1",
-		},
-
-		{
-			name: "4",
-			q: NewQueryParam(&BaseConfig{
-				Column: []string{
-					"*",
-				},
-				Connection: ConnConfig{
-					Table: TableConfig{
-						Db:   "db",
-						Name: "table",
-					},
-				},
-				Where: "a <> 1",
-			}, &MockQuerier{}, nil),
-			args: args{
-				in0: nil,
-			},
-			want: "select * from db.table where a <> 1",
+			want: "select f1 from db.schema.table where a <> 1",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.q.Query(tt.args.in0)
+			for i, v := range tt.config.Column {
+				tt.t.AddField(database.NewBaseField(i, v, NewMockFieldType(database.GoTypeBool)))
+			}
+			q := NewQueryParam(tt.config, tt.t, nil)
+			got, err := q.Query(tt.args.in0)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("queryParam.Query() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -250,7 +231,7 @@ func Test_queryParam_Agrs(t *testing.T) {
 	}{
 		{
 			name: "1",
-			q:    NewQueryParam(&BaseConfig{}, &MockQuerier{}, nil),
+			q:    NewQueryParam(&BaseConfig{}, NewMockTable(database.NewBaseTable("db", "schema", "table")), nil),
 			args: args{
 				in0: nil,
 			},

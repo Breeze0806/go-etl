@@ -9,15 +9,24 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
+type TableParamConfig interface {
+	GetColumns() []Column
+	GetBaseTable() *database.BaseTable
+}
+
+type TableParamTable interface {
+	Table(*database.BaseTable) database.Table
+}
+
 type TableParam struct {
 	*database.BaseParam
 
-	Config Config
+	Config TableParamConfig
 }
 
-func NewTableParam(config Config, querier Querier, opts *sql.TxOptions) *TableParam {
+func NewTableParam(config TableParamConfig, table TableParamTable, opts *sql.TxOptions) *TableParam {
 	return &TableParam{
-		BaseParam: database.NewBaseParam(querier.Table(config.GetBaseTable()), opts),
+		BaseParam: database.NewBaseParam(table.Table(config.GetBaseTable()), opts),
 
 		Config: config,
 	}
@@ -50,9 +59,9 @@ type QueryParam struct {
 	Config Config
 }
 
-func NewQueryParam(config Config, querier Querier, opts *sql.TxOptions) *QueryParam {
+func NewQueryParam(config Config, table database.Table, opts *sql.TxOptions) *QueryParam {
 	return &QueryParam{
-		BaseParam: database.NewBaseParam(querier.Table(config.GetBaseTable()), opts),
+		BaseParam: database.NewBaseParam(table, opts),
 
 		Config: config,
 	}
@@ -60,14 +69,14 @@ func NewQueryParam(config Config, querier Querier, opts *sql.TxOptions) *QueryPa
 
 func (q *QueryParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select ")
-	if len(q.Config.GetColumns()) == 0 {
+	if len(q.Table().Fields()) == 0 {
 		return "", errors.New("column is empty")
 	}
-	for i, v := range q.Config.GetColumns() {
+	for i, v := range q.Table().Fields() {
 		if i > 0 {
 			buf.WriteString(",")
 		}
-		buf.WriteString(v.GetName())
+		buf.WriteString(v.Quoted())
 	}
 	buf.WriteString(" from ")
 	buf.WriteString(q.Table().Quoted())

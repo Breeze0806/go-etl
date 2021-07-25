@@ -8,6 +8,10 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
+const (
+	WriteModeInsert = "insert"
+)
+
 //FetchHandler 获取记录句柄
 type FetchHandler interface {
 	OnRecord(element.Record) error
@@ -313,13 +317,13 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 func execParam(opts *ParameterOptions) (param Parameter, err error) {
 	execParams, ok := opts.Table.(ExecParameter)
 	if !ok {
-		if opts.Mode != "insert" {
+		if opts.Mode != WriteModeInsert {
 			return nil, fmt.Errorf("table is not ExecParameter and mode is not insert")
 		}
 		param = NewInsertParam(opts.Table, opts.TxOptions)
 	} else {
 		if param, ok = execParams.ExecParam(opts.Mode, opts.TxOptions); !ok {
-			if opts.Mode != "insert" {
+			if opts.Mode != WriteModeInsert {
 				return nil, fmt.Errorf("ExecParam is not exist and mode is not insert")
 			}
 			param = NewInsertParam(opts.Table, opts.TxOptions)

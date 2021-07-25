@@ -125,7 +125,7 @@ func TestDB(t *testing.T) {
 	if err = db.BatchExec(context.TODO(), &ParameterOptions{
 		Table:     gotTable,
 		TxOptions: nil,
-		Mode:      "insert",
+		Mode:      WriteModeInsert,
 		Records:   wantRecords,
 	}); err != nil {
 		t.Errorf("BatchExec error %v", err)
@@ -135,7 +135,7 @@ func TestDB(t *testing.T) {
 	if err = db.BatchExecWithTx(context.TODO(), &ParameterOptions{
 		Table:     gotTable,
 		TxOptions: nil,
-		Mode:      "insert",
+		Mode:      WriteModeInsert,
 		Records:   wantRecords,
 	}); err != nil {
 		t.Errorf("BatchExecWithTx error %v", err)
@@ -145,7 +145,7 @@ func TestDB(t *testing.T) {
 	if err = db.BatchExecStmtWithTx(context.TODO(), &ParameterOptions{
 		Table:     gotTable,
 		TxOptions: nil,
-		Mode:      "insert",
+		Mode:      WriteModeInsert,
 		Records:   wantRecords,
 	}); err != nil {
 		t.Errorf("BatchExecStmtWithTx error %v", err)
@@ -393,7 +393,7 @@ func Test_execParam(t *testing.T) {
 					Table: &mockTable{
 						BaseTable: NewBaseTable("db", "schema", "table"),
 					},
-					Mode: "insert",
+					Mode: WriteModeInsert,
 				},
 			},
 			wantParam: NewInsertParam(&mockTable{
@@ -435,7 +435,7 @@ func Test_execParam(t *testing.T) {
 							BaseTable: NewBaseTable("db", "schema", "table"),
 						},
 					},
-					Mode: "insert",
+					Mode: WriteModeInsert,
 				},
 			},
 			wantParam: NewInsertParam(&mockTable{

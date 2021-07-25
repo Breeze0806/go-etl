@@ -29,12 +29,9 @@ func TestJob_Init(t *testing.T) {
 	}{
 		{
 			name: "1",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-					return &MockQuerier{}, nil
-				}),
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return &MockQuerier{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -44,12 +41,9 @@ func TestJob_Init(t *testing.T) {
 		},
 		{
 			name: "2",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-					return &MockQuerier{}, nil
-				}),
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return &MockQuerier{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -59,12 +53,9 @@ func TestJob_Init(t *testing.T) {
 		},
 		{
 			name: "3",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-					return &MockQuerier{}, nil
-				}),
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return &MockQuerier{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -76,12 +67,9 @@ func TestJob_Init(t *testing.T) {
 		},
 		{
 			name: "4",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-					return nil, errors.New("mock error")
-				}),
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return nil, errors.New("mock error")
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
@@ -92,14 +80,11 @@ func TestJob_Init(t *testing.T) {
 		},
 		{
 			name: "5",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				Handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-					return &MockQuerier{
-						PingErr: errors.New("mock error"),
-					}, nil
-				}),
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return &MockQuerier{
+					PingErr: errors.New("mock error"),
+				}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},

@@ -34,5 +34,5 @@ func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 }
 
 func (d *BaseDbHandler) TableParam(config Config, querier Querier) database.Parameter {
-	return NewTableParam(config, querier, nil)
+	return NewTableParam(config, querier, d.opts)
 }

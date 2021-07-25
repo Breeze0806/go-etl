@@ -16,9 +16,18 @@ import (
 type Task struct {
 	*plugin.BaseTask
 
-	Handler DbHandler
+	handler DbHandler
 	Querier Querier
 	Config  Config
+	Table   database.Table
+}
+
+func NewTask(handler DbHandler) *Task {
+	return &Task{
+		BaseTask: plugin.NewBaseTask(),
+
+		handler: handler,
+	}
 }
 
 //Init 初始化
@@ -28,7 +37,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if t.Config, err = t.Handler.Config(t.PluginJobConf()); err != nil {
+	if t.Config, err = t.handler.Config(t.PluginJobConf()); err != nil {
 		return
 	}
 
@@ -49,7 +58,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if t.Querier, err = t.Handler.Querier(name, jobSettingConf); err != nil {
+	if t.Querier, err = t.handler.Querier(name, jobSettingConf); err != nil {
 		return
 	}
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -60,8 +69,8 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	param := t.Handler.TableParam(t.Config, t.Querier)
-	if _, err = t.Querier.FetchTableWithParam(ctx, param); err != nil {
+	param := t.handler.TableParam(t.Config, t.Querier)
+	if t.Table, err = t.Querier.FetchTableWithParam(ctx, param); err != nil {
 		return
 	}
 
@@ -111,7 +120,7 @@ func (b *BaseBatchReader) TaskGroupID() int64 {
 }
 
 func (b *BaseBatchReader) Parameter() database.Parameter {
-	return NewQueryParam(b.task.Config, b.task.Querier, b.opts)
+	return NewQueryParam(b.task.Config, b.task.Table, b.opts)
 }
 
 func (b *BaseBatchReader) Read(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {

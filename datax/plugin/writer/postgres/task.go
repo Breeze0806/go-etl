@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"context"
@@ -6,12 +6,12 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"github.com/Breeze0806/go-etl/storage/database/mysql"
+	"github.com/Breeze0806/go-etl/storage/database/postgres"
 )
 
 var execModeMap = map[string]string{
 	database.WriteModeInsert: rdbm.ExecModeNormal,
-	mysql.WriteModeReplace:   rdbm.ExecModeNormal,
+	postgres.WriteModeCopyIn: rdbm.ExecModeStmt,
 }
 
 func execMode(writeMode string) string {

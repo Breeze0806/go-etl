@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"github.com/Breeze0806/go-etl/config"
@@ -6,8 +6,8 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
 
-	//mysql storage
-	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
+	//postgres storage
+	_ "github.com/Breeze0806/go-etl/storage/database/postgres"
 )
 
 var _pluginConfig string

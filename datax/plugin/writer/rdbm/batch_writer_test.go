@@ -7,53 +7,16 @@ import (
 	"time"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
-	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-type mockBatchWriter struct {
-	batchSize    int
-	batchTimeout time.Duration
-	execer       *MockExecer
-	opts         *database.ParameterOptions
-}
-
-func newMockBatchWriter(batchSize int, batchTimeout time.Duration,
-	execer *MockExecer, opts *database.ParameterOptions) *mockBatchWriter {
-	return &mockBatchWriter{
-		batchSize:    batchSize,
-		batchTimeout: batchTimeout,
-		execer:       execer,
-		opts:         opts,
-	}
-}
-
-func (m *mockBatchWriter) JobID() int64 {
-	return 0
-}
-
-func (m *mockBatchWriter) TaskGroupID() int64 {
-	return 0
-}
-
-func (m *mockBatchWriter) TaskID() int64 {
-	return 0
-}
-
-func (m *mockBatchWriter) BatchSize() int {
-	return m.batchSize
-}
-
-func (m *mockBatchWriter) BatchTimeout() time.Duration {
-	return m.batchTimeout
-}
-
-func (m *mockBatchWriter) BatchWrite(ctx context.Context) error {
-	return m.execer.BatchExec(ctx, m.opts)
-}
-
-func (m *mockBatchWriter) Options() *database.ParameterOptions {
-	return m.opts
+func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
+	return NewBaseBatchWriter(&Task{
+		BaseTask: writer.NewBaseTask(),
+		Execer:   execer,
+		Config:   &BaseConfig{},
+	}, mode, nil)
 }
 
 func TestStartWrite(t *testing.T) {
@@ -73,7 +36,7 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
-				writer:   newMockBatchWriter(1000, 1*time.Second, &MockExecer{}, &database.ParameterOptions{}),
+				writer:   newMockBatchWriter(&MockExecer{}, ""),
 			},
 		},
 		{
@@ -81,7 +44,7 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, exchange.ErrTerminate),
-				writer:   newMockBatchWriter(1000, 1*time.Second, &MockExecer{}, &database.ParameterOptions{}),
+				writer:   newMockBatchWriter(&MockExecer{}, "Tx"),
 			},
 		},
 		{
@@ -89,7 +52,7 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
-				writer:   newMockBatchWriter(1000, 1*time.Second, &MockExecer{}, &database.ParameterOptions{}),
+				writer:   newMockBatchWriter(&MockExecer{}, "Stmt"),
 			},
 			wantErr: true,
 		},
@@ -98,7 +61,7 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
-				writer:   newMockBatchWriter(1000, 1*time.Second, &MockExecer{}, &database.ParameterOptions{}),
+				writer:   newMockBatchWriter(&MockExecer{}, ""),
 			},
 			waitCtx: 5 * time.Microsecond,
 			wantErr: false,
@@ -108,10 +71,10 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
-				writer: newMockBatchWriter(1000, 1*time.Second, &MockExecer{
+				writer: newMockBatchWriter(&MockExecer{
 					BatchErr: errors.New("mock error"),
 					BatchN:   1,
-				}, &database.ParameterOptions{}),
+				}, ""),
 			},
 			wantErr: true,
 		},
@@ -120,10 +83,10 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, exchange.ErrTerminate),
-				writer: newMockBatchWriter(1000, 1*time.Second, &MockExecer{
+				writer: newMockBatchWriter(&MockExecer{
 					BatchErr: errors.New("mock error"),
 					BatchN:   1,
-				}, &database.ParameterOptions{}),
+				}, ""),
 			},
 			wantErr: true,
 		},
@@ -132,10 +95,10 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(2, exchange.ErrTerminate, 1*time.Millisecond),
-				writer: newMockBatchWriter(1000, 1*time.Second, &MockExecer{
+				writer: newMockBatchWriter(&MockExecer{
 					BatchErr: errors.New("mock error"),
 					BatchN:   0,
-				}, &database.ParameterOptions{}),
+				}, ""),
 			},
 			wantErr: false,
 		},

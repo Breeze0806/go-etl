@@ -12,14 +12,14 @@ import (
 type Job struct {
 	*plugin.BaseJob
 
-	Querier Querier
-	handler DbHandler
+	Handler DbHandler
+	Execer  Execer
 }
 
 func NewJob(handler DbHandler) *Job {
 	return &Job{
 		BaseJob: plugin.NewBaseJob(),
-		handler: handler,
+		Handler: handler,
 	}
 }
 
@@ -30,7 +30,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	}
 
 	var conf Config
-	if conf, err = j.handler.Config(j.PluginJobConf()); err != nil {
+	if conf, err = j.Handler.Config(j.PluginJobConf()); err != nil {
 		return
 	}
 
@@ -51,12 +51,12 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if j.Querier, err = j.handler.Querier(name, jobSettingConf); err != nil {
+	if j.Execer, err = j.Handler.Execer(name, jobSettingConf); err != nil {
 		return
 	}
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	err = j.Querier.PingContext(timeoutCtx)
+	err = j.Execer.PingContext(timeoutCtx)
 	if err != nil {
 		return
 	}
@@ -65,13 +65,13 @@ func (j *Job) Init(ctx context.Context) (err error) {
 
 //Destroy 销毁
 func (j *Job) Destroy(ctx context.Context) (err error) {
-	if j.Querier != nil {
-		err = j.Querier.Close()
+	if j.Execer != nil {
+		err = j.Execer.Close()
 	}
 	return
 }
 
-//Split 切分
+//Split 切分任务
 func (j *Job) Split(ctx context.Context, number int) ([]*config.JSON, error) {
 	return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
 }

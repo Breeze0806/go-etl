@@ -2,6 +2,7 @@ package rdbm
 
 import (
 	"context"
+	"database/sql"
 	"sync"
 	"time"
 
@@ -20,6 +21,65 @@ type BatchWriter interface {
 	BatchTimeout() time.Duration          //单次批量写入超时时间
 	BatchWrite(ctx context.Context) error //批量写入
 	Options() *database.ParameterOptions  //数据库选项
+}
+
+const (
+	ExecModeNormal = "normal"
+	ExecModeTx     = "Tx"
+	ExecModeStmt   = "Stmt"
+)
+
+type BaseBatchWriter struct {
+	task     *Task
+	execMode string
+	opts     *database.ParameterOptions
+}
+
+func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseBatchWriter {
+	w := &BaseBatchWriter{
+		task:     task,
+		execMode: execMode,
+	}
+	w.opts = &database.ParameterOptions{
+		Table:     task.Table,
+		Mode:      task.Config.GetWriteMode(),
+		TxOptions: opts,
+	}
+	return w
+}
+
+func (b *BaseBatchWriter) JobID() int64 {
+	return b.task.JobID()
+}
+
+func (b *BaseBatchWriter) TaskGroupID() int64 {
+	return b.task.TaskGroupID()
+}
+
+func (b *BaseBatchWriter) TaskID() int64 {
+	return b.task.TaskID()
+}
+
+func (b *BaseBatchWriter) BatchSize() int {
+	return b.task.Config.GetBatchSize()
+}
+
+func (b *BaseBatchWriter) BatchTimeout() time.Duration {
+	return b.task.Config.GetBatchTimeout()
+}
+
+func (b *BaseBatchWriter) BatchWrite(ctx context.Context) error {
+	switch b.execMode {
+	case ExecModeTx:
+		return b.task.Execer.BatchExecWithTx(ctx, b.opts)
+	case ExecModeStmt:
+		return b.task.Execer.BatchExecStmtWithTx(ctx, b.opts)
+	}
+	return b.task.Execer.BatchExec(ctx, b.opts)
+}
+
+func (b *BaseBatchWriter) Options() *database.ParameterOptions {
+	return b.opts
 }
 
 //StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库

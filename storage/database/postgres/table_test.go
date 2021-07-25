@@ -299,7 +299,7 @@ func TestTable_ExecParam(t *testing.T) {
 			name: "1",
 			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
 			args: args{
-				mode:   "copyIn",
+				mode:   WriteModeCopyIn,
 				txOpts: nil,
 			},
 			want:  NewCopyInParam(NewTable(database.NewBaseTable("db", "schema", "table")), nil),

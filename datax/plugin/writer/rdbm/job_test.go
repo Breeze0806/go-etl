@@ -1,15 +1,19 @@
-package mysql
+package rdbm
 
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 )
+
+func newMockDbHandler(newExecer func(name string, conf *config.JSON) (Execer, error)) DbHandler {
+	return NewBaseDbHandler(newExecer, nil)
+}
 
 func TestJob_Init(t *testing.T) {
 	type args struct {
@@ -25,83 +29,67 @@ func TestJob_Init(t *testing.T) {
 	}{
 		{
 			name: "1",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
-					return &rdbm.MockExecer{}, nil
-				},
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Execer, error) {
+				return &MockExecer{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 		},
 		{
 			name: "2",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
-					return &rdbm.MockExecer{}, nil
-				},
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Execer, error) {
+				return &MockExecer{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromString(`{}`),
-			jobConf: rdbm.TestJSONFromString(`{
-			}`),
+			conf:    TestJSONFromString(`{}`),
+			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
 			name: "3",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
-					return &rdbm.MockExecer{}, nil
-				},
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Execer, error) {
+				return &MockExecer{}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 				"username": 1
 			}`),
 			wantErr: true,
 		},
 		{
 			name: "4",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
-					return nil, errors.New("mock error")
-				},
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Execer, error) {
+				return nil, errors.New("mock error")
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
 		{
 			name: "5",
-			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				newExecer: func(name string, conf *config.JSON) (rdbm.Execer, error) {
-					return &rdbm.MockExecer{
-						QueryErr: errors.New("mock error"),
-					}, nil
-				},
-			},
+			j: NewJob(newMockDbHandler(func(name string, conf *config.JSON) (Execer, error) {
+				return &MockExecer{
+					PingErr: errors.New("mock error"),
+				}, nil
+			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: rdbm.TestJSONFromFile(_pluginConfig),
-			jobConf: rdbm.TestJSONFromString(`{
+			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -130,13 +118,18 @@ func TestJob_Destroy(t *testing.T) {
 		{
 			name: "1",
 			j: &Job{
-				BaseJob: plugin.NewBaseJob(),
-				execer:  &rdbm.MockExecer{},
+				Execer: &MockExecer{},
 			},
 			args: args{
 				ctx: context.TODO(),
 			},
-			wantErr: false,
+		},
+		{
+			name: "2",
+			j:    &Job{},
+			args: args{
+				ctx: context.TODO(),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -170,9 +163,9 @@ func TestJob_Split(t *testing.T) {
 				ctx:    context.TODO(),
 				number: 1,
 			},
-			jobConf: rdbm.TestJSONFromString(`{}`),
+			jobConf: TestJSONFromString(`{}`),
 			want: []*config.JSON{
-				rdbm.TestJSONFromString(`{}`),
+				TestJSONFromString(`{}`),
 			},
 		},
 	}

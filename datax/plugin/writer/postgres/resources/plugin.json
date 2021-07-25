@@ -1,0 +1,6 @@
+{
+    "name" : "postgreswriter",
+    "developer":"Breeze0806",
+    "dialect":"postgres",
+    "description":"use github.com/Breeze0806/go/database/pqto which base on github.com/lib/pq . database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
+}
