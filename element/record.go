@@ -1,5 +1,7 @@
 package element
 
+import "sync"
+
 //Record 记录
 type Record interface {
 	Add(Column) error                      //新增列
@@ -9,6 +11,10 @@ type Record interface {
 	ColumnNumber() int                     //获取列数
 	ByteSize() int64                       //字节流大小
 	MemorySize() int64                     //内存大小
+}
+
+type RecordWithWg interface {
+	WaitGroup() *sync.WaitGroup
 }
 
 var singleTerminateRecord = &TerminateRecord{}
@@ -140,4 +146,20 @@ func (r *DefaultRecord) incSize(c Column) {
 func (r *DefaultRecord) decSize(c Column) {
 	r.byteSize -= c.ByteSize()
 	r.memorySize -= c.MemorySize()
+}
+
+type DefaultRecordWithWg struct {
+	*DefaultRecord
+	wg *sync.WaitGroup
+}
+
+func NewDefaultRecordWithWg() *DefaultRecordWithWg {
+	return &DefaultRecordWithWg{
+		DefaultRecord: NewDefaultRecord(),
+		wg:            &sync.WaitGroup{},
+	}
+}
+
+func (d *DefaultRecordWithWg) WaitGroup() *sync.WaitGroup {
+	return d.wg
 }
