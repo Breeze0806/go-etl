@@ -71,7 +71,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		"TIME", "YEAR",
 		"DECIMAL":
 		f.goType = database.GoTypeString
-	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY":
+	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY", "BIT":
 		f.goType = database.GoTypeBytes
 	case "DOUBLE", "FLOAT":
 		f.goType = database.GoTypeFloat64
@@ -127,7 +127,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY":
+	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY", "BIT":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()

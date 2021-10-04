@@ -1,9 +1,15 @@
 package element
 
-import "sync"
+import (
+	"fmt"
+	"strings"
+	"sync"
+)
 
 //Record 记录
 type Record interface {
+	fmt.Stringer
+
 	Add(Column) error                      //新增列
 	GetByIndex(i int) (Column, error)      //获取第i个列
 	GetByName(name string) (Column, error) //获取列名为name的列
@@ -60,6 +66,11 @@ func (t *TerminateRecord) ByteSize() int64 {
 //MemorySize 空方法
 func (t *TerminateRecord) MemorySize() int64 {
 	return 0
+}
+
+//String 空方法
+func (t *TerminateRecord) String() string {
+	return "terminate"
 }
 
 //DefaultRecord 默认记录
@@ -146,6 +157,21 @@ func (r *DefaultRecord) incSize(c Column) {
 func (r *DefaultRecord) decSize(c Column) {
 	r.byteSize -= c.ByteSize()
 	r.memorySize -= c.MemorySize()
+}
+
+//String 空方法
+func (r *DefaultRecord) String() string {
+	b := &strings.Builder{}
+	for i, v := range r.names {
+		if i > 0 {
+			b.WriteString(" ")
+		}
+
+		b.WriteString(v)
+		b.WriteString("=")
+		b.WriteString(r.columns[v].String())
+	}
+	return b.String()
 }
 
 type DefaultRecordWithWg struct {

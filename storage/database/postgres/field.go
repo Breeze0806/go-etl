@@ -73,13 +73,13 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	case oid.TypeName[oid.T_float4], oid.TypeName[oid.T_float8]:
 		f.goType = database.GoTypeFloat64
 	case oid.TypeName[oid.T_varchar], oid.TypeName[oid.T_text],
-		oid.TypeName[oid.T_char], oid.TypeName[oid.T_numeric]:
+		oid.TypeName[oid.T_numeric]:
 		f.goType = database.GoTypeString
 	case oid.TypeName[oid.T_date], oid.TypeName[oid.T_time],
 		oid.TypeName[oid.T_timetz], oid.TypeName[oid.T_timestamp],
 		oid.TypeName[oid.T_timestamptz]:
 		f.goType = database.GoTypeTime
-	case oid.TypeName[oid.T_bytea], oid.TypeName[oid.T_uuid]:
+	case oid.TypeName[oid.T_bpchar]:
 		f.goType = database.GoTypeBytes
 	}
 	return f
@@ -134,7 +134,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case oid.TypeName[oid.T_bytea], oid.TypeName[oid.T_uuid]:
+	case oid.TypeName[oid.T_bpchar]:
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()
@@ -154,8 +154,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}
-	case oid.TypeName[oid.T_varchar], oid.TypeName[oid.T_text],
-		oid.TypeName[oid.T_char]:
+	case oid.TypeName[oid.T_varchar], oid.TypeName[oid.T_text]:
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilStringColumnValue()

@@ -120,6 +120,7 @@ func (t *taskExecer) Start() {
 		defer t.wg.Done()
 		writerWg.Done()
 		if err := t.writerRunner.Run(ctx); err != nil {
+			log.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
 			t.errors <- fmt.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
 		}
 	}()
@@ -132,6 +133,7 @@ func (t *taskExecer) Start() {
 		defer t.wg.Done()
 		readerWg.Done()
 		if err := t.readerRunner.Run(ctx); err != nil {
+			log.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
 			t.errors <- fmt.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
 		}
 	}()

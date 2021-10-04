@@ -37,6 +37,9 @@ func (m *mockRecord) ByteSize() int64 {
 func (m *mockRecord) MemorySize() int64 {
 	return 0
 }
+func (m *mockRecord) String() string {
+	return ""
+}
 
 func TestRecordChan_MutilPushBackPopFront(t *testing.T) {
 	c := NewRecordChan()

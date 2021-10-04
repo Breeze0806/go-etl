@@ -1,2 +1,4 @@
 vendor
 cmd/transform
+cmd/datax/*.exe
+cmd/datax/*.log

@@ -139,10 +139,12 @@ func StartRead(ctx context.Context, reader BatchReader, sender plugin.RecordSend
 	})
 
 	log.Infof("jobid %v taskgroupid %v taskid %v startRead begin", reader.JobID(), reader.TaskGroupID(), reader.TaskID())
-	defer log.Infof("jobid %v taskgroupid %v taskid %v startRead end", reader.JobID(), reader.TaskGroupID(), reader.TaskID())
-
+	defer func() {
+		sender.Terminate()
+		log.Infof("jobid %v taskgroupid %v taskid %v startRead end", reader.JobID(), reader.TaskGroupID(), reader.TaskID())
+	}()
 	if err = reader.Read(ctx, reader.Parameter(), handler); err != nil {
 		return
 	}
-	return sender.Terminate()
+	return nil
 }

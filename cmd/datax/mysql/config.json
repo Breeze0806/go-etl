@@ -1,0 +1,74 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "mysqlreader",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "tcp(192.168.0.1:3306)/mysql?parseTime=false",
+                                "table": {
+                                    "db":"source",
+                                    "name":"type_table"
+                                }
+                            },
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "mysqlwriter",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "writeMode": "insert",
+                        "column": ["*"],
+                        "session": [],
+                        "preSql": [],
+                        "connection":  {
+                                "url": "tcp(192.168.0.1:3306)/mysql?parseTime=false",
+                                "table": {
+                                    "db":"destination",
+                                    "name":"type_table"
+                                }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}

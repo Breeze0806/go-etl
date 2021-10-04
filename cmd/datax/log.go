@@ -6,7 +6,7 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
-var log mylog.Logger
+var log = mylog.NewDefaultLogger(os.Stdout, mylog.DebugLevel, "[datax]")
 
 func init() {
 	f, err := os.Create("datax.log")

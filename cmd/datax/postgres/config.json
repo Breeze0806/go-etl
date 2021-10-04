@@ -25,15 +25,16 @@
         "content":[
             {
                 "reader":{
-                    "name": "mysqlreader",
+                    "name": "postgresreader",
                     "parameter": {
-                        "username": "root",
+                        "username": "postgres",
                         "password": "123456",
                         "column": ["*"],
                         "connection":  {
-                                "url": "tcp(0.0.0.0:3306)/mysql?parseTime=false",
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                                 "table": {
-                                    "db":"source",
+                                    "db":"postgres",
+                                    "schema":"source",
                                     "name":"type_table"
                                 }
                             },
@@ -41,18 +42,19 @@
                     }
                 },
                 "writer":{
-                    "name": "mysqlwriter",
+                    "name": "postgreswriter",
                     "parameter": {
-                        "username": "root",
+                        "username": "postgres",
                         "password": "123456",
                         "writeMode": "insert",
                         "column": ["*"],
                         "session": [],
                         "preSql": [],
                         "connection":  {
-                                "url": "tcp(0.0.0.0:3306)/mysql?parseTime=false",
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                                 "table": {
-                                    "db":"destination",
+                                    "db":"postgres",
+                                    "schema":"destination",
                                     "name":"type_table"
                                 }
                          },

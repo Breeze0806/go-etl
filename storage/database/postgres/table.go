@@ -72,10 +72,10 @@ func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 //Agrs 通过多条记录 records生成批量copy in参数
 func (ci *CopyInParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for _, r := range records {
-		for _, f := range ci.Table().Fields() {
+		for fi, f := range ci.Table().Fields() {
 			var c element.Column
-			if c, err = r.GetByName(f.Name()); err != nil {
-				return nil, fmt.Errorf("GetByName(%v) err: %v", f.Name(), err)
+			if c, err = r.GetByIndex(fi); err != nil {
+				return nil, fmt.Errorf("GetByIndex(%v) err: %v", fi, err)
 			}
 			var v driver.Value
 			if v, err = f.Valuer(c).Value(); err != nil {

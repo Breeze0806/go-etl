@@ -5,7 +5,6 @@
         "password": "",
         "writeMode": "",
         "column": [],
-        "session": [],
         "preSql": [],
         "connection": {
                 "url": "",

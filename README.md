@@ -10,7 +10,59 @@ go-etl将提供的etl能力如下：
 3. 数据库间的数据校验能力，这个计划在libra包中实现
 4. 以mysql sql语法为基础的数据筛选、转化能力，这个计划在transform包中实现（计划中）
 
+## datax
+
+### 安装
+
+#### linux
+
+```bash
+export GO111MODULE=on
+cd cmd/datax
+go build
+```
+
+#### windows
+
+```bash
+set GO111MODULE=on
+cd cmd/datax
+go build
+```
+
+### 使用方式
+
+#### 试用mysql同步
+
+- 可以使用cmd/datax/mysql/init.sql初始化数据库
+- 开启同步mysql命令
+
+```
+datax -c mysql/config.json
+```
+
+#### 试用postgres同步
+
+- 可以使用cmd/datax/postgres/init.sql初始化数据库
+- 开启同步postgres命令
+
+```
+datax -c postgres/config.json
+```
+
+#### 其他
+
+你也可以编写任意支持数据源之间的同步
+
+### Support Data Channels
+
+| 类型         | 数据源   | Reader（读） | Writer(写) | 文档                                                         |
+| ------------ | -------- | ------------ | ---------- | ------------------------------------------------------------ |
+| 关系型数据库 | MySQL    | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
+|              | Postgres | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+
 ## plan
+
 ### datax
 
 - [x] 实现datax的同步框架，不包含监控以及流控模块

@@ -1,16 +1,17 @@
 {
-    "name": "mysqlreader",
+    "name": "postgresreader",
     "parameter": {
-        "username": "",
-        "password": "",
-        "column": [],
+        "username": "postgres",
+        "password": "123456",
+        "column": ["*"],
         "connection":  {
-                "url": "",
+                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                 "table": {
-                    "db":"",
-                    "name":""
+                    "db":"postgres",
+                    "schema":"source",
+                    "name":"type_table"
                 }
-        },
+            },
         "where": ""
     }
 }

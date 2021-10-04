@@ -250,7 +250,7 @@ func TestFieldType_GoType(t *testing.T) {
 		},
 		{
 			name: "9",
-			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_char])),
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar])),
 			want: database.GoTypeString,
 		},
 		{
@@ -485,7 +485,7 @@ func TestScanner_Scan(t *testing.T) {
 		{
 			name: "15",
 			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_char]))))),
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar]))))),
 			args: args{
 				src: 123,
 			},

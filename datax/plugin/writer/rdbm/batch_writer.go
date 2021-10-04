@@ -161,10 +161,12 @@ func StartWrite(ctx context.Context, writer BatchWriter,
 		//当写入数据未达到单次批量数，超时也写入
 		case <-ticker.C:
 			opts.Records = records
-			if err = writer.BatchWrite(ctx); err != nil {
-				log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec error: %v",
-					writer.JobID(), writer.TaskGroupID(), writer.TaskID(), err)
-				goto End
+			if len(opts.Records) > 0 {
+				if err = writer.BatchWrite(ctx); err != nil {
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite error: %v",
+						writer.JobID(), writer.TaskGroupID(), writer.TaskID(), err)
+					goto End
+				}
 			}
 			opts.Records = nil
 			records = nil

@@ -1,16 +1,20 @@
 {
-    "name": "mysqlreader",
+    "name": "postgreswriter",
     "parameter": {
-        "username": "",
-        "password": "",
-        "column": [],
+        "username": "postgres",
+        "password": "123456",
+        "writeMode": "insert",
+        "column": ["*"],
+        "preSql": [],
         "connection":  {
-                "url": "",
+                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                 "table": {
-                    "db":"",
-                    "name":""
+                    "db":"postgres",
+                    "schema":"destination",
+                    "name":"type_table"
                 }
-        },
-        "where": ""
+         },
+        "batchTimeout": "1s",
+        "batchSize":1000
     }
 }
