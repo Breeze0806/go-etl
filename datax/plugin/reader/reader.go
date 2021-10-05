@@ -1,4 +1,4 @@
-package rdbm
+package reader
 
 import (
 	"errors"

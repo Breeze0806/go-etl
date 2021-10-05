@@ -2,7 +2,8 @@ package postgres
 
 import (
 	"github.com/Breeze0806/go-etl/config"
-	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer"
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
 
@@ -14,8 +15,8 @@ var _pluginConfig string
 
 func init() {
 	var err error
-	_pluginConfig, err = rdbm.RegisterWriter(
-		func(path string) (rdbm.Writer, error) {
+	_pluginConfig, err = writer.RegisterWriter(
+		func(path string) (writer.Writer, error) {
 			return NewWriter(path)
 		})
 	if err != nil {
@@ -44,7 +45,7 @@ func (w *Writer) ResourcesConfig() *config.JSON {
 }
 
 //Job 工作
-func (w *Writer) Job() writer.Job {
+func (w *Writer) Job() spiwriter.Job {
 	job := &Job{
 		Job: rdbm.NewJob(rdbm.NewBaseDbHandler(
 			func(name string, conf *config.JSON) (e rdbm.Execer, err error) {
@@ -59,7 +60,7 @@ func (w *Writer) Job() writer.Job {
 }
 
 //Task 任务
-func (w *Writer) Task() writer.Task {
+func (w *Writer) Task() spiwriter.Task {
 	task := &Task{
 		Task: rdbm.NewTask(rdbm.NewBaseDbHandler(
 			func(name string, conf *config.JSON) (e rdbm.Execer, err error) {

@@ -14,7 +14,7 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
 
 - `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
 
-##### 或者
+**或者**
 
 - `replace into...`(没有遇到主键/唯一性索引冲突时，与 insert into 行为一致，冲突时会用新行替换原有行所有字段) 的语句写入数据到 Mysql。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
 
@@ -93,8 +93,8 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
 #### writeMode
 
 - 描述：写入模式，insert代表insert into方式写入数据，replace代表replace into方式写入数据。
-- 必选：是
-- 默认值: 空，代表使用insert方式写入
+- 必选：否
+- 默认值: insert
 
 #### column
 

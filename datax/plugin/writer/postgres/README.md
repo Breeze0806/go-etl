@@ -115,20 +115,20 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
 #### writeMode
 
 - 描述：写入模式，insert代表insert into方式写入数据，copyIn代表copy in方式写入数据。
-- 必选：是
-- 默认值: 空，代表使用insert方式写入
+- 必选：否
+- 默认值: insert
 
 #### batchTimeout
 
 - 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：是
-- 默认值: 无
+- 必选：否
+- 默认值: 1s
 
 #### batchSize
 
 - 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：是
-- 默认值: 无
+- 必选：否
+- 默认值: 1000
 
 #### preSql
 

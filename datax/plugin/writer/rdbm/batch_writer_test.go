@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer"
 )
 
 func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
 	return NewBaseBatchWriter(&Task{
-		BaseTask: writer.NewBaseTask(),
+		BaseTask: spiwriter.NewBaseTask(),
 		Execer:   execer,
 		Config:   &BaseConfig{},
 	}, mode, nil)
@@ -22,7 +23,7 @@ func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
 func TestStartWrite(t *testing.T) {
 	type args struct {
 		ctx      context.Context
-		writer   BatchWriter
+		writer   writer.BatchWriter
 		receiver plugin.RecordReceiver
 	}
 	tests := []struct {

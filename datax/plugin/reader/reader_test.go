@@ -1,4 +1,4 @@
-package rdbm
+package reader
 
 import (
 	"context"
@@ -84,7 +84,7 @@ func TestRegisterReader(t *testing.T) {
 					return newMockReader(path)
 				},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\rdbm\\resources\\plugin.json",
+			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\resources\\plugin.json",
 		},
 		{
 			name: "2",

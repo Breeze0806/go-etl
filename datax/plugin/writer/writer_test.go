@@ -1,4 +1,4 @@
-package rdbm
+package writer
 
 import (
 	"context"
@@ -85,7 +85,7 @@ func TestRegisterWriter(t *testing.T) {
 					return newMockWriter(path)
 				},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\rdbm\\resources\\plugin.json",
+			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\resources\\plugin.json",
 		},
 		{
 			name: "2",
