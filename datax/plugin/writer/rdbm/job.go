@@ -72,6 +72,9 @@ func (j *Job) Destroy(ctx context.Context) (err error) {
 }
 
 //Split 切分任务
-func (j *Job) Split(ctx context.Context, number int) ([]*config.JSON, error) {
-	return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
+func (j *Job) Split(ctx context.Context, number int) (confs []*config.JSON, err error) {
+	for i := 0; i < number; i++ {
+		confs = append(confs, j.PluginJobConf().CloneConfig())
+	}
+	return confs, nil
 }

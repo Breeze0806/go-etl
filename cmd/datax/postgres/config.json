@@ -48,7 +48,6 @@
                         "password": "123456",
                         "writeMode": "insert",
                         "column": ["*"],
-                        "session": [],
                         "preSql": [],
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",

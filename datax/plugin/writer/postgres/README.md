@@ -14,7 +14,7 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
 
 - `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
 
-##### 或者
+**或者**
 
 - copy in ... 与 insert into 行为一致，速度比insert into方式迅速。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
 
@@ -49,7 +49,7 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
                         "batchTimeout": "1s",
                         "batchSize":1000
                     }
-                
+               }
             }
         ]
     }
