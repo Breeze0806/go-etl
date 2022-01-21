@@ -39,8 +39,15 @@ type BytesColumnValue struct {
 	val []byte //字节流值
 }
 
-//NewBytesColumnValue 从字节流v 生成字节流列值
+//NewBytesColumnValue 从字节流v 生成字节流列值,做拷贝
 func NewBytesColumnValue(v []byte) ColumnValue {
+	new := make([]byte, len(v))
+	copy(new, v)
+	return NewBytesColumnValueNoCopy(new)
+}
+
+//NewBytesColumnValueNoCopy 从字节流v 生成字节流列,不做拷贝
+func NewBytesColumnValueNoCopy(v []byte) ColumnValue {
 	return NewBytesColumnValueWithEncoder(v, NewStringTimeEncoder(time.RFC3339Nano))
 }
 

@@ -1,22 +1,16 @@
 package element
 
-import (
-	"sync"
-)
+import "sync"
 
-//RecordChan 记录通道
+//RecordChan 记录通道 修复内存溢出
 type RecordChan struct {
 	lock sync.Mutex
-	cond *sync.Cond
+	ch   chan Record
 
-	data []Record
-	buff []Record
-
-	waits  int
 	closed bool
 }
 
-const defaultRequestChanBuffer = 128
+const defaultRequestChanBuffer = 1024
 
 //NewRecordChan 创建记录通道
 func NewRecordChan() *RecordChan {
@@ -29,9 +23,8 @@ func NewRecordChanBuffer(n int) *RecordChan {
 		n = defaultRequestChanBuffer
 	}
 	var ch = &RecordChan{
-		buff: make([]Record, n),
+		ch: make(chan Record, n),
 	}
-	ch.cond = sync.NewCond(&ch.lock)
 	return ch
 }
 
@@ -40,59 +33,26 @@ func (c *RecordChan) Close() {
 	c.lock.Lock()
 	if !c.closed {
 		c.closed = true
-		c.cond.Broadcast()
+		close(c.ch)
 	}
 	c.lock.Unlock()
 }
 
 //Buffered 记录通道内的元素数量
 func (c *RecordChan) Buffered() int {
-	c.lock.Lock()
-	n := len(c.data)
-	c.lock.Unlock()
-	return n
+	return len(c.ch)
 }
 
 //PushBack 在尾部追加记录r，并且返回队列大小
 func (c *RecordChan) PushBack(r Record) int {
-	c.lock.Lock()
-	n := c.lockedPushBack(r)
-	c.lock.Unlock()
-	return n
+	c.ch <- r
+	return c.Buffered()
 }
 
 //PopFront 在头部弹出记录r，并且返回是否还有值
 func (c *RecordChan) PopFront() (Record, bool) {
-	c.lock.Lock()
-	r, ok := c.lockedPopFront()
-	c.lock.Unlock()
+	r, ok := <-c.ch
 	return r, ok
-}
-
-func (c *RecordChan) lockedPushBack(r Record) int {
-	if c.closed {
-		panic("send on closed chan")
-	}
-	if c.waits != 0 {
-		c.cond.Signal()
-	}
-	c.data = append(c.data, r)
-	return len(c.data)
-}
-
-func (c *RecordChan) lockedPopFront() (Record, bool) {
-	for len(c.data) == 0 {
-		if c.closed {
-			return nil, false
-		}
-		c.data = c.buff[:0]
-		c.waits++
-		c.cond.Wait()
-		c.waits--
-	}
-	var r = c.data[0]
-	c.data, c.data[0] = c.data[1:], nil
-	return r, true
 }
 
 //PushBackAll 通过函数fetchRecord获取多个记录，在尾部追加

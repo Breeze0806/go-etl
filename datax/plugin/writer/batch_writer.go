@@ -73,9 +73,11 @@ func StartWrite(ctx context.Context, w BatchWriter,
 		case record, ok := <-recordChan:
 			if !ok {
 				//当写入结束时，将剩余的记录写入数据库
-				if err = w.BatchWrite(ctx, records); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec(%v) error: %v",
-						w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
+				if len(records) > 0 {
+					if err = w.BatchWrite(ctx, records); err != nil {
+						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec(%v) error: %v",
+							w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
+					}
 				}
 				records = nil
 				err = rerr
