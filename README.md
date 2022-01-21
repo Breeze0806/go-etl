@@ -11,7 +11,7 @@ go-etl将提供的etl能力如下：
 4. 数据库间的数据校验能力，在libra包中实现
 5. 以mysql sql语法为基础的数据筛选、转化能力，在transform包中实现
 
-鉴于本人实在精力有限，欢迎大家来提交issue来讨论go-etl并且能提交pr，让我们一起进步!
+鉴于本人实在精力有限，欢迎大家来提交issue或者***加QQ群185188648***来讨论go-etl，让我们一起进步!
 
 ## datax
 
@@ -79,19 +79,21 @@ datax -c postgres/config.json
 
 ## storage
 
+### database
+
 目前已经实现了数据库的基础集成，已有mysql和postgresql的实现，如何实现可以查看godoc文档，利用它能非常方便地实现datax数据库间的同步，，欢迎大家来提交新的数据同步方式，可以在下面选择新的数据库来同步
 
-### plan
+#### plan
 
 - [ ] 实现db2数据库的dialect 
 - [ ] 实现sql server数据库的dialect
 - [ ] 实现oracle数据库的dialect
 
-## stream
+### stream
 
 主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等
 
-### plan
+#### plan
 
 - [ ] 实现stream的数据传输框架
 - [ ] 单元测试stream的数据传输框架
