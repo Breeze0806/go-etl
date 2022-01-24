@@ -46,7 +46,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 		ctx:          ctx,
 		attemptCount: atomic.NewInt32(int32(attemptCount)),
 	}
-	t.channel, err = channel.NewChannel()
+	t.channel, err = channel.NewChannel(ctx)
 	if err != nil {
 		return nil, err
 	}

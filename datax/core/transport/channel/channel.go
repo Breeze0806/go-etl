@@ -1,6 +1,10 @@
 package channel
 
-import "github.com/Breeze0806/go-etl/element"
+import (
+	"context"
+
+	"github.com/Breeze0806/go-etl/element"
+)
 
 //Channel 通道
 type Channel struct {
@@ -8,9 +12,9 @@ type Channel struct {
 }
 
 //NewChannel 创建通道
-func NewChannel() (*Channel, error) {
+func NewChannel(ctx context.Context) (*Channel, error) {
 	return &Channel{
-		records: element.NewRecordChan(),
+		records: element.NewRecordChan(ctx),
 	}, nil
 }
 

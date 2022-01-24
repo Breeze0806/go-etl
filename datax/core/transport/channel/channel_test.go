@@ -1,6 +1,7 @@
 package channel
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func TestChannel_PushPop(t *testing.T) {
-	ch, _ := NewChannel()
+	ch, _ := NewChannel(context.TODO())
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())
@@ -26,7 +27,7 @@ func TestChannel_PushPop(t *testing.T) {
 }
 
 func TestChannel_PushAllPopAll(t *testing.T) {
-	ch, _ := NewChannel()
+	ch, _ := NewChannel(context.TODO())
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())

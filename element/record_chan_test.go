@@ -1,6 +1,7 @@
 package element
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -42,7 +43,7 @@ func (m *mockRecord) String() string {
 }
 
 func TestRecordChan_MutilPushBackPopFront(t *testing.T) {
-	c := NewRecordChan()
+	c := NewRecordChan(context.TODO())
 	defer c.Close()
 	var wg sync.WaitGroup
 
@@ -98,7 +99,7 @@ func TestRecordChan_MutilPushBackPopFront(t *testing.T) {
 }
 
 func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
-	c := NewRecordChan()
+	c := NewRecordChan(context.TODO())
 	defer c.Close()
 	var wg sync.WaitGroup
 
@@ -174,7 +175,7 @@ func TestRecordChan_MutilPushBackAllPopFrontAll(t *testing.T) {
 }
 
 func TestRecordChan_Close(t *testing.T) {
-	c := NewRecordChan()
+	c := NewRecordChan(context.TODO())
 	var wg sync.WaitGroup
 	wg.Add(1)
 	ok := true
@@ -212,7 +213,7 @@ func TestRecordChan_Close(t *testing.T) {
 }
 
 func TestRecordChan_Order(t *testing.T) {
-	c := NewRecordChan()
+	c := NewRecordChan(context.TODO())
 	defer c.Close()
 	var wg sync.WaitGroup
 

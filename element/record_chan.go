@@ -1,29 +1,33 @@
 package element
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 //RecordChan 记录通道 修复内存溢出
 type RecordChan struct {
-	lock sync.Mutex
-	ch   chan Record
-
+	lock   sync.Mutex
+	ch     chan Record
+	ctx    context.Context
 	closed bool
 }
 
 const defaultRequestChanBuffer = 1024
 
 //NewRecordChan 创建记录通道
-func NewRecordChan() *RecordChan {
-	return NewRecordChanBuffer(0)
+func NewRecordChan(ctx context.Context) *RecordChan {
+	return NewRecordChanBuffer(ctx, 0)
 }
 
 //NewRecordChanBuffer 创建容量n的记录通道
-func NewRecordChanBuffer(n int) *RecordChan {
+func NewRecordChanBuffer(ctx context.Context, n int) *RecordChan {
 	if n <= 0 {
 		n = defaultRequestChanBuffer
 	}
 	var ch = &RecordChan{
-		ch: make(chan Record, n),
+		ctx: ctx,
+		ch:  make(chan Record, n),
 	}
 	return ch
 }
@@ -45,13 +49,20 @@ func (c *RecordChan) Buffered() int {
 
 //PushBack 在尾部追加记录r，并且返回队列大小
 func (c *RecordChan) PushBack(r Record) int {
-	c.ch <- r
+	select {
+	case c.ch <- r:
+	case <-c.ctx.Done():
+	}
 	return c.Buffered()
 }
 
 //PopFront 在头部弹出记录r，并且返回是否还有值
-func (c *RecordChan) PopFront() (Record, bool) {
-	r, ok := <-c.ch
+func (c *RecordChan) PopFront() (r Record, ok bool) {
+	select {
+	case r, ok = <-c.ch:
+	case <-c.ctx.Done():
+		r, ok = nil, false
+	}
 	return r, ok
 }
 

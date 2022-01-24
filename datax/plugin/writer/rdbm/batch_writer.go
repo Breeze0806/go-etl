@@ -18,14 +18,14 @@ const (
 )
 
 type BaseBatchWriter struct {
-	task     *Task
+	Task     *Task
 	execMode string
 	opts     *database.ParameterOptions
 }
 
 func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseBatchWriter {
 	w := &BaseBatchWriter{
-		task:     task,
+		Task:     task,
 		execMode: execMode,
 	}
 	w.opts = &database.ParameterOptions{
@@ -37,23 +37,23 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 }
 
 func (b *BaseBatchWriter) JobID() int64 {
-	return b.task.JobID()
+	return b.Task.JobID()
 }
 
 func (b *BaseBatchWriter) TaskGroupID() int64 {
-	return b.task.TaskGroupID()
+	return b.Task.TaskGroupID()
 }
 
 func (b *BaseBatchWriter) TaskID() int64 {
-	return b.task.TaskID()
+	return b.Task.TaskID()
 }
 
 func (b *BaseBatchWriter) BatchSize() int {
-	return b.task.Config.GetBatchSize()
+	return b.Task.Config.GetBatchSize()
 }
 
 func (b *BaseBatchWriter) BatchTimeout() time.Duration {
-	return b.task.Config.GetBatchTimeout()
+	return b.Task.Config.GetBatchTimeout()
 }
 
 func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) error {
@@ -63,11 +63,11 @@ func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Reco
 	}()
 	switch b.execMode {
 	case ExecModeTx:
-		return b.task.Execer.BatchExecWithTx(ctx, b.opts)
+		return b.Task.Execer.BatchExecWithTx(ctx, b.opts)
 	case ExecModeStmt:
-		return b.task.Execer.BatchExecStmtWithTx(ctx, b.opts)
+		return b.Task.Execer.BatchExecStmtWithTx(ctx, b.opts)
 	}
-	return b.task.Execer.BatchExec(ctx, b.opts)
+	return b.Task.Execer.BatchExec(ctx, b.opts)
 }
 
 //StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库

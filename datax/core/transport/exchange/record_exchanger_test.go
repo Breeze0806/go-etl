@@ -1,6 +1,7 @@
 package exchange
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -44,7 +45,7 @@ func (m *mockRecord) String() string {
 	return ""
 }
 func TestRecordExchanger(t *testing.T) {
-	ch, _ := channel.NewChannel()
+	ch, _ := channel.NewChannel(context.TODO())
 	defer ch.Close()
 	re := NewRecordExchangerWithoutTransformer(ch)
 	defer re.Shutdown()
