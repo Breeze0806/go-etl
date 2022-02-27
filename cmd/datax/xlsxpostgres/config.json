@@ -1,0 +1,80 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "xlsxreader",
+                    "parameter": {
+                        "xlsxs":[
+                            {
+                                "path":"d:\\a.xlsx",
+                                "content":[
+                                    {
+                                        "sheet":"Sheet1",
+                                        "column" :[
+                                            {
+                                                "index":"A",
+                                                "type":"time",
+                                                "format":"yyyy-MM-dd"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "writer":{
+                    "name": "postgreswriter",
+                    "parameter": {
+                        "username": "postgres",
+                        "password": "123456",
+                        "writeMode": "copyIn",
+                        "column": ["*"],
+                        "preSql": [],
+                        "connection":  {
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
+                                "table": {
+                                    "db":"postgres",
+                                    "schema":"public",
+                                    "name":"cvs"
+                                }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}
