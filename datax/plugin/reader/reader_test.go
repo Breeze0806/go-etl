@@ -2,7 +2,7 @@ package reader
 
 import (
 	"context"
-	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -67,9 +67,37 @@ func (r *mockReader) Task() reader.Task {
 	return &mockTask{}
 }
 
+type mockReaderMaker1 struct {
+	err error
+}
+
+func (m *mockReaderMaker1) FromFile(path string) (Reader, error) {
+	return newMockReader(path)
+}
+
+func (m *mockReaderMaker1) Default() (Reader, error) {
+	return nil, nil
+}
+
+type mockReaderMaker2 struct {
+	path string
+	err  error
+}
+
+func (m *mockReaderMaker2) FromFile(path string) (Reader, error) {
+	m.path = path
+	return nil, os.ErrNotExist
+}
+
+func (m *mockReaderMaker2) Default() (Reader, error) {
+	r, err := newMockReader(m.path)
+	r.pluginConf.Set("name", "reader2")
+	return r, err
+}
+
 func TestRegisterReader(t *testing.T) {
 	type args struct {
-		new func(string) (Reader, error)
+		maker ReaderMaker
 	}
 	tests := []struct {
 		name    string
@@ -80,25 +108,22 @@ func TestRegisterReader(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				new: func(path string) (Reader, error) {
-					return newMockReader(path)
-				},
+				maker: &mockReaderMaker1{},
 			},
 			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\resources\\plugin.json",
 		},
+
 		{
 			name: "2",
 			args: args{
-				new: func(path string) (Reader, error) {
-					return nil, errors.New("mock error")
-				},
+				maker: &mockReaderMaker2{},
 			},
-			wantErr: true,
+			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\resources\\plugin.json",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := RegisterReader(tt.args.new)
+			got, err := RegisterReader(tt.args.maker)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RegisterReader() error = %v, wantErr %v", err, tt.wantErr)
 				return

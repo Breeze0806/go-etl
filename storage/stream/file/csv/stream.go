@@ -2,6 +2,7 @@ package csv
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -106,7 +107,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		layout := c.layout()
 		t, err := time.Parse(layout, s)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("layout: %v error: %v", layout, err)
 		}
 		return element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(t,
 			element.NewStringTimeDecoder(layout)),

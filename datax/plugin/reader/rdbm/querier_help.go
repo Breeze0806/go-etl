@@ -152,12 +152,13 @@ func (m *MockQuerier) Close() error {
 }
 
 //TestJSONFromFile 从文件获取JSON配置
-func TestJSONFromFile(filename string) *config.JSON {
-	conf, err := config.NewJSONFromFile(filename)
-	if err != nil {
-		panic(err)
-	}
-	return conf
+func TestJSON() *config.JSON {
+	return TestJSONFromString(`{
+		"name" : "rdbmreader",
+		"developer":"Breeze0806",
+		"dialect":"rdbm",
+		"description":"rdbm is base package for relational database"
+	}`)
 }
 
 //TestJSONFromString 从字符串获取JSON配置

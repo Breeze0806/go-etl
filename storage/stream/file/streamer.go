@@ -14,6 +14,28 @@ type FetchHandler interface {
 	CreateRecord() (element.Record, error)
 }
 
+type Opener interface {
+	Open(filename string) (stream Stream, err error)
+}
+
+type Stream interface {
+	Rows(conf *config.JSON) (rows Rows, err error)
+	Close() (err error)
+}
+
+type Rows interface {
+	Next() bool
+	Scan() (columns []element.Column, err error)
+	Error() error
+	Close() error
+}
+
+func RegisterOpener(name string, opener Opener) {
+	if err := openers.register(name, opener); err != nil {
+		panic(err)
+	}
+}
+
 type Streamer struct {
 	stream Stream
 }
@@ -69,22 +91,16 @@ func (s *Streamer) Close() error {
 	return s.stream.Close()
 }
 
-func RegisterOpener(name string, opener Opener) {
-	if err := openers.register(name, opener); err != nil {
-		panic(err)
-	}
-}
-
-var openers = &OpenerMap{
+var openers = &openerMap{
 	openers: make(map[string]Opener),
 }
 
-type OpenerMap struct {
+type openerMap struct {
 	sync.RWMutex
 	openers map[string]Opener
 }
 
-func (o *OpenerMap) register(name string, opener Opener) error {
+func (o *openerMap) register(name string, opener Opener) error {
 	if opener == nil {
 		return fmt.Errorf("opener %v is nil", name)
 	}
@@ -99,31 +115,15 @@ func (o *OpenerMap) register(name string, opener Opener) error {
 	return nil
 }
 
-func (o *OpenerMap) opener(name string) (opener Opener, ok bool) {
+func (o *openerMap) opener(name string) (opener Opener, ok bool) {
 	o.RLock()
 	defer o.RUnlock()
 	opener, ok = o.openers[name]
 	return
 }
 
-func (o *OpenerMap) unregisterAll() {
+func (o *openerMap) unregisterAll() {
 	o.Lock()
 	defer o.Unlock()
 	o.openers = make(map[string]Opener)
-}
-
-type Opener interface {
-	Open(filename string) (stream Stream, err error)
-}
-
-type Stream interface {
-	Rows(conf *config.JSON) (rows Rows, err error)
-	Close() (err error)
-}
-
-type Rows interface {
-	Next() bool
-	Scan() (columns []element.Column, err error)
-	Error() error
-	Close() error
 }

@@ -1,6 +1,0 @@
-{
-    "name" : "rdbmwriter",
-    "developer":"Breeze0806",
-    "dialect":"rdbm",
-    "description":"rdbm is base package for relational database"
-}

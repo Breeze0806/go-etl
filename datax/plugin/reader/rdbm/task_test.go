@@ -3,7 +3,6 @@ package rdbm
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -30,7 +29,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf:    TestJSON(),
 			jobConf: TestJSONFromString(`{}`),
 		},
 		{
@@ -53,7 +52,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: TestJSON(),
 			jobConf: TestJSONFromString(`{
 				"username": 1		
 			}`),
@@ -67,7 +66,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf:    TestJSON(),
 			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
@@ -81,7 +80,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf:    TestJSON(),
 			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},
@@ -95,7 +94,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf:    TestJSON(),
 			jobConf: TestJSONFromString(`{}`),
 			wantErr: true,
 		},

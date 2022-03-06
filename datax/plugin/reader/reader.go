@@ -2,6 +2,7 @@ package reader
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -17,25 +18,37 @@ type Reader interface {
 	ResourcesConfig() *config.JSON //插件资源配置
 }
 
+type ReaderMaker interface {
+	Default() (Reader, error)
+	FromFile(filename string) (Reader, error)
+}
+
 //RegisterReader 通过生成数据库读取器函数new注册到读取器，返回插件资源配置文件地址，在出错时会包err
-func RegisterReader(new func(string) (Reader, error)) (string, error) {
+func RegisterReader(maker ReaderMaker) (pluginConfig string, err error) {
 	_, file, _, ok := runtime.Caller(1)
 	if !ok {
 		return "", errors.New("fail to get filename")
 	}
 	path := filepath.Dir(file)
-	pluginConfig := filepath.Join(path, "resources", "plugin.json")
-	writer, err := new(pluginConfig)
-	if err != nil {
-		return "", err
+	pluginConfig = filepath.Join(path, "resources", "plugin.json")
+	var reader Reader
+
+	if reader, err = maker.FromFile(pluginConfig); err != nil {
+		if !os.IsNotExist(err) {
+			return "", err
+		}
+		if reader, err = maker.Default(); err != nil {
+			return "", err
+		}
 	}
-	name, err := writer.ResourcesConfig().GetString("name")
+	name := ""
+	name, err = reader.ResourcesConfig().GetString("name")
 	if err != nil {
 		return "", err
 	}
 	if name == "" {
 		return "", errors.New("name is empty")
 	}
-	loader.RegisterReader(name, writer)
+	loader.RegisterReader(name, reader)
 	return pluginConfig, nil
 }

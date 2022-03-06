@@ -3,7 +3,6 @@ package rdbm
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -35,7 +34,7 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: TestJSON(),
 			jobConf: TestJSONFromString(`{
 			}`),
 		},
@@ -59,7 +58,7 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: TestJSON(),
 			jobConf: TestJSONFromString(`{
 				"username": 1
 			}`),
@@ -73,7 +72,7 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: TestJSON(),
 			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,
@@ -88,7 +87,7 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSONFromFile(filepath.Join("resources", "plugin.json")),
+			conf: TestJSON(),
 			jobConf: TestJSONFromString(`{
 			}`),
 			wantErr: true,

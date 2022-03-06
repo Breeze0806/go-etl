@@ -25,8 +25,11 @@ type Column struct {
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
-		element.TypeDecimal, element.TypeString,
-		element.TypeTime:
+		element.TypeDecimal, element.TypeString:
+	case element.TypeTime:
+		if c.Format == "" {
+			return fmt.Errorf("type %v format %v is empty", c.Type, c.Format)
+		}
 	default:
 		return fmt.Errorf("type %v is not valid", c.Type)
 	}
@@ -51,6 +54,20 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	err = json.Unmarshal([]byte(conf.String()), c)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.Delimiter == "" {
+		c.Delimiter = ","
+	}
+
+	if len(c.Delimiter) != 1 {
+		return nil, fmt.Errorf("Delimiter is not valid")
+	}
+
+	switch c.Encoding {
+	case "", "utf-8":
+	default:
+		return nil, fmt.Errorf("encoding %v does not support", c.Encoding)
 	}
 
 	for _, v := range c.Columns {

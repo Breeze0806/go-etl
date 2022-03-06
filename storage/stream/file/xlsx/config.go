@@ -55,6 +55,10 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 		return nil, err
 	}
 
+	if c.Sheet == "" {
+		return nil, fmt.Errorf("sheet should not be empty")
+	}
+
 	for _, v := range c.Columns {
 		if err = v.validate(); err != nil {
 			return nil, err

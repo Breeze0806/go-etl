@@ -2,7 +2,7 @@ package writer
 
 import (
 	"context"
-	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -68,9 +68,37 @@ func (w *mockWriter) Task() writer.Task {
 	return &mockTask{}
 }
 
+type mockWriterMaker struct {
+	err error
+}
+
+func (m *mockWriterMaker) FromFile(path string) (Writer, error) {
+	return newMockWriter(path)
+}
+
+func (m *mockWriterMaker) Default() (Writer, error) {
+	return nil, nil
+}
+
+type mockWriterMaker2 struct {
+	path string
+	err  error
+}
+
+func (m *mockWriterMaker2) FromFile(path string) (Writer, error) {
+	m.path = path
+	return nil, os.ErrNotExist
+}
+
+func (m *mockWriterMaker2) Default() (Writer, error) {
+	r, err := newMockWriter(m.path)
+	r.pluginConf.Set("name", "reader2")
+	return r, err
+}
+
 func TestRegisterWriter(t *testing.T) {
 	type args struct {
-		new func(string) (Writer, error)
+		maker WriterMaker
 	}
 	tests := []struct {
 		name    string
@@ -81,25 +109,21 @@ func TestRegisterWriter(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				new: func(path string) (Writer, error) {
-					return newMockWriter(path)
-				},
+				maker: &mockWriterMaker{},
 			},
 			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\resources\\plugin.json",
 		},
 		{
 			name: "2",
 			args: args{
-				new: func(path string) (Writer, error) {
-					return nil, errors.New("mock error")
-				},
+				maker: &mockWriterMaker2{},
 			},
-			wantErr: true,
+			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\resources\\plugin.json",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := RegisterWriter(tt.args.new)
+			got, err := RegisterWriter(tt.args.maker)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RegisterWriter() error = %v, wantErr %v", err, tt.wantErr)
 				return
