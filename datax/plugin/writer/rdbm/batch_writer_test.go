@@ -9,7 +9,6 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer"
 )
 
 func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
@@ -23,7 +22,7 @@ func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
 func TestStartWrite(t *testing.T) {
 	type args struct {
 		ctx      context.Context
-		writer   writer.BatchWriter
+		writer   BatchWriter
 		receiver plugin.RecordReceiver
 	}
 	tests := []struct {
