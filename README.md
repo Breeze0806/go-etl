@@ -17,12 +17,13 @@ go-etl将提供的etl能力如下：
 
 目前已经基本完成数据同步框架，已有类mysql和类postgresql的数据库的同步能力
 
-### 安装
+### 安装和发布
 
 #### linux
 
 ```bash
 export GO111MODULE=on
+go generate ./...
 cd cmd/datax
 go build
 ```
@@ -31,9 +32,18 @@ go build
 
 ```bash
 set GO111MODULE=on
+go generate ./...
 cd cmd/datax
 go build
 ```
+
+### 发布命令解析
+
+```
+go generate ./...
+```
+
+本命令会将对应datax/plugin插件中的reader和writer的resources的plugin.json生产plugin.go，同时在datax/plugin目录下生成plugin.go用于导入这些插件，具体在datax/plugin/build实现。
 
 ### 使用方式
 
@@ -61,10 +71,12 @@ datax -c postgres/config.json
 
 ### Support Data Channels
 
-| 类型         | 数据源   | Reader（读） | Writer(写) | 文档                                                         |
-| ------------ | -------- | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL    | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
-|              | Postgres | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+| 类型         | 数据源        | Reader（读） | Writer(写) | 文档                                                         |
+| ------------ | ------------- | ------------ | ---------- | ------------------------------------------------------------ |
+| 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
+|              | Postgres      | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+| 无结构流     | CVS           | √            |            | [读](datax/plugin/reader/csv/README.md)                      |
+|              | Xlsx（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
 
 ### plan
 
@@ -72,6 +84,7 @@ datax -c postgres/config.json
 - [ ] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
 - [ ] 实现cvs文件reader/writer插件
+- [x] 实现xslx文件reader插件
 - [ ] 实现监控模块
 - [ ] 实现流控模块
 - [ ] 实现关系型数据库入库保证数据不丢失功能
@@ -95,7 +108,7 @@ datax -c postgres/config.json
 
 #### plan
 
-- [ ] 实现stream的数据传输框架
+- [x] 实现stream的数据传输框架
 - [ ] 单元测试stream的数据传输框架
 - [ ] 实现cvs文件字节流的数据传输框架并单元测试
 
