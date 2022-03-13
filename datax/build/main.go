@@ -119,13 +119,13 @@ func (m *maker) Default() (writer.Writer, error) {
 func main() {
 	var imports []string
 	parser := pluginParser{}
-	if err := parser.readPackages("../reader"); err != nil {
-		log.Errorf("%v", err)
+	if err := parser.readPackages("../plugin/reader"); err != nil {
+		log.Errorf("readPackages %v", err)
 		return
 	}
 	for _, info := range parser.infos {
-		if err := info.genFile("../reader", readerCode); err != nil {
-			log.Errorf("%v", err)
+		if err := info.genFile("../plugin/reader", readerCode); err != nil {
+			log.Errorf("genFile %v", err)
 			return
 		}
 		imports = append(imports, info.genImport("reader"))
@@ -133,37 +133,22 @@ func main() {
 
 	imports = append(imports, "")
 	parser.infos = nil
-	if err := parser.readPackages("../writer"); err != nil {
-		log.Errorf("%v", err)
+	if err := parser.readPackages("../plugin/writer"); err != nil {
+		log.Errorf("readPackages %v", err)
 		return
 	}
 	for _, info := range parser.infos {
-		if err := info.genFile("../writer", writerCode); err != nil {
-			log.Errorf("%v", err)
+		if err := info.genFile("../plugin/writer", writerCode); err != nil {
+			log.Errorf("genFile %v", err)
 			return
 		}
 		imports = append(imports, info.genImport("writer"))
 	}
 
-	f, err := os.Create("../plugin.go")
-	if err != nil {
-		fmt.Println(err)
+	if err := writeAllPlugins(imports); err != nil {
+		log.Errorf("writeAllPlugins fail. err: %v", err)
 		return
 	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	defer w.Flush()
-	f.WriteString(`package plugin
-
-import (
-`)
-	for _, v := range imports {
-		f.WriteString(v)
-		f.WriteString("\n")
-	}
-	f.WriteString(")\n")
-	return
 }
 
 type pluginParser struct {
@@ -210,5 +195,27 @@ func (p *pluginInfo) genFile(path string, code string) (err error) {
 		return err
 	}
 	_, err = fmt.Fprintf(f, code, p.shotPackage, p.pluginConfig)
+	return
+}
+
+func writeAllPlugins(imports []string) (err error) {
+	var f *os.File
+	f, err = os.Create("../plugin.go")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	defer w.Flush()
+	f.WriteString(`package datax
+
+import (
+`)
+	for _, v := range imports {
+		f.WriteString(v)
+		f.WriteString("\n")
+	}
+	f.WriteString(")\n")
 	return
 }

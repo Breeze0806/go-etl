@@ -17,6 +17,20 @@ go-etl将提供的etl能力如下：
 
 目前已经基本完成数据同步框架，已有类mysql和类postgresql的数据库的同步能力
 
+### 开发者文档
+
+#### 关系型数据库
+
+如果你想帮忙实现关系型数据库的数据源，根据以下方式去实现你的数据源将更加方便
+1. 先实现storage/database的接口，更多信息使用 go doc storage/database/doc.go，可以参考storage/database/mysql和storage/database/postgres的实现。
+2. 再利用datax/plugin/reader/rdbm和datax/plugin/writer/rdbm可以更加快速地实现对应功能，实现reader/writer，可以参考storage/database/mysql和storage/database/postgres的实现。
+3. 使用 go doc datax/doc.go即可获取datax以及插件开发的要点。
+
+#### 其他数据源
+
+- 如果你想实现其他数据源，使用 go doc datax/doc.go即可获取datax以及插件开发的要点。
+- 提交issue让其他人帮助你实现。
+
 ### 安装和发布
 
 #### linux
@@ -39,11 +53,12 @@ go build
 
 ### 发布命令解析
 
-```
+```bash
 go generate ./...
 ```
+本命令生成将这些reader和writer注册到程序中的代码
 
-本命令会将对应datax/plugin插件中的reader和writer的resources的plugin.json生产plugin.go，同时在datax/plugin目录下生成plugin.go用于导入这些插件，具体在datax/plugin/build实现。
+主要的原理如下会将对应datax/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在datax目录下生成plugin.go用于导入这些插件， 具体在datax//build实现。
 
 ### 使用方式
 
@@ -65,9 +80,7 @@ datax -c mysql/config.json
 datax -c postgres/config.json
 ```
 
-#### 其他
 
-你也可以编写任意支持数据源之间的同步，欢迎大家来提交新的数据同步方式，可以在下面选择新的数据库来同步
 
 ### Support Data Channels
 
@@ -77,6 +90,13 @@ datax -c postgres/config.json
 |              | Postgres      | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 | 无结构流     | CVS           | √            |            | [读](datax/plugin/reader/csv/README.md)                      |
 |              | Xlsx（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
+
+### 开发者文档
+如果你想实现
+
+使用 go doc datax/doc.go即可获取datax以及插件开发的要点
+
+
 
 ### plan
 

@@ -68,7 +68,7 @@
 //	     "description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
 //	}
 //
-// 上述接口配置目录按照以下
+// 上述接口配置目录按照以下方式在datax/plugin目录下扩展
 //
 //	plugin+--- reader--mysql---+-----resources--+--plugin.json
 //	      |                    |--job.go        |--plugin_job_template.json
@@ -81,4 +81,32 @@
 //	                           |--writer.go
 //	                           |--README.md
 //	                           |--task.go
+// reader.go必须包含以下代码：
+//
+// //Reader 读取器
+// type Reader struct {
+// 	pluginConf *config.JSON
+// }
+//
+// //ResourcesConfig 插件资源配置
+// func (r *Reader) ResourcesConfig() *config.JSON {
+// 	return r.pluginConf
+// }
+//
+// writer.go必须包含以下代码：
+//
+// //Writer 写入器
+// type Writer struct {
+// 	pluginConf *config.JSON
+// }
+//
+// //ResourcesConfig 插件资源配置
+// func (w *Writer) ResourcesConfig() *config.JSON {
+// 	return w.pluginConf
+// }
+//
+// 这些代码是datax/build的go generate命令自动将resources/plugin.json
+// 中的内容放入到新生成的代码文件中的关键，可以帮助使用对应的代码
+//
+// 注：go generate生成将这些reader和writer注册到程序中的代码
 package datax
