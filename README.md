@@ -91,12 +91,6 @@ datax -c postgres/config.json
 | 无结构流     | CVS           | √            |            | [读](datax/plugin/reader/csv/README.md)                      |
 |              | Xlsx（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
 
-### 开发者文档
-如果你想实现
-
-使用 go doc datax/doc.go即可获取datax以及插件开发的要点
-
-
 
 ### plan
 
