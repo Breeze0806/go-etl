@@ -15,10 +15,10 @@ type FetchHandler interface {
 }
 
 type Opener interface {
-	Open(filename string) (stream Stream, err error)
+	Open(filename string) (stream InStream, err error)
 }
 
-type Stream interface {
+type InStream interface {
 	Rows(conf *config.JSON) (rows Rows, err error)
 	Close() (err error)
 }
@@ -36,12 +36,12 @@ func RegisterOpener(name string, opener Opener) {
 	}
 }
 
-type Streamer struct {
-	stream Stream
+type InStreamer struct {
+	stream InStream
 }
 
-func NewStreamer(name string, filename string) (streamer *Streamer, err error) {
-	streamer = &Streamer{}
+func NewInStreamer(name string, filename string) (streamer *InStreamer, err error) {
+	streamer = &InStreamer{}
 	opener, ok := openers.opener(name)
 	if !ok {
 		err = fmt.Errorf("opener %v does not exist", name)
@@ -53,7 +53,7 @@ func NewStreamer(name string, filename string) (streamer *Streamer, err error) {
 	return
 }
 
-func (s *Streamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
+func (s *InStreamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
 	var rows Rows
 	rows, err = s.stream.Rows(conf)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *Streamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
 	return
 }
 
-func (s *Streamer) Close() error {
+func (s *InStreamer) Close() error {
 	return s.stream.Close()
 }
 

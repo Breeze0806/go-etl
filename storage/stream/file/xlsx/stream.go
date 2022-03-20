@@ -18,15 +18,15 @@ func init() {
 type Opener struct {
 }
 
-func (o *Opener) Open(filename string) (file.Stream, error) {
-	return NewStream(filename)
+func (o *Opener) Open(filename string) (file.InStream, error) {
+	return NewInStream(filename)
 }
 
 type Stream struct {
 	file *excelize.File
 }
 
-func NewStream(filename string) (file.Stream, error) {
+func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
 	stream.file, err = excelize.OpenFile(filename)

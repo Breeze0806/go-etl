@@ -25,31 +25,11 @@
         "content":[
             {
                 "reader":{
-                    "name": "xlsxreader",
-                    "parameter": {
-                        "column" :[
-                            {
-                                "index":"A",
-                                "type":"time",
-                                "format":"yyyy-MM-dd"
-                            }
-                        ],
-                        "xlsxs":[
-                            {
-                                "path":"d:\\a.xlsx",
-                                "sheets":["Sheet1"]
-                            }
-                        ]
-                    }
-                },
-                "writer":{
-                    "name": "postgreswriter",
+                    "name": "postgresreader",
                     "parameter": {
                         "username": "postgres",
                         "password": "123456",
-                        "writeMode": "copyIn",
                         "column": ["*"],
-                        "preSql": [],
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                                 "table": {
@@ -57,7 +37,23 @@
                                     "schema":"public",
                                     "name":"cvs"
                                 }
-                         },
+                            },
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "csvwriter",
+                    "parameter": {
+                        "path":["d:\\b.txt"],
+                        "column":[
+                            {
+                                "index":"1",
+                                "type":"time",
+                                "format":"yyyy-MM-dd"
+                            }
+                        ],
+                        "encoding":"utf-8",
+                        "delimiter":",",
                         "batchTimeout": "1s",
                         "batchSize":1000
                     }

@@ -16,20 +16,29 @@ import (
 func init() {
 	var opener Opener
 	file.RegisterOpener("csv", &opener)
+	var creater Creater
+	file.RegisterCreater("csv", &creater)
 }
 
 type Opener struct {
 }
 
-func (o *Opener) Open(filename string) (file.Stream, error) {
-	return NewStream(filename)
+func (o *Opener) Open(filename string) (file.InStream, error) {
+	return NewInStream(filename)
+}
+
+type Creater struct {
+}
+
+func (c *Creater) Create(filename string) (file.OutStream, error) {
+	return NewOutStream(filename)
 }
 
 type Stream struct {
 	file *os.File
 }
 
-func NewStream(filename string) (file.Stream, error) {
+func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
 	stream.file, err = os.Open(filename)
@@ -37,6 +46,20 @@ func NewStream(filename string) (file.Stream, error) {
 		return nil, err
 	}
 	return stream, nil
+}
+
+func NewOutStream(filename string) (file.OutStream, error) {
+	stream := &Stream{}
+	var err error
+	stream.file, err = os.Create(filename)
+	if err != nil {
+		return nil, err
+	}
+	return stream, nil
+}
+
+func (s *Stream) Writer(conf *config.JSON) (file.StreamWriter, error) {
+	return NewWriter(s.file, conf)
 }
 
 func (s *Stream) Rows(conf *config.JSON) (rows file.Rows, err error) {
@@ -68,7 +91,7 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 	for _, v := range conf.Columns {
 		rows.columns[v.index()] = v
 	}
-	return rows, err
+	return rows, nil
 }
 
 func (r *Rows) Next() bool {
@@ -114,4 +137,65 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 			strconv.Itoa(index), 0), nil
 	}
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
+}
+
+type Writer struct {
+	writer  *csv.Writer
+	columns map[int]Column
+}
+
+func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
+	var conf *Config
+	var err error
+	if conf, err = NewConfig(c); err != nil {
+		return nil, err
+	}
+	w := &Writer{
+		writer:  csv.NewWriter(f),
+		columns: make(map[int]Column),
+	}
+	w.writer.Comma = []rune(conf.Delimiter)[0]
+	for _, v := range conf.Columns {
+		w.columns[v.index()] = v
+	}
+	return w, nil
+}
+
+func (w *Writer) Flush() (err error) {
+	w.writer.Flush()
+	return
+}
+
+func (w *Writer) Close() (err error) {
+	w.writer.Flush()
+	return
+}
+
+func (w *Writer) Write(record element.Record) (err error) {
+	var records []string
+	for i := 0; i < record.ColumnNumber(); i++ {
+		var col element.Column
+		if col, err = record.GetByIndex(i); err != nil {
+			return
+		}
+		var s string
+		if s, err = w.getRecord(col, i); err != nil {
+			return
+		}
+		records = append(records, s)
+	}
+	return w.writer.Write(records)
+}
+
+func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
+	if c, ok := w.columns[i]; ok && element.ColumnType(c.Type) == element.TypeTime {
+		var t time.Time
+		if t, err = col.AsTime(); err != nil {
+			return
+		}
+		s = t.Format(c.layout())
+		return
+	}
+	s = col.String()
+	return
 }

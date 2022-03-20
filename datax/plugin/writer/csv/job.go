@@ -1,19 +1,15 @@
-package xlsx
+package csv
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
-	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
 type Job struct {
 	*file.Job
-
-	conf *Config
+	conf *JobConfig
 }
 
 func NewJob() *Job {
@@ -23,26 +19,23 @@ func NewJob() *Job {
 }
 
 func (j *Job) Init(ctx context.Context) (err error) {
-	j.conf, err = NewConfig(j.PluginJobConf())
+	j.conf, err = NewJobConfig(j.PluginJobConf())
 	return
 }
 
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
-	for _, x := range j.conf.Xlsxs {
+	for _, v := range j.conf.Path {
 		conf, _ := config.NewJSONFromString("{}")
-		if err = conf.Set("path", x.Path); err != nil {
+		if err = conf.Set("path", v); err != nil {
 			return
 		}
-		for i, v := range x.Sheets {
-			xlsxConfig := xlsx.Config{
-				Sheet:   v,
-				Columns: j.conf.Columns,
-			}
-			if err = conf.Set("content."+strconv.Itoa(i), xlsxConfig); err != nil {
-				return
-			}
+		if err = conf.Set("content", j.conf.CsvConfig); err != nil {
+			return
 		}
-		fmt.Println(conf.String())
+		if err = conf.Set("content.batchTimeout", j.conf.GetBatchTimeout().String()); err != nil {
+			return
+		}
+
 		configs = append(configs, conf)
 	}
 	return

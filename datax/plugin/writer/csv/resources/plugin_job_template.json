@@ -1,0 +1,17 @@
+{
+    "name": "csvwriter",
+    "parameter": {
+        "path":["",""],
+        "column":[
+            {
+                "index":"1",
+                "type":"time",
+                "format":"yyyy-MM-dd"
+            }
+        ],
+        "encoding":"utf-8",
+        "delimiter":",",
+        "batchSize":1000,
+        "batchTimeout":"1s"
+    }
+}

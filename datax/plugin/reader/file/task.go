@@ -12,7 +12,7 @@ import (
 type Task struct {
 	*plugin.BaseTask
 
-	streamer *file.Streamer
+	streamer *file.InStreamer
 }
 
 func NewTask() *Task {
@@ -31,7 +31,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return
 	}
 
-	if t.streamer, err = file.NewStreamer(name, filename); err != nil {
+	if t.streamer, err = file.NewInStreamer(name, filename); err != nil {
 		return
 	}
 	return

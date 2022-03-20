@@ -308,7 +308,7 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	if err != nil {
 		return
 	}
-	log.Infof("DataX jobContainer %v  tansformer config is %v", c.jobID, transformConfs)
+	log.Infof("DataX jobContainer %v tansformer config is %v", c.jobID, transformConfs)
 	for i := range readerConfs {
 		var taskConfig *config.JSON
 		taskConfig, _ = config.NewJSONFromString("{}")

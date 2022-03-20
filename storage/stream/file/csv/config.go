@@ -17,9 +17,10 @@ type Config struct {
 }
 
 type Column struct {
-	Index  string `json:"index"`
-	Type   string `json:"type"`
-	Format string `json:"format"`
+	Index    string `json:"index"`
+	Type     string `json:"type"`
+	Format   string `json:"format"`
+	goLayout string
 }
 
 func (c *Column) validate() (err error) {
@@ -46,7 +47,11 @@ func (c *Column) index() (i int) {
 }
 
 func (c *Column) layout() string {
-	return jodaTime.GetLayout(c.Format)
+	if c.goLayout != "" {
+		return c.goLayout
+	}
+	c.goLayout = jodaTime.GetLayout(c.Format)
+	return c.goLayout
 }
 
 func NewConfig(conf *config.JSON) (c *Config, err error) {

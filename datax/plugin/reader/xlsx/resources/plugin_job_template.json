@@ -1,21 +1,18 @@
 {
-    "name": "xlsxreader",
+    "name": "cvsreader",
+    
     "parameter": {
+        "column" :[
+            {
+                "index":"A",
+                "type":"time",
+                "format":"yyyy-MM-dd"
+            }
+        ],
         "xlsxs":[
             {
                 "path":"",
-                "content":[
-                    {
-                        "sheet":"",
-                        "column" :[
-                            {
-                                "index":"A",
-                                "type":"time",
-                                "format":"yyyy-MM-dd"
-                            }
-                        ]
-                    }
-                ]
+                "sheets":["",""]   
             }
         ]
     }

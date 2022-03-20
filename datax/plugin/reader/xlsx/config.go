@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-	Xlsxs []Xlsx `json:"xlsxs"`
+	Columns []xlsx.Column `json:"column"`
+	Xlsxs   []Xlsx        `json:"xlsxs"`
 }
 
 type Xlsx struct {
-	Path   string        `json:"path"`
-	Sheets []xlsx.Config `json:"content"`
+	Path   string   `json:"path"`
+	Sheets []string `json:"sheets"`
 }
 
 func NewConfig(conf *config.JSON) (c *Config, err error) {

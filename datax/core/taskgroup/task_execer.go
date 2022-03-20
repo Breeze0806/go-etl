@@ -29,10 +29,10 @@ type taskExecer struct {
 	taskCommunication communication.Communication
 	destroy           sync.Once
 	key               string
-
-	cancalMutex  sync.Mutex         //由于取消函数会被多线程调用,需要加锁
-	cancel       context.CancelFunc //取消函数
-	attemptCount *atomic.Int32      //执行次数
+	exchanger         *exchange.RecordExchanger
+	cancalMutex       sync.Mutex         //由于取消函数会被多线程调用,需要加锁
+	cancel            context.CancelFunc //取消函数
+	attemptCount      *atomic.Int32      //执行次数
 }
 
 //newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
@@ -88,8 +88,8 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	readTask.SetPluginJobConf(readConf)
 	readTask.SetPeerPluginName(writeName)
 	readTask.SetPeerPluginJobConf(writeConf)
-	exchanger := exchange.NewRecordExchangerWithoutTransformer(t.channel)
-	t.readerRunner = runner.NewReader(readTask, exchanger, t.key)
+	t.exchanger = exchange.NewRecordExchangerWithoutTransformer(t.channel)
+	t.readerRunner = runner.NewReader(readTask, t.exchanger, t.key)
 
 	writeTask, ok := loader.LoadWriterTask(writeName)
 	if !ok {
@@ -101,7 +101,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	writeTask.SetPluginJobConf(writeConf)
 	writeTask.SetPeerPluginName(readName)
 	writeTask.SetPeerPluginJobConf(readConf)
-	t.writerRunner = runner.NewWriter(writeTask, exchanger, t.key)
+	t.writerRunner = runner.NewWriter(writeTask, t.exchanger, t.key)
 
 	return
 }
@@ -122,6 +122,8 @@ func (t *taskExecer) Start() {
 		if err := t.writerRunner.Run(ctx); err != nil {
 			log.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
 			t.errors <- fmt.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
+		} else {
+			t.errors <- nil
 		}
 	}()
 	writerWg.Wait()
@@ -135,6 +137,8 @@ func (t *taskExecer) Start() {
 		if err := t.readerRunner.Run(ctx); err != nil {
 			log.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
 			t.errors <- fmt.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
+		} else {
+			t.errors <- nil
 		}
 	}()
 	readerWg.Wait()
@@ -146,7 +150,7 @@ func (t *taskExecer) AttemptCount() int32 {
 }
 
 //Do 执行函数
-func (t *taskExecer) Do() error {
+func (t *taskExecer) Do() (err error) {
 	log.Debugf("taskExecer %v start to do", t.key)
 	defer func() {
 		t.attemptCount.Inc()
@@ -155,32 +159,12 @@ func (t *taskExecer) Do() error {
 	//执行读取写入运行器
 	t.Start()
 	log.Debugf("taskExecer %v do wait runner stop", t.key)
-	//等待读取写入运行器
-	t.wg.Wait()
-	var errs []error
-	log.Debugf("taskExecer %v do wait runner err chan", t.key)
-	//监听错误通道器获取错误
-ErrorLoop:
-	for {
-		select {
-		case err := <-t.errors:
-			errs = append(errs, err)
-		default:
-			break ErrorLoop
-		}
-	}
 
-	s := ""
-	for i, v := range errs {
-		if i > 0 {
-			s += " "
-		}
-		s += v.Error()
+	select {
+	case err = <-t.errors:
+	case <-t.ctx.Done():
 	}
-	if s != "" {
-		return fmt.Errorf("%v", s)
-	}
-	return nil
+	return
 }
 
 //Key 关键之
@@ -201,6 +185,18 @@ func (t *taskExecer) WriterSuportFailOverport() bool {
 func (t *taskExecer) Shutdown() {
 	log.Debugf("taskExecer %v starts to shutdown", t.key)
 	defer log.Debugf("taskExecer %v ends to shutdown", t.key)
+	t.wg.Add(1)
+	go func() {
+		t.wg.Done()
+		for {
+			var rerr error
+			_, rerr = t.exchanger.GetFromReader()
+			if rerr != nil && rerr != exchange.ErrEmpty {
+				return
+			}
+		}
+	}()
+
 	t.cancalMutex.Lock()
 	if t.cancel != nil {
 		t.cancel()

@@ -1,14 +1,14 @@
-# CsvReader插件文档
+# CsvWriter插件文档
 
 ## 快速介绍
 
-CsvReader插件实现了从csv文件读取数据。在底层实现上，CsvReader通过标准库os以及encoding/csv读取文件。
+CsvWriter插件实现了向csv文件写入数据。在底层实现上，CsvWriter通过标准库os以及encoding/csv写入文件。
 
 ## 实现原理
 
-CsvReader通过标准库os以及encoding/csv读取文件，并将每一行结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
+CsvWriter将reader传来的每一个记录，通过标准库os以及encoding/csv转换成字符串写入文件。
 
-CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的storage/stream/file的file.InStreamer来实现具体的读取。
+CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
 
 ## 功能说明
 
@@ -33,7 +33,9 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
                             }
                         ],
                         "encoding":"utf-8",
-                        "delimiter":","
+                        "delimiter":",",
+                        "batchSize":1000,
+                        "batchTimeout":"1s"
                     }
                 }
             }
@@ -86,12 +88,23 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
 - 必选：否
 - 默认值: 无
 
+#### batchTimeout
+
+- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
+- 必选：否
+- 默认值: 1s
+
+#### batchSize
+
+- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
+- 必选：否
+- 默认值: 1000
 
 ### 类型转换
 
-目前CsvReader支持的csv数据类型需要在column配置中配置，请注意检查你的类型。
+目前CsvWriter支持的csv数据类型需要在column配置中配置，请注意检查你的类型。
 
-下面列出CsvReader针对csv类型转换列表:
+下面列出CsvWriter针对csv类型转换列表:
 
 | go-etl的类型 | csv数据类型 |
 | ------------ | ----------- |

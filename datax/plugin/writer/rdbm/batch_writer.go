@@ -127,7 +127,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 	ticker := time.NewTicker(w.BatchTimeout())
 	defer ticker.Stop()
 	var records []element.Record
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchExec",
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchWrite",
 		w.JobID(), w.TaskGroupID(), w.TaskID())
 	for {
 		select {
@@ -136,7 +136,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 				//当写入结束时，将剩余的记录写入数据库
 				if len(records) > 0 {
 					if err = w.BatchWrite(ctx, records); err != nil {
-						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec(%v) error: %v",
+						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %v",
 							w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
 					}
 				}
@@ -149,7 +149,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 			//当数据量超过单次批量数时 写入数据库
 			if len(records) >= w.BatchSize() {
 				if err = w.BatchWrite(ctx, records); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchExec(%v) error: %v",
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %v",
 						w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
 					goto End
 				}
@@ -184,5 +184,4 @@ End:
 		return nil
 	}
 	return
-
 }

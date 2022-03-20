@@ -88,7 +88,7 @@ datax -c postgres/config.json
 | ------------ | ------------- | ------------ | ---------- | ------------------------------------------------------------ |
 | 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres      | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
-| 无结构流     | CVS           | √            |            | [读](datax/plugin/reader/csv/README.md)                      |
+| 无结构流     | CVS           | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | Xlsx（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
 
 ### 开发者文档
@@ -96,14 +96,12 @@ datax -c postgres/config.json
 
 使用 go doc datax/doc.go即可获取datax以及插件开发的要点
 
-
-
 ### plan
 
 - [ ] 实现db2数据库reader/writer插件
 - [ ] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
-- [ ] 实现cvs文件reader/writer插件
+- [x] 实现cvs文件reader/writer插件
 - [x] 实现xslx文件reader插件
 - [ ] 实现监控模块
 - [ ] 实现流控模块
