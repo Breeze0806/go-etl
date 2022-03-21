@@ -2,7 +2,7 @@
 
 ## 快速介绍
 
-CsvWriter插件实现了向csv文件写入数据。在底层实现上，CsvWriter通过标准库os以及encoding/csv写入文件。
+CsvWriter插件实现了向csv文件写入数据。在底层实现上，CsvWriter通过标准库os以及encoding/csv写入文件。此外，对于文件数目的大小要和reader的切分数一致，否则会导致任务无法开始。
 
 ## 实现原理
 

@@ -60,27 +60,72 @@ go generate ./...
 
 主要的原理如下会将对应datax/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在datax目录下生成plugin.go用于导入这些插件， 具体在datax//build实现。
 
-### 使用方式
+### 使用示例
 
-#### 试用mysql同步
+#### 使用mysql同步
 
 - 可以使用cmd/datax/mysql/init.sql初始化数据库
 - 开启同步mysql命令
 
-```
+```bash
 datax -c mysql/config.json
 ```
 
-#### 试用postgres同步
+#### 使用postgres同步
 
 - 可以使用cmd/datax/postgres/init.sql初始化数据库
 - 开启同步postgres命令
 
-```
+```bash
 datax -c postgres/config.json
 ```
 
+#### 使用postgres同步
 
+- 可以使用cmd/datax/postgres/init.sql初始化数据库
+- 开启同步postgres命令
+
+```bash
+datax -c postgres/config.json
+```
+
+#### 使用csv同步到postgres
+
+- 可以使用cmd/datax/csvpostgres/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c csvpostgres/config.json
+```
+
+#### 使用xlsx同步到postgres
+
+- 可以使用cmd/datax/csvpostgres/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c xlsxpostgres/config.json
+```
+
+#### 使用postgres同步csv
+
+- 可以使用cmd/datax/csvpostgres/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c postgrescsv/config.json
+```
+
+#### 使用postgres同步xlsx
+
+- 可以使用cmd/datax/csvpostgres/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c postgresxlsx/config.json
+```
+
+如上数据可以在各个数据源之间流转，如MySQL到Postgres
 
 ### Support Data Channels
 

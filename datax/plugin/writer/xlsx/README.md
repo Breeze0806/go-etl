@@ -2,11 +2,11 @@
 
 ## 快速介绍
 
-XlsxWriter插件实现了向xlsx文件写入数据。在底层实现上，XlsxWriter通过标准库os以及encoding/csv写入文件。
+XlsxWriter插件实现了向xlsx文件写入数据。在底层实现上，XlsxWriter通过github.com/xuri/excelize/v2的流式写入方式写入文件。同时，需要注意的是一个sheet允许保存的数据不应超过1048576，需要计算好导出的sheet数，否则会报错，导致导出失败。此外，对于文件数目的大小要和reader的切分数一致，否则会导致任务无法开始。
 
 ## 实现原理
 
-XlsxWriter将reader传来的每一个记录，通过标准库os以及encoding/csv转换成字符串写入文件。
+XlsxWriter将reader传来的每一个记录，通过github.com/xuri/excelize/v2的流式写入方式写入文件，这种流式写入方式具有速度快，占用内存少的优点。
 
 XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
 
