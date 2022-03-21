@@ -68,7 +68,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	if sw, err = t.streamer.Writer(t.content); err != nil {
 		return
 	}
-	defer sw.Close()
+
 	recordChan := make(chan element.Record)
 	var rerr error
 	afterCtx, cancel := context.WithCancel(ctx)
@@ -157,6 +157,10 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 		}
 	}
 End:
+	if err = sw.Close(); err != nil {
+		log.Errorf("jobID: %v taskgroupID:%v taskID: %v Close error: %v",
+			t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+	}
 	cancel()
 	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine",
 		t.JobID(), t.TaskGroupID(), t.TaskID())
@@ -172,5 +176,6 @@ End:
 	case err == exchange.ErrTerminate:
 		return nil
 	}
+
 	return
 }

@@ -1,4 +1,4 @@
-package csv
+package xlsx
 
 import (
 	"github.com/Breeze0806/go-etl/config"

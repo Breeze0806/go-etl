@@ -10,9 +10,14 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-type Config struct {
+type InConfig struct {
 	Columns []Column `json:"column"`
 	Sheet   string   `json:"sheet"`
+}
+
+type OutConfig struct {
+	Columns []Column `json:"column"`
+	Sheets  []string `json:"sheets"`
 }
 
 type Column struct {
@@ -53,8 +58,8 @@ func (c *Column) layout() string {
 	return c.goLayout
 }
 
-func NewConfig(conf *config.JSON) (c *Config, err error) {
-	c = &Config{}
+func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
+	c = &InConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
 	if err != nil {
 		return nil, err
@@ -62,6 +67,21 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 
 	if c.Sheet == "" {
 		return nil, fmt.Errorf("sheet should not be empty")
+	}
+
+	for _, v := range c.Columns {
+		if err = v.validate(); err != nil {
+			return nil, err
+		}
+	}
+	return
+}
+
+func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
+	c = &OutConfig{}
+	err = json.Unmarshal([]byte(conf.String()), c)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, v := range c.Columns {

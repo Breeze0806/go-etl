@@ -1,4 +1,4 @@
-package csv
+package xlsx
 
 import (
 	"context"
@@ -24,12 +24,18 @@ func (j *Job) Init(ctx context.Context) (err error) {
 }
 
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
-	for _, v := range j.conf.Path {
+	for _, v := range j.conf.Xlsxs {
 		conf, _ := config.NewJSONFromString("{}")
-		if err = conf.Set("path", v); err != nil {
+		if err = conf.Set("path", v.Path); err != nil {
 			return
 		}
-		if err = conf.Set("content", j.conf.CsvConfig); err != nil {
+		if err = conf.Set("content.column", j.conf.Columns); err != nil {
+			return
+		}
+		if err = conf.Set("content.sheets", v.Sheets); err != nil {
+			return
+		}
+		if err = conf.Set("content.batchSize", j.conf.GetBatchSize()); err != nil {
 			return
 		}
 		if err = conf.Set("content.batchTimeout", j.conf.GetBatchTimeout().String()); err != nil {

@@ -1,28 +1,28 @@
-# CsvWriter插件文档
+# XlsxWriter插件文档
 
 ## 快速介绍
 
-CsvWriter插件实现了向csv文件写入数据。在底层实现上，CsvWriter通过标准库os以及encoding/csv写入文件。
+XlsxWriter插件实现了向xlsx文件写入数据。在底层实现上，XlsxWriter通过标准库os以及encoding/csv写入文件。
 
 ## 实现原理
 
-CsvWriter将reader传来的每一个记录，通过标准库os以及encoding/csv转换成字符串写入文件。
+XlsxWriter将reader传来的每一个记录，通过标准库os以及encoding/csv转换成字符串写入文件。
 
-CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
+XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
 
 ## 功能说明
 
 ### 配置样例
 
-配置一个向csv文件同步写入数据的作业:
+配置一个向xlsx文件同步写入数据的作业:
 
 ```json
 {
     "job":{
         "content":[
             {
-                "writer":{
-                    "name": "cvswriter",
+                "reader":{
+                    "name": "cvsreader",
                     "parameter": {
                         "path":["a.txt","b.txt"],
                         "column":[
@@ -46,46 +46,46 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 
 ### 参数说明
 
-#### path
-
-- 描述 主要用于配置csv文件的绝对路径，可以配置多个文件
-- 必选：是
-- 默认值: 无
-
 #### column
 
-- 描述 主要用于配置csv文件的列信息数组，如不配置对应信息，则认为对应为string类型
+- 描述 主要用于配置xlsx文件的列信息数组，如不配置对应信息，则认为对应为string类型
 - 必选：是
 - 默认值: 无
 
 ##### index
 
-- 描述 主要用于配置csv文件的列编号，从1开始
+- 描述 主要用于配置xlsx文件的列编号，从A开始
 - 必选：是
 - 默认值: 无
 
 ##### type
 
-- 描述 主要用于配置csv文件的列类型，主要有boolen,bigInt,decimal,string,time等类型
+- 描述 主要用于配置xlsx文件的列类型，主要有boolen,bigInt,decimal,string,time等类型，目前对time仅能使用string类型读取
 - 必选：是
 - 默认值: 无
 
 ##### format
 
-- 描述 主要用于配置csv文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
+- 描述 主要用于配置xlsx文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
 - 必选：是
 - 默认值: 无
 
-#### encoding
+#### xlsxs
 
-- 描述 主要用于配置csv文件的编码类型，目前仅支持utf-8
-- 必选：否
+- 描述 主要用于配置xlsx文件的信息，可以配置多个文件
+- 必选：是
 - 默认值: 无
 
-#### delimiter
+##### path
 
-- 描述 主要用于配置csv文件的分隔符，目前仅支持空格和可见的符号，如逗号，分号等
-- 必选：否
+- 描述 主要用于配置xlsx文件的绝对路径
+- 必选：是
+- 默认值: 无
+
+###### sheets
+
+- 描述 主要用于配置xlsx文件的sheet名数组
+- 必选：是
 - 默认值: 无
 
 #### batchTimeout
@@ -102,11 +102,11 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 
 ### 类型转换
 
-目前CsvWriter支持的csv数据类型需要在column配置中配置，请注意检查你的类型。
+目前XlsxWriter支持的xlsx数据类型需要在column配置中配置，目前xlsx仅支持文本格式的单元格，请注意检查你的类型。
 
-下面列出CsvWriter针对csv类型转换列表:
+下面列出XlsxWriter针对xlsx类型转换列表:
 
-| go-etl的类型 | csv数据类型 |
+| go-etl的类型 | xlsx数据类型 |
 | ------------ | ----------- |
 | bigInt       | bigInt      |
 | decimal      | decimal     |

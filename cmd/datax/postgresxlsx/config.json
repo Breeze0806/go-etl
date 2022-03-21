@@ -1,0 +1,75 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "postgresreader",
+                    "parameter": {
+                        "username": "postgres",
+                        "password": "123456",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
+                                "table": {
+                                    "db":"postgres",
+                                    "schema":"public",
+                                    "name":"cvs"
+                                }
+                            },
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "xlsxwriter",
+                    "parameter": {
+                        "column" :[
+                            {
+                                "index":"A",
+                                "type":"time",
+                                "format":"yyyy-MM-dd"
+                            }
+                        ],
+                        "xlsxs":[
+                            {
+                                "path":"Book1.xlsx",
+                                "sheets":["Sheet1"]
+                            }
+                        ],
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}

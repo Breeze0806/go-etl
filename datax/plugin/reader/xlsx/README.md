@@ -22,7 +22,7 @@ XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的s
         "content":[
             {
                 "reader":{
-                    "name": "cvsreader",
+                    "name": "xlsxreader",
                     "parameter": {
                         "column" :[
                             {
@@ -55,7 +55,7 @@ XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的s
 
 ##### index
 
-- 描述 主要用于配置xlsx文件的列编号，从1开始
+- 描述 主要用于配置xlsx文件的列编号，从A开始
 - 必选：是
 - 默认值: 无
 
@@ -85,13 +85,13 @@ XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的s
 
 ###### sheets
 
-- 描述 主要用于配置xlsx文件的sheet名
+- 描述 主要用于配置xlsx文件的sheet名数组
 - 必选：是
 - 默认值: 无
 
 ### 类型转换
 
-目前XlsxReader支持的cvs数据类型需要在column配置中配置，请注意检查你的类型。
+目前XlsxReader支持的cvs数据类型需要在column配置中配置，目前xlsx仅支持文本格式的单元格，请注意检查你的类型。
 
 下面列出XlsxReader针对 xlsx类型转换列表:
 

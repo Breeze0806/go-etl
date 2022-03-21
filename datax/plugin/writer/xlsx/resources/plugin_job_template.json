@@ -1,0 +1,20 @@
+{
+    "name": "csvwriter",
+    "parameter": {
+        "column" :[
+            {
+                "index":"A",
+                "type":"time",
+                "format":"yyyy-MM-dd"
+            }
+        ],
+        "xlsxs":[
+            {
+                "path":"",
+                "sheets":["",""]   
+            }
+        ],
+        "batchSize":1000,
+        "batchTimeout":"1s"
+    }
+}

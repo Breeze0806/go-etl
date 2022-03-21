@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 
 	"github.com/Breeze0806/go-etl/config"
-	//xlsx storage
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/file"
 	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
 type Config struct {
+	file.BaseConfig
+
 	Columns []xlsx.Column `json:"column"`
 	Xlsxs   []Xlsx        `json:"xlsxs"`
 }

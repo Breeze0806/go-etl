@@ -34,7 +34,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 			return
 		}
 		for i, v := range x.Sheets {
-			xlsxConfig := xlsx.Config{
+			xlsxConfig := xlsx.InConfig{
 				Sheet:   v,
 				Columns: j.conf.Columns,
 			}
