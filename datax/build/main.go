@@ -194,6 +194,7 @@ func (p *pluginInfo) genFile(path string, code string) (err error) {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	_, err = fmt.Fprintf(f, code, p.shotPackage, p.pluginConfig)
 	return
 }

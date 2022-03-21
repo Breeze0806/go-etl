@@ -89,7 +89,7 @@ datax -c postgres/config.json
 | 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres      | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 | 无结构流     | CVS           | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
-|              | Xlsx（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
+|              | XLSX（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)                     |
 
 ### 开发者文档
 如果你想实现
@@ -102,7 +102,7 @@ datax -c postgres/config.json
 - [ ] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
 - [x] 实现cvs文件reader/writer插件
-- [x] 实现xslx文件reader插件
+- [x] 实现xlsx文件reader插件
 - [ ] 实现监控模块
 - [ ] 实现流控模块
 - [ ] 实现关系型数据库入库保证数据不丢失功能
@@ -124,11 +124,23 @@ datax -c postgres/config.json
 
 主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等
 
-#### plan
+#### file
+##### plan
 
-- [x] 实现stream的数据传输框架
-- [ ] 单元测试stream的数据传输框架
-- [ ] 实现cvs文件字节流的数据传输框架并单元测试
+- [x] 实现文件流的数据传输框架
+- [x] 实现cvs文件字节流的数据传输框架
+
+#### mq
+
+##### plan
+
+暂无计划
+
+#### elasticsearch
+
+##### plan
+
+暂无计划
 
 ## libra
 
