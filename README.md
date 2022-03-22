@@ -37,6 +37,8 @@ go-etl将提供的etl能力如下：
 
 ```bash
 export GO111MODULE=on
+go mod download
+go mod vendor
 go generate ./...
 cd cmd/datax
 go build
@@ -46,6 +48,8 @@ go build
 
 ```bash
 set GO111MODULE=on
+go mod download
+go mod vendor   
 go generate ./...
 cd cmd/datax
 go build
@@ -58,7 +62,7 @@ go generate ./...
 ```
 本命令生成将这些reader和writer注册到程序中的代码
 
-主要的原理如下会将对应datax/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在datax目录下生成plugin.go用于导入这些插件， 具体在datax//build实现。
+主要的原理如下会将对应datax/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在datax目录下生成plugin.go用于导入这些插件， 具体在datax/build实现。
 
 ### 使用示例
 
@@ -69,15 +73,6 @@ go generate ./...
 
 ```bash
 datax -c mysql/config.json
-```
-
-#### 使用postgres同步
-
-- 可以使用cmd/datax/postgres/init.sql初始化数据库
-- 开启同步postgres命令
-
-```bash
-datax -c postgres/config.json
 ```
 
 #### 使用postgres同步
@@ -134,12 +129,7 @@ datax -c postgresxlsx/config.json
 | 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres      | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 | 无结构流     | CVS           | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
-|              | XLSX（excel） | √            |            | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
-
-### 开发者文档
-如果你想实现
-
-使用 go doc datax/doc.go即可获取datax以及插件开发的要点
+|              | XLSX（excel） | √            | √           | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
 ### plan
 

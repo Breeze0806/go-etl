@@ -31,7 +31,7 @@
                         "password": "123456",
                         "column": ["*"],
                         "connection":  {
-                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
                                 "table": {
                                     "db":"postgres",
                                     "schema":"source",
@@ -50,7 +50,7 @@
                         "column": ["*"],
                         "preSql": [],
                         "connection":  {
-                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
+                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
                                 "table": {
                                     "db":"postgres",
                                     "schema":"destination",

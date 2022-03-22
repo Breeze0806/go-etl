@@ -6,7 +6,7 @@ XlsxWriter插件实现了向xlsx文件写入数据。在底层实现上，XlsxWr
 
 ## 实现原理
 
-XlsxWriter将reader传来的每一个记录，通过github.com/xuri/excelize/v2的流式写入方式写入文件，这种流式写入方式具有速度快，占用内存少的优点。
+XlsxWriter将reader传来的每一个记录，通过github.com/xuri/excelize/v2的流式写入方式写入文件，这种流式写入方式具有写入速度快，占用内存少的优点。
 
 XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
 
@@ -21,21 +21,24 @@ XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的s
     "job":{
         "content":[
             {
-                "reader":{
-                    "name": "cvsreader",
+                "writer":{
+                    "name": "xlsxwriter",
                     "parameter": {
-                        "path":["a.txt","b.txt"],
-                        "column":[
+                        "column" :[
                             {
-                                "index":"1",
+                                "index":"A",
                                 "type":"time",
                                 "format":"yyyy-MM-dd"
                             }
                         ],
-                        "encoding":"utf-8",
-                        "delimiter":",",
-                        "batchSize":1000,
-                        "batchTimeout":"1s"
+                        "xlsxs":[
+                            {
+                                "path":"Book1.xlsx",
+                                "sheets":["Sheet1"]
+                            }
+                        ],
+                        "batchTimeout": "1s",
+                        "batchSize":1000
                     }
                 }
             }

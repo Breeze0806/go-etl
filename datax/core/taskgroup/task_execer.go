@@ -159,12 +159,20 @@ func (t *taskExecer) Do() (err error) {
 	//执行读取写入运行器
 	t.Start()
 	log.Debugf("taskExecer %v do wait runner stop", t.key)
-
-	select {
-	case err = <-t.errors:
-	case <-t.ctx.Done():
+	cnt := 0
+	for {
+		select {
+		case err = <-t.errors:
+			if err != nil {
+				return err
+			}
+			cnt++
+			if cnt == 2 {
+				return nil
+			}
+		case <-t.ctx.Done():
+		}
 	}
-	return
 }
 
 //Key 关键之

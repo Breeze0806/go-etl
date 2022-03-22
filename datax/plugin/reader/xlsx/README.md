@@ -6,7 +6,7 @@ XlsxReader插件实现了从csv文件读取数据。在底层实现上，XlsxRea
 
 ## 实现原理
 
-XlsxReader通过github.com/xuri/excelize/v2的流式读取方式读取文件，并将每一行结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。这种流式读取方式具有速度快，占用内存少的优点。
+XlsxReader通过github.com/xuri/excelize/v2的流式读取方式读取文件，并将每一行结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。这种流式读取方式具有读取速度快，占用内存少的优点。
 
 XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的storage/stream/file的file.InStreamer来实现具体的读取。
 

@@ -147,13 +147,7 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 	for _, v := range w.conf.Columns {
 		w.columns[v.index()] = v
 	}
-	var name string
-	name, err = w.getSheetName()
-	if err != nil {
-		return nil, err
-	}
-	w.writer, err = w.file.NewStreamWriter(name)
-	if err != nil {
+	if err = w.newStreamWriter(); err != nil {
 		return nil, err
 	}
 	return w, nil
@@ -161,19 +155,14 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 
 func (w *Writer) Write(record element.Record) (err error) {
 	w.row++
-	if w.row == excelize.TotalRows {
+	if w.row > excelize.TotalRows {
 		if err = w.writer.Flush(); err != nil {
 			return
 		}
 		w.row = 1
-		var name string
-		name, err = w.getSheetName()
-		if err != nil {
-			return
-		}
-		w.writer, err = w.file.NewStreamWriter(name)
-		if err != nil {
-			return
+		w.writer = nil
+		if err = w.newStreamWriter(); err != nil {
+			return err
 		}
 	}
 
@@ -193,6 +182,31 @@ func (w *Writer) Write(record element.Record) (err error) {
 	return w.writer.SetRow(axis, records)
 }
 
+func (w *Writer) Flush() (err error) {
+	return
+}
+
+func (w *Writer) Close() (err error) {
+	if w.writer != nil {
+		err = w.writer.Flush()
+	}
+	return
+}
+
+func (w *Writer) newStreamWriter() (err error){
+	var name string
+	name, err = w.getSheetName()
+	if err != nil {
+		return
+	}
+	w.file.NewSheet(name)
+	w.writer, err = w.file.NewStreamWriter(name)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 	if c, ok := w.columns[i]; ok && element.ColumnType(c.Type) == element.TypeTime {
 		var t time.Time
@@ -206,14 +220,7 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 	return
 }
 
-func (w *Writer) Flush() (err error) {
-	return
-}
 
-func (w *Writer) Close() (err error) {
-	err = w.writer.Flush()
-	return
-}
 
 func (w *Writer) getSheetName() (string, error) {
 	if w.sheetIndex < len(w.conf.Sheets) {
