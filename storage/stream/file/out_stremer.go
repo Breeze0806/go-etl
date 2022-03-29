@@ -8,31 +8,37 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
+// Creater 创建输出流的创建器
 type Creater interface {
-	Create(filename string) (stream OutStream, err error)
+	Create(filename string) (stream OutStream, err error) //创建名为filename的输出流
 }
 
+// OutStream 输出流
 type OutStream interface {
-	Writer(conf *config.JSON) (writer StreamWriter, err error)
-	Close() (err error)
+	Writer(conf *config.JSON) (writer StreamWriter, err error) //创建写入器
+	Close() (err error)                                        //关闭输出流
 }
 
+// StreamWriter 输出流写入器
 type StreamWriter interface {
-	Write(record element.Record) (err error)
-	Flush() (err error)
-	Close() (err error)
+	Write(record element.Record) (err error) //写入记录
+	Flush() (err error)                      //刷新至文件
+	Close() (err error)                      //关闭输出流写入器
 }
 
+// RegisterCreater 通过创建器名称name注册输出流创建器creater
 func RegisterCreater(name string, creater Creater) {
 	if err := creaters.register(name, creater); err != nil {
 		panic(err)
 	}
 }
 
+// OutStreamer 输出流包装
 type OutStreamer struct {
 	stream OutStream
 }
 
+// NewOutStreamer 通过creater名称name的输出流包装，并打开名为filename的输出流
 func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err error) {
 	creater, ok := creaters.creater(name)
 	if !ok {
@@ -46,10 +52,12 @@ func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err er
 	return
 }
 
+// Writer 通过配置conf创建流写入器
 func (s *OutStreamer) Writer(conf *config.JSON) (StreamWriter, error) {
 	return s.stream.Writer(conf)
 }
 
+// Close 关闭写入包装
 func (s *OutStreamer) Close() error {
 	return s.stream.Close()
 }
@@ -83,10 +91,4 @@ func (o *createrMap) creater(name string) (creater Creater, ok bool) {
 	defer o.RUnlock()
 	creater, ok = o.creaters[name]
 	return
-}
-
-func (o *createrMap) unregisterAll() {
-	o.Lock()
-	defer o.Unlock()
-	o.creaters = make(map[string]Creater)
 }

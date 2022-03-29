@@ -1,6 +1,7 @@
 package file
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -8,38 +9,44 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-//FetchHandler 获取记录句柄
+// FetchHandler 获取记录句柄
 type FetchHandler interface {
-	OnRecord(element.Record) error
-	CreateRecord() (element.Record, error)
+	OnRecord(element.Record) error         //处理记录
+	CreateRecord() (element.Record, error) //创建空记录
 }
 
+// Opener 用于打开一个输入流的打开器
 type Opener interface {
-	Open(filename string) (stream InStream, err error)
+	Open(filename string) (stream InStream, err error) //打开文件名filename的输入流
 }
 
+// InStream 输入流
 type InStream interface {
-	Rows(conf *config.JSON) (rows Rows, err error)
-	Close() (err error)
+	Rows(conf *config.JSON) (rows Rows, err error) //获取行读取器
+	Close() (err error)                            //关闭输入流
 }
 
+// Rows 行读取器
 type Rows interface {
-	Next() bool
-	Scan() (columns []element.Column, err error)
-	Error() error
-	Close() error
+	Next() bool                                  //获取下一行，如果没有返回false，有返回true
+	Scan() (columns []element.Column, err error) //扫描出每一行的列
+	Error() error                                //获取下一行的错误
+	Close() error                                //关闭行读取器
 }
 
+//RegisterOpener 通过打开器名称name注册输入流打开器opener
 func RegisterOpener(name string, opener Opener) {
 	if err := openers.register(name, opener); err != nil {
 		panic(err)
 	}
 }
 
+//InStreamer 输入流包装
 type InStreamer struct {
 	stream InStream
 }
 
+//NewInStreamer 通过opener名称name的输入流打开器，并打开名为filename的输入流
 func NewInStreamer(name string, filename string) (streamer *InStreamer, err error) {
 	streamer = &InStreamer{}
 	opener, ok := openers.opener(name)
@@ -53,7 +60,8 @@ func NewInStreamer(name string, filename string) (streamer *InStreamer, err erro
 	return
 }
 
-func (s *InStreamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
+// Read 使用获取记录句柄handler，传入上下文ctx和配置文件conf获取对应数据
+func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchHandler) (err error) {
 	var rows Rows
 	rows, err = s.stream.Rows(conf)
 	if err != nil {
@@ -62,7 +70,11 @@ func (s *InStreamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
 	defer rows.Close()
 	for rows.Next() {
 		var columns []element.Column
-
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+		}
 		if columns, err = rows.Scan(); err != nil {
 			return fmt.Errorf("Scan fail. error: %v", err)
 		}
@@ -87,6 +99,7 @@ func (s *InStreamer) Read(conf *config.JSON, handler FetchHandler) (err error) {
 	return
 }
 
+// Close 关闭输入流
 func (s *InStreamer) Close() error {
 	return s.stream.Close()
 }
@@ -120,10 +133,4 @@ func (o *openerMap) opener(name string) (opener Opener, ok bool) {
 	defer o.RUnlock()
 	opener, ok = o.openers[name]
 	return
-}
-
-func (o *openerMap) unregisterAll() {
-	o.Lock()
-	defer o.Unlock()
-	o.openers = make(map[string]Opener)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
+//写入数据库模式
 const (
 	WriteModeInsert = "insert"
 )

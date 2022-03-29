@@ -78,7 +78,7 @@ func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err e
 	}
 
 	for _, conf := range configs {
-		if err = t.streamer.Read(conf, handler); err != nil {
+		if err = t.streamer.Read(ctx, conf, handler); err != nil {
 			return
 		}
 	}
