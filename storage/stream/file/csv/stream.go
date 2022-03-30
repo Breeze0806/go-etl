@@ -20,24 +20,30 @@ func init() {
 	file.RegisterCreater("csv", &creater)
 }
 
+//Opener csv输入流打开器
 type Opener struct {
 }
 
+//Open 打开一个名为filename的csv输入流
 func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
+//Creater csv输出流创建器
 type Creater struct {
 }
 
+//Create 创建一个名为filename的csv输出流
 func (c *Creater) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 
+//Stream 文件流
 type Stream struct {
 	file *os.File
 }
 
+//NewInStream 创建一个名为filename的csv输入流
 func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
@@ -48,6 +54,7 @@ func NewInStream(filename string) (file.InStream, error) {
 	return stream, nil
 }
 
+//NewOutStream 创建一个名为filename的csv输出流
 func NewOutStream(filename string) (file.OutStream, error) {
 	stream := &Stream{}
 	var err error
@@ -58,18 +65,22 @@ func NewOutStream(filename string) (file.OutStream, error) {
 	return stream, nil
 }
 
+//Writer 新建一个配置未conf的csv流写入器
 func (s *Stream) Writer(conf *config.JSON) (file.StreamWriter, error) {
 	return NewWriter(s.file, conf)
 }
 
+//Rows 新建一个配置未conf的csv行读取器
 func (s *Stream) Rows(conf *config.JSON) (rows file.Rows, err error) {
 	return NewRows(s.file, conf)
 }
 
+//Close 关闭文件流
 func (s *Stream) Close() (err error) {
 	return s.file.Close()
 }
 
+//Rows 行读取器
 type Rows struct {
 	columns map[int]Column
 	reader  *csv.Reader
@@ -77,6 +88,7 @@ type Rows struct {
 	err     error
 }
 
+//NewRows 通过文件句柄f，和配置文件c 创建行读取器
 func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 	var conf *Config
 	var err error
@@ -94,6 +106,7 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 	return rows, nil
 }
 
+// Next 是否有下一行
 func (r *Rows) Next() bool {
 	if r.record, r.err = r.reader.Read(); r.err != nil {
 		if r.err == io.EOF {
@@ -104,6 +117,7 @@ func (r *Rows) Next() bool {
 	return true
 }
 
+// Scan 扫描成列
 func (r *Rows) Scan() (columns []element.Column, err error) {
 	for i, v := range r.record {
 		var c element.Column
@@ -116,10 +130,12 @@ func (r *Rows) Scan() (columns []element.Column, err error) {
 	return
 }
 
+// Error 读取中的错误
 func (r *Rows) Error() error {
 	return r.err
 }
 
+// Close 关闭读文件流
 func (r *Rows) Close() error {
 	return nil
 }
@@ -139,11 +155,13 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
 }
 
+//Writer csv流写入器
 type Writer struct {
 	writer  *csv.Writer
 	columns map[int]Column
 }
 
+//NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
 func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 	var conf *Config
 	var err error
@@ -161,16 +179,19 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 	return w, nil
 }
 
+//Flush 刷新至磁盘
 func (w *Writer) Flush() (err error) {
 	w.writer.Flush()
 	return
 }
 
+//Close 关闭
 func (w *Writer) Close() (err error) {
 	w.writer.Flush()
 	return
 }
 
+//Write 将记录record 写入csv文件
 func (w *Writer) Write(record element.Record) (err error) {
 	var records []string
 	for i := 0; i < record.ColumnNumber(); i++ {

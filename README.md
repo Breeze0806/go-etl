@@ -26,6 +26,14 @@ go-etl将提供的etl能力如下：
 2. 再利用datax/plugin/reader/rdbm和datax/plugin/writer/rdbm可以更加快速地实现对应功能，实现reader/writer，可以参考storage/database/mysql和storage/database/postgres的实现。
 3. 使用 go doc datax/doc.go即可获取datax以及插件开发的要点。
 
+#### 二维表文件流
+
+如果你想帮忙实现二维表文件流的数据源，根据以下方式去实现你的数据源将更加方便
+
+1. 先实现storage/stream/file的接口，更多信息使用 go doc storage/stream/file/doc.go，可以参考storage/stream/file/csv和storage/stream/file/xlsx的实现。
+2. 再利用datax/plugin/reader/file和datax/plugin/writer/file可以更加快速地实现对应功能，实现reader/writer，可以参考storage/stream/file/csv和storage/stream/file/xlsx的实现。
+3. 使用 go doc datax/doc.go即可获取datax以及插件开发的要点。
+
 #### 其他数据源
 
 - 如果你想实现其他数据源，使用 go doc datax/doc.go即可获取datax以及插件开发的要点。
@@ -163,9 +171,9 @@ datax -c postgresxlsx/config.json
 ##### plan
 
 - [x] 实现文件流的数据传输框架
-- [ ] 单元测试文件流的数据传输框架
+- [x] 单元测试文件流的数据传输框架
 - [x] 实现cvs文件字节流的数据传输框架
-- [ ] 单元测试cvs文件字节流的数据传输框架
+- [x] 单元测试cvs文件字节流的数据传输框架
 - [x] 实现xlsx文件字节流的数据传输框架
 - [ ] 单元测试xlsx文件字节流的数据传输框架
 

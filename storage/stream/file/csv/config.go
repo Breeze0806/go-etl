@@ -10,19 +10,23 @@ import (
 	"github.com/Breeze0806/jodaTime"
 )
 
+//Config csv配置
 type Config struct {
-	Columns   []Column `json:"column"`
-	Encoding  string   `json:"encoding"`
-	Delimiter string   `json:"delimiter"`
+	Columns   []Column `json:"column"`    // 列信息
+	Encoding  string   `json:"encoding"`  // 编码
+	Delimiter string   `json:"delimiter"` // 分割符
 }
 
+//Column 列信息
 type Column struct {
-	Index    string `json:"index"`
-	Type     string `json:"type"`
-	Format   string `json:"format"`
+	Index    string `json:"index"`  // 索引 从1开始，代表第几列
+	Type     string `json:"type"`   // 类型 bool bigInt decimal string time
+	Format   string `json:"format"` // 时间格式
+	indexNum int
 	goLayout string
 }
 
+//validate 校验
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
@@ -34,18 +38,27 @@ func (c *Column) validate() (err error) {
 	default:
 		return fmt.Errorf("type %v is not valid", c.Type)
 	}
-
-	if _, err = strconv.Atoi(c.Index); err != nil {
+	var i int
+	if i, err = strconv.Atoi(c.Index); err != nil {
 		return
 	}
+	if i < 1 {
+		return fmt.Errorf("index is less than 1")
+	}
+
 	return
 }
 
+//index 列索引
 func (c *Column) index() (i int) {
-	i, _ = strconv.Atoi(c.Index)
-	return i - 1
+	if c.indexNum > 0 {
+		return c.indexNum - 1
+	}
+	c.indexNum, _ = strconv.Atoi(c.Index)
+	return c.indexNum - 1
 }
 
+//layout 变为golang 时间格式
 func (c *Column) layout() string {
 	if c.goLayout != "" {
 		return c.goLayout
@@ -54,6 +67,7 @@ func (c *Column) layout() string {
 	return c.goLayout
 }
 
+//NewConfig 通过conf获取csv配置
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -69,10 +83,18 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 		return nil, fmt.Errorf("Delimiter is not valid")
 	}
 
+	if c.Encoding == "" {
+		c.Encoding = "utf-8"
+	}
+
 	switch c.Encoding {
-	case "", "utf-8":
+	case "utf-8":
 	default:
 		return nil, fmt.Errorf("encoding %v does not support", c.Encoding)
+	}
+
+	if len(c.Columns) == 0 {
+		return nil, fmt.Errorf("column is empty")
 	}
 
 	for _, v := range c.Columns {
