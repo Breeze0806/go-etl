@@ -1,3 +1,17 @@
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package database 对实现标准库database/sql的接口的数据库进行封装
 // 本包提供了DB作为数据库连接池来操作数据库
 // DB可以通过FetchRecord来获得每一行的记录，例如数据库方言名为name,数据库配置文件为conf
