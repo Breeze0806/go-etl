@@ -38,7 +38,7 @@ func (c *Creater) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 
-//Stream 文件流
+//Stream csv文件流
 type Stream struct {
 	file *os.File
 }

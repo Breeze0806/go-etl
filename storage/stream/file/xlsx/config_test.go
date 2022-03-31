@@ -1,4 +1,4 @@
-package csv
+package xlsx
 
 import (
 	"reflect"
@@ -42,7 +42,7 @@ func TestColumn_validate(t *testing.T) {
 			name: "3",
 			c: &Column{
 				Type:  string(element.TypeBigInt),
-				Index: "x",
+				Index: "1",
 			},
 			wantErr: true,
 		},
@@ -59,7 +59,7 @@ func TestColumn_validate(t *testing.T) {
 			c: &Column{
 				Type:   string(element.TypeTime),
 				Format: "yyyy-MM-dd",
-				Index:  "1",
+				Index:  "A",
 			},
 		},
 	}
@@ -81,7 +81,7 @@ func TestColumn_index(t *testing.T) {
 		{
 			name: "1",
 			c: &Column{
-				Index: "1",
+				Index: "A",
 			},
 			wantI: 0,
 		},
@@ -127,14 +127,14 @@ func TestColumn_layout(t *testing.T) {
 	}
 }
 
-func TestNewConfig(t *testing.T) {
+func TestNewInConfig(t *testing.T) {
 	type args struct {
 		conf *config.JSON
 	}
 	tests := []struct {
 		name    string
 		args    args
-		wantC   *Config
+		wantC   *InConfig
 		wantErr bool
 	}{
 		{
@@ -148,7 +148,7 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				conf: testJSONFromString(`{"delimiter":"12"}`),
+				conf: testJSONFromString(`{"sheet":"12"}`),
 			},
 			wantErr: true,
 		},
@@ -156,43 +156,99 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "3",
 			args: args{
-				conf: testJSONFromString(`{"column":[{"index":""}]}`),
+				conf: testJSONFromString(`{"sheet":"12","column":[{"index":""}]}`),
 			},
 			wantErr: true,
 		},
 		{
 			name: "4",
 			args: args{
-				conf: testJSONFromString(`{"encoding":"12"}`),
+				conf: testJSONFromString(`{"sheet":"sheet1","column":[{"index":"A","type":"bool"}]}`),
 			},
-			wantErr: true,
-		},
-		{
-			name: "5",
-			args: args{
-				conf: testJSONFromString(`{"encoding":"utf-8","column":[{"index":"1","type":"bool"}]}`),
-			},
-			wantC: &Config{
-				Encoding: "utf-8",
+			wantC: &InConfig{
+				Sheet: "sheet1",
 				Columns: []Column{
 					{
-						Index: "1",
+						Index: "A",
 						Type:  "bool",
 					},
 				},
-				Delimiter: ",",
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotC, err := NewConfig(tt.args.conf)
+			gotC, err := NewInConfig(tt.args.conf)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewInConfig() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotC, tt.wantC) {
-				t.Errorf("NewConfig() = %v, want %v", gotC, tt.wantC)
+				t.Errorf("NewInConfig() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}
+
+func TestNewOutConfig(t *testing.T) {
+	type args struct {
+		conf *config.JSON
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantC   *OutConfig
+		wantErr bool
+	}{
+		{
+			name: "1",
+			args: args{
+				conf: testJSONFromString("{}"),
+			},
+			wantErr: true,
+		},
+
+		{
+			name: "2",
+			args: args{
+				conf: testJSONFromString(`{"sheets":["sheet1"]}`),
+			},
+			wantErr: true,
+		},
+
+		{
+			name: "3",
+			args: args{
+				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":""}]}`),
+			},
+			wantErr: true,
+		},
+
+		{
+			name: "4",
+			args: args{
+				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":"A","type":"bool"}]}`),
+			},
+			wantC: &OutConfig{
+				Sheets: []string{"sheet1"},
+				Columns: []Column{
+					{
+						Index: "A",
+						Type:  "bool",
+					},
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotC, err := NewOutConfig(tt.args.conf)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewOutConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotC, tt.wantC) {
+				t.Errorf("NewOutConfig() = %v, want %v", gotC, tt.wantC)
 			}
 		})
 	}

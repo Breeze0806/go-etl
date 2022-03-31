@@ -21,7 +21,7 @@ type Config struct {
 type Column struct {
 	Index    string `json:"index"`  // 索引 从1开始，代表第几列
 	Type     string `json:"type"`   // 类型 bool bigInt decimal string time
-	Format   string `json:"format"` // 时间格式
+	Format   string `json:"format"` // joda时间格式
 	indexNum int
 	goLayout string
 }

@@ -175,7 +175,7 @@ datax -c postgresxlsx/config.json
 - [x] 实现cvs文件字节流的数据传输框架
 - [x] 单元测试cvs文件字节流的数据传输框架
 - [x] 实现xlsx文件字节流的数据传输框架
-- [ ] 单元测试xlsx文件字节流的数据传输框架
+- [x] 单元测试xlsx文件字节流的数据传输框架
 
 #### mq
 

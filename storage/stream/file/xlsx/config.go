@@ -10,23 +10,28 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+//InConfig 输入xlsx配置
 type InConfig struct {
-	Columns []Column `json:"column"`
-	Sheet   string   `json:"sheet"`
+	Columns []Column `json:"column"` //列信息数组
+	Sheet   string   `json:"sheet"`  //表格名
 }
 
+//OutConfig 输出xlsx配置
 type OutConfig struct {
-	Columns []Column `json:"column"`
-	Sheets  []string `json:"sheets"`
+	Columns []Column `json:"column"` //列信息数组
+	Sheets  []string `json:"sheets"` //表格名
 }
 
+//Column 列信息
 type Column struct {
-	Index    string `json:"index"`
-	Type     string `json:"type"`
-	Format   string `json:"format"`
+	Index    string `json:"index"`  //列索引，A,B,C....AA.....
+	Type     string `json:"type"`   //类型 类型 bool bigInt decimal string time
+	Format   string `json:"format"` //joda时间格式
+	indexNum int
 	goLayout string
 }
 
+//validate 校验
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
@@ -40,16 +45,21 @@ func (c *Column) validate() (err error) {
 	}
 
 	if _, err = excelize.ColumnNameToNumber(c.Index); err != nil {
-		return
+		return fmt.Errorf("index %v err: %v", c.Type, err)
 	}
 	return
 }
 
+//index 列索引
 func (c *Column) index() (i int) {
-	i, _ = excelize.ColumnNameToNumber(c.Index)
-	return i - 1
+	if c.indexNum > 0 {
+		return c.indexNum - 1
+	}
+	c.indexNum, _ = excelize.ColumnNameToNumber(c.Index)
+	return c.indexNum - 1
 }
 
+//layout go时间格式
 func (c *Column) layout() string {
 	if c.goLayout != "" {
 		return c.goLayout
@@ -58,6 +68,7 @@ func (c *Column) layout() string {
 	return c.goLayout
 }
 
+//NewInConfig 新建以json配置conf的输入xlsx配置
 func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	c = &InConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -69,6 +80,10 @@ func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 		return nil, fmt.Errorf("sheet should not be empty")
 	}
 
+	if len(c.Columns) == 0 {
+		return nil, fmt.Errorf("column should not be empty")
+	}
+
 	for _, v := range c.Columns {
 		if err = v.validate(); err != nil {
 			return nil, err
@@ -77,11 +92,19 @@ func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	return
 }
 
+//NewOutConfig 新建以json配置conf的输出xlsx配置
 func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 	c = &OutConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
 	if err != nil {
 		return nil, err
+	}
+	if len(c.Sheets) == 0 {
+		return nil, fmt.Errorf("sheets should not be empty")
+	}
+
+	if len(c.Columns) == 0 {
+		return nil, fmt.Errorf("column should not be empty")
 	}
 
 	for _, v := range c.Columns {
