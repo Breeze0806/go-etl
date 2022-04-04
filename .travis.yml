@@ -3,14 +3,13 @@ go:
   - 1.16.x
   - 1.17.x
   - 1.18.x
+branches:
+  only:
+    - main
 install:
   - make dependencies
 script:
   - make lint
-  - make test
-branches:
-  only:
-    - main  
-after_success:
   - make cover
+after_success:
   - bash <(curl -s https://codecov.io/bash)

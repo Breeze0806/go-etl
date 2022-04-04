@@ -62,7 +62,7 @@ func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 //Init 初始化
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
-	if name, err = t.PluginConf().GetString("creater"); err != nil {
+	if name, err = t.PluginConf().GetString("creator"); err != nil {
 		return
 	}
 	var filename string

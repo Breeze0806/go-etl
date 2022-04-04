@@ -134,7 +134,7 @@ func TestTask_StartWrite(t *testing.T) {
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
 			},
-			conf:    testJSONFromString(`{"creater":"mock"}`),
+			conf:    testJSONFromString(`{"creator":"mock"}`),
 			jobConf: testJSONFromString(`{"path":"file1","content":{}}`),
 		},
 		{
@@ -150,7 +150,7 @@ func TestTask_StartWrite(t *testing.T) {
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, exchange.ErrTerminate),
 			},
-			conf:    testJSONFromString(`{"creater":"mock"}`),
+			conf:    testJSONFromString(`{"creator":"mock"}`),
 			jobConf: testJSONFromString(`{"path":"file1","content":{}}`),
 		},
 		{
@@ -166,7 +166,7 @@ func TestTask_StartWrite(t *testing.T) {
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
 			},
-			conf:    testJSONFromString(`{"creater":"mock"}`),
+			conf:    testJSONFromString(`{"creator":"mock"}`),
 			jobConf: testJSONFromString(`{"path":"file1","content":{}}`),
 		},
 	}
