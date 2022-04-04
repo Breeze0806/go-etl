@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package rdbm
 
 import (
@@ -36,6 +50,7 @@ type Task struct {
 	Table   database.Table
 }
 
+//NewTask 通过数据库句柄handler获取任务
 func NewTask(handler DbHandler) *Task {
 	return &Task{
 		BaseTask: plugin.NewBaseTask(),
@@ -99,20 +114,24 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return
 }
 
+//BatchReader 批量读入器
 type BatchReader interface {
-	JobID() int64
-	TaskGroupID() int64
-	TaskID() int64
-	Read(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error)
-	Parameter() database.Parameter
+	JobID() int64       //工作编号
+	TaskGroupID() int64 //任务组编号
+	TaskID() int64      //任务编号
+	Read(ctx context.Context, param database.Parameter,
+		handler database.FetchHandler) (err error) //通过上下文ctx，查询阐述和数据库句柄handler查询·
+	Parameter() database.Parameter //查询参数
 }
 
+//BaseBatchReader 基础批量读入器
 type BaseBatchReader struct {
 	task *Task
 	mode string
 	opts *sql.TxOptions
 }
 
+//NewBaseBatchReader 通过任务task，查询模式mode和事务选项opts获取基础批量读入器
 func NewBaseBatchReader(task *Task, mode string, opts *sql.TxOptions) *BaseBatchReader {
 	return &BaseBatchReader{
 		task: task,
@@ -121,22 +140,27 @@ func NewBaseBatchReader(task *Task, mode string, opts *sql.TxOptions) *BaseBatch
 	}
 }
 
+//JobID 工作编号
 func (b *BaseBatchReader) JobID() int64 {
 	return b.task.JobID()
 }
 
+//TaskID 任务编号
 func (b *BaseBatchReader) TaskID() int64 {
 	return b.task.TaskID()
 }
 
+//TaskGroupID 任务组编号
 func (b *BaseBatchReader) TaskGroupID() int64 {
 	return b.task.TaskGroupID()
 }
 
+//Parameter 查询参数
 func (b *BaseBatchReader) Parameter() database.Parameter {
 	return NewQueryParam(b.task.Config, b.task.Table, b.opts)
 }
 
+//通过上下文ctx，查询阐述和数据库句柄handler查询
 func (b *BaseBatchReader) Read(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {
 	if b.mode == "Tx" {
 		return b.task.Querier.FetchRecordWithTx(ctx, param, handler)

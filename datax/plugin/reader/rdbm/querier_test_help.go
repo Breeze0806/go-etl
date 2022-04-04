@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package rdbm
 
 import (
@@ -128,6 +142,7 @@ func (m *MockQuerier) Table(bt *database.BaseTable) database.Table {
 	return NewMockTable(bt)
 }
 
+//PingContext 测试关系型数据库的连接性
 func (m *MockQuerier) PingContext(ctx context.Context) error {
 	return m.PingErr
 }
@@ -165,7 +180,7 @@ func (m *MockQuerier) Close() error {
 	return nil
 }
 
-//TestJSONFromFile 从文件获取JSON配置
+//TestJSON 从文件获取JSON配置
 func TestJSON() *config.JSON {
 	return TestJSONFromString(`{
 		"name" : "rdbmreader",
@@ -184,27 +199,33 @@ func TestJSONFromString(json string) *config.JSON {
 	return conf
 }
 
+//MockSender 模拟发送器
 type MockSender struct {
 	CreateErr error
 	SendErr   error
 }
 
+//CreateRecord 创建记录
 func (m *MockSender) CreateRecord() (element.Record, error) {
 	return element.NewDefaultRecord(), m.CreateErr
 }
 
+//SendWriter 发往写入器
 func (m *MockSender) SendWriter(record element.Record) error {
 	return m.SendErr
 }
 
+//Flush 刷新至写入器
 func (m *MockSender) Flush() error {
 	return nil
 }
 
+//Terminate 终止发送数据
 func (m *MockSender) Terminate() error {
 	return nil
 }
 
+//Shutdown 关闭
 func (m *MockSender) Shutdown() error {
 	return nil
 }

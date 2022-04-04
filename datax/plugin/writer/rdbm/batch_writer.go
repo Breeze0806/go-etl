@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package rdbm
 
 import (
@@ -26,10 +40,11 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
+//执行模式
 const (
-	ExecModeNormal = "Normal"
-	ExecModeTx     = "Tx"
-	ExecModeStmt   = "Stmt"
+	ExecModeNormal = "Normal" //无事务执行
+	ExecModeTx     = "Tx"     //事务执行
+	ExecModeStmt   = "Stmt"   //prepare/exec执行
 )
 
 //BatchWriter 批量写入器
@@ -42,12 +57,14 @@ type BatchWriter interface {
 	BatchWrite(ctx context.Context, records []element.Record) error //批量写入
 }
 
+//BaseBatchWriter 批量写入器
 type BaseBatchWriter struct {
 	Task     *Task
 	execMode string
 	opts     *database.ParameterOptions
 }
 
+//NewBaseBatchWriter 获取任务task，执行模式execMode，事务选项opts创建批量写入器
 func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseBatchWriter {
 	w := &BaseBatchWriter{
 		Task:     task,
@@ -61,26 +78,32 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 	return w
 }
 
+//JobID 工作编号
 func (b *BaseBatchWriter) JobID() int64 {
 	return b.Task.JobID()
 }
 
+//TaskGroupID 任务组编号
 func (b *BaseBatchWriter) TaskGroupID() int64 {
 	return b.Task.TaskGroupID()
 }
 
+//TaskID 任务组任务编号
 func (b *BaseBatchWriter) TaskID() int64 {
 	return b.Task.TaskID()
 }
 
+//BatchSize 单批次插入数据
 func (b *BaseBatchWriter) BatchSize() int {
 	return b.Task.Config.GetBatchSize()
 }
 
+//BatchTimeout 单批次插入超时时间
 func (b *BaseBatchWriter) BatchTimeout() time.Duration {
 	return b.Task.Config.GetBatchTimeout()
 }
 
+//BatchWrite 批次写入
 func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) error {
 	b.opts.Records = records
 	defer func() {

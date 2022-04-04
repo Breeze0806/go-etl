@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package file
 
 import (
@@ -37,6 +51,7 @@ type Task struct {
 	content   *config.JSON
 }
 
+//NewTask 通过获取配置newConfig创建任务
 func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	return &Task{
 		BaseTask:  writer.NewBaseTask(),
@@ -44,6 +59,7 @@ func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	}
 }
 
+//Init 初始化
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("creater"); err != nil {
@@ -77,6 +93,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return
 }
 
+//StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	var sw file.StreamWriter
 	if sw, err = t.streamer.Writer(t.content); err != nil {
@@ -143,13 +160,14 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 				goto End
 			}
 
+			//写入文件
 			if err = sw.Write(record); err != nil {
 				log.Errorf("jobID: %v taskgroupID:%v taskID: %v Write error: %v",
 					t.JobID(), t.TaskGroupID(), t.TaskID(), err)
 				goto End
 			}
-
-			//当数据量超过单次批量数时 写入数据库
+			cnt++
+			//当数据量超过单次批量数时 写入文件
 			if cnt >= t.conf.GetBatchSize() {
 				if err = sw.Flush(); err != nil {
 					log.Errorf("jobID: %v taskgroupID:%v taskID: %v Flush error: %v",

@@ -1,6 +1,6 @@
 {
     "go.formatTool": "goimports",
-    "go.lintOnSave": "off",
+    "go.lintOnSave": "package",
     "go.vetOnSave": "package",
     "go.docsTool": "godoc",
     "go.useLanguageServer": true,
