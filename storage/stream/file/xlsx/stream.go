@@ -28,8 +28,8 @@ import (
 func init() {
 	var opener Opener
 	file.RegisterOpener("xlsx", &opener)
-	var creater Creater
-	file.RegisterCreater("xlsx", &creater)
+	var creator Creator
+	file.RegisterCreator("xlsx", &creator)
 }
 
 //Opener xlsx输入流打开器
@@ -41,12 +41,12 @@ func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
-//Creater xlsx输出流创建器
-type Creater struct {
+//Creator xlsx输出流创建器
+type Creator struct {
 }
 
 //Create 创建一个名为filename的xlsx输出流
-func (c *Creater) Create(filename string) (file.OutStream, error) {
+func (c *Creator) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 

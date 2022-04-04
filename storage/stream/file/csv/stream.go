@@ -30,8 +30,8 @@ import (
 func init() {
 	var opener Opener
 	file.RegisterOpener("csv", &opener)
-	var creater Creater
-	file.RegisterCreater("csv", &creater)
+	var creator Creator
+	file.RegisterCreator("csv", &creator)
 }
 
 //Opener csv输入流打开器
@@ -43,12 +43,12 @@ func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
-//Creater csv输出流创建器
-type Creater struct {
+//Creator csv输出流创建器
+type Creator struct {
 }
 
 //Create 创建一个名为filename的csv输出流
-func (c *Creater) Create(filename string) (file.OutStream, error) {
+func (c *Creator) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 

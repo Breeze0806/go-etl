@@ -52,8 +52,8 @@ func Test_ReadWrite(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			wFunc := func() {
-				var creater Creater
-				out, err := creater.Create(tt.args.filename)
+				var creator Creator
+				out, err := creator.Create(tt.args.filename)
 				if err != nil {
 					t.Fatal(err)
 				}

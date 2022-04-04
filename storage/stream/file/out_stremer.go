@@ -22,8 +22,8 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-// Creater 创建输出流的创建器
-type Creater interface {
+// Creator 创建输出流的创建器
+type Creator interface {
 	Create(filename string) (stream OutStream, err error) //创建名为filename的输出流
 }
 
@@ -40,9 +40,9 @@ type StreamWriter interface {
 	Close() (err error)                      //关闭输出流写入器
 }
 
-// RegisterCreater 通过创建器名称name注册输出流创建器creater
-func RegisterCreater(name string, creater Creater) {
-	if err := creaters.register(name, creater); err != nil {
+// RegisterCreator 通过创建器名称name注册输出流创建器creator
+func RegisterCreator(name string, creator Creator) {
+	if err := creators.register(name, creator); err != nil {
 		panic(err)
 	}
 }
@@ -52,15 +52,15 @@ type OutStreamer struct {
 	stream OutStream
 }
 
-// NewOutStreamer 通过creater名称name的输出流包装，并打开名为filename的输出流
+// NewOutStreamer 通过creator名称name的输出流包装，并打开名为filename的输出流
 func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err error) {
-	creater, ok := creaters.creater(name)
+	creator, ok := creators.creator(name)
 	if !ok {
-		err = fmt.Errorf("creater %v does not exist", name)
+		err = fmt.Errorf("creator %v does not exist", name)
 		return nil, err
 	}
 	streamer = &OutStreamer{}
-	if streamer.stream, err = creater.Create(filename); err != nil {
+	if streamer.stream, err = creator.Create(filename); err != nil {
 		return nil, fmt.Errorf("create fail. err : %v", err)
 	}
 	return
@@ -76,33 +76,33 @@ func (s *OutStreamer) Close() error {
 	return s.stream.Close()
 }
 
-var creaters = &createrMap{
-	creaters: make(map[string]Creater),
+var creators = &creatorMap{
+	creators: make(map[string]Creator),
 }
 
-type createrMap struct {
+type creatorMap struct {
 	sync.RWMutex
-	creaters map[string]Creater
+	creators map[string]Creator
 }
 
-func (o *createrMap) register(name string, creater Creater) error {
-	if creater == nil {
-		return fmt.Errorf("creater %v is nil", name)
+func (o *creatorMap) register(name string, creator Creator) error {
+	if creator == nil {
+		return fmt.Errorf("creator %v is nil", name)
 	}
 
 	o.Lock()
 	defer o.Unlock()
-	if _, ok := o.creaters[name]; ok {
-		return fmt.Errorf("creater %v exists", name)
+	if _, ok := o.creators[name]; ok {
+		return fmt.Errorf("creator %v exists", name)
 	}
 
-	o.creaters[name] = creater
+	o.creators[name] = creator
 	return nil
 }
 
-func (o *createrMap) creater(name string) (creater Creater, ok bool) {
+func (o *creatorMap) creator(name string) (creator Creator, ok bool) {
 	o.RLock()
 	defer o.RUnlock()
-	creater, ok = o.creaters[name]
+	creator, ok = o.creators[name]
 	return
 }

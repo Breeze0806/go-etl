@@ -49,15 +49,15 @@ func (m *mockOutStream) Close() (err error) {
 	return
 }
 
-type mockCreater struct {
+type mockCreator struct {
 }
 
-func (m *mockCreater) Create(filename string) (stream OutStream, err error) {
+func (m *mockCreator) Create(filename string) (stream OutStream, err error) {
 	return &mockOutStream{}, nil
 }
 
 func TestOutStreamer_Write(t *testing.T) {
-	RegisterCreater("mock", &mockCreater{})
+	RegisterCreator("mock", &mockCreator{})
 
 	s, err := NewOutStreamer("mock", "")
 	if err != nil {

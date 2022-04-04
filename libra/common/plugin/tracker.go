@@ -43,4 +43,3 @@ type Tracker interface {
 	OffsetTracker(master database.Table) (OffsetTracker, error)
 	PageParamTracker(master database.Table) (PageParamTracker, error)
 }
-
