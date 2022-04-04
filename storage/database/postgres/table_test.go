@@ -183,8 +183,8 @@ func TestCopyInParam_Agrs(t *testing.T) {
 			},
 			wantValuers: []interface{}{
 				int64(1), "2", "3",
-				int64(4), "5", "6",
-				int64(7), "8", "9",
+				int64(5), "4", "6",
+				int64(9), "7", "8",
 			},
 		},
 
@@ -218,7 +218,6 @@ func TestCopyInParam_Agrs(t *testing.T) {
 					{
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
-						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(6), "f3", 0),
 					},
 					{
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),

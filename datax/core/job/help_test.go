@@ -122,7 +122,9 @@ type mockReaderTask struct {
 func newMockReaderTask() *mockReaderTask {
 	return &mockReaderTask{
 		mockPlugin: &mockPlugin{},
-		mockTask:   &mockTask{},
+		mockTask: &mockTask{
+			BaseTask: plugin.NewBaseTask(),
+		},
 	}
 }
 
@@ -164,7 +166,9 @@ type mockWriterTask struct {
 func newMockWriterTask() *mockWriterTask {
 	return &mockWriterTask{
 		mockPlugin: &mockPlugin{},
-		mockTask:   &mockTask{},
+		mockTask: &mockTask{
+			BaseTask: plugin.NewBaseTask(),
+		},
 	}
 }
 

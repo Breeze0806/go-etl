@@ -81,14 +81,14 @@ func LoadTracker(name string) (plugin.Tracker, error) {
 	return tracker, err
 }
 
-//RegisterTracker 通过存储名name 注册加载追踪器，name重复或者comparable为空时则会panic
+//RegisterDifferStorageMaker 通过存储名name 注册加载追踪器，name重复或者comparable为空时则会panic
 func RegisterDifferStorageMaker(name string, maker plugin.DifferStorageMaker) {
 	if err := _centor.registerDifferStorageMaker(name, maker); err != nil {
 		panic(err)
 	}
 }
 
-//LoadTracker 通过存储名name加载追踪器, name不存在则会panic
+//LoadDifferStorageMaker 通过存储名name加载追踪器, name不存在则会panic
 func LoadDifferStorageMaker(name string) (plugin.DifferStorageMaker, error) {
 	tracker, err := _centor.differStorageMaker(name)
 	return tracker, err

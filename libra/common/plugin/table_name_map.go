@@ -23,6 +23,7 @@ type TableNameMap interface {
 	Close() error
 }
 
+//TableNameMapMaker 表名映射生成器
 type TableNameMapMaker interface {
 	TableNameMap() TableNameMap
 }

@@ -24,6 +24,7 @@ import (
 	"github.com/lib/pq"
 )
 
+//WriteModeCopyIn copy in写入方式
 const WriteModeCopyIn = "copyIn"
 
 //Table postgres表

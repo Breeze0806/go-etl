@@ -34,6 +34,7 @@ type DifferStorage interface {
 		onDiffer func(differ TableDiffer) error) error
 }
 
+//DifferStorageMaker 差异存储生成器
 type DifferStorageMaker interface {
 	DifferStorage() DifferStorage
 }

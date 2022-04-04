@@ -17,6 +17,7 @@ package writer
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -112,7 +113,7 @@ func (m *mockWriterMaker2) Default() (Writer, error) {
 
 func TestRegisterWriter(t *testing.T) {
 	type args struct {
-		maker WriterMaker
+		maker Maker
 	}
 	tests := []struct {
 		name    string
@@ -125,14 +126,14 @@ func TestRegisterWriter(t *testing.T) {
 			args: args{
 				maker: &mockWriterMaker{},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\resources\\plugin.json",
+			want: filepath.Join("github.com", "Breeze0806", "go-etl", "datax", "plugin", "writer", "resources", "plugin.json"),
 		},
 		{
 			name: "2",
 			args: args{
 				maker: &mockWriterMaker2{},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\writer\\resources\\plugin.json",
+			want: filepath.Join("github.com", "Breeze0806", "go-etl", "datax", "plugin", "writer", "resources", "plugin.json"),
 		},
 	}
 	for _, tt := range tests {

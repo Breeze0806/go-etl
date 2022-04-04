@@ -17,6 +17,7 @@ package reader
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -111,7 +112,7 @@ func (m *mockReaderMaker2) Default() (Reader, error) {
 
 func TestRegisterReader(t *testing.T) {
 	type args struct {
-		maker ReaderMaker
+		maker Maker
 	}
 	tests := []struct {
 		name    string
@@ -124,7 +125,7 @@ func TestRegisterReader(t *testing.T) {
 			args: args{
 				maker: &mockReaderMaker1{},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\resources\\plugin.json",
+			want: filepath.Join("github.com", "Breeze0806", "go-etl", "datax", "plugin", "reader", "resources", "plugin.json"),
 		},
 
 		{
@@ -132,7 +133,7 @@ func TestRegisterReader(t *testing.T) {
 			args: args{
 				maker: &mockReaderMaker2{},
 			},
-			want: "github.com\\Breeze0806\\go-etl\\datax\\plugin\\reader\\resources\\plugin.json",
+			want: filepath.Join("github.com", "Breeze0806", "go-etl", "datax", "plugin", "reader", "resources", "plugin.json"),
 		},
 	}
 	for _, tt := range tests {

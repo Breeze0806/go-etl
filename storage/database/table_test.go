@@ -304,8 +304,8 @@ func TestInsertParam_Agrs(t *testing.T) {
 			},
 			wantValuers: []interface{}{
 				int64(1), float64(2.0), "3",
-				int64(4), float64(5.0), "6",
-				int64(7), float64(8.0), "9",
+				int64(5), float64(4.0), "6",
+				int64(9), float64(7.0), "8",
 			},
 		},
 		{
@@ -325,7 +325,6 @@ func TestInsertParam_Agrs(t *testing.T) {
 					{
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
-						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(6), "f4", 0),
 					},
 					{
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),

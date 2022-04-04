@@ -189,7 +189,7 @@ func (t *taskExecer) Do() (err error) {
 	}
 }
 
-//Key 关键之
+//Key 关键字
 func (t *taskExecer) Key() string {
 	return t.key
 }

@@ -91,6 +91,11 @@ func newMockReaderTask(errs []error) *mockReaderTask {
 			destoryErr: errs[4],
 		},
 		mockTask: &mockTask{
+			BaseTask: plugin.NewBaseTask(),
+			mockPlugin: &mockPlugin{
+				initErr:    errs[0],
+				destoryErr: errs[4],
+			},
 			prepareErr: errs[1],
 			postErr:    errs[3],
 		},
@@ -142,6 +147,11 @@ func newMockWriterTask(errs []error) *mockWriterTask {
 			destoryErr: errs[4],
 		},
 		mockTask: &mockTask{
+			BaseTask: plugin.NewBaseTask(),
+			mockPlugin: &mockPlugin{
+				initErr:    errs[0],
+				destoryErr: errs[4],
+			},
 			prepareErr: errs[1],
 			postErr:    errs[3],
 		},

@@ -6,3 +6,4 @@ datax/plugin/plugin.go
 datax/plugin/reader/**/plugin.go
 datax/plugin/writer/**/plugin.go
 datax/plugin.go
+*.txt

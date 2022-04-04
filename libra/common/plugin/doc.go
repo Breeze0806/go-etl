@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package plugin 是一个挂件
 //  DBStorage（数据库存储）
 //     +--------------------------------------------------------+
 //     |                                                        |

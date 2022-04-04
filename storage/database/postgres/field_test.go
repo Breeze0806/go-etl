@@ -265,7 +265,7 @@ func TestFieldType_GoType(t *testing.T) {
 		{
 			name: "9",
 			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar])),
-			want: database.GoTypeString,
+			want: database.GoTypeBytes,
 		},
 		{
 			name: "10",
@@ -303,18 +303,13 @@ func TestFieldType_GoType(t *testing.T) {
 		//bytes
 		{
 			name: "16",
-			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bytea])),
-			want: database.GoTypeBytes,
-		},
-		{
-			name: "17",
-			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_uuid])),
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar])),
 			want: database.GoTypeBytes,
 		},
 
 		//unknown
 		{
-			name: "18",
+			name: "17",
 			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T__bool])),
 			want: database.GoTypeUnknown,
 		},
@@ -422,18 +417,9 @@ func TestScanner_Scan(t *testing.T) {
 		},
 
 		{
-			name: "7",
-			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_uuid]))))),
-			args: args{
-				src: nil,
-			},
-			want: element.NewDefaultColumn(element.NewNilBytesColumnValue(), "f1", 0),
-		},
-		{
 			name: "8",
 			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bytea]))))),
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar]))))),
 			args: args{
 				src: []byte("中国"),
 			},

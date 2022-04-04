@@ -64,10 +64,12 @@ func Test_newTaskExecer(t *testing.T) {
 				taskConf: testJSONFromString(`{
 						"taskId":1,
 						"reader":{
-							"name":"mock"
+							"name":"mock",
+							"parameter":{}
 						},
 						"writer":{
-							"name":"mock"
+							"name":"mock",
+							"parameter":{}
 						}
 					}`),
 				jobID:        1,
@@ -160,10 +162,12 @@ func Test_newTaskExecer(t *testing.T) {
 				taskConf: testJSONFromString(`{
 						"taskId":"6",
 						"reader":{
-							"name":"mock"
+							"name":"mock",
+							"parameter":{}
 						},
 						"writer":{
-							"name":"mock"
+							"name":"mock",
+							"parameter":{}
 						}
 					}`),
 				jobID:        6,
@@ -205,10 +209,12 @@ func Test_taskExecer_Do(t *testing.T) {
 			t: testTaskExecer(context.Background(), testJSONFromString(`{
 				"taskId":1,
 				"reader":{
-					"name":"mock"
+					"name":"mock",
+					"parameter":{}
 				},
 				"writer":{
-					"name":"mock"
+					"name":"mock",
+					"parameter":{}
 				}
 			}`), 1, 1, 0),
 			wantErr: false,
@@ -219,10 +225,12 @@ func Test_taskExecer_Do(t *testing.T) {
 			t: testTaskExecer(context.Background(), testJSONFromString(`{
 				"taskId":1,
 				"reader":{
-					"name":"mock1"
+					"name":"mock1",
+					"parameter":{}
 				},
 				"writer":{
-					"name":"mock1"
+					"name":"mock1",
+					"parameter":{}
 				}
 			}`), 2, 2, 0),
 			wantErr: true,

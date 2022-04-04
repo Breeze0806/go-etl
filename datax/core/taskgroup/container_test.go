@@ -64,10 +64,12 @@ func TestContainer_Do(t *testing.T) {
 		content.SetRawString(coreconst.DataxJobContent+fmt.Sprintf(".%d", i), fmt.Sprintf(`{
 			"taskId": %d,
 			"reader":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			},
 			"writer":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			}
 		}`, i))
 	}
@@ -106,10 +108,12 @@ func TestContainer_DoCancel1(t *testing.T) {
 		content.SetRawString(coreconst.DataxJobContent+fmt.Sprintf(".%d", i), fmt.Sprintf(`{
 			"taskId": %d,
 			"reader":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			},
 			"writer":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			}
 		}`, i))
 	}
@@ -153,10 +157,12 @@ func TestContainer_DoCancel2(t *testing.T) {
 		content.SetRawString(coreconst.DataxJobContent+fmt.Sprintf(".%d", i), fmt.Sprintf(`{
 			"taskId": %d,
 			"reader":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			},
 			"writer":{
-				"name":"mock"
+				"name":"mock",
+				"parameter":{}
 			}
 		}`, i))
 	}
@@ -422,15 +428,21 @@ func TestContainer_startTaskExecer(t *testing.T) {
 	}`))
 	c.scheduler = schedule.NewTaskSchduler(4, 0)
 	c.scheduler.Stop()
-	te, _ := newTaskExecer(c.ctx, testJSONFromString(`{
+	te, err := newTaskExecer(c.ctx, testJSONFromString(`{
 		"taskId": 1,
 		"reader":{
-			"name":"mock"
+			"name":"mock",
+			"parameter":{}
 		},
 		"writer":{
-			"name":"mock"
+			"name":"mock",
+			"parameter":{}
 		}
 	}`), 3, 3, 0)
+
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := c.startTaskExecer(te); err == nil {
 		t.Errorf("Container.startTaskExecer() error = %v, wantErr true", err)
 	}

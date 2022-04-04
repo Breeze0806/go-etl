@@ -14,6 +14,7 @@
 
 package config
 
+//libra参数
 const (
 	LibraCoreContainerJobMaster          = "core.container.job.master"
 	LibraCoreContainerJobSlave           = "core.container.job.slave"

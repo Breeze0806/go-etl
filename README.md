@@ -1,5 +1,5 @@
 # go-etl
-[![Go Report Card][report-img]][report][![GoDoc][doc-img]][doc][![LICENSE][license-img]][license]
+[![Go Report Card][report-img]][report][![GoDoc][doc-img]][doc][![LICENSE][license-img]][license][![Build Status][ci-img]][ci][![Coverage Status][cov-img]][cov]
 
 go-etl是一个集数据源抽取，转化，加载，同步校验的工具集，提供强大的数据同步，数据校验甚至数据转储的功能。
 
@@ -220,3 +220,7 @@ datax -c postgresxlsx/config.json
 [doc]:https://godoc.org/github.com/Breeze0806/go-etl
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license]: https://github.com/Breeze0806/go-etl/blob/main/LICENSE
+[ci-img]: https://app.travis-ci.com/Breeze0806/go-etl.svg?branch=main
+[ci]: https://app.travis-ci.com/Breeze0806/go-etl
+[cov-img]: https://codecov.io/gh/Breeze0806/go-etl/branch/main/graph/badge.svg?token=UGb27Nysga
+[cov]: https://codecov.io/gh/Breeze0806/go-etl

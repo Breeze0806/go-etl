@@ -16,6 +16,7 @@ package spi
 
 import "github.com/Breeze0806/go-etl/libra/common/plugin"
 
+//Task 任务
 type Task interface {
 	JobID() int64
 	TaskGroupID() int64
@@ -25,6 +26,7 @@ type Task interface {
 	Post() error
 }
 
+//PluginMaker 插件生成器
 type PluginMaker interface {
 	MasterTable() plugin.MasterTable
 	SlaveTable() plugin.SlaveTable

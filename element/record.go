@@ -33,6 +33,7 @@ type Record interface {
 	MemorySize() int64                     //内存大小
 }
 
+//RecordWithWg 有WaitGroup的记录
 type RecordWithWg interface {
 	WaitGroup() *sync.WaitGroup
 }
@@ -188,11 +189,13 @@ func (r *DefaultRecord) String() string {
 	return b.String()
 }
 
+//DefaultRecordWithWg 有WaitGroup的记录
 type DefaultRecordWithWg struct {
 	*DefaultRecord
 	wg *sync.WaitGroup
 }
 
+//NewDefaultRecordWithWg 生成有WaitGroup的记录
 func NewDefaultRecordWithWg() *DefaultRecordWithWg {
 	return &DefaultRecordWithWg{
 		DefaultRecord: NewDefaultRecord(),
@@ -200,6 +203,7 @@ func NewDefaultRecordWithWg() *DefaultRecordWithWg {
 	}
 }
 
+//WaitGroup 获取等待组
 func (d *DefaultRecordWithWg) WaitGroup() *sync.WaitGroup {
 	return d.wg
 }

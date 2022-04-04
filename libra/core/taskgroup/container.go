@@ -20,14 +20,17 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
+//Option 容器选项
 type Option func(c *Container) error
 
+//Container 容器
 type Container struct {
 	jobID string
 	conf  *config.JSON
 	ctx   context.Context
 }
 
+//NewContainer 容器
 func NewContainer(ctx context.Context, options ...Option) (c *Container, err error) {
 	c = &Container{
 		ctx: ctx,
@@ -54,6 +57,7 @@ func setJobID(jobID string) Option {
 	}
 }
 
+//Do 执行
 func (c *Container) Do() (err error) {
 	return
 }

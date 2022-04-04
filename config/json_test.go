@@ -16,6 +16,7 @@ package config
 
 import (
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -262,6 +263,10 @@ func TestNewJSONFromBytes(t *testing.T) {
 }
 
 func TestNewJSONFromFile(t *testing.T) {
+	lineSign := "\n"
+	if runtime.GOOS == "windows" {
+		lineSign = "\r\n"
+	}
 	type args struct {
 		filename string
 	}
@@ -283,7 +288,7 @@ func TestNewJSONFromFile(t *testing.T) {
 			args: args{
 				"test_data",
 			},
-			want: testJSONFromString(strings.ReplaceAll(basicJSON, "\n", "\r\n")),
+			want: testJSONFromString(strings.ReplaceAll(basicJSON, "\n", lineSign)),
 		},
 	}
 	for _, tt := range tests {

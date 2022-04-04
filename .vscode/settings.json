@@ -2,7 +2,6 @@
     "go.formatTool": "goimports",
     "go.lintOnSave": "package",
     "go.vetOnSave": "package",
-    "go.docsTool": "godoc",
     "go.useLanguageServer": true,
     "[go]": {
         "editor.formatOnSave": true,
@@ -37,5 +36,5 @@
     "go.coverOnSingleTestFile": true,
     "go.coverShowCounts": true,
     "go.testOnSave": true,
-    "go.testFlags": ["-race"]
+    "go.testFlags": []
 }
