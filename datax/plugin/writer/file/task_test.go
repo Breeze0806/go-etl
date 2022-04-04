@@ -107,7 +107,7 @@ func (m *mockCreater) Create(filename string) (stream file.OutStream, err error)
 	return &mockOutStream{}, nil
 }
 func TestTask_StartWrite(t *testing.T) {
-	file.RegisterCreater("mock", &mockCreater{})
+	file.RegisterCreator("mock", &mockCreater{})
 
 	type args struct {
 		ctx      context.Context
