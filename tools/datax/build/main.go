@@ -27,7 +27,8 @@ import (
 //go:generate go run main.go
 var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "[datax]")
 
-var readerCode = `package %v
+const (
+	readerCode = `package %v
 
 import (
 	"github.com/Breeze0806/go-etl/config"
@@ -78,8 +79,7 @@ func (m *maker) Default() (reader.Reader, error) {
 	return NewReaderFromString(pluginConfig)
 }
 `
-
-var writerCode = `package %v
+	writerCode = `package %v
 
 import (
 	"github.com/Breeze0806/go-etl/config"
@@ -129,16 +129,18 @@ func (m *maker) FromFile(filename string) (writer.Writer, error) {
 func (m *maker) Default() (writer.Writer, error) {
 	return NewWriterFromString(pluginConfig)
 }`
+	sourcePath = "../../../datax/"
+)
 
 func main() {
 	var imports []string
 	parser := pluginParser{}
-	if err := parser.readPackages("../plugin/reader"); err != nil {
+	if err := parser.readPackages(sourcePath + "plugin/reader"); err != nil {
 		log.Errorf("readPackages %v", err)
 		return
 	}
 	for _, info := range parser.infos {
-		if err := info.genFile("../plugin/reader", readerCode); err != nil {
+		if err := info.genFile(sourcePath+"plugin/reader", readerCode); err != nil {
 			log.Errorf("genFile %v", err)
 			return
 		}
@@ -147,12 +149,12 @@ func main() {
 
 	imports = append(imports, "")
 	parser.infos = nil
-	if err := parser.readPackages("../plugin/writer"); err != nil {
+	if err := parser.readPackages(sourcePath + "plugin/writer"); err != nil {
 		log.Errorf("readPackages %v", err)
 		return
 	}
 	for _, info := range parser.infos {
-		if err := info.genFile("../plugin/writer", writerCode); err != nil {
+		if err := info.genFile(sourcePath+"plugin/writer", writerCode); err != nil {
 			log.Errorf("genFile %v", err)
 			return
 		}
@@ -215,7 +217,7 @@ func (p *pluginInfo) genFile(path string, code string) (err error) {
 
 func writeAllPlugins(imports []string) (err error) {
 	var f *os.File
-	f, err = os.Create("../plugin.go")
+	f, err = os.Create(sourcePath + "plugin.go")
 	if err != nil {
 		return
 	}

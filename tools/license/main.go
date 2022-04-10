@@ -112,7 +112,8 @@ func addLicenseHeader(filename string) error {
 		return err
 	}
 
-	if bytes.HasPrefix(data, []byte(licenseHeader)) {
+	data = bytes.ReplaceAll(data, []byte("\r"), []byte(""))
+	if bytes.HasPrefix(data, bytes.ReplaceAll([]byte(licenseHeader), []byte("\r"), []byte(""))) {
 		return nil
 	}
 
@@ -121,6 +122,7 @@ func addLicenseHeader(filename string) error {
 		return err
 	}
 	defer f.Close()
+
 	_, err = f.WriteString(licenseHeader)
 	if err != nil {
 		return err
