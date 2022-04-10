@@ -39,7 +39,7 @@ type Maker interface {
 }
 
 //RegisterReader 通过生成数据库读取器函数new注册到读取器，返回插件资源配置文件地址，在出错时会包err
-//目前未在代码中实际使用，而是通过datax/build的go generate命令自动将resources/plugin.json
+//目前未在代码中实际使用，而是通过tools/datax/build的go generate命令自动将resources/plugin.json
 //中的内容放入到新生成的代码文件中，用以注册Reader
 func RegisterReader(maker Maker) (pluginConfig string, err error) {
 	_, file, _, ok := runtime.Caller(1)
