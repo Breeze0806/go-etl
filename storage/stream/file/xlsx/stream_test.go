@@ -47,7 +47,7 @@ func TestWriter_Write(t *testing.T) {
 				outConf:  testJSONFromString(`{"sheets":["where"],"column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
 				filename: filepath.Join(t.TempDir(), "a.csv"),
 			},
-			wantStr: "0=2022-01-01T00:00:00Z 1=abc",
+			wantStr: "0=2022-01-01 00:00:00Z 1=abc",
 		},
 	}
 
