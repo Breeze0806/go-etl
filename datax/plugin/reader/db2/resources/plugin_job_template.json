@@ -1,0 +1,16 @@
+{
+	"name": "db2reader",
+	"parameter": {
+		"username": "",
+        "password": "",
+        "column": ["*"],
+        "connection":  {
+                "url": "HOSTNAME=192.168.15.130;PORT=50000;DATABASE=testdb",
+                "table": {
+                    "schema":"source",
+                    "name":"type_table"
+                }
+            },
+        "where": ""
+	}
+}

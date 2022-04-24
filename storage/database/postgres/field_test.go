@@ -483,7 +483,7 @@ func TestScanner_Scan(t *testing.T) {
 				src: time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC),
 			},
 			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
-				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC), element.NewStringTimeDecoder("2006-01-02 15:04:05")), "f1", 0),
+				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC), element.NewStringTimeDecoder(timestampLayout)), "f1", 0),
 		},
 		{
 			name: "12",

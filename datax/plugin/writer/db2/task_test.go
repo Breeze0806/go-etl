@@ -12,43 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package element
+package db2
 
 import (
-	"reflect"
 	"testing"
-	"time"
+
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/storage/database"
+	_ "github.com/Breeze0806/go-etl/storage/database/db2"
 )
 
-func TestStringTimeEncoder_TimeEncode(t *testing.T) {
+func Test_execMode(t *testing.T) {
 	type args struct {
-		i interface{}
+		writeMode string
 	}
 	tests := []struct {
-		name    string
-		e       *StringTimeEncoder
-		args    args
-		want    time.Time
-		wantErr bool
+		name string
+		args args
+		want string
 	}{
 		{
 			name: "1",
-			e:    NewStringTimeEncoder(DefaultTimeFormat).(*StringTimeEncoder),
 			args: args{
-				i: 1,
+				writeMode: database.WriteModeInsert,
 			},
-			wantErr: true,
+			want: rdbm.ExecModeNormal,
+		},
+		{
+			name: "2",
+			args: args{
+				writeMode: "",
+			},
+			want: rdbm.ExecModeNormal,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.e.TimeEncode(tt.args.i)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("StringTimeEncoder.TimeEncode() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("StringTimeEncoder.TimeEncode() = %v, want %v", got, tt.want)
+			if got := execMode(tt.args.writeMode); got != tt.want {
+				t.Errorf("execMode() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -355,7 +355,7 @@ func TestStringColumnValue_AsTime(t *testing.T) {
 	}{
 		{
 			name:  "1",
-			s:     NewStringColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat)).(*StringColumnValue),
+			s:     NewStringColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(DefaultTimeFormat)).(*StringColumnValue),
 			wantT: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local),
 		},
 		{

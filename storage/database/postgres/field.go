@@ -24,6 +24,11 @@ import (
 	"github.com/lib/pq/oid"
 )
 
+var (
+	dateLayout      = element.DefaultTimeFormat[:10]
+	timestampLayout = element.DefaultTimeFormat[:26]
+)
+
 //Field 字段
 type Field struct {
 	*database.BaseField
@@ -162,7 +167,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilTimeColumnValue()
 		case time.Time:
-			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02"))
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder(dateLayout))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}
@@ -173,7 +178,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilTimeColumnValue()
 		case time.Time:
-			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02 15:04:05"))
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder(timestampLayout))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}

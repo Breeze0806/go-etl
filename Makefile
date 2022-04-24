@@ -1,5 +1,9 @@
+DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
+export CGO_CFLAGS=-I${DB2HOME}/include
+export CGO_LDFLAGS=-L${DB2HOME}/lib
+export LD_LIBRARY_PATH=${DB2HOME}/lib
 # Many Go tools take file globs or directories as arguments instead of packages.
 COVERALLS_TOKEN=477d8d1f-b729-472f-b842-e0e4b03bc0c2
 # The linting tools evolve with each Go version, so run them only on the latest
@@ -12,10 +16,13 @@ SHOULD_LINT := true
 endif
 
 .PHONY: all
-all: lint examples test
+all: lint release test
 
 .PHONY: dependencies
 dependencies:
+	@echo "Installing db2 lib..."
+	git clone https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
 	go get -v golang.org/x/lint/golint
@@ -30,12 +37,14 @@ lint:
 ifdef SHOULD_LINT
 	@rm -rf lint.log
 	@echo "Installing test dependencies for vet..."
-	@go test -i ./...
+	@go test ./...
 	@echo "Checking vet..."
 	@go vet ./... 2>&1 | tee -a lint.log
 	@echo "Checking lint..."
 	@golint ./... 2>&1 | tee -a lint.log
 	@[ ! -s lint.log ]
+	@echo "Checking license..."
+	@go run tools/license/main.go -c
 else
 	@echo "Skipping linters on" $(GO_VERSION)
 endif
@@ -46,10 +55,10 @@ test:
 
 .PHONY: cover
 cover:
-	sh cover.sh
+	@sh cover.sh
 
-.PHONY: examples
-examples:
+.PHONY: release
+release:
 	@go generate ./... && cd cmd/datax && go build && cd ../..
 
 .PHONY: doc

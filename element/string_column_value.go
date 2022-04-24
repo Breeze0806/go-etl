@@ -54,7 +54,7 @@ type StringColumnValue struct {
 
 //NewStringColumnValue 根据字符串s 生成字符串列值
 func NewStringColumnValue(s string) ColumnValue {
-	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(defaultTimeFormat))
+	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(DefaultTimeFormat))
 }
 
 //NewStringColumnValueWithEncoder 根据字符串s 时间编码器e生成字符串列值

@@ -19,26 +19,19 @@ go-etl将提供的etl能力如下：
 
 ### 安装和发布
 
+在使用下列命令前请确保你已经安装go的编译环境并且设置好了GOPATH
+
 #### linux
 
 ```bash
-export GO111MODULE=on
-go mod download
-go mod vendor
-go generate ./...
-cd cmd/datax
-go build
+make dependencies
+make release
 ```
 
 #### windows
 
 ```bash
-set GO111MODULE=on
-go mod download
-go mod vendor   
-go generate ./...
-cd cmd/datax
-go build
+release.bat
 ```
 
 ### 发布命令解析
@@ -108,6 +101,19 @@ datax -c postgresxlsx/config.json
 
 如上数据可以在各个数据源之间流转，如MySQL到Postgres
 
+#### 使用db2同步xlsx
+- 注意使用前请下载相应的db2的odbc库，如linux的make dependencies和release.bat
+- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
+- 可以使用cmd/datax/db2/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c db2/config.json
+```
+
+如上数据可以在各个数据源之间流转，如MySQL到Postgres
+
 ### 开发者文档
 
 #### 新增许可证（license）
@@ -165,14 +171,15 @@ go run main.go -t writer -p DB2
 
 | 类型         | 数据源        | Reader（读） | Writer(写) | 文档                                                         |
 | ------------ | ------------- | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
+| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+| | DB2 LUW | √ | √ | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
 | 无结构流     | CVS           | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel） | √            | √           | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
 ### plan
 
-- [ ] 实现db2数据库reader/writer插件
+- [x] 实现db2数据库reader/writer插件
 - [ ] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
 - [x] 实现cvs文件reader/writer插件
@@ -190,7 +197,7 @@ go run main.go -t writer -p DB2
 
 #### plan
 
-- [ ] 实现db2数据库的dialect 
+- [x] 实现db2数据库的dialect 
 - [ ] 实现sql server数据库的dialect
 - [ ] 实现oracle数据库的dialect
 

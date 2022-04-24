@@ -16,7 +16,6 @@ package writer
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
 	"runtime"
 
@@ -51,9 +50,6 @@ func RegisterWriter(maker Maker) (pluginConfig string, err error) {
 	pluginConfig = filepath.Join(path, "resources", "plugin.json")
 	var writer Writer
 	if writer, err = maker.FromFile(pluginConfig); err != nil {
-		if !os.IsNotExist(err) {
-			return "", err
-		}
 		if writer, err = maker.Default(); err != nil {
 			return "", err
 		}
