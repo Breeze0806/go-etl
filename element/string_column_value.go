@@ -54,7 +54,7 @@ type StringColumnValue struct {
 
 //NewStringColumnValue 根据字符串s 生成字符串列值
 func NewStringColumnValue(s string) ColumnValue {
-	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(time.RFC3339Nano))
+	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(defaultTimeFormat))
 }
 
 //NewStringColumnValueWithEncoder 根据字符串s 时间编码器e生成字符串列值
@@ -114,7 +114,7 @@ func (s *StringColumnValue) AsBytes() ([]byte, error) {
 func (s *StringColumnValue) AsTime() (t time.Time, err error) {
 	t, err = s.TimeEncode(s.val)
 	if err != nil {
-		return time.Time{}, NewTransformErrorFormColumnTypes(s.Type(), TypeTime, fmt.Errorf(" val: %v", s.val))
+		return time.Time{}, NewTransformErrorFormColumnTypes(s.Type(), TypeTime, fmt.Errorf("err: %v val: %v", err, s.val))
 	}
 	return
 }

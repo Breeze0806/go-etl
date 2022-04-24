@@ -94,7 +94,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		oid.TypeName[oid.T_timestamptz]:
 		f.goType = database.GoTypeTime
 	case oid.TypeName[oid.T_bpchar]:
-		f.goType = database.GoTypeBytes
+		f.goType = database.GoTypeString
 	}
 	return f
 }
@@ -157,14 +157,23 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T),but not %v", src, src, element.TypeBytes)
 		}
-	case oid.TypeName[oid.T_date], oid.TypeName[oid.T_time],
-		oid.TypeName[oid.T_timetz], oid.TypeName[oid.T_timestamp],
-		oid.TypeName[oid.T_timestamptz]:
+	case oid.TypeName[oid.T_date]:
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilTimeColumnValue()
 		case time.Time:
-			cv = element.NewTimeColumnValue(data)
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02"))
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
+		}
+
+	case oid.TypeName[oid.T_time], oid.TypeName[oid.T_timetz],
+		oid.TypeName[oid.T_timestamp], oid.TypeName[oid.T_timestamptz]:
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilTimeColumnValue()
+		case time.Time:
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02 15:04:05"))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}

@@ -54,7 +54,7 @@ type TimeColumnValue struct {
 
 //NewTimeColumnValue 根据时间t获得时间列值
 func NewTimeColumnValue(t time.Time) ColumnValue {
-	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(time.RFC3339Nano))
+	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(defaultTimeFormat))
 }
 
 //NewTimeColumnValueWithDecoder 根据时间t和时间解码器t获得时间列值

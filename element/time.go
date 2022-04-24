@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-var defaultTimeFormat = time.RFC3339Nano
+var defaultTimeFormat = "2006-01-02 15:04:05.999999999Z07:00"
 
 //TimeDecoder 时间解码器
 type TimeDecoder interface {
@@ -49,7 +49,7 @@ func (e *StringTimeEncoder) TimeEncode(i interface{}) (time.Time, error) {
 	if !ok {
 		return time.Time{}, fmt.Errorf("%v is %T, not string", i, i)
 	}
-	return time.Parse(e.layout, s)
+	return time.Parse(e.layout[:len(s)], s)
 }
 
 //StringTimeDecoder 字符串时间编码器

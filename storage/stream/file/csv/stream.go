@@ -96,10 +96,11 @@ func (s *Stream) Close() (err error) {
 
 //Rows 行读取器
 type Rows struct {
-	columns map[int]Column
-	reader  *csv.Reader
-	record  []string
-	err     error
+	columns    map[int]Column
+	reader     *csv.Reader
+	record     []string
+	nullFormat string
+	err        error
 }
 
 //NewRows 通过文件句柄f，和配置文件c 创建行读取器
@@ -110,7 +111,8 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 		return nil, err
 	}
 	rows := &Rows{
-		columns: make(map[int]Column),
+		columns:    make(map[int]Column),
+		nullFormat: conf.NullFormat,
 	}
 	rows.reader = csv.NewReader(f)
 	rows.reader.Comma = []rune(conf.Delimiter)[0]
@@ -157,6 +159,10 @@ func (r *Rows) Close() error {
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	c, ok := r.columns[index]
 	if ok && element.ColumnType(c.Type) == element.TypeTime {
+		if s == r.nullFormat {
+			return element.NewDefaultColumn(element.NewNilTimeColumnValue(),
+				strconv.Itoa(index), 0), nil
+		}
 		layout := c.layout()
 		t, err := time.Parse(layout, s)
 		if err != nil {
@@ -166,13 +172,18 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 			element.NewStringTimeDecoder(layout)),
 			strconv.Itoa(index), 0), nil
 	}
+	if s == r.nullFormat {
+		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
+			strconv.Itoa(index), 0), nil
+	}
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
 }
 
 //Writer csv流写入器
 type Writer struct {
-	writer  *csv.Writer
-	columns map[int]Column
+	writer     *csv.Writer
+	columns    map[int]Column
+	nullFormat string
 }
 
 //NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
@@ -183,8 +194,9 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 		return nil, err
 	}
 	w := &Writer{
-		writer:  csv.NewWriter(f),
-		columns: make(map[int]Column),
+		writer:     csv.NewWriter(f),
+		columns:    make(map[int]Column),
+		nullFormat: conf.NullFormat,
 	}
 	w.writer.Comma = []rune(conf.Delimiter)[0]
 	for _, v := range conf.Columns {
@@ -223,6 +235,10 @@ func (w *Writer) Write(record element.Record) (err error) {
 }
 
 func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
+	if col.IsNil() {
+		return w.nullFormat, nil
+	}
+
 	if c, ok := w.columns[i]; ok && element.ColumnType(c.Type) == element.TypeTime {
 		var t time.Time
 		if t, err = col.AsTime(); err != nil {
@@ -231,6 +247,6 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 		s = t.Format(c.layout())
 		return
 	}
-	s = col.String()
+	s, err = col.AsString()
 	return
 }

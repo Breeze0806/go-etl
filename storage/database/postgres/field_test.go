@@ -265,7 +265,7 @@ func TestFieldType_GoType(t *testing.T) {
 		{
 			name: "9",
 			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar])),
-			want: database.GoTypeBytes,
+			want: database.GoTypeString,
 		},
 		{
 			name: "10",
@@ -300,16 +300,9 @@ func TestFieldType_GoType(t *testing.T) {
 			want: database.GoTypeTime,
 		},
 
-		//bytes
-		{
-			name: "16",
-			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar])),
-			want: database.GoTypeBytes,
-		},
-
 		//unknown
 		{
-			name: "17",
+			name: "16",
 			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T__bool])),
 			want: database.GoTypeUnknown,
 		},
@@ -425,6 +418,16 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中国")), "f1", 0),
 		},
+
+		{
+			name: "8nil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar]))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilBytesColumnValue(), "f1", 0),
+		},
 		{
 			name: "9",
 			s: NewScanner(NewField(database.NewBaseField(0,
@@ -436,9 +439,37 @@ func TestScanner_Scan(t *testing.T) {
 		},
 
 		{
+			name: "10nil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_date]))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilTimeColumnValue(), "f1", 0),
+		},
+		{
 			name: "10",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_date]))))),
+			args: args{
+				src: time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC),
+			},
+			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
+				time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC), element.NewStringTimeDecoder("2006-01-02")), "f1", 0),
+		},
+		{
+			name: "10error",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_date]))))),
+			args: args{
+				src: "1",
+			},
+			wantErr: true,
+		},
+		{
+			name: "11nil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_timestamp]))))),
 			args: args{
 				src: nil,
 			},
@@ -451,8 +482,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC),
 			},
-			want: element.NewDefaultColumn(element.NewTimeColumnValue(
-				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC)), "f1", 0),
+			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
+				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC), element.NewStringTimeDecoder("2006-01-02 15:04:05")), "f1", 0),
 		},
 		{
 			name: "12",
@@ -483,6 +514,15 @@ func TestScanner_Scan(t *testing.T) {
 			want: element.NewDefaultColumn(element.NewStringColumnValue("中国"), "f1", 0),
 		},
 		{
+			name: "14err",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_text]))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
+		{
 			name: "15",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar]))))),
@@ -491,7 +531,6 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
 		{
 			name: "16",
 			s: NewScanner(NewField(database.NewBaseField(0,
@@ -499,7 +538,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: nil,
 			},
-			want: element.NewDefaultColumn(element.NewNilStringColumnValue(), "f1", 0),
+			want: element.NewDefaultColumn(element.NewNilDecimalColumnValue(), "f1", 0),
 		},
 		{
 			name: "17",
@@ -555,8 +594,8 @@ func TestScanner_Scan(t *testing.T) {
 				return
 			}
 
-			if got := tt.s.Column(); !tt.wantErr && !reflect.DeepEqual(got.String(), tt.want.String()) {
-				t.Errorf("Column() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(tt.s.Column(), tt.want) {
+				t.Errorf("Column() = %v, want %v", tt.s.Column(), tt.want)
 			}
 		})
 	}

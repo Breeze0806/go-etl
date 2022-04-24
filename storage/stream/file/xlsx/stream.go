@@ -99,7 +99,8 @@ func (s *Stream) Close() (err error) {
 type Rows struct {
 	*excelize.Rows
 
-	columns map[int]Column
+	columns    map[int]Column
+	nullFormat string
 }
 
 //NewRows 通过文件句柄f，和配置文件c 创建行读取器
@@ -109,7 +110,8 @@ func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 		return
 	}
 	rows = &Rows{
-		columns: make(map[int]Column),
+		columns:    make(map[int]Column),
+		nullFormat: conf.NullFormat,
 	}
 	for _, v := range conf.Columns {
 		rows.columns[v.index()] = v
@@ -140,6 +142,10 @@ func (r *Rows) Scan() (columns []element.Column, err error) {
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	c, ok := r.columns[index]
 	if ok && element.ColumnType(c.Type) == element.TypeTime {
+		if s == r.nullFormat {
+			return element.NewDefaultColumn(element.NewNilTimeColumnValue(),
+				strconv.Itoa(index), 0), nil
+		}
 		layout := c.layout()
 		t, err := time.Parse(layout, s)
 		if err != nil {
@@ -147,6 +153,10 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		}
 		return element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(t,
 			element.NewStringTimeDecoder(layout)),
+			strconv.Itoa(index), 0), nil
+	}
+	if s == r.nullFormat {
+		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
 			strconv.Itoa(index), 0), nil
 	}
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
@@ -240,6 +250,9 @@ func (w *Writer) newStreamWriter() (err error) {
 }
 
 func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
+	if col.IsNil() {
+		return w.conf.NullFormat, nil
+	}
 	if c, ok := w.columns[i]; ok && element.ColumnType(c.Type) == element.TypeTime {
 		var t time.Time
 		if t, err = col.AsTime(); err != nil {
@@ -248,7 +261,7 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 		s = t.Format(c.layout())
 		return
 	}
-	s = col.String()
+	s, err = col.AsString()
 	return
 }
 

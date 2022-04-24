@@ -86,6 +86,11 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
 - 必选：否
 - 默认值: 无
 
+#### nullFormat
+
+- 描述：文本文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
+- 必选：否
+- 默认值：空字符串
 
 ### 类型转换
 

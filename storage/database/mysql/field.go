@@ -150,12 +150,21 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T),but not %v", src, src, element.TypeBytes)
 		}
-	case "DATE", "DATETIME", "TIMESTAMP":
+	case "DATE":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilTimeColumnValue()
 		case time.Time:
-			cv = element.NewTimeColumnValue(data)
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02"))
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
+		}
+	case "DATETIME", "TIMESTAMP":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilTimeColumnValue()
+		case time.Time:
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder("2006-01-02 15:04:05"))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}

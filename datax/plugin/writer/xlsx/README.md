@@ -91,6 +91,12 @@ XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的s
 - 必选：是
 - 默认值: 无
 
+#### nullFormat
+
+- 描述：文本文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
+- 必选：否
+- 默认值：空字符串
+
 #### batchTimeout
 
 - 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。

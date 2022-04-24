@@ -355,13 +355,18 @@ func TestStringColumnValue_AsTime(t *testing.T) {
 	}{
 		{
 			name:  "1",
-			s:     NewStringColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(time.RFC3339Nano)).(*StringColumnValue),
+			s:     NewStringColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat)).(*StringColumnValue),
 			wantT: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local),
 		},
 		{
 			name:    "2",
 			s:       NewStringColumnValue("中文abc1234<>&*^%$").(*StringColumnValue),
 			wantErr: true,
+		},
+		{
+			name:  "3",
+			s:     NewStringColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.UTC).Format("2006-01-02")).(*StringColumnValue),
+			wantT: time.Date(2020, 12, 17, 0, 0, 0, 0, time.UTC),
 		},
 	}
 	for _, tt := range tests {

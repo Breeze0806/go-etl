@@ -439,23 +439,48 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local),
 			},
-			want: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local)), "test", 0),
+			want: element.NewDefaultColumn(
+				element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder("2006-01-02")), "test", 0),
 		},
 		{
-			name: "DATETIME",
-			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATETIME")))),
+			name: "DATEnull",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATE")))),
 			args: args{
 				src: nil,
 			},
 			want: element.NewDefaultColumn(element.NewNilTimeColumnValue(), "test", 0),
 		},
 		{
-			name: "TIMESTAMP",
+			name: "DATEerr",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATE")))),
+			args: args{
+				src: "123",
+			},
+			wantErr: true,
+		},
+		{
+			name: "DATETIME",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DATETIME")))),
+			args: args{
+				src: time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local),
+			},
+			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder("2006-01-02 15:04:05")), "test", 0),
+		},
+		{
+			name: "TIMESTAMPErr",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TIMESTAMP")))),
 			args: args{
 				src: "nil",
 			},
 			wantErr: true,
+		},
+		{
+			name: "TIMESTAMPnil",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TIMESTAMP")))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilTimeColumnValue(), "test", 0),
 		},
 		//"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR", "TIME"
 		{

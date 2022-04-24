@@ -143,3 +143,24 @@ func Test_terminateRecord(t *testing.T) {
 		return
 	}
 }
+
+func TestTerminateRecord_String(t *testing.T) {
+	tests := []struct {
+		name string
+		tr   *TerminateRecord
+		want string
+	}{
+		{
+			name: "1",
+			tr:   &TerminateRecord{},
+			want: "terminate",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.String(); got != tt.want {
+				t.Errorf("TerminateRecord.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

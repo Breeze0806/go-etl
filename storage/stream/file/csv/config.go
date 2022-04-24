@@ -26,9 +26,10 @@ import (
 
 //Config csv配置
 type Config struct {
-	Columns   []Column `json:"column"`    // 列信息
-	Encoding  string   `json:"encoding"`  // 编码
-	Delimiter string   `json:"delimiter"` // 分割符
+	Columns    []Column `json:"column"`     // 列信息
+	Encoding   string   `json:"encoding"`   // 编码
+	Delimiter  string   `json:"delimiter"`  // 分割符
+	NullFormat string   `json:"nullFormat"` // null文本
 }
 
 //Column 列信息

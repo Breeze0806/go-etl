@@ -26,14 +26,16 @@ import (
 
 //InConfig 输入xlsx配置
 type InConfig struct {
-	Columns []Column `json:"column"` //列信息数组
-	Sheet   string   `json:"sheet"`  //表格名
+	Columns    []Column `json:"column"`     //列信息数组
+	Sheet      string   `json:"sheet"`      //表格名
+	NullFormat string   `json:"nullFormat"` //null文本
 }
 
 //OutConfig 输出xlsx配置
 type OutConfig struct {
-	Columns []Column `json:"column"` //列信息数组
-	Sheets  []string `json:"sheets"` //表格名
+	Columns    []Column `json:"column"`     //列信息数组
+	Sheets     []string `json:"sheets"`     //表格名
+	NullFormat string   `json:"nullFormat"` //null文本
 }
 
 //Column 列信息
