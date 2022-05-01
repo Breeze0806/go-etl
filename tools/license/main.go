@@ -16,6 +16,8 @@ package main
 
 import (
 	"bytes"
+	"flag"
+	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"os"
@@ -43,6 +45,8 @@ var licenseHeader = `// Copyright 2020 the go-etl Authors.
 `
 
 func main() {
+	check := flag.Bool("c", false, "check licenseHeader")
+	flag.Parse()
 	packages, err := readPackages("./")
 	if err != nil {
 		log.Errorf("readPackages fail. err : %v", err)
@@ -78,9 +82,18 @@ func main() {
 				<-c
 				wg.Done()
 			}()
-			log.Infof("addLicenseHeader %v", filename)
-			if err = addLicenseHeader(filename); err != nil {
-				log.Errorf("addLicenseHeader %v fail. err : %v", filename, err)
+
+			if *check {
+				log.Infof("checkLicenseHeader %v", filename)
+				if err = checkLicenseHeader(filename); err != nil {
+					log.Errorf("checkLicenseHeader %v fail. err : %v", filename, err)
+					os.Exit(1)
+				}
+			} else {
+				log.Infof("addLicenseHeader %v", filename)
+				if err = addLicenseHeader(filename); err != nil {
+					log.Errorf("addLicenseHeader %v fail. err : %v", filename, err)
+				}
 			}
 		}(v)
 	}
@@ -132,4 +145,17 @@ func addLicenseHeader(filename string) error {
 		return err
 	}
 	return nil
+}
+
+func checkLicenseHeader(filename string) error {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	data = bytes.ReplaceAll(data, []byte("\r"), []byte(""))
+	if bytes.HasPrefix(data, bytes.ReplaceAll([]byte(licenseHeader), []byte("\r"), []byte(""))) {
+		return nil
+	}
+	return fmt.Errorf("has no license header")
 }

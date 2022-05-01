@@ -16,12 +16,12 @@ SHOULD_LINT := true
 endif
 
 .PHONY: all
-all: lint examples test
+all: lint release test
 
 .PHONY: dependencies
 dependencies:
 	@echo "Installing db2 lib..."
-	git clone --depth=50 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
+	git clone https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
 	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
@@ -43,6 +43,8 @@ ifdef SHOULD_LINT
 	@echo "Checking lint..."
 	@golint ./... 2>&1 | tee -a lint.log
 	@[ ! -s lint.log ]
+	@echo "Checking license..."
+	@go run tools/license/main.go -c
 else
 	@echo "Skipping linters on" $(GO_VERSION)
 endif
@@ -55,8 +57,8 @@ test:
 cover:
 	@sh cover.sh
 
-.PHONY: examples
-examples:
+.PHONY: release
+release:
 	@go generate ./... && cd cmd/datax && go build && cd ../..
 
 .PHONY: doc

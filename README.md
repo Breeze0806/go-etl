@@ -19,26 +19,19 @@ go-etl将提供的etl能力如下：
 
 ### 安装和发布
 
+在使用下列命令前请确保你已经安装go的编译环境并且设置好了GOPATH
+
 #### linux
 
 ```bash
-export GO111MODULE=on
-go mod download
-go mod vendor
-go generate ./...
-cd cmd/datax
-go build
+make dependencies
+make release
 ```
 
 #### windows
 
 ```bash
-set GO111MODULE=on
-go mod download
-go mod vendor   
-go generate ./...
-cd cmd/datax
-go build
+release.bat
 ```
 
 ### 发布命令解析
@@ -104,6 +97,19 @@ datax -c postgrescsv/config.json
 
 ```bash
 datax -c postgresxlsx/config.json
+```
+
+如上数据可以在各个数据源之间流转，如MySQL到Postgres
+
+#### 使用db2同步xlsx
+- 注意使用前请下载相应的db2的odbc库，如linux的make dependencies和release.bat
+- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
+- 可以使用cmd/datax/db2/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c db2/config.json
 ```
 
 如上数据可以在各个数据源之间流转，如MySQL到Postgres
