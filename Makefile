@@ -30,9 +30,11 @@ endif
 
 .PHONY: lint
 lint:
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
-	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
 ifdef SHOULD_LINT
+	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	export CGO_CFLAGS=-I$DB2HOME/include
+	export CGO_LDFLAGS=-L$DB2HOME/lib
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DB2HOME/lib
 	@rm -rf lint.log
 	@echo "Installing test dependencies for vet..."
 	@go test ./...
@@ -47,20 +49,26 @@ endif
 
 .PHONY: test
 test:
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
-	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
+	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	export CGO_CFLAGS=-I$DB2HOME/include
+	export CGO_LDFLAGS=-L$DB2HOME/lib
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DB2HOME/lib
 	@go test ./...
 
 .PHONY: cover
 cover:
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
-	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
+	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	export CGO_CFLAGS=-I$DB2HOME/include
+	export CGO_LDFLAGS=-L$DB2HOME/lib
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DB2HOME/lib
 	sh cover.sh
 
 .PHONY: examples
 examples:
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
-	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
+	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	export CGO_CFLAGS=-I$DB2HOME/include
+	export CGO_LDFLAGS=-L$DB2HOME/lib
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DB2HOME/lib
 	@go generate ./... && cd cmd/datax && go build && cd ../..
 
 .PHONY: doc
