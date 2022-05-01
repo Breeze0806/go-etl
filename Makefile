@@ -18,6 +18,7 @@ all: lint examples test
 dependencies:
 	@echo "Installing db2 lib..."
 	go get -d github.com/ibmdb/go_ibm_db
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
 	go get -d golang.org/x/lint/golint
@@ -48,10 +49,8 @@ test:
 
 .PHONY: cover
 cover:
-	NOW=$(pwd)
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer
-	source setenv.sh
-	cd ${NOW}
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
+	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
 	sh cover.sh
 
 .PHONY: examples
