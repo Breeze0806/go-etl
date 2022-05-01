@@ -31,7 +31,7 @@ endif
 .PHONY: lint
 lint:
 ifdef SHOULD_LINT
-	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
@@ -49,7 +49,7 @@ endif
 
 .PHONY: test
 test:
-	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
@@ -57,15 +57,15 @@ test:
 
 .PHONY: cover
 cover:
-	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
-	sh cover.sh
+	@sh cover.sh
 
 .PHONY: examples
 examples:
-	export DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
