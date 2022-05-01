@@ -25,7 +25,7 @@ dependencies:
 	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
-	go get -d golang.org/x/lint/golint
+	go get -v golang.org/x/lint/golint
 else
 	@echo "Not installing golint, since we don't expect to lint on" $(GO_VERSION)
 endif
