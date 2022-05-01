@@ -18,8 +18,6 @@ all: lint examples test
 dependencies:
 	@echo "Installing db2 lib..."
 	go get -d github.com/ibmdb/go_ibm_db
-	cd .../go_ibm_db/installer
-	source setenv.sh
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
 	go get -d golang.org/x/lint/golint
@@ -50,6 +48,10 @@ test:
 
 .PHONY: cover
 cover:
+	NOW=$(pwd)
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer
+	source setenv.sh
+	cd ${NOW}
 	sh cover.sh
 
 .PHONY: examples
