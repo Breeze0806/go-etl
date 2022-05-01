@@ -165,14 +165,15 @@ go run main.go -t writer -p DB2
 
 | 类型         | 数据源        | Reader（读） | Writer(写) | 文档                                                         |
 | ------------ | ------------- | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL         | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
+| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+| | DB2 LUW | √ | √ | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
 | 无结构流     | CVS           | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel） | √            | √           | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
 ### plan
 
-- [ ] 实现db2数据库reader/writer插件
+- [x] 实现db2数据库reader/writer插件
 - [ ] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
 - [x] 实现cvs文件reader/writer插件
@@ -190,7 +191,7 @@ go run main.go -t writer -p DB2
 
 #### plan
 
-- [ ] 实现db2数据库的dialect 
+- [x] 实现db2数据库的dialect 
 - [ ] 实现sql server数据库的dialect
 - [ ] 实现oracle数据库的dialect
 

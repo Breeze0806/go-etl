@@ -177,7 +177,7 @@ func TestTimeColumnValue_AsString(t *testing.T) {
 		{
 			name:  "1",
 			t:     NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
-			wantS: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat),
+			wantS: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(DefaultTimeFormat),
 		},
 		{
 			name:    "2",
@@ -209,7 +209,7 @@ func TestTimeColumnValue_AsBytes(t *testing.T) {
 		{
 			name:  "1",
 			t:     NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
-			wantB: []byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(defaultTimeFormat)),
+			wantB: []byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(DefaultTimeFormat)),
 		},
 		{
 			name:    "2",

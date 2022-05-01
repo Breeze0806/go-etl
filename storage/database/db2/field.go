@@ -1,18 +1,4 @@
-// Copyright 2020 the go-etl Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-package mysql
+package db2
 
 import (
 	"fmt"
@@ -20,11 +6,13 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 var (
-	dateLayout     = element.DefaultTimeFormat[:10]
-	datetimeLayout = element.DefaultTimeFormat[:26]
+	dateLayout      = element.DefaultTimeFormat[:10]
+	timeLayout      = element.DefaultTimeFormat[11:26]
+	timestampLayout = element.DefaultTimeFormat[:26]
 )
 
 //Field 字段
@@ -82,27 +70,25 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
 	switch f.DatabaseTypeName() {
-	//由于存在非负整数，如果直接变为对应的int类型，则会导致转化错误
-	//TIME存在负数无法正常转化，YEAR就是TINYINT
-	//todo: test YEAR
-	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT",
-		"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR",
-		"TIME", "YEAR",
-		"DECIMAL":
-		f.goType = database.GoTypeString
-	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY", "BIT":
+	case "BIGINT", "INTEGER", "SMALLINT":
+		f.goType = database.GoTypeInt64
+	case "BLOB":
 		f.goType = database.GoTypeBytes
-	case "DOUBLE", "FLOAT":
+	case "DOUBLE", "REAL":
 		f.goType = database.GoTypeFloat64
-	case "DATE", "DATETIME", "TIMESTAMP":
+	case "DATE", "TIME", "TIMESTAMP":
 		f.goType = database.GoTypeTime
+	case "BOOLEAN":
+		f.goType = database.GoTypeBool
+	case "VARCHAR", "CHAR", "DECIMAL":
+		f.goType = database.GoTypeString
 	}
 	return f
 }
 
 //IsSupportted 是否支持解析
 func (f *FieldType) IsSupportted() bool {
-	return f.GoType() != database.GoTypeUnknown
+	return f.goType != database.GoTypeUnknown
 }
 
 //GoType 返回处理数值时的Golang类型
@@ -124,29 +110,34 @@ func NewScanner(f *Field) *Scanner {
 }
 
 //Scan 根据列类型读取数据
-//"MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR"作为整形处理
-//"DOUBLE", "FLOAT", "DECIMAL"作为高精度实数处理
-//"DATE", "DATETIME", "TIMESTAMP" 作为时间处理
-//"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR", "TIME"作为字符串处理
-//"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"作为字节流处理
+//"INTEGER", "BIGINT", "SMALLINT"作为整形处理
+//"DOUBLE", "REAL", "DECIMAL"作为高精度实数处理
+//"DATE", "TIME", "TIMESTAMP" 作为时间处理
+//"CHAR", "VARCHAR"作为字符串处理
+//"BLOB" 作为字节流处理
+//"BOOLEAN" 作为布尔值处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	//todo: byteSize is 0, fix it
 	var byteSize int
 	switch s.f.Type().DatabaseTypeName() {
-	//todo: test year
-	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR":
+	case "BIGINT", "INTEGER", "SMALLINT":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBigIntColumnValue()
-		case []byte:
-			if cv, err = element.NewBigIntColumnValueFromString(string(data)); err != nil {
-				return
-			}
+		case int64:
+			v := data
+			cv = element.NewBigIntColumnValueFromInt64(v)
+		case int32:
+			v := int64(data)
+			cv = element.NewBigIntColumnValueFromInt64(v)
+		case int16:
+			v := int64(data)
+			cv = element.NewBigIntColumnValueFromInt64(v)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY", "BIT":
+	case "BLOB":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()
@@ -164,25 +155,39 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}
-	case "DATETIME", "TIMESTAMP":
+	case "TIME":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilTimeColumnValue()
 		case time.Time:
-			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder(datetimeLayout))
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder(timeLayout))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}
-	case "TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR", "TIME":
+	case "TIMESTAMP":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilTimeColumnValue()
+		case time.Time:
+			cv = element.NewTimeColumnValueWithDecoder(data, element.NewStringTimeDecoder(timestampLayout))
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
+		}
+	case "CHAR", "VARCHAR":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilStringColumnValue()
 		case []byte:
-			cv = element.NewStringColumnValue(string(data))
+			var v []byte
+			v, err = simplifiedchinese.GBK.NewDecoder().Bytes(data)
+			if err != nil {
+				return err
+			}
+			cv = element.NewStringColumnValue(string(v))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeString)
 		}
-	case "DOUBLE", "FLOAT", "DECIMAL":
+	case "DOUBLE", "REAL", "DECIMAL":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilDecimalColumnValue()
@@ -190,6 +195,17 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			if cv, err = element.NewDecimalColumnValueFromString(string(data)); err != nil {
 				return
 			}
+		case float64:
+			cv = element.NewDecimalColumnValueFromFloat(data)
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
+		}
+	case "BOOLEAN":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilBoolColumnValue()
+		case bool:
+			cv = element.NewBoolColumnValue(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
 		}

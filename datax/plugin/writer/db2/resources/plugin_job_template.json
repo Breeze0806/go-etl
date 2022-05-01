@@ -1,0 +1,19 @@
+{
+	"name": "db2writer",
+	"parameter": {
+                "username": "",
+                "password": "",
+                "writeMode": "",
+                "column": [],
+                "preSql": [],
+                "connection": {
+                        "url": "",
+                        "table": {
+                                "schema":"",
+                                "name":""
+                        }
+                },
+                "batchTimeout": "1s",
+                "batchSize":1000
+	}
+}

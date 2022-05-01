@@ -440,7 +440,7 @@ func TestScanner_Scan(t *testing.T) {
 				src: time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local),
 			},
 			want: element.NewDefaultColumn(
-				element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder("2006-01-02")), "test", 0),
+				element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder(dateLayout)), "test", 0),
 		},
 		{
 			name: "DATEnull",
@@ -464,7 +464,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local),
 			},
-			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder("2006-01-02 15:04:05")), "test", 0),
+			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(time.Date(2021, 1, 13, 18, 43, 12, 0, time.Local), element.NewStringTimeDecoder(datetimeLayout)), "test", 0),
 		},
 		{
 			name: "TIMESTAMPErr",

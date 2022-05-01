@@ -43,7 +43,7 @@ const (
 
 	}
 }`
-	readmeFile = `# %v%v
+	readmeFile = `# %v%v插件文档
 `
 
 	readerFile = `package %v

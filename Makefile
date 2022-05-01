@@ -16,9 +16,13 @@ all: lint examples test
 
 .PHONY: dependencies
 dependencies:
+	@echo "Installing db2 lib..."
+	go get -d github.com/ibmdb/go_ibm_db
+	cd .../go_ibm_db/installer
+	source setenv.sh
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
-	go get -v golang.org/x/lint/golint
+	go get -d golang.org/x/lint/golint
 else
 	@echo "Not installing golint, since we don't expect to lint on" $(GO_VERSION)
 endif

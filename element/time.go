@@ -19,7 +19,8 @@ import (
 	"time"
 )
 
-var defaultTimeFormat = "2006-01-02 15:04:05.999999999Z07:00"
+//DefaultTimeFormat 默认时间格式
+var DefaultTimeFormat = "2006-01-02 15:04:05.999999999Z07:00"
 
 //TimeDecoder 时间解码器
 type TimeDecoder interface {

@@ -54,7 +54,7 @@ type TimeColumnValue struct {
 
 //NewTimeColumnValue 根据时间t获得时间列值
 func NewTimeColumnValue(t time.Time) ColumnValue {
-	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(defaultTimeFormat))
+	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(DefaultTimeFormat))
 }
 
 //NewTimeColumnValueWithDecoder 根据时间t和时间解码器t获得时间列值
@@ -111,7 +111,7 @@ func (t *TimeColumnValue) AsTime() (time.Time, error) {
 }
 
 func (t *TimeColumnValue) String() string {
-	return t.val.Format(defaultTimeFormat)
+	return t.val.Format(DefaultTimeFormat)
 }
 
 //Clone 克隆时间列值

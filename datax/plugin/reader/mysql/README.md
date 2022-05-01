@@ -73,7 +73,7 @@ MysqlReader通过使用rdbmreader中定义的查询流程调用go-etl自定义�
 - 必选：是
 - 默认值: 无
 
-##### table
+##### name
 
 - 描述 主要用于配置mysql表的表名
 - 必选：是
@@ -107,7 +107,7 @@ MysqlReader通过使用rdbmreader中定义的查询流程调用go-etl自定义�
 
 | go-etl的类型 | mysql数据类型                                       |
 | ------------ | --------------------------------------------------- |
-| bigInt       | int, tinyint, smallint, mediumint, int, bigint,year |
+| bigInt       | int, tinyint, smallint, mediumint, bigint,year      |
 | decimal      | float, double, decimal                              |
 | string       | varchar, char, tinytext, text, mediumtext, longtext |
 | time         | date, datetime, timestamp, time                     |

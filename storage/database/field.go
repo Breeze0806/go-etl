@@ -131,8 +131,8 @@ type BaseField struct {
 func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	return &BaseField{
 		index:     index,
-		fieldType: fieldType,
 		name:      name,
+		fieldType: fieldType,
 	}
 }
 

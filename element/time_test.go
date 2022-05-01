@@ -33,7 +33,7 @@ func TestStringTimeEncoder_TimeEncode(t *testing.T) {
 	}{
 		{
 			name: "1",
-			e:    NewStringTimeEncoder(defaultTimeFormat).(*StringTimeEncoder),
+			e:    NewStringTimeEncoder(DefaultTimeFormat).(*StringTimeEncoder),
 			args: args{
 				i: 1,
 			},
