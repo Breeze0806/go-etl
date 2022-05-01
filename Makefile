@@ -18,7 +18,7 @@ all: lint examples test
 dependencies:
 	@echo "Installing db2 lib..."
 	git clone --depth=50 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && ls ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
 	go get -d golang.org/x/lint/golint
@@ -30,10 +30,12 @@ endif
 
 .PHONY: lint
 lint:
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
+	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
 ifdef SHOULD_LINT
 	@rm -rf lint.log
 	@echo "Installing test dependencies for vet..."
-	@go test -i ./...
+	@go test ./...
 	@echo "Checking vet..."
 	@go vet ./... 2>&1 | tee -a lint.log
 	@echo "Checking lint..."
@@ -45,6 +47,8 @@ endif
 
 .PHONY: test
 test:
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
+	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
 	@go test ./...
 
 .PHONY: cover
@@ -55,6 +59,8 @@ cover:
 
 .PHONY: examples
 examples:
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && source setenv.sh
+	cd ${GOPATH}/src/github.com/Breeze0806/go-etl
 	@go generate ./... && cd cmd/datax && go build && cd ../..
 
 .PHONY: doc
