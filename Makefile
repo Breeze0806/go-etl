@@ -7,6 +7,7 @@ COVERALLS_TOKEN=477d8d1f-b729-472f-b842-e0e4b03bc0c2
 GO_VERSION := $(shell go version | cut -d " " -f 3)
 GO_MINOR_VERSION := $(word 2,$(subst ., ,$(GO_VERSION)))
 LINTABLE_MINOR_VERSIONS := 16
+DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 ifneq ($(filter $(LINTABLE_MINOR_VERSIONS),$(GO_MINOR_VERSION)),)
 SHOULD_LINT := true
 endif
@@ -31,7 +32,6 @@ endif
 .PHONY: lint
 lint:
 ifdef SHOULD_LINT
-	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
@@ -49,7 +49,6 @@ endif
 
 .PHONY: test
 test:
-	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
@@ -57,7 +56,6 @@ test:
 
 .PHONY: cover
 cover:
-	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
@@ -65,7 +63,6 @@ cover:
 
 .PHONY: examples
 examples:
-	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
 	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
