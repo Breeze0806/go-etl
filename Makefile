@@ -34,7 +34,7 @@ lint:
 ifdef SHOULD_LINT
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
-	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
+	export LD_LIBRARY_PATH=${DB2HOME}/lib
 	@rm -rf lint.log
 	@echo "Installing test dependencies for vet..."
 	@go test ./...
@@ -58,14 +58,14 @@ test:
 cover:
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
-	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
+	export LD_LIBRARY_PATH=${DB2HOME}/lib
 	@sh cover.sh
 
 .PHONY: examples
 examples:
 	export CGO_CFLAGS=-I${DB2HOME}/include
 	export CGO_LDFLAGS=-L${DB2HOME}/lib
-	export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DB2HOME}/lib
+	export LD_LIBRARY_PATH=${DB2HOME}/lib
 	@go generate ./... && cd cmd/datax && go build && cd ../..
 
 .PHONY: doc
