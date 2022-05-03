@@ -16,6 +16,7 @@ package main
 
 import (
 	"flag"
+	"os"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	defer e.close()
 	if err := e.build(); err != nil {
 		log.Errorf("build fail. err : %v", err)
-		return
+		os.Exit(1)
 	}
 	return
 }

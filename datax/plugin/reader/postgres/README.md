@@ -124,3 +124,10 @@ PostgresReader通过使用rdbmreader中定义的查询流程调用go-etl自定�
 ## 性能报告
 
 待测试
+
+## 约束限制
+
+### 数据库编码问题
+目前仅支持utf8字符集
+
+## FAQ

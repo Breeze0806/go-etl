@@ -371,11 +371,16 @@ func TestBytesColumnValue_AsTime(t *testing.T) {
 	}{
 		{
 			name:  "1",
-			s:     NewBytesColumnValue([]byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(time.RFC3339Nano))).(*BytesColumnValue),
+			s:     NewBytesColumnValue([]byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(DefaultTimeFormat))).(*BytesColumnValue),
 			wantT: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local),
 		},
 		{
-			name:    "2",
+			name:  "2",
+			s:     NewBytesColumnValueWithEncoder([]byte(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local).Format(DefaultTimeFormat)), NewStringTimeEncoder(DefaultTimeFormat)).(*BytesColumnValue),
+			wantT: time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local),
+		},
+		{
+			name:    "3",
 			s:       NewBytesColumnValue([]byte("中文abc1234<>&*^%$")).(*BytesColumnValue),
 			wantErr: true,
 		},

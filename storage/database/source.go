@@ -29,9 +29,9 @@ const (
 //Source 数据源,包含驱动信息，包信息，配置文件以及连接信息
 type Source interface {
 	Config() *config.JSON   //配置信息
-	Key() string            //dbMap Key
-	DriverName() string     //驱动名，用于sql.Open
-	ConnectName() string    //连接信息，用于sql.Open
+	Key() string            //一般是连接信息
+	DriverName() string     //驱动名，用于sql.Open的第1个参数
+	ConnectName() string    //连接信息，用于sql.Open的第2个参数
 	Table(*BaseTable) Table //获取具体表
 }
 

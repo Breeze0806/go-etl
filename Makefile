@@ -36,8 +36,8 @@ endif
 lint:
 ifdef SHOULD_LINT
 	@rm -rf lint.log
-	@echo "Installing test dependencies for vet..."
-	@go test ./...
+	@echo "Checking format..."
+	@find . -name '*.go' | xargs gofmt -w -s
 	@echo "Checking vet..."
 	@go vet ./... 2>&1 | tee -a lint.log
 	@echo "Checking lint..."

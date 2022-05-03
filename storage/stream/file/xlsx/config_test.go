@@ -219,7 +219,10 @@ func TestNewOutConfig(t *testing.T) {
 			args: args{
 				conf: testJSONFromString(`{"sheets":["sheet1"]}`),
 			},
-			wantErr: true,
+			wantErr: false,
+			wantC: &OutConfig{
+				Sheets: []string{"sheet1"},
+			},
 		},
 
 		{

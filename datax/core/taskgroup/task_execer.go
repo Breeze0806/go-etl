@@ -47,6 +47,7 @@ type taskExecer struct {
 	cancalMutex       sync.Mutex         //由于取消函数会被多线程调用,需要加锁
 	cancel            context.CancelFunc //取消函数
 	attemptCount      *atomic.Int32      //执行次数
+	err               error              //
 }
 
 //newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
@@ -176,9 +177,9 @@ func (t *taskExecer) Do() (err error) {
 	cnt := 0
 	for {
 		select {
-		case err = <-t.errors:
-			if err != nil {
-				return err
+		case t.err = <-t.errors:
+			if t.err != nil {
+				return t.err
 			}
 			cnt++
 			if cnt == 2 {

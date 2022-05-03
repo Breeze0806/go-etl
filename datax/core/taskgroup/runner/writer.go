@@ -16,6 +16,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
@@ -54,26 +55,22 @@ func (w *Writer) Run(ctx context.Context) (err error) {
 	}()
 	log.Debugf("datax writer runner %v starts to init", w.describe)
 	if err = w.task.Init(ctx); err != nil {
-		log.Errorf("task init fail, err: %v", err)
-		return
+		return fmt.Errorf("task init fail, err: %v", err)
 	}
 
 	log.Debugf("datax writer runner %v starts to prepare", w.describe)
 	if err = w.task.Prepare(ctx); err != nil {
-		log.Errorf("task prepare fail, err: %v", err)
-		return
+		return fmt.Errorf("task prepare fail, err: %v", err)
 	}
 
 	log.Debugf("datax writer runner %v starts to StartWrite", w.describe)
 	if err = w.task.StartWrite(ctx, w.receiver); err != nil {
-		log.Errorf("task startWrite fail, err: %v", err)
-		return
+		return fmt.Errorf("task startWrite fail, err: %v", err)
 	}
 
 	log.Debugf("datax writer runner %v starts to post", w.describe)
 	if err = w.task.Post(ctx); err != nil {
-		log.Errorf("task post fail, err: %v", err)
-		return
+		return fmt.Errorf("task post fail, err: %v", err)
 	}
 	return
 }

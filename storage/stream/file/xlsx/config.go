@@ -115,10 +115,6 @@ func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 		return nil, fmt.Errorf("sheets should not be empty")
 	}
 
-	if len(c.Columns) == 0 {
-		return nil, fmt.Errorf("column should not be empty")
-	}
-
 	for _, v := range c.Columns {
 		if err = v.validate(); err != nil {
 			return nil, err

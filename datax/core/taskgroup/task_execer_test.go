@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -179,13 +178,10 @@ func Test_newTaskExecer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotT, err := newTaskExecer(tt.args.ctx, tt.args.taskConf, tt.args.jobID, tt.args.taskGroupID, tt.args.attemptCount)
+			_, err := newTaskExecer(tt.args.ctx, tt.args.taskConf, tt.args.jobID, tt.args.taskGroupID, tt.args.attemptCount)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("newTaskExecer() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if tt.wantErr && !reflect.DeepEqual(gotT, tt.wantT) {
-				t.Errorf("newTaskExecer() = %v, want %v", gotT, tt.wantT)
 			}
 		})
 	}

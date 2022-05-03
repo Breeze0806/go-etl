@@ -57,16 +57,18 @@ type BytesColumnValue struct {
 func NewBytesColumnValue(v []byte) ColumnValue {
 	new := make([]byte, len(v))
 	copy(new, v)
-	return NewBytesColumnValueNoCopy(new)
+	return NewBytesColumnValueWithEncoderNoCopy(new, NewStringTimeEncoder(DefaultTimeFormat))
 }
 
-//NewBytesColumnValueNoCopy 从字节流v 生成字节流列,不做拷贝
-func NewBytesColumnValueNoCopy(v []byte) ColumnValue {
-	return NewBytesColumnValueWithEncoder(v, NewStringTimeEncoder(time.RFC3339Nano))
-}
-
-//NewBytesColumnValueWithEncoder 从字节流v 和时间编码器e 生成字节流列值
+//NewBytesColumnValueWithEncoder 从字节流v 和时间编码器e 生成字节流列值,做拷贝
 func NewBytesColumnValueWithEncoder(v []byte, e TimeEncoder) ColumnValue {
+	new := make([]byte, len(v))
+	copy(new, v)
+	return NewBytesColumnValueWithEncoderNoCopy(new, NewStringTimeEncoder(DefaultTimeFormat))
+}
+
+//NewBytesColumnValueWithEncoderNoCopy 从字节流v 和时间编码器e,不做拷贝
+func NewBytesColumnValueWithEncoderNoCopy(v []byte, e TimeEncoder) ColumnValue {
 	return &BytesColumnValue{
 		val:         v,
 		TimeEncoder: e,
@@ -98,7 +100,7 @@ func (b *BytesColumnValue) AsBigInt() (*big.Int, error) {
 	return v.AsBigInt()
 }
 
-//AsDecimal 转化为整数，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
+//AsDecimal 转化为高精度师叔，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
 func (b *BytesColumnValue) AsDecimal() (decimal.Decimal, error) {
 	v, err := NewDecimalColumnValueFromString(b.String())
 	if err != nil {

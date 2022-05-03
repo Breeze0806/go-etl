@@ -37,13 +37,6 @@ func testContainer(ctx context.Context, conf *config.JSON) *Container {
 }
 
 func TestContainer_Do(t *testing.T) {
-	resetLoader()
-	loader.RegisterReader("mock", newMockRandReader([]error{
-		nil, nil, errors.New("mock test error"), nil, nil,
-	}))
-	loader.RegisterWriter("mock", newMockWriter([]error{
-		nil, nil, nil, nil, nil,
-	}))
 	content := testJSONFromString(`{
 		"core" : {
 			"container": {
@@ -73,9 +66,40 @@ func TestContainer_Do(t *testing.T) {
 			}
 		}`, i))
 	}
-	ctx := context.Background()
-	c, _ := NewContainer(ctx, content)
+
+	resetLoader()
+	loader.RegisterReader("mock", newMockRandReader([]error{
+		nil, nil, nil, nil, nil,
+	}))
+	loader.RegisterWriter("mock", newMockWriter([]error{
+		nil, nil, nil, nil, nil,
+	}))
+	c, _ := NewContainer(context.TODO(), content)
 	if err := c.Do(); err != nil {
+		t.Errorf("Do error: %v", err)
+	}
+
+	resetLoader()
+	loader.RegisterReader("mock", newMockRandReader([]error{
+		nil, nil, errors.New("mock test error"), nil, nil,
+	}))
+	loader.RegisterWriter("mock", newMockWriter([]error{
+		nil, nil, nil, nil, nil,
+	}))
+	c, _ = NewContainer(context.TODO(), content)
+	if err := c.Do(); err == nil {
+		t.Errorf("Do error: %v", err)
+	}
+
+	resetLoader()
+	loader.RegisterReader("mock", newMockRandReader([]error{
+		nil, nil, nil, nil, nil,
+	}))
+	loader.RegisterWriter("mock", newMockWriter([]error{
+		nil, nil, errors.New("mock test error"), nil, nil,
+	}))
+	c, _ = NewContainer(context.TODO(), content)
+	if err := c.Do(); err == nil {
 		t.Errorf("Do error: %v", err)
 	}
 }
@@ -169,7 +193,7 @@ func TestContainer_DoCancel2(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	c, _ := NewContainer(ctx, content)
 	go func() {
-		time.Sleep(4 * time.Second)
+		time.Sleep(1 * time.Second)
 		cancel()
 	}()
 
