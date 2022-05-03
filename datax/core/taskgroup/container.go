@@ -16,6 +16,8 @@ package taskgroup
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -106,12 +108,14 @@ func (c *Container) Start() (err error) {
 		c.tasks.pushRemain(taskExecer)
 	}
 	log.Infof("datax job(%v) taskgruop(%v) start tasks", c.jobID, c.taskGroupID)
+	var tasks []*taskExecer
 	for i := 0; i < len(taskConfigs); i++ {
 		//从待执行队列加入运行队列
 		te, ok := c.tasks.popRemainAndAddRun()
 		if !ok {
 			continue
 		}
+		tasks = append(tasks, te)
 		//开始运行
 		if err = c.startTaskExecer(te); err != nil {
 			return
@@ -149,6 +153,16 @@ QueueLoop:
 		return c.ctx.Err()
 	}
 
+	s := ""
+	for _, t := range tasks {
+		if t.err != nil {
+			s += fmt.Sprintf("%v do fail. err：%v", t.key, t.err)
+		}
+	}
+	if s != "" {
+		return errors.New(s)
+	}
+
 	return nil
 }
 
@@ -171,11 +185,11 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 		timer := time.NewTimer(c.retryInterval)
 		defer timer.Stop()
 		select {
-		case err := <-errChan:
+		case doErr := <-errChan:
 			//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
-			if err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
+			if doErr != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
 				log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
-					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), err)
+					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), doErr)
 				//关闭任务
 				te.Shutdown()
 				select {

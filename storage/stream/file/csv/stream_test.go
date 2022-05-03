@@ -15,6 +15,7 @@
 package csv
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -23,13 +24,8 @@ import (
 )
 
 func Test_ReadWrite(t *testing.T) {
-	record := element.NewDefaultRecord()
-	record.Add(element.NewDefaultColumn(element.NewStringColumnValueWithEncoder("20220101", element.NewStringTimeEncoder("20060102")),
-		"1", 0))
-	record.Add(element.NewDefaultColumn(element.NewStringColumnValue("abc"),
-		"2", 0))
 	type args struct {
-		record   element.Record
+		columns  []element.Column
 		conf     *config.JSON
 		filename string
 	}
@@ -41,16 +37,53 @@ func Test_ReadWrite(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				record:   record,
+				columns: []element.Column{
+					element.NewDefaultColumn(element.NewStringColumnValueWithEncoder(
+						"20220101", element.NewStringTimeEncoder("20060102")), "1", 0),
+					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
+						"2", 0),
+				},
 				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
 				filename: filepath.Join(t.TempDir(), "a.csv"),
 			},
 			wantStr: "0=2022-01-01 00:00:00Z 1=abc",
 		},
+		{
+			name: "2",
+			args: args{
+				columns: []element.Column{
+					element.NewDefaultColumn(element.NewStringColumnValueWithEncoder(
+						"20220101", element.NewStringTimeEncoder("20060102")), "1", 0),
+					element.NewDefaultColumn(element.NewNilStringColumnValue(),
+						"2", 0),
+				},
+				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
+				filename: filepath.Join(t.TempDir(), "a.csv"),
+			},
+			wantStr: "0=2022-01-01 00:00:00Z 1=<nil>",
+		},
+		{
+			name: "3",
+			args: args{
+				columns: []element.Column{
+					element.NewDefaultColumn(element.NewNilTimeColumnValue(), "1", 0),
+					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
+						"2", 0),
+				},
+				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
+				filename: filepath.Join(t.TempDir(), "a.csv"),
+			},
+			wantStr: "0=<nil> 1=abc",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			defer os.Remove(tt.args.filename)
+			record := element.NewDefaultRecord()
+			for _, c := range tt.args.columns {
+				record.Add(c)
+			}
 			wFunc := func() {
 				var creator Creator
 				out, err := creator.Create(tt.args.filename)

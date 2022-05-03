@@ -32,7 +32,7 @@ type Config struct {
 	Password string `json:"password"` //密码
 }
 
-//NewConfig 创建mysql配置，如果格式不符合要求，就会报错
+//NewConfig 创建db2配置，如果格式不符合要求，就会报错
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)

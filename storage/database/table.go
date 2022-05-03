@@ -29,8 +29,8 @@ type Table interface {
 	fmt.Stringer
 
 	Quoted() string   //引用的表名全称
-	Instance() string //实例名，例如对于mysql就是数据库，对于oracle就是实例
-	Schema() string   //模式名，例如对于mysql就是数据库，对于oracle就是用户名
+	Instance() string //实例名，例如对于mysql就是数据库
+	Schema() string   //模式名，例如对于oracle就是用户名（模式名）
 	Name() string     //表名，例如对于mysql就是表
 	Fields() []Field  //显示所有列
 }

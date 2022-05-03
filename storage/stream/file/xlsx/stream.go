@@ -32,6 +32,8 @@ func init() {
 	file.RegisterCreator("xlsx", &creator)
 }
 
+var rotateLine = excelize.TotalRows
+
 //Opener xlsx输入流打开器
 type Opener struct {
 }
@@ -195,7 +197,7 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 //Write 将记录record 写入xlsx文件
 func (w *Writer) Write(record element.Record) (err error) {
 	w.row++
-	if w.row > excelize.TotalRows {
+	if w.row > rotateLine {
 		if err = w.writer.Flush(); err != nil {
 			return
 		}
