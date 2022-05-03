@@ -3,8 +3,9 @@ cmd/transform
 cmd/datax/*.exe
 cmd/datax/*.log
 datax/plugin/plugin.go
-datax/plugin/plugin_test.go
 datax/plugin/reader/**/plugin.go
 datax/plugin/writer/**/plugin.go
+datax/plugin_test.go
 datax/plugin.go
 *.txt
+*.out

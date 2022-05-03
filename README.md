@@ -22,7 +22,7 @@ go-etl将提供的etl能力如下：
 | 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 |              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
-| 无结构流     | CVS                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
+| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
 ### 安装和使用
@@ -129,10 +129,11 @@ datax -c postgresxlsx/config.json
 
 #### 其他数据源
 
-1.提交issue让别人帮你开发来支持新的数据源
-2.阅读开发宝典自己开发来支持新的数据源
+你可以选择：
+1. 提交issue让别人帮你开发来支持新的数据源
+2. 参考开发宝典自己开发来支持新的数据源
 
-## 开发宝典
+### 开发宝典
 
 可以参考[Datax开发者文档](datax/README.md)来帮助开发
 
