@@ -16,6 +16,7 @@ package reader
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -50,6 +51,9 @@ func RegisterReader(maker Maker) (pluginConfig string, err error) {
 	var reader Reader
 
 	if reader, err = maker.FromFile(pluginConfig); err != nil {
+		if !os.IsNotExist(err) {
+			return
+		}
 		if reader, err = maker.Default(); err != nil {
 			return "", err
 		}

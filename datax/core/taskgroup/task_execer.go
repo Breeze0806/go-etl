@@ -31,6 +31,8 @@ import (
 )
 
 type taskExecer struct {
+	Err error
+
 	taskConf     *config.JSON //任务JSON配置
 	taskID       int64        //任务编号
 	ctx          context.Context
@@ -47,7 +49,6 @@ type taskExecer struct {
 	cancalMutex       sync.Mutex         //由于取消函数会被多线程调用,需要加锁
 	cancel            context.CancelFunc //取消函数
 	attemptCount      *atomic.Int32      //执行次数
-	err               error              //
 }
 
 //newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
@@ -127,6 +128,7 @@ func (t *taskExecer) Start() {
 	t.cancalMutex.Lock()
 	ctx, t.cancel = context.WithCancel(t.ctx)
 	t.cancalMutex.Unlock()
+
 	log.Debugf("taskExecer %v start to run writer", t.key)
 	t.wg.Add(1)
 	var writerWg sync.WaitGroup
@@ -142,6 +144,7 @@ func (t *taskExecer) Start() {
 		}
 	}()
 	writerWg.Wait()
+
 	log.Debugf("taskExecer %v start to run reader", t.key)
 	var readerWg sync.WaitGroup
 	t.wg.Add(1)
@@ -177,9 +180,9 @@ func (t *taskExecer) Do() (err error) {
 	cnt := 0
 	for {
 		select {
-		case t.err = <-t.errors:
-			if t.err != nil {
-				return t.err
+		case err := <-t.errors:
+			if err != nil {
+				return err
 			}
 			cnt++
 			if cnt == 2 {
@@ -225,9 +228,21 @@ func (t *taskExecer) Shutdown() {
 		t.cancel()
 	}
 	t.cancalMutex.Unlock()
+
 	log.Debugf("taskExecer %v shutdown wait runner stop", t.key)
 	t.wg.Wait()
+
 	log.Debugf("taskExecer %v shutdown reader", t.key)
+
+Loop:
+	for {
+		select {
+		case <-t.errors:
+		default:
+			break Loop
+		}
+	}
+
 	t.readerRunner.Shutdown()
 
 	log.Debugf("taskExecer %v shutdown writer", t.key)

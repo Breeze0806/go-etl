@@ -142,7 +142,9 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 							t.JobID(), t.TaskGroupID(), t.TaskID(), err)
 					}
 				}
-				err = rerr
+				if err == nil {
+					err = rerr
+				}
 				goto End
 			}
 

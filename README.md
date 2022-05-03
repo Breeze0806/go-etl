@@ -41,6 +41,23 @@ make release
 ```bash
 release.bat
 ```
+### 使用方式
+
+```bash
+Usage of datax:
+  -c string
+        config (default "config.json")
+```
+
+调用datax十分简单，只要直接调用它即可
+
+```bash
+data -c config.json
+```
+
+当返回值是0，并且显示run success,表示执行成功
+
+当返回值是1，并且显示run fail,并告知执行失败的原因
 
 ### 使用示例
 
@@ -110,9 +127,14 @@ datax -c postgrescsv/config.json
 datax -c postgresxlsx/config.json
 ```
 
-### 其他数据源
+#### 其他数据源
 
-可以参考[Datax开发者文档](datax/Developer.md)来帮助开发
+1.提交issue让别人帮你开发来支持新的数据源
+2.阅读开发宝典自己开发来支持新的数据源
+
+## 开发宝典
+
+可以参考[Datax开发者文档](datax/README.md)来帮助开发
 
 ## 模块简介
 ### datax

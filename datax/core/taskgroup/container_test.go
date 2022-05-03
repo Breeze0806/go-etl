@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -418,7 +417,7 @@ func TestNewContainer(t *testing.T) {
 				t.Errorf("NewContainer() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(gotC, tt.wantC) {
+			if gotC != tt.wantC {
 				t.Errorf("NewContainer() = %v, want %v", gotC, tt.wantC)
 			}
 		})

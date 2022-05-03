@@ -114,7 +114,7 @@ func TestStartWrite(t *testing.T) {
 					BatchN:   0,
 				}, ""),
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

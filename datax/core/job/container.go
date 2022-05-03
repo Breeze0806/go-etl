@@ -16,6 +16,7 @@ package job
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -270,6 +271,7 @@ func (c *Container) schedule() (err error) {
 	c.taskSchduler = schedule.NewTaskSchduler(int(c.Config().GetInt64OrDefaullt(
 		coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(tasksConfigs))
 	defer c.taskSchduler.Stop()
+	var taskGroups []*taskgroup.Container
 	for i := range tasksConfigs {
 		var taskGroup *taskgroup.Container
 		taskGroup, err = taskgroup.NewContainer(c.ctx, tasksConfigs[i])
@@ -283,18 +285,27 @@ func (c *Container) schedule() (err error) {
 			c.wg.Done()
 			goto End
 		}
-
-		go func() {
+		taskGroups = append(taskGroups, taskGroup)
+		go func(taskGroup *taskgroup.Container) {
 			defer c.wg.Done()
 			select {
-			case <-errChan:
+			case taskGroup.Err = <-errChan:
 			case <-c.ctx.Done():
 			}
-		}()
+		}(taskGroup)
 	}
 End:
 	c.wg.Wait()
 
+	s := ""
+	for _, t := range taskGroups {
+		if t.Err != nil {
+			s += fmt.Sprintf("%v-%v do fail. err：%v ", t.JobID(), t.TaskGroupID(), t.Err)
+		}
+	}
+	if s != "" {
+		return errors.New(s)
+	}
 	return
 }
 
