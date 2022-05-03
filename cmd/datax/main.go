@@ -16,6 +16,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 )
 
@@ -27,8 +28,9 @@ func main() {
 	e := newEnveronment(*filename)
 	defer e.close()
 	if err := e.build(); err != nil {
-		log.Errorf("build fail. err : %v", err)
+		fmt.Printf("run fail. err: %v\n", err)
 		os.Exit(1)
 	}
+	fmt.Printf("run success\n")
 	return
 }

@@ -25,8 +25,8 @@ import (
 
 var (
 	dateLayout      = element.DefaultTimeFormat[:10]
-	timeLayout      = element.DefaultTimeFormat[11:26]
 	timestampLayout = element.DefaultTimeFormat[:26]
+	timeLayout      = timestampLayout
 )
 
 //Field 字段

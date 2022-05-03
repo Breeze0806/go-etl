@@ -31,6 +31,8 @@ import (
 type Container struct {
 	*core.BaseCotainer
 
+	Err error
+
 	jobID         int64
 	taskGroupID   int64
 	scheduler     *schedule.TaskSchduler
@@ -155,8 +157,8 @@ QueueLoop:
 
 	s := ""
 	for _, t := range tasks {
-		if t.err != nil {
-			s += fmt.Sprintf("%v do fail. err：%v", t.key, t.err)
+		if t.Err != nil {
+			s += fmt.Sprintf("%v do fail. err：%v ", t.key, t.Err)
 		}
 	}
 	if s != "" {
@@ -185,11 +187,11 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 		timer := time.NewTimer(c.retryInterval)
 		defer timer.Stop()
 		select {
-		case doErr := <-errChan:
+		case te.Err = <-errChan:
 			//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
-			if doErr != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
+			if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
 				log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
-					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), doErr)
+					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
 				//关闭任务
 				te.Shutdown()
 				select {

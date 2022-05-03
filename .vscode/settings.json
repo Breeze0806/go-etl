@@ -36,5 +36,5 @@
     "go.coverOnSingleTestFile": true,
     "go.coverShowCounts": true,
     "go.testOnSave": true,
-    "go.testFlags": []
+    "go.testFlags": ["-v"]
 }

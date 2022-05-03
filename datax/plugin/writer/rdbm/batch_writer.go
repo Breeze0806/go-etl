@@ -164,7 +164,9 @@ func StartWrite(ctx context.Context, w BatchWriter,
 					}
 				}
 				records = nil
-				err = rerr
+				if err == nil {
+					err = rerr
+				}
 				goto End
 			}
 			records = append(records, record)

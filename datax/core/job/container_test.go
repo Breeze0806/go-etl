@@ -2282,6 +2282,7 @@ func TestContainer_schedule(t *testing.T) {
 							"id": 1
 						},
 						"taskGroup":{
+							"id": 1,
 							"channel":2
 						}
 					}
@@ -2294,6 +2295,7 @@ func TestContainer_schedule(t *testing.T) {
 					},
 					"content":[
 						{
+							"taskId":1,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"a",
@@ -2308,6 +2310,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":2,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"a",
@@ -2322,6 +2325,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":3,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"a",
@@ -2336,6 +2340,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":4,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"b",
@@ -2350,6 +2355,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":5,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"b",
@@ -2364,6 +2370,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":6,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"c",
@@ -2378,6 +2385,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":7,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"c",
@@ -2392,6 +2400,7 @@ func TestContainer_schedule(t *testing.T) {
 							}
 						},
 						{
+							"taskId":8,
 							"reader":{
 								"parameter":{
 									"loadBalanceResourceMark":"c",
@@ -2408,7 +2417,7 @@ func TestContainer_schedule(t *testing.T) {
 					]
 				}	
 			}`)),
-			wantErr:           false,
+			wantErr:           true,
 			needChannelNumber: 8,
 		},
 	}
