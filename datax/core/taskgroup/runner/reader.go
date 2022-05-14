@@ -16,7 +16,6 @@ package runner
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
@@ -57,22 +56,22 @@ func (r *Reader) Run(ctx context.Context) (err error) {
 
 	log.Debugf("datax reader runner %v starts to init", r.describe)
 	if err = r.task.Init(ctx); err != nil {
-		return fmt.Errorf("task init fail, err: %v", err)
+		return err
 	}
 
 	log.Debugf("datax reader runner %v starts to prepare", r.describe)
 	if err = r.task.Prepare(ctx); err != nil {
-		return fmt.Errorf("task prepare fail, err: %v", err)
+		return err
 	}
 
 	log.Debugf("datax reader runner %v starts to startRead", r.describe)
 	if err = r.task.StartRead(ctx, r.sender); err != nil {
-		return fmt.Errorf("task startRead fail, err: %v", err)
+		return err
 	}
 
 	log.Debugf("datax reader runner %v starts to post", r.describe)
 	if err = r.task.Post(ctx); err != nil {
-		return fmt.Errorf("task post fail, err: %v", err)
+		return err
 	}
 	return
 }

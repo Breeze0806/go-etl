@@ -27,6 +27,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup/runner"
 	"github.com/Breeze0806/go-etl/datax/core/transport/channel"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
+	"github.com/pingcap/errors"
 	"go.uber.org/atomic"
 )
 
@@ -96,7 +97,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 
 	readTask, ok := loader.LoadReaderTask(readName)
 	if !ok {
-		return nil, fmt.Errorf("reader task name (%v) does not exist", readName)
+		return nil, errors.Errorf("reader task name (%v) does not exist", readName)
 	}
 	readTask.SetJobID(jobID)
 	readTask.SetTaskGroupID(taskGroupID)
@@ -109,7 +110,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 
 	writeTask, ok := loader.LoadWriterTask(writeName)
 	if !ok {
-		return nil, fmt.Errorf("writer task name (%v) does not exist", writeName)
+		return nil, errors.Errorf("writer task name (%v) does not exist", writeName)
 	}
 	writeTask.SetJobID(jobID)
 	writeTask.SetTaskGroupID(taskGroupID)
@@ -138,7 +139,7 @@ func (t *taskExecer) Start() {
 		writerWg.Done()
 		if err := t.writerRunner.Run(ctx); err != nil {
 			log.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
-			t.errors <- fmt.Errorf("writer task(%v) fail, err: %v", t.Key(), err)
+			t.errors <- err
 		} else {
 			t.errors <- nil
 		}
@@ -154,7 +155,7 @@ func (t *taskExecer) Start() {
 		readerWg.Done()
 		if err := t.readerRunner.Run(ctx); err != nil {
 			log.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
-			t.errors <- fmt.Errorf("reader task(%v) fail, err: %v", t.Key(), err)
+			t.errors <- err
 		} else {
 			t.errors <- nil
 		}

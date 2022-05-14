@@ -21,6 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/pingcap/errors"
 )
 
 //Job 工作
@@ -43,12 +44,12 @@ func NewJob(handler DbHandler) *Job {
 func (j *Job) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = j.PluginConf().GetString("dialect"); err != nil {
-		return
+		return errors.Wrapf(err, "GetString fail")
 	}
 
 	var conf Config
 	if conf, err = j.handler.Config(j.PluginJobConf()); err != nil {
-		return
+		return errors.Wrapf(err, "Config fail")
 	}
 
 	var jobSettingConf *config.JSON
@@ -56,26 +57,19 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		jobSettingConf, _ = config.NewJSONFromString("{}")
 		err = nil
 	}
-	if err = jobSettingConf.Set("username", conf.GetUsername()); err != nil {
-		return
-	}
 
-	if err = jobSettingConf.Set("password", conf.GetPassword()); err != nil {
-		return
-	}
-
-	if err = jobSettingConf.Set("url", conf.GetURL()); err != nil {
-		return
-	}
+	jobSettingConf.Set("username", conf.GetUsername())
+	jobSettingConf.Set("password", conf.GetPassword())
+	jobSettingConf.Set("url", conf.GetURL())
 
 	if j.Querier, err = j.handler.Querier(name, jobSettingConf); err != nil {
-		return
+		return errors.Wrapf(err, "Querier fail")
 	}
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	err = j.Querier.PingContext(timeoutCtx)
 	if err != nil {
-		return
+		return errors.Wrapf(err, "PingContext fail")
 	}
 	return
 }
@@ -85,7 +79,7 @@ func (j *Job) Destroy(ctx context.Context) (err error) {
 	if j.Querier != nil {
 		err = j.Querier.Close()
 	}
-	return
+	return errors.Wrapf(err, "Close fail")
 }
 
 //Split 切分

@@ -21,6 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
 	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
+	"github.com/pingcap/errors"
 )
 
 //Job 工作
@@ -40,24 +41,20 @@ func NewJob() *Job {
 //Init 初始化
 func (j *Job) Init(ctx context.Context) (err error) {
 	j.conf, err = NewConfig(j.PluginJobConf())
-	return
+	return errors.Wrapf(err, "NewConfig fail. val: %v", j.PluginJobConf())
 }
 
 //Split 切分
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
 	for _, x := range j.conf.Xlsxs {
 		conf, _ := config.NewJSONFromString("{}")
-		if err = conf.Set("path", x.Path); err != nil {
-			return
-		}
+		conf.Set("path", x.Path)
 		for i, v := range x.Sheets {
 			xlsxConfig := xlsx.InConfig{
 				Sheet:   v,
 				Columns: j.conf.Columns,
 			}
-			if err = conf.Set("content."+strconv.Itoa(i), xlsxConfig); err != nil {
-				return
-			}
+			conf.Set("content."+strconv.Itoa(i), xlsxConfig)
 		}
 		configs = append(configs, conf)
 	}

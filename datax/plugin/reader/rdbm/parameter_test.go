@@ -194,7 +194,7 @@ func Test_queryParam_Query(t *testing.T) {
 			want: "select f1 from db.schema.table",
 		},
 		{
-			name: "3",
+			name: "4",
 			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
 			config: &BaseConfig{
 				Column: []string{

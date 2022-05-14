@@ -43,8 +43,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSON(),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSON(),
+			jobConf: testJSONFromString(`{}`),
 		},
 		{
 			name: "2",
@@ -54,8 +54,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromString(`{}`),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -66,8 +66,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSON(),
-			jobConf: TestJSONFromString(`{
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
 				"username": 1		
 			}`),
 			wantErr: true,
@@ -80,8 +80,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSON(),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSON(),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -94,8 +94,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSON(),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSON(),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -108,8 +108,8 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSON(),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSON(),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 	}
@@ -137,7 +137,8 @@ func TestTask_Destroy(t *testing.T) {
 		{
 			name: "1",
 			t: &Task{
-				Querier: &MockQuerier{},
+				BaseTask: plugin.NewBaseTask(),
+				Querier:  &MockQuerier{},
 			},
 			args: args{
 				ctx: context.TODO(),
@@ -146,7 +147,8 @@ func TestTask_Destroy(t *testing.T) {
 		{
 			name: "2",
 			t: &Task{
-				Querier: nil,
+				BaseTask: plugin.NewBaseTask(),
+				Querier:  nil,
 			},
 			args: args{
 				ctx: context.TODO(),

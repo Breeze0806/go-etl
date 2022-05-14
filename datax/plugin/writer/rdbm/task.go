@@ -46,11 +46,11 @@ func NewTask(handler DbHandler) *Task {
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 
 	if t.Config, err = t.Handler.Config(t.PluginJobConf()); err != nil {
-		return
+		return t.Wrapf(err, "Config fail")
 	}
 
 	var jobSettingConf *config.JSON
@@ -58,31 +58,23 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		jobSettingConf, _ = config.NewJSONFromString("{}")
 		err = nil
 	}
-	if err = jobSettingConf.Set("username", t.Config.GetUsername()); err != nil {
-		return
-	}
-
-	if err = jobSettingConf.Set("password", t.Config.GetPassword()); err != nil {
-		return
-	}
-
-	if err = jobSettingConf.Set("url", t.Config.GetURL()); err != nil {
-		return
-	}
+	jobSettingConf.Set("username", t.Config.GetUsername())
+	jobSettingConf.Set("password", t.Config.GetPassword())
+	jobSettingConf.Set("url", t.Config.GetURL())
 
 	if t.Execer, err = t.Handler.Execer(name, jobSettingConf); err != nil {
-		return
+		return t.Wrapf(err, "Execer fail")
 	}
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	err = t.Execer.PingContext(timeoutCtx)
 	if err != nil {
-		return
+		return t.Wrapf(err, "PingContext fail")
 	}
 
 	param := t.Handler.TableParam(t.Config, t.Execer)
 	if t.Table, err = t.Execer.FetchTableWithParam(ctx, param); err != nil {
-		return
+		return t.Wrapf(err, "FetchTableWithParam fail")
 	}
 
 	return
@@ -93,5 +85,5 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.Execer != nil {
 		err = t.Execer.Close()
 	}
-	return
+	return t.Wrapf(err, "Close fail")
 }

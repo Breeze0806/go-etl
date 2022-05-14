@@ -17,10 +17,10 @@ package rdbm
 import (
 	"bytes"
 	"database/sql"
-	"errors"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/pingcap/errors"
 )
 
 //TableParamConfig 表参数配置
@@ -54,7 +54,7 @@ func NewTableParam(config TableParamConfig, table TableParamTable, opts *sql.TxO
 func (t *TableParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select ")
 	if len(t.Config.GetColumns()) == 0 {
-		return "", errors.New("column is empty")
+		return "", errors.NewNoStackError("column is empty")
 	}
 	for i, v := range t.Config.GetColumns() {
 		if i > 0 {
@@ -93,7 +93,7 @@ func NewQueryParam(config Config, table database.Table, opts *sql.TxOptions) *Qu
 func (q *QueryParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select ")
 	if len(q.Table().Fields()) == 0 {
-		return "", errors.New("column is empty")
+		return "", errors.NewNoStackError("column is empty")
 	}
 	for i, v := range q.Table().Fields() {
 		if i > 0 {

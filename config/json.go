@@ -16,8 +16,6 @@
 package config
 
 import (
-	"io/ioutil"
-
 	"github.com/Breeze0806/go/encoding"
 )
 
@@ -54,11 +52,11 @@ func NewJSONFromBytes(b []byte) (*JSON, error) {
 //NewJSONFromFile 从文件名为filename的文件中获取json配置
 //并在json格式错误或者读取文件错误时返回错误
 func NewJSONFromFile(filename string) (*JSON, error) {
-	data, err := ioutil.ReadFile(filename)
+	JSON, err := encoding.NewJSONFromFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return NewJSONFromBytes(data)
+	return NewJSONFromEncodingJSON(JSON), nil
 }
 
 //GetConfig 获取path路径对应的值配置文件,对于下列json

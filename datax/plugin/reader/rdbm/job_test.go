@@ -48,8 +48,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSON(),
-			jobConf: TestJSONFromString(`{
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
 			}`),
 		},
 		{
@@ -60,8 +60,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    TestJSONFromString(`{}`),
-			jobConf: TestJSONFromString(`{}`),
+			conf:    testJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
 		{
@@ -72,8 +72,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSON(),
-			jobConf: TestJSONFromString(`{
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
 				"username": 1
 			}`),
 			wantErr: true,
@@ -86,8 +86,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSON(),
-			jobConf: TestJSONFromString(`{
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -101,8 +101,8 @@ func TestJob_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf: TestJSON(),
-			jobConf: TestJSONFromString(`{
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
 			}`),
 			wantErr: true,
 		},
@@ -177,9 +177,9 @@ func TestJob_Split(t *testing.T) {
 				ctx:    context.TODO(),
 				number: 1,
 			},
-			jobConf: TestJSONFromString(`{}`),
+			jobConf: testJSONFromString(`{}`),
 			want: []*config.JSON{
-				TestJSONFromString(`{}`),
+				testJSONFromString(`{}`),
 			},
 		},
 	}

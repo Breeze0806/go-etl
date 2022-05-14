@@ -56,8 +56,5 @@ func (b *batchWriter) BatchSize() (size int) {
 
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
-	writer := &batchWriter{
-		BaseBatchWriter: rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil),
-	}
-	return rdbm.StartWrite(ctx, writer, receiver)
+	return rdbm.StartWrite(ctx, &batchWriter{BaseBatchWriter: rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil)}, receiver)
 }

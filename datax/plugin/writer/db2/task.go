@@ -43,6 +43,5 @@ type Task struct {
 
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
-	writer := rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil)
-	return rdbm.StartWrite(ctx, writer, receiver)
+	return rdbm.StartWrite(ctx, rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil), receiver)
 }

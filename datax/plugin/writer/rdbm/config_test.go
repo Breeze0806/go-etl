@@ -76,12 +76,12 @@ func TestBaseConfig_GetBatchTimeout(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    testBaseConfig(TestJSONFromString("{}")),
+			b:    testBaseConfig(testJSONFromString("{}")),
 			want: defalutBatchTimeout,
 		},
 		{
 			name: "2",
-			b:    testBaseConfig(TestJSONFromString(`{"batchTimeout":"100ms"}`)),
+			b:    testBaseConfig(testJSONFromString(`{"batchTimeout":"100ms"}`)),
 			want: 100 * time.Millisecond,
 		},
 	}
@@ -102,13 +102,13 @@ func TestBaseConfig_GetBatchSize(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    testBaseConfig(TestJSONFromString("{}")),
+			b:    testBaseConfig(testJSONFromString("{}")),
 			want: defalutBatchSize,
 		},
 
 		{
 			name: "2",
-			b:    testBaseConfig(TestJSONFromString(`{"batchSize":30000}`)),
+			b:    testBaseConfig(testJSONFromString(`{"batchSize":30000}`)),
 			want: 30000,
 		},
 	}

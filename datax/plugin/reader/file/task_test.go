@@ -16,6 +16,7 @@ package file
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -56,10 +57,11 @@ func (m *mockRows) Close() error {
 }
 
 type mockInStream struct {
+	err error
 }
 
 func (m *mockInStream) Rows(conf *config.JSON) (rows file.Rows, err error) {
-	return &mockRows{}, nil
+	return &mockRows{}, m.err
 }
 
 func (m *mockInStream) Close() (err error) {
@@ -67,10 +69,11 @@ func (m *mockInStream) Close() (err error) {
 }
 
 type mockOpener struct {
+	err error
 }
 
 func (m *mockOpener) Open(filename string) (stream file.InStream, err error) {
-	return &mockInStream{}, nil
+	return &mockInStream{err: m.err}, nil
 }
 
 //MockSender 模拟发送器
@@ -107,6 +110,7 @@ func (m *MockSender) Shutdown() error {
 }
 func TestTask_StartRead(t *testing.T) {
 	file.RegisterOpener("mock", &mockOpener{})
+	file.RegisterOpener("mockError", &mockOpener{err: errors.New("mock error")})
 	type args struct {
 		ctx    context.Context
 		sender plugin.RecordSender
@@ -132,6 +136,16 @@ func TestTask_StartRead(t *testing.T) {
 			name:    "2",
 			conf:    testJSONFromString(`{"opener":"mock"}`),
 			jobConf: testJSONFromString(`{"path":"mockfile"}`),
+			args: args{
+				ctx:    context.TODO(),
+				sender: &MockSender{},
+			},
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			conf:    testJSONFromString(`{"opener":"mockError"}`),
+			jobConf: testJSONFromString(`{"path":"mockfile","content":[{},{}]}`),
 			args: args{
 				ctx:    context.TODO(),
 				sender: &MockSender{},

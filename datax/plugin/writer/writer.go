@@ -15,7 +15,6 @@
 package writer
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -23,6 +22,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi"
+	"github.com/pingcap/errors"
 )
 
 //Writer 写入器
@@ -51,7 +51,7 @@ func RegisterWriter(maker Maker) (pluginConfig string, err error) {
 	pluginConfig = filepath.Join(path, "resources", "plugin.json")
 	var writer Writer
 	if writer, err = maker.FromFile(pluginConfig); err != nil {
-		if !os.IsNotExist(err) {
+		if !os.IsNotExist(errors.Cause(err)) {
 			return
 		}
 		if writer, err = maker.Default(); err != nil {

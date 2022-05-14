@@ -166,9 +166,9 @@ func (m *MockQuerier) Close() error {
 	return nil
 }
 
-//TestJSON 从文件获取JSON配置
-func TestJSON() *config.JSON {
-	return TestJSONFromString(`{
+//testJSON 从文件获取JSON配置
+func testJSON() *config.JSON {
+	return testJSONFromString(`{
 		"name" : "rdbmreader",
 		"developer":"Breeze0806",
 		"dialect":"rdbm",
@@ -176,8 +176,8 @@ func TestJSON() *config.JSON {
 	}`)
 }
 
-//TestJSONFromString 从字符串获取JSON配置
-func TestJSONFromString(json string) *config.JSON {
+//testJSONFromString 从字符串获取JSON配置
+func testJSONFromString(json string) *config.JSON {
 	conf, err := config.NewJSONFromString(json)
 	if err != nil {
 		panic(err)
