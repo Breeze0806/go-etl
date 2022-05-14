@@ -15,7 +15,6 @@
 package reader
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -23,6 +22,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi"
+	"github.com/pingcap/errors"
 )
 
 //Reader 数据库读取器
@@ -51,17 +51,17 @@ func RegisterReader(maker Maker) (pluginConfig string, err error) {
 	var reader Reader
 
 	if reader, err = maker.FromFile(pluginConfig); err != nil {
-		if !os.IsNotExist(err) {
+		if !os.IsNotExist(errors.Cause(err)) {
 			return
 		}
 		if reader, err = maker.Default(); err != nil {
-			return "", err
+			return "", errors.Wrap(err, "Default fail")
 		}
 	}
 	name := ""
 	name, err = reader.ResourcesConfig().GetString("name")
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "GetString fail")
 	}
 	if name == "" {
 		return "", errors.New("name is empty")

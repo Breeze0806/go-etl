@@ -16,11 +16,10 @@ package job
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -34,6 +33,7 @@ import (
 	statplugin "github.com/Breeze0806/go-etl/datax/core/statistics/container/plugin"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
 	"github.com/Breeze0806/go-etl/schedule"
+	"github.com/pingcap/errors"
 )
 
 //Container 工作容器环境，所有的工作都在本容器环境中执行
@@ -68,7 +68,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	c.SetConfig(conf)
 	c.jobID = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobID, -1)
 	if c.jobID < 0 {
-		return nil, fmt.Errorf("container job id is invalid")
+		return nil, errors.New("container job id is invalid")
 	}
 	return
 }
@@ -165,13 +165,9 @@ func (c *Container) init() (err error) {
 		err = nil
 	}
 
-	if err = readerConfig.Set(coreconst.DataxJobSetting, jobSettingConf); err != nil {
-		return
-	}
+	readerConfig.Set(coreconst.DataxJobSetting, jobSettingConf)
 
-	if err = writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf); err != nil {
-		return
-	}
+	writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf)
 
 	collector := statplugin.NewDefaultJobCollector(c.Communication())
 	c.jobReader, err = c.initReaderJob(collector, readerConfig, writerConfig)
@@ -230,7 +226,7 @@ func (c *Container) split() (err error) {
 	}
 
 	if len(readerConfs) == 0 {
-		err = fmt.Errorf("reader split fail, config is empty")
+		err = errors.New("reader split fail, config is empty")
 		return
 	}
 
@@ -242,7 +238,7 @@ func (c *Container) split() (err error) {
 	}
 
 	if len(writerConfs) == 0 {
-		err = fmt.Errorf("writer split fail, config is empty")
+		err = errors.New("writer split fail, config is empty")
 		return
 	}
 	log.Infof("DataX jobContainer %v writer %v split %v tasks", c.jobID, c.readerPluginName, len(writerConfs))
@@ -252,10 +248,8 @@ func (c *Container) split() (err error) {
 		return
 	}
 
-	err = c.Config().Set(coreconst.DataxJobContent, tasksConfigs)
-	if err != nil {
-		return
-	}
+	c.Config().Set(coreconst.DataxJobContent, tasksConfigs)
+
 	c.totalStage = len(tasksConfigs)
 	return nil
 }
@@ -297,14 +291,15 @@ func (c *Container) schedule() (err error) {
 End:
 	c.wg.Wait()
 
-	s := ""
+	b := &strings.Builder{}
 	for _, t := range taskGroups {
 		if t.Err != nil {
-			s += fmt.Sprintf("%v-%v do fail. err：%v ", t.JobID(), t.TaskGroupID(), t.Err)
+			b.WriteString(t.Err.Error())
+			b.WriteByte(' ')
 		}
 	}
-	if s != "" {
-		return errors.New(s)
+	if b.Len() != 0 {
+		return errors.NewNoStackError(b.String())
 	}
 	return
 }
@@ -325,7 +320,7 @@ func (c *Container) post() (err error) {
 //mergeTaskConfigs 逐个将单个读取任务、单个写入任务和转化器组合成完整任务组
 func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
-		err = fmt.Errorf("the number of reader tasks are not equal to the number of writer tasks")
+		err = errors.New("the number of reader tasks are not equal to the number of writer tasks")
 		return
 	}
 	var transformConfs []*config.JSON
@@ -337,28 +332,16 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	for i := range readerConfs {
 		var taskConfig *config.JSON
 		taskConfig, _ = config.NewJSONFromString("{}")
-		err = taskConfig.Set(coreconst.JobReaderName, c.readerPluginName)
-		if err != nil {
-			return
-		}
+		taskConfig.Set(coreconst.JobReaderName, c.readerPluginName)
 
-		err = taskConfig.SetRawString(coreconst.JobReaderParameter, readerConfs[i].String())
-		if err != nil {
-			return
-		}
-		err = taskConfig.Set(coreconst.JobWriterName, c.writerPluginName)
-		if err != nil {
-			return
-		}
-		err = taskConfig.SetRawString(coreconst.JobWriterParameter, writerConfs[i].String())
-		if err != nil {
-			return
-		}
+		taskConfig.SetRawString(coreconst.JobReaderParameter, readerConfs[i].String())
+
+		taskConfig.Set(coreconst.JobWriterName, c.writerPluginName)
+
+		taskConfig.SetRawString(coreconst.JobWriterParameter, writerConfs[i].String())
+
 		if len(transformConfs) != 0 {
-			err = taskConfig.Set(coreconst.JobTransformer, transformConfs)
-			if err != nil {
-				return
-			}
+			taskConfig.Set(coreconst.JobTransformer, transformConfs)
 		}
 		taskConfig.Set(coreconst.TaskID, i)
 		taskConfigs = append(taskConfigs, taskConfig)
@@ -384,23 +367,17 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	taskIDMap := parseAndGetResourceMarkAndTaskIDMap(tasksConfigs)
 	ss := doAssign(taskIDMap, taskGroupNumber)
 	template := c.Config().CloneConfig()
-	if err = template.Remove(coreconst.DataxJobContent); err != nil {
-		return nil, err
-	}
+	template.Remove(coreconst.DataxJobContent)
 
 	for i := 0; i < taskGroupNumber; i++ {
 		conf := template.CloneConfig()
-		if err = conf.Set(coreconst.DataxCoreContainerTaskGroupID, i); err != nil {
-			return nil, err
-		}
+		conf.Set(coreconst.DataxCoreContainerTaskGroupID, i)
 		confs = append(confs, conf)
 	}
 
 	for i, v := range ss {
 		for j, vj := range v {
-			if err = confs[i].Set(coreconst.DataxJobContent+"."+strconv.Itoa(j), tasksConfigs[vj]); err != nil {
-				return nil, err
-			}
+			confs[i].Set(coreconst.DataxJobContent+"."+strconv.Itoa(j), tasksConfigs[vj])
 		}
 	}
 	return
@@ -419,7 +396,7 @@ func (c *Container) adjustChannelNumber() error {
 			return err
 		}
 		if channelLimitedByteSpeed <= 0 {
-			return fmt.Errorf("%v should be positive", coreconst.DataxCoreTransportChannelSpeedByte)
+			return errors.Errorf("%v should be positive", coreconst.DataxCoreTransportChannelSpeedByte)
 		}
 		needChannelNumberByByte = globalLimitedByteSpeed / channelLimitedByteSpeed
 		if needChannelNumberByByte < 1 {
@@ -435,7 +412,7 @@ func (c *Container) adjustChannelNumber() error {
 			return err
 		}
 		if channelLimitedRecordSpeed <= 0 {
-			return fmt.Errorf("%v should be positive", coreconst.DataxCoreTransportChannelSpeedByte)
+			return errors.Errorf("%v should be positive", coreconst.DataxCoreTransportChannelSpeedByte)
 		}
 
 		needChannelNumberByRecord = globalLimitedRecordSpeed / channelLimitedRecordSpeed
@@ -461,7 +438,7 @@ func (c *Container) adjustChannelNumber() error {
 		return nil
 	}
 
-	return fmt.Errorf("job speed should be setted")
+	return errors.New("job speed should be setted")
 }
 
 //initReaderJob 初始化读取工作
@@ -470,7 +447,7 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	ok := false
 	job, ok = loader.LoadReaderJob(c.readerPluginName)
 	if !ok {
-		err = fmt.Errorf("reader %v does not exist", c.readerPluginName)
+		err = errors.Errorf("reader %v does not exist", c.readerPluginName)
 		return
 	}
 	job.SetCollector(collector)
@@ -490,7 +467,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	ok := false
 	job, ok = loader.LoadWriterJob(c.writerPluginName)
 	if !ok {
-		err = fmt.Errorf("writer %v does not exist", c.writerPluginName)
+		err = errors.Errorf("writer %v does not exist", c.writerPluginName)
 		return
 	}
 	job.SetCollector(collector)
@@ -516,7 +493,7 @@ func (c *Container) preHandle() (err error) {
 	}
 	handlerPluginType := plugin.Type(handlerPluginTypeStr)
 	if !handlerPluginType.IsValid() {
-		return fmt.Errorf("%v is not valid plugin Type", handlerPluginTypeStr)
+		return errors.Errorf("%v is not valid plugin Type", handlerPluginTypeStr)
 	}
 	handlerPluginName := ""
 	handlerPluginName, err = c.Config().GetString(coreconst.DataxJobPreHandlerPluginName)
@@ -547,7 +524,7 @@ func (c *Container) postHandle() (err error) {
 	}
 	handlerPluginType := plugin.Type(handlerPluginTypeStr)
 	if !handlerPluginType.IsValid() {
-		return fmt.Errorf("%v is not valid plugin Type", handlerPluginTypeStr)
+		return errors.Errorf("%v is not valid plugin Type", handlerPluginTypeStr)
 	}
 	handlerPluginName := ""
 	handlerPluginName, err = c.Config().GetString(coreconst.DataxJobPostHandlerPluginName)

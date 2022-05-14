@@ -49,23 +49,23 @@ func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("creator"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 	var filename string
 	if filename, err = t.PluginJobConf().GetString("path"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 
 	if t.content, err = t.PluginJobConf().GetConfig("content"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 
 	if t.conf, err = t.newConfig(t.content); err != nil {
-		return
+		return t.Wrapf(err, "newConfig fail")
 	}
 
 	if t.streamer, err = file.NewOutStreamer(name, filename); err != nil {
-		return
+		return t.Wrapf(err, "NewOutStreamer fail")
 	}
 
 	return
@@ -76,14 +76,14 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.streamer != nil {
 		err = t.streamer.Close()
 	}
-	return
+	return t.Wrapf(err, "Close fail")
 }
 
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	var sw file.StreamWriter
 	if sw, err = t.streamer.Writer(t.content); err != nil {
-		return
+		return t.Wrapf(err, "Writer fail")
 	}
 
 	recordChan := make(chan element.Record)
@@ -97,11 +97,9 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 			wg.Done()
 			//关闭recordChan
 			close(recordChan)
-			log.Debugf("jobID: %v taskgroupID:%v taskID: %v get records end",
-				t.JobID(), t.TaskGroupID(), t.TaskID())
+			log.Debugf(t.Format("get records end"))
 		}()
-		log.Debugf("jobID: %v taskgroupID:%v taskID: %v start to get records",
-			t.JobID(), t.TaskGroupID(), t.TaskID())
+		log.Debugf(t.Format("start to get records"))
 		for {
 			select {
 			case <-afterCtx.Done():
@@ -129,8 +127,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	ticker := time.NewTicker(t.conf.GetBatchTimeout())
 	defer ticker.Stop()
 	cnt := 0
-	log.Debugf("jobID: %v taskgroupID: %v taskID: %v  start to write",
-		t.JobID(), t.TaskGroupID(), t.TaskID())
+	log.Debugf(t.Format("start to write"))
 	for {
 		select {
 		case record, ok := <-recordChan:
@@ -138,8 +135,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 				//当写入结束时，将剩余的记录写入数据库
 				if cnt > 0 {
 					if err = sw.Flush(); err != nil {
-						log.Errorf("jobID: %v taskgroupID:%v taskID: %v Flush error: %v",
-							t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+						log.Errorf(t.Format("Flush error: %v"), err)
 					}
 				}
 				if err == nil {
@@ -150,16 +146,14 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 
 			//写入文件
 			if err = sw.Write(record); err != nil {
-				log.Errorf("jobID: %v taskgroupID:%v taskID: %v Write error: %v",
-					t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+				log.Errorf(t.Format("Write error: %v"), err)
 				goto End
 			}
 			cnt++
 			//当数据量超过单次批量数时 写入文件
 			if cnt >= t.conf.GetBatchSize() {
 				if err = sw.Flush(); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v Flush error: %v",
-						t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+					log.Errorf(t.Format("Flush error: %v"), err)
 					goto End
 				}
 				cnt = 0
@@ -168,8 +162,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 		case <-ticker.C:
 			if cnt > 0 {
 				if err = sw.Flush(); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v Flush error: %v",
-						t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+					log.Errorf(t.Format("Flush error: %v"), err)
 					goto End
 				}
 			}
@@ -178,16 +171,13 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	}
 End:
 	if err = sw.Close(); err != nil {
-		log.Errorf("jobID: %v taskgroupID:%v taskID: %v Close error: %v",
-			t.JobID(), t.TaskGroupID(), t.TaskID(), err)
+		log.Errorf(t.Format("Close error: %v"), err)
 	}
 	cancel()
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine",
-		t.JobID(), t.TaskGroupID(), t.TaskID())
+	log.Debugf(t.Format("wait all goroutine"))
 	//等待携程结束
 	wg.Wait()
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine end",
-		t.JobID(), t.TaskGroupID(), t.TaskID())
+	log.Debugf(t.Format(" wait all goroutine end"))
 	switch {
 	//当外部取消时，开始写入不是错误
 	case ctx.Err() != nil:
@@ -197,5 +187,5 @@ End:
 		return nil
 	}
 
-	return
+	return t.Wrapf(err, "")
 }

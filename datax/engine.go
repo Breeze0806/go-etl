@@ -16,13 +16,13 @@ package datax
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/core"
 	"github.com/Breeze0806/go-etl/datax/core/job"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
+	"github.com/pingcap/errors"
 )
 
 //Model 模式
@@ -74,7 +74,7 @@ func (e *Engine) Start() (err error) {
 			return
 		}
 	default:
-		return fmt.Errorf("model is %v", model)
+		return errors.Errorf("model is %v", model)
 	}
 
 	return e.Container.Start()

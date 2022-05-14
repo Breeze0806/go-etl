@@ -41,15 +41,15 @@ func NewTask() *Task {
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("opener"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 	var filename string
 	if filename, err = t.PluginJobConf().GetString("path"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 
 	if t.streamer, err = file.NewInStreamer(name, filename); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 	return
 }
@@ -59,7 +59,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.streamer != nil {
 		err = t.streamer.Close()
 	}
-	return
+	return t.Wrapf(err, "Close fail")
 }
 
 type handler struct {
@@ -84,20 +84,20 @@ func (h *handler) OnRecord(r element.Record) error {
 func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err error) {
 	handler := newHander(sender)
 
-	log.Infof("jobid %v taskgroupid %v taskid %v startRead begin", t.JobID(), t.TaskGroupID(), t.TaskID())
+	log.Infof(t.Format("startRead begin"))
 	defer func() {
 		sender.Terminate()
-		log.Infof("jobid %v taskgroupid %v taskid %v startRead end", t.JobID(), t.TaskGroupID(), t.TaskID())
+		log.Infof(t.Format("startRead end"))
 	}()
 	var configs []*config.JSON
 	configs, err = t.PluginJobConf().GetConfigArray("content")
 	if err != nil {
-		return err
+		return t.Wrapf(err, "GetConfigArray fail.")
 	}
 
 	for _, conf := range configs {
 		if err = t.streamer.Read(ctx, conf, handler); err != nil {
-			return
+			return t.Wrapf(err, "Read fail.")
 		}
 	}
 	return nil

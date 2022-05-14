@@ -16,7 +16,6 @@ package database
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go/time2"
@@ -33,7 +32,7 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
 	if err != nil {
-		return nil, fmt.Errorf("Unmarshal(%v) error: %v", conf.String(), err)
+		return nil, err
 	}
 	return
 }

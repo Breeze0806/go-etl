@@ -17,9 +17,9 @@ package database
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/pingcap/errors"
 )
 
 //写入数据库模式
@@ -73,13 +73,13 @@ func NewDB(source Source) (d *DB, err error) {
 
 	d.db, err = sql.Open(d.Source.DriverName(), d.Source.ConnectName())
 	if err != nil {
-		return nil, fmt.Errorf("Open(%v, %v) error: %v", d.Source.DriverName(), d.Source.ConnectName(), err)
+		return nil, errors.Wrapf(err, "Open(%v) fail", d.Source.DriverName())
 	}
 
 	var c *Config
 	c, err = NewConfig(d.Config())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "NewConfig(%v) fail", d.Config())
 	}
 
 	d.db.SetMaxOpenConns(c.Pool.GetMaxOpenConns())
@@ -110,7 +110,7 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 	}
 	adder, ok := table.(FieldAdder)
 	if !ok {
-		return nil, fmt.Errorf("Table is not FieldAdder")
+		return nil, errors.Errorf("Table is not FieldAdder")
 	}
 	query, agrs, err := getQueryAndAgrs(param, nil)
 	if err != nil {
@@ -118,16 +118,16 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 	}
 	rows, err := d.QueryContext(ctx, query, agrs...)
 	if err != nil {
-		return nil, fmt.Errorf("QueryContext(%v) err: %v", query, err)
+		return nil, errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
 	names, err := rows.Columns()
 	if err != nil {
-		return nil, fmt.Errorf("rows.Columns() err: %v", err)
+		return nil, errors.Wrapf(err, "rows.Columns() fail")
 	}
 	types, err := rows.ColumnTypes()
 	if err != nil {
-		return nil, fmt.Errorf("rows.ColumnTypes() err: %v", err)
+		return nil, errors.Wrapf(err, "rows.ColumnTypes() fail")
 	}
 	for i := range names {
 		adder.AddField(NewBaseField(i, names[i], NewBaseFieldType(types[i])))
@@ -135,7 +135,7 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 
 	for _, v := range table.Fields() {
 		if !v.Type().IsSupportted() {
-			return nil, fmt.Errorf("table: %v filed:%v type(%v) is not supportted", table.Quoted(), v.Name(), v.Type().DatabaseTypeName())
+			return nil, errors.Errorf("table: %v filed:%v type(%v) is not supportted", table.Quoted(), v.Name(), v.Type().DatabaseTypeName())
 		}
 	}
 	return table, nil
@@ -153,7 +153,7 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHand
 
 	var rows *sql.Rows
 	if rows, err = d.QueryContext(ctx, query, agrs...); err != nil {
-		return fmt.Errorf("QueryContext(%v) err: %v", query, err)
+		return errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
 	return readRowsToRecord(rows, param, handler)
@@ -172,7 +172,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler Fet
 	var tx *sql.Tx
 
 	if tx, err = d.BeginTx(ctx, param.TxOptions()); err != nil {
-		return fmt.Errorf("BeginTx(%+v) err: %v", param.TxOptions(), err)
+		return errors.Wrapf(err, "BeginTx(%+v) fail", param.TxOptions())
 	}
 
 	defer func() {
@@ -185,7 +185,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler Fet
 
 	var rows *sql.Rows
 	if rows, err = tx.QueryContext(ctx, query, agrs...); err != nil {
-		return fmt.Errorf("QueryContext(%v) error: %v", query, err)
+		return errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
 	return readRowsToRecord(rows, param, handler)
@@ -255,7 +255,7 @@ func (d *DB) batchExec(ctx context.Context, param Parameter, records []element.R
 	}
 
 	if _, err = d.ExecContext(ctx, query, agrs...); err != nil {
-		return fmt.Errorf("ExecContext(%v) err: %v", query, err)
+		return errors.Wrapf(err, "ExecContext(%v) fail", query)
 	}
 	return nil
 }
@@ -270,7 +270,7 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 
 	var tx *sql.Tx
 	if tx, err = d.db.BeginTx(ctx, param.TxOptions()); err != nil {
-		return fmt.Errorf("BeginTx(%+v) err: %v", param.TxOptions(), err)
+		return errors.Wrapf(err, "BeginTx(%+v) fail", param.TxOptions())
 	}
 	defer func() {
 		if err != nil {
@@ -281,7 +281,7 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 	}()
 
 	if _, err = tx.ExecContext(ctx, query, agrs...); err != nil {
-		return fmt.Errorf("ExecContext(%v) err: %v", query, err)
+		return errors.Wrapf(err, "ExecContext(%v) fail", query)
 	}
 	return nil
 }
@@ -289,12 +289,12 @@ func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []ele
 func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records []element.Record) (err error) {
 	var query string
 	if query, err = param.Query(records); err != nil {
-		return fmt.Errorf("param.Query() err: %v", err)
+		return errors.Wrapf(err, "param.Query() fail")
 	}
 
 	var tx *sql.Tx
 	if tx, err = d.db.BeginTx(ctx, param.TxOptions()); err != nil {
-		return fmt.Errorf("BeginTx() err: %v", err)
+		return errors.Wrapf(err, "BeginTx(%+v) fail", param.TxOptions())
 	}
 	defer func() {
 		if err != nil {
@@ -306,7 +306,7 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 
 	var stmt *sql.Stmt
 	if stmt, err = tx.PrepareContext(ctx, query); err != nil {
-		return fmt.Errorf("tx.PrepareContext(%v) err: %v", query, err)
+		return errors.Wrapf(err, "tx.PrepareContext(%v) fail", query)
 	}
 	defer func() {
 		stmt.Close()
@@ -317,14 +317,14 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 		if valuers, err = param.Agrs([]element.Record{
 			r,
 		}); err != nil {
-			return fmt.Errorf("param.Args() err: %v", err)
+			return errors.Wrapf(err, "param.Args() fail")
 		}
 		if _, err = stmt.ExecContext(ctx, valuers...); err != nil {
-			return fmt.Errorf("stmt.ExecContext err: %v", err)
+			return errors.Wrapf(err, "stmt.ExecContext fail")
 		}
 	}
 	if _, err = stmt.ExecContext(ctx); err != nil {
-		return fmt.Errorf("stmt.ExecContext err: %v", err)
+		return errors.Wrapf(err, "stmt.ExecContext fail")
 	}
 	return
 }
@@ -333,13 +333,13 @@ func execParam(opts *ParameterOptions) (param Parameter, err error) {
 	execParams, ok := opts.Table.(ExecParameter)
 	if !ok {
 		if opts.Mode != WriteModeInsert {
-			return nil, fmt.Errorf("table is not ExecParameter and mode is not insert")
+			return nil, errors.Errorf("table is not ExecParameter and mode is not insert")
 		}
 		param = NewInsertParam(opts.Table, opts.TxOptions)
 	} else {
 		if param, ok = execParams.ExecParam(opts.Mode, opts.TxOptions); !ok {
 			if opts.Mode != WriteModeInsert {
-				return nil, fmt.Errorf("ExecParam is not exist and mode is not insert")
+				return nil, errors.Errorf("ExecParam is not exist and mode is not insert")
 			}
 			param = NewInsertParam(opts.Table, opts.TxOptions)
 		}
@@ -349,12 +349,12 @@ func execParam(opts *ParameterOptions) (param Parameter, err error) {
 
 func getQueryAndAgrs(param Parameter, records []element.Record) (query string, agrs []interface{}, err error) {
 	if query, err = param.Query(records); err != nil {
-		err = fmt.Errorf("param.Query() err: %v", err)
+		err = errors.Errorf("param.Query() err: %v", err)
 		return
 	}
 	if agrs, err = param.Agrs(records); err != nil {
 		query = ""
-		err = fmt.Errorf("param.Agrs() err: %v", err)
+		err = errors.Errorf("param.Agrs() err: %v", err)
 		return
 	}
 	return
@@ -368,22 +368,22 @@ func readRowsToRecord(rows *sql.Rows, param Parameter, handler FetchHandler) (er
 
 	for rows.Next() {
 		if err = rows.Scan(scanners...); err != nil {
-			return fmt.Errorf("rows.Scan err: %v", err)
+			return errors.Wrapf(err, "rows.Scan fail")
 		}
 		var record element.Record
 		if record, err = handler.CreateRecord(); err != nil {
-			return fmt.Errorf("CreateRecord err: %v", err)
+			return errors.Wrapf(err, "CreateRecord fail")
 		}
 		for _, v := range scanners {
 			record.Add(v.(Scanner).Column())
 		}
 		if err = handler.OnRecord(record); err != nil {
-			return fmt.Errorf("OnRecord err: %v", err)
+			return errors.Wrapf(err, "OnRecord fail")
 		}
 	}
 
 	if err = rows.Err(); err != nil {
-		return fmt.Errorf("rows.Err() err: %v", err)
+		return errors.Wrapf(err, "rows.Err() fail")
 	}
 	return nil
 }

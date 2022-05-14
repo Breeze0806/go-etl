@@ -19,6 +19,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/schedule"
+	"github.com/pingcap/errors"
 )
 
 var dbMap = schedule.NewResourceMap()
@@ -48,7 +49,7 @@ func Open(name string, conf *config.JSON) (dw *DBWrapper, err error) {
 	var resource schedule.MappedResource
 
 	if resource, err = dbMap.Get(source.Key(), create); err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "Get fail")
 	}
 	return &DBWrapper{
 		DB: resource.(*DB),
@@ -63,5 +64,5 @@ func (d *DBWrapper) Close() (err error) {
 		}
 	})
 
-	return
+	return errors.Wrapf(err, "Release fail")
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/pingcap/errors"
 )
 
 // FetchHandler 获取记录句柄
@@ -64,12 +65,12 @@ type InStreamer struct {
 func NewInStreamer(name string, filename string) (streamer *InStreamer, err error) {
 	opener, ok := openers.opener(name)
 	if !ok {
-		err = fmt.Errorf("opener %v does not exist", name)
+		err = errors.Errorf("opener %v does not exist", name)
 		return
 	}
 	streamer = &InStreamer{}
 	if streamer.stream, err = opener.Open(filename); err != nil {
-		return nil, fmt.Errorf("open fail. err : %v", err)
+		return nil, errors.Wrapf(err, "open(%v) fail", filename)
 	}
 	return
 }
@@ -79,7 +80,7 @@ func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchH
 	var rows Rows
 	rows, err = s.stream.Rows(conf)
 	if err != nil {
-		return fmt.Errorf("rows fail. error: %v, config： %v", err, conf.String())
+		return errors.Wrapf(err, "rows fail. config: %v", conf)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -90,25 +91,25 @@ func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchH
 		default:
 		}
 		if columns, err = rows.Scan(); err != nil {
-			return fmt.Errorf("Scan fail. error: %v", err)
+			return errors.Wrapf(err, "Scan fail")
 		}
 		var r element.Record
 
 		if r, err = handler.CreateRecord(); err != nil {
-			return fmt.Errorf("CreateRecord fail. error: %v", err)
+			return errors.Wrapf(err, "CreateRecord fail")
 		}
 
 		for _, v := range columns {
 			if err = r.Add(v); err != nil {
-				return fmt.Errorf("Add fail. error: %v", err)
+				return errors.Wrapf(err, "Add fail")
 			}
 		}
 		if err = handler.OnRecord(r); err != nil {
-			return fmt.Errorf("OnRecord fail. error: %v", err)
+			return errors.Wrapf(err, "OnRecord fail")
 		}
 	}
 	if err = rows.Error(); err != nil {
-		return fmt.Errorf("Error. error: %v", err)
+		return errors.Wrapf(err, "Error")
 	}
 	return
 }

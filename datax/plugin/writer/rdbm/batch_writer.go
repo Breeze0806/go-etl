@@ -24,6 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/pingcap/errors"
 )
 
 //执行模式
@@ -143,7 +144,6 @@ func StartWrite(ctx context.Context, w BatchWriter,
 					return
 				case recordChan <- record:
 				}
-
 			}
 		}
 	}()
@@ -208,5 +208,5 @@ End:
 	case err == exchange.ErrTerminate:
 		return nil
 	}
-	return
+	return errors.Wrapf(err, "jobID: %v taskgroupID:%v taskID: %v", w.JobID(), w.TaskGroupID(), w.TaskID())
 }

@@ -16,8 +16,7 @@ package taskgroup
 
 import (
 	"context"
-	"errors"
-	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -25,6 +24,7 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/core"
 	"github.com/Breeze0806/go-etl/schedule"
+	"github.com/pingcap/errors"
 )
 
 //Container 任务组容器环境
@@ -155,14 +155,16 @@ QueueLoop:
 		return c.ctx.Err()
 	}
 
-	s := ""
+	b := &strings.Builder{}
 	for _, t := range tasks {
 		if t.Err != nil {
-			s += fmt.Sprintf("%v do fail. err：%v ", t.key, t.Err)
+			b.WriteString(t.Err.Error())
+			b.WriteByte(' ')
 		}
 	}
-	if s != "" {
-		return errors.New(s)
+
+	if b.Len() != 0 {
+		return errors.NewNoStackError(b.String())
 	}
 
 	return nil

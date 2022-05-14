@@ -20,6 +20,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/pingcap/errors"
 )
 
 // Creator 创建输出流的创建器
@@ -56,12 +57,12 @@ type OutStreamer struct {
 func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err error) {
 	creator, ok := creators.creator(name)
 	if !ok {
-		err = fmt.Errorf("creator %v does not exist", name)
+		err = errors.Errorf("creator %v does not exist", name)
 		return nil, err
 	}
 	streamer = &OutStreamer{}
 	if streamer.stream, err = creator.Create(filename); err != nil {
-		return nil, fmt.Errorf("create fail. err : %v", err)
+		return nil, errors.Wrapf(err, "create fail")
 	}
 	return
 }

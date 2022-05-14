@@ -49,11 +49,11 @@ func NewTask(handler DbHandler) *Task {
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
-		return
+		return t.Wrapf(err, "GetString fail")
 	}
 
 	if t.Config, err = t.handler.Config(t.PluginJobConf()); err != nil {
-		return
+		return t.Wrapf(err, "Config fail")
 	}
 
 	var jobSettingConf *config.JSON
@@ -61,20 +61,12 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		jobSettingConf, _ = config.NewJSONFromString("{}")
 		err = nil
 	}
-	if err = jobSettingConf.Set("username", t.Config.GetUsername()); err != nil {
-		return
-	}
-
-	if err = jobSettingConf.Set("password", t.Config.GetPassword()); err != nil {
-		return
-	}
-
-	if err = jobSettingConf.Set("url", t.Config.GetURL()); err != nil {
-		return
-	}
+	jobSettingConf.Set("username", t.Config.GetUsername())
+	jobSettingConf.Set("password", t.Config.GetPassword())
+	jobSettingConf.Set("url", t.Config.GetURL())
 
 	if t.Querier, err = t.handler.Querier(name, jobSettingConf); err != nil {
-		return
+		return t.Wrapf(err, "Querier fail")
 	}
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -86,7 +78,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 
 	param := t.handler.TableParam(t.Config, t.Querier)
 	if t.Table, err = t.Querier.FetchTableWithParam(ctx, param); err != nil {
-		return
+		return t.Wrapf(err, "FetchTableWithParam fail")
 	}
 
 	return
@@ -97,7 +89,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.Querier != nil {
 		err = t.Querier.Close()
 	}
-	return
+	return t.Wrapf(err, "Close fail")
 }
 
 //BatchReader 批量读入器

@@ -14,6 +14,12 @@
 
 package plugin
 
+import (
+	"fmt"
+
+	"github.com/pingcap/errors"
+)
+
 //Task 任务接口
 type Task interface {
 	Plugin
@@ -35,6 +41,10 @@ type Task interface {
 	TaskID() int64
 	//设置任务ID
 	SetTaskID(taskID int64)
+	//包裹错误
+	Wrapf(err error, format string, args ...interface{}) error
+	//Format 日志格式
+	Format(format string) string
 }
 
 //BaseTask 基础任务，用于辅助和简化任务接口的实现
@@ -92,4 +102,14 @@ func (b *BaseTask) JobID() int64 {
 //SetJobID 设置工作ID
 func (b *BaseTask) SetJobID(jobID int64) {
 	b.jobID = jobID
+}
+
+//Wrapf 包裹错误
+func (b *BaseTask) Wrapf(err error, format string, args ...interface{}) error {
+	return errors.Wrapf(err, b.Format(format), args...)
+}
+
+//Format 日志格式
+func (b *BaseTask) Format(format string) string {
+	return fmt.Sprintf("jobId : %v taskgroupId: %v taskId: %v %v", b.jobID, b.taskGroupID, b.taskID, format)
 }

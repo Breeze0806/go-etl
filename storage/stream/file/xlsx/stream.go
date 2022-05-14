@@ -22,6 +22,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/stream/file"
+	"github.com/pingcap/errors"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -151,7 +152,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		layout := c.layout()
 		t, err := time.Parse(layout, s)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "Parse time fail. layout: %v", layout)
 		}
 		return element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(t,
 			element.NewStringTimeDecoder(layout)),
