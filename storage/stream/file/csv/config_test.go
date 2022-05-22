@@ -177,6 +177,13 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "5",
 			args: args{
+				conf: testJSONFromString(`{"encoding":1}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "6",
+			args: args{
 				conf: testJSONFromString(`{"encoding":"utf-8","column":[{"index":"1","type":"bool"}]}`),
 			},
 			wantC: &Config{

@@ -103,7 +103,7 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	}
 
 	switch c.Encoding {
-	case "utf-8":
+	case "utf-8", "gbk":
 	default:
 		return nil, fmt.Errorf("encoding %v does not support", c.Encoding)
 	}

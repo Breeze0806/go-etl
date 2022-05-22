@@ -76,7 +76,7 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
 
 #### encoding
 
-- 描述 主要用于配置csv文件的编码类型，目前仅支持utf-8
+- 描述 主要用于配置csv文件的编码类型，目前仅支持utf-8和gbk
 - 必选：否
 - 默认值: 无
 

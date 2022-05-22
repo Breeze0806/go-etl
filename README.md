@@ -9,7 +9,7 @@ go-etl将提供的etl能力如下：
 2. 类二维表的数据流的数据抽取以及数据加载的能力，在stream包中实现
 3. 类似datax的数据同步能力，在datax包中实现
 4. 以mysql sql语法为基础的数据筛选、转化能力，在transform包中实现
-5. 数据库间的数据校验能力，在libra包中实现 
+5. 数据库间的数据校验能力，在libra包中实现 (目前计划中)
 
 鉴于本人实在精力有限，欢迎大家来提交issue或者***加QQ群185188648***来讨论go-etl，让我们一起进步!
 
@@ -192,18 +192,6 @@ datax -c postgresxlsx/config.json
 
 暂无时间安排计划，欢迎来实现
 
-### libra
-
-主要用于数据库间数据校验
-
-#### plan
-
-- [ ] 实现libra的数据校验框架
-- [ ] 单元测试libra的数据校验框架
-- [ ] 实现MySQL数据库的libra接口并单元测试
-- [ ] 系统测试MySQL数据库间校验
-- [ ] 完善相关文档，包含代码注释（通过go lint 检查）
-
 ### transform
 
 主要用于类sql数据转化
@@ -231,6 +219,10 @@ datax -c postgresxlsx/config.json
 #### license
 
 用于自动新增go代码文件中许可证
+
+### libra
+
+主要用于数据库间数据校验
 
 [report-img]:https://goreportcard.com/badge/github.com/Breeze0806/go-etl
 [report]:https://goreportcard.com/report/github.com/Breeze0806/go-etl

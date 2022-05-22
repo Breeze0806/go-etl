@@ -16,6 +16,7 @@ package element
 
 import (
 	"testing"
+	"time"
 )
 
 func TestDefaultRecord(t *testing.T) {
@@ -99,6 +100,12 @@ func TestDefaultRecord(t *testing.T) {
 		t.Errorf("DefaultRecord.Set() = %v, want 1", n)
 		return
 	}
+
+	err = r.Put(NewDefaultColumn(NewNilBoolColumnValue(), "test", 10))
+	if err != nil {
+		t.Errorf("terminateRecord.Put() = %v, want 1", n)
+		return
+	}
 }
 
 func Test_terminateRecord(t *testing.T) {
@@ -142,6 +149,12 @@ func Test_terminateRecord(t *testing.T) {
 		t.Errorf("terminateRecord.Set() = %v, want 1", n)
 		return
 	}
+
+	err = r.Put(nil)
+	if err != nil {
+		t.Errorf("terminateRecord.Set() = %v, want 1", n)
+		return
+	}
 }
 
 func TestTerminateRecord_String(t *testing.T) {
@@ -160,6 +173,36 @@ func TestTerminateRecord_String(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.tr.String(); got != tt.want {
 				t.Errorf("TerminateRecord.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultRecord_String(t *testing.T) {
+	tests := []struct {
+		name    string
+		columns []Column
+		want    string
+	}{
+		{
+			name: "1",
+			columns: []Column{
+				NewDefaultColumn(NewTimeColumnValue(
+					time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)), "1", 0),
+				NewDefaultColumn(NewStringColumnValue("abc"),
+					"2", 0),
+			},
+			want: "1=2022-01-01 00:00:00Z 2=abc",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := NewDefaultRecord()
+			for _, c := range tt.columns {
+				r.Add(c)
+			}
+			if got := r.String(); got != tt.want {
+				t.Errorf("DefaultRecord.String() = %v, want %v", got, tt.want)
 			}
 		})
 	}

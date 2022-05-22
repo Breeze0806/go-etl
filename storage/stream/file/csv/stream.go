@@ -96,11 +96,11 @@ func (s *Stream) Close() (err error) {
 
 //Rows 行读取器
 type Rows struct {
-	columns    map[int]Column
-	reader     *csv.Reader
-	record     []string
-	nullFormat string
-	err        error
+	columns map[int]Column
+	reader  *csv.Reader
+	record  []string
+	conf    *Config
+	err     error
 }
 
 //NewRows 通过文件句柄f，和配置文件c 创建行读取器
@@ -111,8 +111,8 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 		return nil, err
 	}
 	rows := &Rows{
-		columns:    make(map[int]Column),
-		nullFormat: conf.NullFormat,
+		columns: make(map[int]Column),
+		conf:    conf,
 	}
 	rows.reader = csv.NewReader(f)
 	rows.reader.Comma = []rune(conf.Delimiter)[0]
@@ -159,7 +159,7 @@ func (r *Rows) Close() error {
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	c, ok := r.columns[index]
 	if ok && element.ColumnType(c.Type) == element.TypeTime {
-		if s == r.nullFormat {
+		if s == r.conf.NullFormat {
 			return element.NewDefaultColumn(element.NewNilTimeColumnValue(),
 				strconv.Itoa(index), 0), nil
 		}
@@ -172,18 +172,23 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 			element.NewStringTimeDecoder(layout)),
 			strconv.Itoa(index), 0), nil
 	}
-	if s == r.nullFormat {
+	if s == r.conf.NullFormat {
 		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
 			strconv.Itoa(index), 0), nil
+	}
+	decodeFunc, _ := decoders[r.conf.Encoding]
+	s, err := decodeFunc(s)
+	if err != nil {
+		return nil, err
 	}
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
 }
 
 //Writer csv流写入器
 type Writer struct {
-	writer     *csv.Writer
-	columns    map[int]Column
-	nullFormat string
+	writer  *csv.Writer
+	columns map[int]Column
+	conf    *Config
 }
 
 //NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
@@ -194,9 +199,9 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 		return nil, err
 	}
 	w := &Writer{
-		writer:     csv.NewWriter(f),
-		columns:    make(map[int]Column),
-		nullFormat: conf.NullFormat,
+		writer:  csv.NewWriter(f),
+		columns: make(map[int]Column),
+		conf:    conf,
 	}
 	w.writer.Comma = []rune(conf.Delimiter)[0]
 	for _, v := range conf.Columns {
@@ -236,7 +241,7 @@ func (w *Writer) Write(record element.Record) (err error) {
 
 func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 	if col.IsNil() {
-		return w.nullFormat, nil
+		return w.conf.NullFormat, nil
 	}
 
 	if c, ok := w.columns[i]; ok && element.ColumnType(c.Type) == element.TypeTime {
@@ -247,6 +252,15 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 		s = t.Format(c.layout())
 		return
 	}
+
 	s, err = col.AsString()
+	if err != nil {
+		return "", err
+	}
+	encodeFunc, _ := encoders[w.conf.Encoding]
+	s, err = encodeFunc(s)
+	if err != nil {
+		return "", err
+	}
 	return
 }

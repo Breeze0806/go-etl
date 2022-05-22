@@ -41,6 +41,10 @@ func (m *mockRecord) Set(i int, c Column) error {
 	return nil
 }
 
+func (m *mockRecord) Put(c Column) error {
+	return nil
+}
+
 func (m *mockRecord) ColumnNumber() int {
 	return 0
 }

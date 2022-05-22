@@ -17,7 +17,6 @@ package element
 import (
 	"fmt"
 	"strings"
-	"sync"
 )
 
 //Record 记录
@@ -28,14 +27,10 @@ type Record interface {
 	GetByIndex(i int) (Column, error)      //获取第i个列
 	GetByName(name string) (Column, error) //获取列名为name的列
 	Set(i int, c Column) error             //设置第i列
+	Put(c Column) error                    //设置对应列
 	ColumnNumber() int                     //获取列数
 	ByteSize() int64                       //字节流大小
 	MemorySize() int64                     //内存大小
-}
-
-//RecordWithWg 有WaitGroup的记录
-type RecordWithWg interface {
-	WaitGroup() *sync.WaitGroup
 }
 
 var singleTerminateRecord = &TerminateRecord{}
@@ -65,6 +60,11 @@ func (t *TerminateRecord) GetByName(name string) (Column, error) {
 
 //Set 空方法
 func (t *TerminateRecord) Set(i int, c Column) error {
+	return nil
+}
+
+//Put 空方法
+func (t *TerminateRecord) Put(c Column) error {
 	return nil
 }
 
@@ -99,7 +99,6 @@ type DefaultRecord struct {
 //NewDefaultRecord 创建默认记录
 func NewDefaultRecord() *DefaultRecord {
 	return &DefaultRecord{
-		names:   make([]string, 0),
 		columns: make(map[string]Column),
 	}
 }
@@ -149,6 +148,13 @@ func (r *DefaultRecord) Set(i int, c Column) error {
 	return nil
 }
 
+//Put 设置列,若列名不存在，就会报错
+func (r *DefaultRecord) Put(c Column) error {
+	r.columns[c.Name()] = c
+	r.incSize(c)
+	return nil
+}
+
 //ColumnNumber 列数量
 func (r *DefaultRecord) ColumnNumber() int {
 	return len(r.columns)
@@ -187,23 +193,4 @@ func (r *DefaultRecord) String() string {
 		b.WriteString(r.columns[v].String())
 	}
 	return b.String()
-}
-
-//DefaultRecordWithWg 有WaitGroup的记录
-type DefaultRecordWithWg struct {
-	*DefaultRecord
-	wg *sync.WaitGroup
-}
-
-//NewDefaultRecordWithWg 生成有WaitGroup的记录
-func NewDefaultRecordWithWg() *DefaultRecordWithWg {
-	return &DefaultRecordWithWg{
-		DefaultRecord: NewDefaultRecord(),
-		wg:            &sync.WaitGroup{},
-	}
-}
-
-//WaitGroup 获取等待组
-func (d *DefaultRecordWithWg) WaitGroup() *sync.WaitGroup {
-	return d.wg
 }

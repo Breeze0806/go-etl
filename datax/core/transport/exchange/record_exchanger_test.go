@@ -43,6 +43,10 @@ func (m *mockRecord) Set(i int, c element.Column) error {
 	return nil
 }
 
+func (m *mockRecord) Put(c element.Column) error {
+	return nil
+}
+
 func (m *mockRecord) ColumnNumber() int {
 	return 0
 }
