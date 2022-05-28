@@ -99,15 +99,16 @@ type Rows struct {
 	columns map[int]Column
 	reader  *csv.Reader
 	record  []string
-	conf    *Config
+	conf    *InConfig
+	row     int
 	err     error
 }
 
 //NewRows 通过文件句柄f，和配置文件c 创建行读取器
 func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
-	var conf *Config
+	var conf *InConfig
 	var err error
-	if conf, err = NewConfig(c); err != nil {
+	if conf, err = NewInConfig(c); err != nil {
 		return nil, err
 	}
 	rows := &Rows{
@@ -115,7 +116,9 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 		conf:    conf,
 	}
 	rows.reader = csv.NewReader(f)
-	rows.reader.Comma = []rune(conf.Delimiter)[0]
+	rows.reader.Comma = conf.comma()
+	rows.reader.Comment = conf.comment()
+
 	for _, v := range conf.Columns {
 		rows.columns[v.index()] = v
 	}
@@ -135,6 +138,10 @@ func (r *Rows) Next() bool {
 
 // Scan 扫描成列
 func (r *Rows) Scan() (columns []element.Column, err error) {
+	r.row++
+	if r.row < r.conf.startRow() {
+		return nil, nil
+	}
 	for i, v := range r.record {
 		var c element.Column
 		c, err = r.getColum(i, v)
@@ -176,7 +183,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
 			strconv.Itoa(index), 0), nil
 	}
-	decodeFunc, _ := decoders[r.conf.Encoding]
+	decodeFunc, _ := decoders[r.conf.encoding()]
 	s, err := decodeFunc(s)
 	if err != nil {
 		return nil, err
@@ -188,14 +195,14 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 type Writer struct {
 	writer  *csv.Writer
 	columns map[int]Column
-	conf    *Config
+	conf    *OutConfig
 }
 
 //NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
 func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
-	var conf *Config
+	var conf *OutConfig
 	var err error
-	if conf, err = NewConfig(c); err != nil {
+	if conf, err = NewOutConfig(c); err != nil {
 		return nil, err
 	}
 	w := &Writer{
@@ -203,7 +210,7 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 		columns: make(map[int]Column),
 		conf:    conf,
 	}
-	w.writer.Comma = []rune(conf.Delimiter)[0]
+	w.writer.Comma = conf.comma()
 	for _, v := range conf.Columns {
 		w.columns[v.index()] = v
 	}
@@ -224,6 +231,21 @@ func (w *Writer) Close() (err error) {
 
 //Write 将记录record 写入csv文件
 func (w *Writer) Write(record element.Record) (err error) {
+	if w.conf.HasHeader {
+		if len(w.conf.Header) == 0 {
+			for i := 0; i < record.ColumnNumber(); i++ {
+				var col element.Column
+				if col, err = record.GetByIndex(i); err != nil {
+					return
+				}
+				w.conf.Header = append(w.conf.Header, col.Name())
+			}
+		}
+		if err = w.writer.Write(w.conf.Header); err != nil {
+			return err
+		}
+		w.conf.HasHeader = false
+	}
 	var records []string
 	for i := 0; i < record.ColumnNumber(); i++ {
 		var col element.Column
@@ -257,7 +279,7 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 	if err != nil {
 		return "", err
 	}
-	encodeFunc, _ := encoders[w.conf.Encoding]
+	encodeFunc, _ := encoders[w.conf.encoding()]
 	s, err = encodeFunc(s)
 	if err != nil {
 		return "", err

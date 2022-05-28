@@ -158,7 +158,13 @@ func TestNewInConfig(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
+		{
+			name: "2",
+			args: args{
+				conf: testJSONFromString(`{"startRow":"1"}`),
+			},
+			wantErr: true,
+		},
 		{
 			name: "3",
 			args: args{
@@ -168,6 +174,13 @@ func TestNewInConfig(t *testing.T) {
 		},
 		{
 			name: "4",
+			args: args{
+				conf: testJSONFromString(`{"sheet":"12","column":[{"index":""}]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "5",
 			args: args{
 				conf: testJSONFromString(`{"sheet":"sheet1","column":[{"index":"A","type":"bool"}]}`),
 			},
@@ -213,9 +226,15 @@ func TestNewOutConfig(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
 		{
 			name: "2",
+			args: args{
+				conf: testJSONFromString(`{"sheetRow":"1"}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
 			args: args{
 				conf: testJSONFromString(`{"sheets":["sheet1"]}`),
 			},
@@ -226,17 +245,30 @@ func TestNewOutConfig(t *testing.T) {
 		},
 
 		{
-			name: "3",
+			name: "4",
+			args: args{
+				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":""}],"sheetRow":1048577}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "5",
+			args: args{
+				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":""}],"sheetRow":-1}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "6",
 			args: args{
 				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":""}]}`),
 			},
 			wantErr: true,
 		},
-
 		{
-			name: "4",
+			name: "7",
 			args: args{
-				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":"A","type":"bool"}]}`),
+				conf: testJSONFromString(`{"sheets":["sheet1"],"column":[{"index":"A","type":"bool"}],"sheetRow":1048576}`),
 			},
 			wantC: &OutConfig{
 				Sheets: []string{"sheet1"},
@@ -246,6 +278,7 @@ func TestNewOutConfig(t *testing.T) {
 						Type:  "bool",
 					},
 				},
+				SheetRow: 1048576,
 			},
 		},
 	}
@@ -258,6 +291,34 @@ func TestNewOutConfig(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotC, tt.wantC) {
 				t.Errorf("NewOutConfig() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}
+
+func TestInConfig_startLine(t *testing.T) {
+	tests := []struct {
+		name string
+		c    *InConfig
+		want int
+	}{
+		{
+			name: "1",
+			c:    &InConfig{},
+			want: 1,
+		},
+		{
+			name: "2",
+			c: &InConfig{
+				StartRow: 2,
+			},
+			want: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.c.startRow(); got != tt.want {
+				t.Errorf("InConfig.startLine() = %v, want %v", got, tt.want)
 			}
 		})
 	}

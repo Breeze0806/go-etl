@@ -26,7 +26,7 @@ import (
 
 //SingleConfig csv单个输入设置
 type SingleConfig struct {
-	csv.Config
+	csv.OutConfig
 	file.BaseConfig
 }
 

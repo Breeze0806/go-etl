@@ -93,19 +93,21 @@ func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchH
 		if columns, err = rows.Scan(); err != nil {
 			return errors.Wrapf(err, "Scan fail")
 		}
-		var r element.Record
+		if len(columns) > 0 {
+			var r element.Record
 
-		if r, err = handler.CreateRecord(); err != nil {
-			return errors.Wrapf(err, "CreateRecord fail")
-		}
-
-		for _, v := range columns {
-			if err = r.Add(v); err != nil {
-				return errors.Wrapf(err, "Add fail")
+			if r, err = handler.CreateRecord(); err != nil {
+				return errors.Wrapf(err, "CreateRecord fail")
 			}
-		}
-		if err = handler.OnRecord(r); err != nil {
-			return errors.Wrapf(err, "OnRecord fail")
+
+			for _, v := range columns {
+				if err = r.Add(v); err != nil {
+					return errors.Wrapf(err, "Add fail")
+				}
+			}
+			if err = handler.OnRecord(r); err != nil {
+				return errors.Wrapf(err, "OnRecord fail")
+			}
 		}
 	}
 	if err = rows.Error(); err != nil {

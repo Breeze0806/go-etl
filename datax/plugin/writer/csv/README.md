@@ -94,6 +94,18 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 - 必选：否
 - 默认值：空字符串
 
+#### hasHeader
+
+- 描述：是否写入csv文件的列头，当存在header，写入header，而不存在时，写入列名。
+- 必选：否
+- 默认值：false
+
+#### header
+
+- 描述：写入csv文件的列头数组，仅hasHeader有效。
+- 必选：否
+- 默认值：无
+
 #### batchTimeout
 
 - 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。

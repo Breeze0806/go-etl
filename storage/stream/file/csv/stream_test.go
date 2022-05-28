@@ -24,9 +24,11 @@ import (
 )
 
 func Test_ReadWrite(t *testing.T) {
+	tmpDir := os.TempDir()
 	type args struct {
 		columns  []element.Column
-		conf     *config.JSON
+		in       *config.JSON
+		out      *config.JSON
 		filename string
 	}
 	tests := []struct {
@@ -43,8 +45,9 @@ func Test_ReadWrite(t *testing.T) {
 					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
 						"2", 0),
 				},
-				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.csv"),
+				in:       testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"delimiter":"\u0010"}`),
+				out:      testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"delimiter":"\u0010"}`),
+				filename: filepath.Join(tmpDir, "1.csv"),
 			},
 			wantStr: "0=2022-01-01 00:00:00Z 1=abc",
 		},
@@ -57,8 +60,9 @@ func Test_ReadWrite(t *testing.T) {
 					element.NewDefaultColumn(element.NewNilStringColumnValue(),
 						"2", 0),
 				},
-				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.csv"),
+				in:       testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010"}`),
+				out:      testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010"}`),
+				filename: filepath.Join(tmpDir, "2.csv"),
 			},
 			wantStr: "0=2022-01-01 00:00:00Z 1=<nil>",
 		},
@@ -70,8 +74,23 @@ func Test_ReadWrite(t *testing.T) {
 					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
 						"2", 0),
 				},
-				conf:     testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.csv"),
+				in:       testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010"}`),
+				out:      testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010"}`),
+				filename: filepath.Join(tmpDir, "3.csv"),
+			},
+			wantStr: "0=<nil> 1=abc",
+		},
+		{
+			name: "4",
+			args: args{
+				columns: []element.Column{
+					element.NewDefaultColumn(element.NewNilTimeColumnValue(), "1", 0),
+					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
+						"2", 0),
+				},
+				in:       testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010","startRow":2}`),
+				out:      testJSONFromString(`{"column":[{"index":"1","type":"time","format":"yyyy-MM-dd"}],"nullFormat":"\u0010","hasHeader":true}`),
+				filename: filepath.Join(tmpDir, "4.csv"),
 			},
 			wantStr: "0=<nil> 1=abc",
 		},
@@ -91,7 +110,7 @@ func Test_ReadWrite(t *testing.T) {
 					t.Fatal(err)
 				}
 				defer out.Close()
-				w, err := out.Writer(tt.args.conf)
+				w, err := out.Writer(tt.args.out)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -110,7 +129,7 @@ func Test_ReadWrite(t *testing.T) {
 					t.Fatal(err)
 				}
 				defer in.Close()
-				rows, err := in.Rows(tt.args.conf)
+				rows, err := in.Rows(tt.args.in)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -121,10 +140,12 @@ func Test_ReadWrite(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					for _, v := range cols {
-						r.Add(v)
+					if len(cols) > 0 {
+						for _, v := range cols {
+							r.Add(v)
+						}
+						got = append(got, r)
 					}
-					got = append(got, r)
 				}
 				if err = rows.Error(); err != nil {
 					t.Fatal(err)

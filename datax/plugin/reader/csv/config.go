@@ -24,7 +24,7 @@ import (
 
 //Config csv读入配置
 type Config struct {
-	csv.Config
+	csv.InConfig
 
 	Path []string `json:"path"`
 }

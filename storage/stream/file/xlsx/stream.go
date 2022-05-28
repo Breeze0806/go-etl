@@ -33,8 +33,6 @@ func init() {
 	file.RegisterCreator("xlsx", &creator)
 }
 
-var rotateLine = excelize.TotalRows
-
 //Opener xlsx输入流打开器
 type Opener struct {
 }
@@ -102,8 +100,9 @@ func (s *Stream) Close() (err error) {
 type Rows struct {
 	*excelize.Rows
 
-	columns    map[int]Column
-	nullFormat string
+	row     int
+	columns map[int]Column
+	config  *InConfig
 }
 
 //NewRows 通过文件句柄f，和配置文件c 创建行读取器
@@ -113,8 +112,8 @@ func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 		return
 	}
 	rows = &Rows{
-		columns:    make(map[int]Column),
-		nullFormat: conf.NullFormat,
+		columns: make(map[int]Column),
+		config:  conf,
 	}
 	for _, v := range conf.Columns {
 		rows.columns[v.index()] = v
@@ -125,6 +124,11 @@ func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 
 // Scan 扫描成列
 func (r *Rows) Scan() (columns []element.Column, err error) {
+	r.row++
+	if r.row < r.config.startRow() {
+		return nil, nil
+	}
+
 	var record []string
 	record, err = r.Columns()
 	if err != nil {
@@ -145,7 +149,7 @@ func (r *Rows) Scan() (columns []element.Column, err error) {
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	c, ok := r.columns[index]
 	if ok && element.ColumnType(c.Type) == element.TypeTime {
-		if s == r.nullFormat {
+		if s == r.config.NullFormat {
 			return element.NewDefaultColumn(element.NewNilTimeColumnValue(),
 				strconv.Itoa(index), 0), nil
 		}
@@ -158,7 +162,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 			element.NewStringTimeDecoder(layout)),
 			strconv.Itoa(index), 0), nil
 	}
-	if s == r.nullFormat {
+	if s == r.config.NullFormat {
 		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
 			strconv.Itoa(index), 0), nil
 	}
@@ -198,15 +202,36 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 //Write 将记录record 写入xlsx文件
 func (w *Writer) Write(record element.Record) (err error) {
 	w.row++
-	if w.row > rotateLine {
+	if w.row > w.conf.sheetRow() {
 		if err = w.writer.Flush(); err != nil {
 			return
 		}
 		w.row = 1
 		w.writer = nil
 		if err = w.newStreamWriter(); err != nil {
+			return
+		}
+	}
+
+	if w.row == 1 && w.conf.HasHeader {
+		if len(w.conf.Header) == 0 {
+			for i := 0; i < record.ColumnNumber(); i++ {
+				var col element.Column
+				if col, err = record.GetByIndex(i); err != nil {
+					return
+				}
+				w.conf.Header = append(w.conf.Header, col.Name())
+			}
+		}
+		var records []interface{}
+		for _, v := range w.conf.Header {
+			records = append(records, v)
+		}
+		axis, _ := excelize.CoordinatesToCellName(1, w.row)
+		if err = w.writer.SetRow(axis, records); err != nil {
 			return err
 		}
+		w.row++
 	}
 
 	var records []interface{}

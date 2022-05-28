@@ -49,7 +49,7 @@ func TestJob_Split(t *testing.T) {
 				ctx: context.TODO(),
 			},
 			wantConfigs: []*config.JSON{
-				testJSONFromString(`{"path":"file1","content":[{"column":[],"sheet":"Sheet1","nullFormat":""}]}`),
+				testJSONFromString(`{"path":"file1","content":[{"column":[],"sheet":"Sheet1","nullFormat":"","startRow":0}]}`),
 			},
 		},
 	}

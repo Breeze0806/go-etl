@@ -24,6 +24,7 @@ import (
 )
 
 func Test_WriteRead(t *testing.T) {
+	tmpDir := os.TempDir()
 	type args struct {
 		columns  []element.Column
 		inConf   *config.JSON
@@ -46,7 +47,7 @@ func Test_WriteRead(t *testing.T) {
 				},
 				inConf:   testJSONFromString(`{"sheet":"where","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
 				outConf:  testJSONFromString(`{"sheets":["where"],"column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.xlsx"),
+				filename: filepath.Join(tmpDir, "1.xlsx"),
 			},
 			wantStr: "0=2022-01-01 00:00:00Z 1=abc",
 		},
@@ -61,7 +62,7 @@ func Test_WriteRead(t *testing.T) {
 				},
 				inConf:   testJSONFromString(`{"sheet":"where","nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
 				outConf:  testJSONFromString(`{"sheets":["where"],"nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.xlsx"),
+				filename: filepath.Join(tmpDir, "2.xlsx"),
 			},
 			wantStr: "0=2022-01-01 00:00:00Z 1=<nil>",
 		},
@@ -75,7 +76,21 @@ func Test_WriteRead(t *testing.T) {
 				},
 				inConf:   testJSONFromString(`{"sheet":"where","nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
 				outConf:  testJSONFromString(`{"sheets":["where"],"nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}]}`),
-				filename: filepath.Join(t.TempDir(), "a.xlsx"),
+				filename: filepath.Join(tmpDir, "3.xlsx"),
+			},
+			wantStr: "0=<nil> 1=abc",
+		},
+		{
+			name: "4",
+			args: args{
+				columns: []element.Column{
+					element.NewDefaultColumn(element.NewNilStringColumnValue(), "1", 0),
+					element.NewDefaultColumn(element.NewStringColumnValue("abc"),
+						"2", 0),
+				},
+				inConf:   testJSONFromString(`{"sheet":"where","nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}],"startRow":2}`),
+				outConf:  testJSONFromString(`{"sheets":["where"],"nullFormat":"\\N","column":[{"index":"A","type":"time","format":"yyyy-MM-dd"}],"hasHeader":true}`),
+				filename: filepath.Join(tmpDir, "4.xlsx"),
 			},
 			wantStr: "0=<nil> 1=abc",
 		},
@@ -125,10 +140,12 @@ func Test_WriteRead(t *testing.T) {
 					if err != nil {
 						t.Fatal(err)
 					}
-					for _, v := range cols {
-						r.Add(v)
+					if len(cols) > 0 {
+						for _, v := range cols {
+							r.Add(v)
+						}
+						got = append(got, r)
 					}
-					got = append(got, r)
 				}
 				if err = rows.Error(); err != nil {
 					t.Fatal(err)
@@ -147,15 +164,16 @@ func Test_WriteRead(t *testing.T) {
 }
 
 func TestWriter_Write(t *testing.T) {
-	rotateLine = 1
+	tmpDir := os.TempDir()
 	type args struct {
 		records  []element.Record
 		outConf  *config.JSON
 		filename string
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{
 			name: "1",
@@ -164,9 +182,21 @@ func TestWriter_Write(t *testing.T) {
 					element.NewDefaultRecord(),
 					element.NewDefaultRecord(),
 				},
-				outConf:  testJSONFromString(`{"sheets":["where","where1"]}`),
-				filename: filepath.Join(t.TempDir(), "a.xlsx"),
+				outConf:  testJSONFromString(`{"sheets":["where","where1"],"sheetRow":1}`),
+				filename: filepath.Join(tmpDir, "1.xlsx"),
 			},
+		},
+		{
+			name: "2",
+			args: args{
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+				outConf:  testJSONFromString(`{"sheets":["where"],"sheetRow":1}`),
+				filename: filepath.Join(tmpDir, "2.xlsx"),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -186,9 +216,10 @@ func TestWriter_Write(t *testing.T) {
 			defer w.Close()
 			defer w.Flush()
 			for _, r := range tt.args.records {
-				if err = w.Write(r); err != nil {
-					t.Fatal(err)
-				}
+				err = w.Write(r)
+			}
+			if (err != nil) != tt.wantErr {
+				t.Errorf("writer.Write() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 		})

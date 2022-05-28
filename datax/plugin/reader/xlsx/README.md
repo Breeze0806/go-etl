@@ -91,9 +91,16 @@ XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的s
 
 #### nullFormat
 
-- 描述：文本文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
+- 描述：csv文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
 - 必选：否
 - 默认值：空字符串
+
+#### startRow
+
+- 描述：从csv文件的第几行开始读取，从1开始。
+- 必选：否
+- 默认值：1
+
 
 ### 类型转换
 
