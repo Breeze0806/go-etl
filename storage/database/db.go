@@ -17,6 +17,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/pingcap/errors"
@@ -70,10 +71,18 @@ func NewDB(source Source) (d *DB, err error) {
 	d = &DB{
 		Source: source,
 	}
-
-	d.db, err = sql.Open(d.Source.DriverName(), d.Source.ConnectName())
-	if err != nil {
-		return nil, errors.Wrapf(err, "Open(%v) fail", d.Source.DriverName())
+	if _, ok := d.Source.(WithConnector); ok {
+		var conn driver.Connector
+		conn, err = d.Source.(WithConnector).Connector()
+		if err != nil {
+			return nil, errors.Wrapf(err, "Connector(%v) fail", d.Source.DriverName())
+		}
+		d.db = sql.OpenDB(conn)
+	} else {
+		d.db, err = sql.Open(d.Source.DriverName(), d.Source.ConnectName())
+		if err != nil {
+			return nil, errors.Wrapf(err, "Open(%v) fail", d.Source.DriverName())
+		}
 	}
 
 	var c *Config

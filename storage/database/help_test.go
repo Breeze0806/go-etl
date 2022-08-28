@@ -16,6 +16,7 @@ package database
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"strconv"
 
@@ -33,6 +34,20 @@ func (m *mockDialect) Source(bs *BaseSource) (Source, error) {
 		BaseSource: bs,
 		name:       m.name,
 	}, m.err
+}
+
+type mockDialectConnector struct {
+	err error
+}
+
+func (m *mockDialectConnector) Source(bs *BaseSource) (Source, error) {
+	return &mockWithConnector{
+		mockSource: &mockSource{
+			BaseSource: bs,
+			name:       "",
+		},
+		err: m.err,
+	}, nil
 }
 
 type mockSource struct {
@@ -55,6 +70,15 @@ func (m *mockSource) Table(bt *BaseTable) Table {
 	return &mockTable{
 		BaseTable: bt,
 	}
+}
+
+type mockWithConnector struct {
+	*mockSource
+	err error
+}
+
+func (m *mockWithConnector) Connector() (driver.Connector, error) {
+	return &mockConnector{}, m.err
 }
 
 type mockFieldType struct {

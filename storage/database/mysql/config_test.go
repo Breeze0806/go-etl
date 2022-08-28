@@ -100,11 +100,15 @@ func TestConfig_FormatDSN(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotDsn, err := tt.c.FormatDSN()
+			mysqlConfig, err := tt.c.FetchMysqlConfig()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Config.FormatDSN() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			if err != nil {
+				return
+			}
+			gotDsn := mysqlConfig.FormatDSN()
 			if gotDsn != tt.wantDsn {
 				t.Errorf("Config.FormatDSN() = %v, want %v", gotDsn, tt.wantDsn)
 			}

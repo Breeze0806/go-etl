@@ -15,6 +15,7 @@
 package database
 
 import (
+	"database/sql/driver"
 	"fmt"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -33,6 +34,11 @@ type Source interface {
 	DriverName() string     //驱动名，用于sql.Open的第1个参数
 	ConnectName() string    //连接信息，用于sql.Open的第2个参数
 	Table(*BaseTable) Table //获取具体表
+}
+
+//WithConnector 带有连接的数据源, 数据源优先调用该方法生成数据连接池DB
+type WithConnector interface {
+	Connector() (driver.Connector, error) //go 1.10 获取连接
 }
 
 //NewSource 通过数据库方言的名字获取对应数据源

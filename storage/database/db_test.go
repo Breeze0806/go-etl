@@ -201,6 +201,22 @@ func TestNewDB(t *testing.T) {
 				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1s","connMaxLifetime":"1s"}}`),
 			},
 		},
+		{
+			name: "4",
+			args: args{
+				name: "connErr",
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "5",
+			args: args{
+				name: "conn",
+				conf: testJSONFromString(`{"pool":{"connMaxIdleTime":"1","connMaxLifetime":"1"}}`),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

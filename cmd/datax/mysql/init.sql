@@ -8,6 +8,7 @@ drop table if exists `type_table`;
 
 CREATE TABLE `type_table` (
 	`t_primary` INT NOT NULL AUTO_INCREMENT,
+	`t_bit` BIT NULL,
 	`t_tinyint` TINYINT NULL,
 	`t_smallint` SMALLINT NULL,
 	`t_mediumint` MEDIUMINT NULL,

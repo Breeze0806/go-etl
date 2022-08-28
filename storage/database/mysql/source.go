@@ -15,7 +15,10 @@
 package mysql
 
 import (
+	"database/sql/driver"
+
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/go-sql-driver/mysql"
 )
 
 func init() {
@@ -40,7 +43,8 @@ func (d Dialect) Name() string {
 type Source struct {
 	*database.BaseSource //基础数据源
 
-	dsn string
+	dsn       string
+	mysqlConf *mysql.Config
 }
 
 //NewSource 生成mysql数据源，在配置文件错误时会报错
@@ -53,9 +57,10 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 		return
 	}
 
-	if source.dsn, err = c.FormatDSN(); err != nil {
+	if source.mysqlConf, err = c.FetchMysqlConfig(); err != nil {
 		return
 	}
+	source.dsn = source.mysqlConf.FormatDSN()
 	return source, nil
 }
 
@@ -77,6 +82,11 @@ func (s *Source) Key() string {
 //Table 生成mysql的表
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
+}
+
+//Connector github.com/go-sql-driver/mysql的数据源连接器
+func (s *Source) Connector() (driver.Connector, error) {
+	return mysql.NewConnector(s.mysqlConf)
 }
 
 //Quoted mysql引用函数

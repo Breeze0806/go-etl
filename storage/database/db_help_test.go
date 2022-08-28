@@ -262,6 +262,12 @@ func registerMock() {
 	RegisterDialect("test", &mockDialect{
 		name: "test",
 	})
+	RegisterDialect("conn", &mockDialectConnector{
+		err: nil,
+	})
+	RegisterDialect("connErr", &mockDialectConnector{
+		err: errors.New("mock error"),
+	})
 	once.Do(func() {
 		sql.Register("mock", &mockDriver{
 			rows: &mockRows{

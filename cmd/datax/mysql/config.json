@@ -27,11 +27,11 @@
                 "reader":{
                     "name": "mysqlreader",
                     "parameter": {
-                        "username": "root",
-                        "password": "123456",
+                        "username": "test:",
+                        "password": "test:",
                         "column": ["*"],
                         "connection":  {
-                                "url": "tcp(192.168.0.1:3306)/mysql?parseTime=false",
+                                "url": "tcp(192.168.15.130:3306)/source?parseTime=false",
                                 "table": {
                                     "db":"source",
                                     "name":"type_table"
@@ -50,7 +50,7 @@
                         "session": [],
                         "preSql": [],
                         "connection":  {
-                                "url": "tcp(192.168.0.1:3306)/mysql?parseTime=false&connect_timeout=2",
+                                "url": "tcp(192.168.15.130:3306)/mysql?parseTime=false",
                                 "table": {
                                     "db":"destination",
                                     "name":"type_table"

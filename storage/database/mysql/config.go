@@ -38,15 +38,13 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	return
 }
 
-//FormatDSN 生成数据源连接信息，url有错会报错
-func (c *Config) FormatDSN() (dsn string, err error) {
-	var mysqlConf *mysql.Config
-	if mysqlConf, err = mysql.ParseDSN(c.URL); err != nil {
+//FetchMysqlConfig 获取生成Mysql连接配置，url有错会报错
+func (c *Config) FetchMysqlConfig() (conf *mysql.Config, err error) {
+	if conf, err = mysql.ParseDSN(c.URL); err != nil {
 		return
 	}
-	mysqlConf.User = c.Username
-	mysqlConf.Passwd = c.Password
-	mysqlConf.ParseTime = true
-	dsn = mysqlConf.FormatDSN()
+	conf.User = c.Username
+	conf.Passwd = c.Password
+	conf.ParseTime = true
 	return
 }

@@ -15,11 +15,13 @@
 package mysql
 
 import (
+	"database/sql/driver"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/go-sql-driver/mysql"
 )
 
 func testJSONFromString(s string) *config.JSON {
@@ -28,6 +30,14 @@ func testJSONFromString(s string) *config.JSON {
 		panic(err)
 	}
 	return json
+}
+
+func testMustMysqlConfig(s string) *mysql.Config {
+	conf, err := mysql.ParseDSN(s)
+	if err != nil {
+		panic(err)
+	}
+	return conf
 }
 
 func TestDialect_Source(t *testing.T) {
@@ -57,7 +67,8 @@ func TestDialect_Source(t *testing.T) {
 					"username" : "user",
 					"password": "passwd"
 				}`)),
-				dsn: "user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true",
+				dsn:       "user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true",
+				mysqlConf: testMustMysqlConfig("user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true"),
 			},
 		},
 	}
@@ -100,7 +111,8 @@ func TestNewSource(t *testing.T) {
 					"username" : "user",
 					"password": "passwd"
 				}`)),
-				dsn: "user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true",
+				dsn:       "user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true",
+				mysqlConf: testMustMysqlConfig("user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true"),
 			},
 		},
 
@@ -254,6 +266,36 @@ func TestSource_Key(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.s.Key(); got != tt.want {
 				t.Errorf("Source.Key() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSource_Connector(t *testing.T) {
+	conn, _ := mysql.NewConnector(testMustMysqlConfig("user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true"))
+	tests := []struct {
+		name    string
+		s       *Source
+		want    driver.Connector
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s: &Source{
+				mysqlConf: testMustMysqlConfig("user:passwd@tcp(192.168.1.1:3306)/db?parseTime=true"),
+			},
+			want: conn,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.s.Connector()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Source.Connector() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Source.Connector() = %v, want %v", got, tt.want)
 			}
 		})
 	}
