@@ -8,7 +8,7 @@ PostgresWriter插件实现了向Postgres/Greenplum数据库写入数据。在底
 
 PostgresWriter通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程Postgres/Greenplum数据库执行。
 
-MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Mysql采取了storage/database/postgres实现的Dialect。
+Postgres/Greenplum通过使用rdbmwriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Postgres/Greenplum采取了storage/database/postgres实现的Dialect。
 
 根据你配置的 `writeMode` 生成
 
@@ -41,7 +41,6 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                                 "table": {
-                                    "db":"postgres",
                                     "schema":"destination",
                                     "name":"type_table"
                                 }
@@ -79,12 +78,6 @@ MysqlWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义�
 #### name
 
 描述postgres表信息
-
-##### db
-
-- 描述 主要用于配置postgres表的实例名
-- 必选：是
-- 默认值: 无
 
 ##### schema
 

@@ -1,0 +1,6 @@
+{
+	"name" : "sqlserverreader",
+	"developer":"Breeze0806",
+	"dialect":"sqlserver",
+	"description":"use github.com/denisenkom/go-mssqldb"
+}

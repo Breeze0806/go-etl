@@ -12,5 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package db2 实现了db2的数据库方言Dialect，支持db2 10.x+ 对应数据库
-package db2
+package sqlserver
+
+import (
+	"context"
+
+	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+)
+
+//Task 任务
+type Task struct {
+	*rdbm.Task
+}
+
+//StartRead 开始读
+func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err error) {
+	return rdbm.StartRead(ctx, rdbm.NewBaseBatchReader(t.Task, "", nil), sender)
+}

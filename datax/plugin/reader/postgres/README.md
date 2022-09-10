@@ -2,13 +2,13 @@
 
 ## 快速介绍
 
-PostgresReader插件实现了从Postgres/Greenplum数据库读取数据。在底层实现上，PostgresReader通过github.com/lib/pq连接远程Mysql数据库，并执行相应的sql语句将数据从mysql库中查询出来。
+PostgresReader插件实现了从Postgres/Greenplum数据库读取数据。在底层实现上，PostgresReader通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并执行相应的sql语句将数据从数据库库中查询出来。
 
 ## 实现原理
 
 PostgresReader通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程postgres/greenplum数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。和直接使用github.com/lib/pq连接数据库不同的是，这里采用了github.com/Breeze0806/go/database/pqto以便能设置读写超时。
 
-PostgresReader通过使用rdbmreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Mysql采取了storage/database/postgres实现的Dialect。
+PostgresReader通过使用rdbmreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中postgres采取了storage/database/postgres实现的Dialect。
 
 ## 功能说明
 
@@ -30,7 +30,6 @@ PostgresReader通过使用rdbmreader中定义的查询流程调用go-etl自定�
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                                 "table": {
-                                    "db":"postgres",
                                     "schema":"source",
                                     "name":"type_table"
                                 }
@@ -67,12 +66,6 @@ PostgresReader通过使用rdbmreader中定义的查询流程调用go-etl自定�
 #### table
 
 描述postgres表信息
-
-##### db
-
-- 描述 主要用于配置postgres表的实例名
-- 必选：是
-- 默认值: 无
 
 ##### schema
 

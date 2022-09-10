@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Breeze0806/go v0.0.0-20220514112848-d6ac64c7ff26
 	github.com/Breeze0806/jodaTime v1.0.1
+	github.com/denisenkom/go-mssqldb v0.12.2
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/ibmdb/go_ibm_db v0.4.1
 	github.com/lib/pq v1.10.6

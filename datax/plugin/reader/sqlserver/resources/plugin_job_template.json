@@ -1,0 +1,16 @@
+{
+	"name": "sqlserverreader",
+	"parameter": {
+		"username": "",
+        "password": "",
+        "column": ["*"],
+        "connection":  {
+                "url": "sqlserver://host/instance?encrypt=DISABLE",
+                "table": {
+                    "schema":"source",
+                    "name":"type_table"
+                }
+            },
+        "where": ""
+	}
+}

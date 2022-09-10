@@ -22,6 +22,7 @@ go-etl将提供的etl能力如下：
 | 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 |              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
+|              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README.md)、[写](datax/plugin/writer/sqlserver/README.md) |
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
@@ -91,6 +92,15 @@ datax -c postgres/config.json
 datax -c db2/config.json
 ```
 
+#### 使用sql server同步
+
+- 可以使用cmd/datax/sqlserver/init.sql初始化数据库
+- 开启同步sql server命令
+
+```bash
+datax -c sqlserver/config.json
+```
+
 #### 使用csv同步到postgres
 
 - 可以使用cmd/datax/csvpostgres/init.sql初始化数据库
@@ -145,7 +155,7 @@ datax -c postgresxlsx/config.json
 #### plan
 
 - [x] 实现db2数据库reader/writer插件
-- [ ] 实现sql server数据库reader/writer插件
+- [x] 实现sql server数据库reader/writer插件
 - [ ] 实现oracle数据库reader/writer插件
 - [x] 实现cvs文件reader/writer插件
 - [x] 实现xlsx文件reader/writer插件

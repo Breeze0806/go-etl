@@ -1,0 +1,19 @@
+{
+	"name": "sqlserverwriter",
+	"parameter": {
+		"username": "",
+		"password": "",
+		"writeMode": "",
+		"column": ["*"],
+		"preSql": [],
+		"connection": {
+				"url": "sqlserver://host/instance?encrypt=DISABLE",
+				"table": {
+						"schema":"",
+						"name":""
+				}
+		},
+		"batchTimeout": "1s",
+		"batchSize":1000
+	}
+}
