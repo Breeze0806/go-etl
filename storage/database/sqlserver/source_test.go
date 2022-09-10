@@ -47,14 +47,14 @@ func TestDialect_Source(t *testing.T) {
 			d:    Dialect{},
 			args: args{
 				bs: database.NewBaseSource(testJSONFromString(`{
-					"url":"sqlserver://127.0.0.1:1234/instance",
+					"url":"sqlserver://127.0.0.1:1234/instance?disableRetry=true",
 					"username":"user",
 					"password":"passwd"
 				}`)),
 			},
 			want: &Source{
 				BaseSource: database.NewBaseSource(testJSONFromString(`{
-					"url":"sqlserver://127.0.0.1:1234/instance",
+					"url":"sqlserver://127.0.0.1:1234/instance?disableRetry=true",
 					"username":"user",
 					"password":"passwd"
 				}`)),
@@ -111,14 +111,14 @@ func TestNewSource(t *testing.T) {
 			name: "1",
 			args: args{
 				bs: database.NewBaseSource(testJSONFromString(`{
-					"url":"sqlserver://127.0.0.1:1234/instance",
+					"url":"sqlserver://127.0.0.1:1234/instance?disableRetry=true",
 					"username":"user",
 					"password":"passwd"
 				}`)),
 			},
 			wantS: &Source{
 				BaseSource: database.NewBaseSource(testJSONFromString(`{
-					"url":"sqlserver://127.0.0.1:1234/instance",
+					"url":"sqlserver://127.0.0.1:1234/instance?disableRetry=true",
 					"username":"user",
 					"password":"passwd"
 				}`)),

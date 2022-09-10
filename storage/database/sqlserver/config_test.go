@@ -81,7 +81,7 @@ func TestConfig_FormatDSN(t *testing.T) {
 		{
 			name: "1",
 			c: &Config{
-				URL:      "sqlserver://127.0.0.1:1234/instance",
+				URL:      "sqlserver://127.0.0.1:1234/instance?disableRetry=true",
 				Username: "user",
 				Password: "passwd",
 			},
