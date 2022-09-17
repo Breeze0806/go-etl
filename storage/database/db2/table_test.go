@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -121,6 +122,223 @@ func TestTable_AddField(t *testing.T) {
 			tt.tr.AddField(tt.args.baseField)
 			if !reflect.DeepEqual(tt.tr.Fields(), tt.want) {
 				t.Errorf("run %v Table.Fields() = %v want: %v", tt.name, tt.tr.Fields(), tt.want)
+			}
+		})
+	}
+}
+
+func TestReplaceParam_Query(t *testing.T) {
+	type args struct {
+		records []element.Record
+		columns [][]element.Column
+		fields  []database.Field
+		t       *database.BaseTable
+	}
+	tests := []struct {
+		name      string
+		args      args
+		wantQuery string
+		wantErr   bool
+	}{
+		{
+			name: "1",
+			args: args{
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+				columns: [][]element.Column{
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(2), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(3), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(6), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(7), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(8), "f2", 0),
+					},
+				},
+				fields: []database.Field{
+					NewField(database.NewBaseField(0, "f1", newMockFieldType("BIGINT"))),
+					NewField(database.NewBaseField(1, "f2", newMockFieldType("DECIMAL"))),
+					NewField(database.NewBaseField(2, "f3", newMockFieldType("STRING"))),
+				},
+				t: database.NewBaseTable("", "schema", "table"),
+			},
+			wantQuery: `replace into "schema"."table"("f1","f2","f3") values(?,?,?),(?,?,?),(?,?,?)`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, v := range tt.args.fields {
+				tt.args.t.AppendField(v)
+			}
+			table := NewTable(tt.args.t)
+			for i, r := range tt.args.records {
+				for _, c := range tt.args.columns[i] {
+					r.Add(c)
+				}
+			}
+
+			rp, _ := table.ExecParam("replace", nil)
+			gotQuery, err := rp.Query(tt.args.records)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ReplaceParam.Query() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotQuery != tt.wantQuery {
+				t.Errorf("ReplaceParam.Query() = %v, want %v", gotQuery, tt.wantQuery)
+			}
+		})
+	}
+}
+func TestReplaceParam_Agrs(t *testing.T) {
+	type args struct {
+		records []element.Record
+		columns [][]element.Column
+		fields  []database.Field
+		t       *database.BaseTable
+	}
+	tests := []struct {
+		name        string
+		rp          *ReplaceParam
+		args        args
+		wantValuers []interface{}
+		wantErr     bool
+	}{
+		{
+			name: "1",
+			args: args{
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+				columns: [][]element.Column{
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(2), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(3), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(6), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(7), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(8), "f2", 0),
+					},
+				},
+				fields: []database.Field{
+					NewField(database.NewBaseField(0, "f1", newMockFieldType("CHAR"))),
+					NewField(database.NewBaseField(1, "f2", newMockFieldType("DECIMAL"))),
+					NewField(database.NewBaseField(2, "f3", newMockFieldType("VARCHAR"))),
+				},
+				t: database.NewBaseTable("db", "", "table"),
+			},
+			wantValuers: []interface{}{
+				"1", "2", "3",
+				"5", "4", "6",
+				"9", "7", "8",
+			},
+		},
+		{
+			name: "2",
+			args: args{
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+				columns: [][]element.Column{
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(2), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(3), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(6), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(7), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(8), "f2", 0),
+					},
+				},
+				fields: []database.Field{
+					NewField(database.NewBaseField(0, "f1", newMockFieldType("BIGINT"))),
+					NewField(database.NewBaseField(1, "f2", newMockFieldType("DECIMAL"))),
+					NewField(database.NewBaseField(2, "f3", newMockFieldType("STRING"))),
+				},
+				t: database.NewBaseTable("db", "", "table"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			args: args{
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+				columns: [][]element.Column{
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(2), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(3), "f3", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(5), "f2", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(4), "f1", 0),
+					},
+					{
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(9), "f3", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(7), "f1", 0),
+						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(8), "f2", 0),
+					},
+				},
+				fields: []database.Field{
+					NewField(database.NewBaseField(0, "f1", newMockFieldType("BIGINT"))),
+					NewField(database.NewBaseField(1, "f2", newMockFieldType("DECIMAL"))),
+					NewField(database.NewBaseField(2, "f3", newMockFieldType("VARCHAR"))),
+				},
+				t: database.NewBaseTable("db", "", "table"),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, v := range tt.args.fields {
+				tt.args.t.AppendField(v)
+			}
+			table := NewTable(tt.args.t)
+			for i, r := range tt.args.records {
+				for _, c := range tt.args.columns[i] {
+					r.Add(c)
+				}
+			}
+
+			rp, _ := table.ExecParam("replace", nil)
+			gotValuers, err := rp.Agrs(tt.args.records)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ReplaceParam.Agrs() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotValuers, tt.wantValuers) {
+				t.Errorf("ReplaceParam.Agrs() = %v, want %v", gotValuers, tt.wantValuers)
 			}
 		})
 	}

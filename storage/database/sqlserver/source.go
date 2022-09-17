@@ -16,9 +16,6 @@ package sqlserver
 
 import (
 	"github.com/Breeze0806/go-etl/storage/database"
-
-	//mssql driver
-	_ "github.com/denisenkom/go-mssqldb"
 )
 
 func init() {
@@ -79,7 +76,8 @@ func (s *Source) Key() string {
 
 //Table 生成mssql的表
 func (s *Source) Table(b *database.BaseTable) database.Table {
-	return NewTable(b)
+	t := NewTable(b)
+	return t
 }
 
 //Quoted mysql引用函数

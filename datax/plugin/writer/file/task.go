@@ -170,8 +170,8 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 		}
 	}
 End:
-	if err = sw.Close(); err != nil {
-		log.Errorf(t.Format("Close error: %v"), err)
+	if cerr := sw.Close(); cerr != nil {
+		log.Errorf(t.Format("Close error: %v"), cerr)
 	}
 	cancel()
 	log.Debugf(t.Format("wait all goroutine"))
@@ -186,6 +186,5 @@ End:
 	case err == exchange.ErrTerminate:
 		return nil
 	}
-
 	return t.Wrapf(err, "")
 }

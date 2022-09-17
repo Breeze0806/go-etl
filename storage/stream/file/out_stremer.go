@@ -48,6 +48,11 @@ func RegisterCreator(name string, creator Creator) {
 	}
 }
 
+//UnregisterAllCreater 注销所有文件打开器
+func UnregisterAllCreater() {
+	creators.unregisterAll()
+}
+
 // OutStreamer 输出流包装
 type OutStreamer struct {
 	stream OutStream
@@ -106,4 +111,10 @@ func (o *creatorMap) creator(name string) (creator Creator, ok bool) {
 	defer o.RUnlock()
 	creator, ok = o.creators[name]
 	return
+}
+
+func (o *creatorMap) unregisterAll() {
+	o.Lock()
+	defer o.Unlock()
+	o.creators = make(map[string]Creator)
 }

@@ -43,7 +43,7 @@ func Test_execMode(t *testing.T) {
 			args: args{
 				writeMode: postgres.WriteModeCopyIn,
 			},
-			want: rdbm.ExecModeStmt,
+			want: rdbm.ExecModeStmtTx,
 		},
 		{
 			name: "3",

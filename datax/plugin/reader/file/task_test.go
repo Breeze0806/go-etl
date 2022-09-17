@@ -109,6 +109,7 @@ func (m *MockSender) Shutdown() error {
 	return nil
 }
 func TestTask_StartRead(t *testing.T) {
+	file.UnregisterAllOpener()
 	file.RegisterOpener("mock", &mockOpener{})
 	file.RegisterOpener("mockError", &mockOpener{err: errors.New("mock error")})
 	type args struct {

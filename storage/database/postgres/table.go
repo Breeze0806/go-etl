@@ -68,9 +68,9 @@ type CopyInParam struct {
 }
 
 //NewCopyInParam  通过表table和事务参数txOps插入参数
-func NewCopyInParam(t database.Table, txOps *sql.TxOptions) *CopyInParam {
+func NewCopyInParam(t database.Table, txOpts *sql.TxOptions) *CopyInParam {
 	return &CopyInParam{
-		BaseParam: database.NewBaseParam(t, txOps),
+		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 

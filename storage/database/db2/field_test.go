@@ -510,7 +510,7 @@ func TestScanner_Scan(t *testing.T) {
 			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1.01), "test", 0),
 		},
 		{
-			name: "DECIMAL erro",
+			name: "DECIMAL error",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("DECIMAL")))),
 			args: args{
 				src: []byte("1.01a"),

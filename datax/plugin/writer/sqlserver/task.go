@@ -20,10 +20,12 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/Breeze0806/go-etl/storage/database/sqlserver"
 )
 
 var execModeMap = map[string]string{
-	database.WriteModeInsert: rdbm.ExecModeNormal,
+	database.WriteModeInsert:  rdbm.ExecModeNormal,
+	sqlserver.WriteModeCopyIn: rdbm.ExecModeStmt,
 }
 
 func execMode(writeMode string) string {

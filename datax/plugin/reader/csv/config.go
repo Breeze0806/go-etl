@@ -33,7 +33,7 @@ type Config struct {
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {
-		return
+		return nil, err
 	}
 	return
 }

@@ -67,10 +67,10 @@ type ReplaceParam struct {
 	*database.BaseParam
 }
 
-//NewReplaceParam  通过表table和事务参数txOps插入参数
-func NewReplaceParam(t database.Table, txOps *sql.TxOptions) *ReplaceParam {
+//NewReplaceParam  通过表table和事务参数txOpts插入参数
+func NewReplaceParam(t database.Table, txOpts *sql.TxOptions) *ReplaceParam {
 	return &ReplaceParam{
-		BaseParam: database.NewBaseParam(t, txOps),
+		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 

@@ -209,6 +209,15 @@ func (d *DB) BatchExec(ctx context.Context, opts *ParameterOptions) (err error) 
 	return d.batchExec(ctx, param, opts.Records)
 }
 
+//BatchExecStmt 批量prepare/exec执行sql并处理多行记录
+func (d *DB) BatchExecStmt(ctx context.Context, opts *ParameterOptions) (err error) {
+	var param Parameter
+	if param, err = execParam(opts); err != nil {
+		return
+	}
+	return d.batchExecStmt(ctx, param, opts.Records)
+}
+
 //BatchExecWithTx 批量事务执行sql并处理多行记录
 func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
@@ -218,7 +227,7 @@ func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err e
 	return d.batchExecWithTx(ctx, param, opts.Records)
 }
 
-//BatchExecStmtWithTx 批量事务prepare执行sql并处理多行记录
+//BatchExecStmtWithTx 批量事务prepare/exec执行sql并处理多行记录
 func (d *DB) BatchExecStmtWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
 	if param, err = execParam(opts); err != nil {
@@ -267,6 +276,37 @@ func (d *DB) batchExec(ctx context.Context, param Parameter, records []element.R
 		return errors.Wrapf(err, "ExecContext(%v) fail", query)
 	}
 	return nil
+}
+
+func (d *DB) batchExecStmt(ctx context.Context, param Parameter, records []element.Record) (err error) {
+	var query string
+	if query, err = param.Query(records); err != nil {
+		return errors.Wrapf(err, "param.Query() fail")
+	}
+
+	var stmt *sql.Stmt
+	if stmt, err = d.db.PrepareContext(ctx, query); err != nil {
+		return errors.Wrapf(err, "tx.PrepareContext(%v) fail", query)
+	}
+	defer func() {
+		stmt.Close()
+	}()
+
+	for _, r := range records {
+		var valuers []interface{}
+		if valuers, err = param.Agrs([]element.Record{
+			r,
+		}); err != nil {
+			return errors.Wrapf(err, "param.Args() fail")
+		}
+		if _, err = stmt.ExecContext(ctx, valuers...); err != nil {
+			return errors.Wrapf(err, "stmt.ExecContext fail")
+		}
+	}
+	if _, err = stmt.ExecContext(ctx); err != nil {
+		return errors.Wrapf(err, "stmt.ExecContext fail")
+	}
+	return
 }
 
 func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []element.Record) (err error) {

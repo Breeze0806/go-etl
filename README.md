@@ -173,7 +173,7 @@ datax -c postgresxlsx/config.json
 ##### plan
 
 - [x] 实现db2数据库的dialect 
-- [ ] 实现sql server数据库的dialect
+- [x] 实现sql server数据库的dialect
 - [ ] 实现oracle数据库的dialect
 
 #### stream

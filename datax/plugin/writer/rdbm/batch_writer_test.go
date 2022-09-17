@@ -75,13 +75,23 @@ func TestStartWrite(t *testing.T) {
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
-				writer:   newMockBatchWriter(&MockExecer{}, ""),
+				writer:   newMockBatchWriter(&MockExecer{}, "StmtTx"),
 			},
 			waitCtx: 5 * time.Microsecond,
 			wantErr: false,
 		},
 		{
 			name: "5",
+			args: args{
+				ctx:      context.TODO(),
+				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
+				writer:   newMockBatchWriter(&MockExecer{}, ""),
+			},
+			waitCtx: 5 * time.Microsecond,
+			wantErr: false,
+		},
+		{
+			name: "6",
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(1000, exchange.ErrTerminate, 1*time.Millisecond),
@@ -93,7 +103,7 @@ func TestStartWrite(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "6",
+			name: "7",
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, exchange.ErrTerminate),
@@ -105,7 +115,7 @@ func TestStartWrite(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "7",
+			name: "8",
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiver(2, exchange.ErrTerminate, 1*time.Millisecond),

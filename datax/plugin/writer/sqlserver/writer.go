@@ -19,9 +19,6 @@ import (
 	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
-
-	//sqlserver storage
-	_ "github.com/Breeze0806/go-etl/storage/database/sqlserver"
 )
 
 //Writer 写入器

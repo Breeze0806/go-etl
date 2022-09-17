@@ -21,6 +21,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 )
 
@@ -59,6 +60,11 @@ type FieldsFetcher interface {
 //FieldAdder Table的补充方法，用于新增表的列
 type FieldAdder interface {
 	AddField(*BaseField) //新增具体列
+}
+
+//TableConfigSetter Table的补充方法，用于设置json配置文件
+type TableConfigSetter interface {
+	SetConfig(conf *config.JSON)
 }
 
 //ExecParameter Table的补充方法，用于写模式获取生成sql语句的方法
@@ -115,26 +121,16 @@ func (b *BaseTable) AppendField(f Field) {
 
 //BaseParam 基础参数，用于嵌入各类数据库sql参数的
 type BaseParam struct {
-	table Table
-	txOps *sql.TxOptions
+	table  Table
+	txOpts *sql.TxOptions
 }
 
 //NewBaseParam 通过表table和事务参数txOps生成基础参数
-func NewBaseParam(table Table, txOps *sql.TxOptions) *BaseParam {
+func NewBaseParam(table Table, txOpts *sql.TxOptions) *BaseParam {
 	return &BaseParam{
-		table: table,
-		txOps: txOps,
+		table:  table,
+		txOpts: txOpts,
 	}
-}
-
-//SetTable 设置表t
-func (b *BaseParam) SetTable(t Table) {
-	b.table = t
-}
-
-//SetTxOps 设置事务参数txOps
-func (b *BaseParam) SetTxOps(txOps *sql.TxOptions) {
-	b.txOps = txOps
 }
 
 //Table 获取表
@@ -144,7 +140,7 @@ func (b *BaseParam) Table() Table {
 
 //TxOptions 获取事务参数
 func (b *BaseParam) TxOptions() *sql.TxOptions {
-	return b.txOps
+	return b.txOpts
 }
 
 //InsertParam 插入参数
@@ -168,7 +164,7 @@ func (i *InsertParam) Query(records []element.Record) (query string, err error) 
 		if fi > 0 {
 			buf.WriteString(",")
 		}
-		_, err = buf.WriteString(f.Quoted())
+		buf.WriteString(f.Quoted())
 	}
 	buf.WriteString(") values")
 

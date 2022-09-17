@@ -19,6 +19,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/Breeze0806/go-etl/storage/database/sqlserver"
 )
 
 func Test_execMode(t *testing.T) {
@@ -39,6 +40,13 @@ func Test_execMode(t *testing.T) {
 		},
 		{
 			name: "2",
+			args: args{
+				writeMode: sqlserver.WriteModeCopyIn,
+			},
+			want: rdbm.ExecModeStmt,
+		},
+		{
+			name: "3",
 			args: args{
 				writeMode: "",
 			},

@@ -30,8 +30,9 @@ import (
 //执行模式
 const (
 	ExecModeNormal = "Normal" //无事务执行
+	ExecModeStmt   = "Stmt"   //prepare/exec无事务执行
 	ExecModeTx     = "Tx"     //事务执行
-	ExecModeStmt   = "Stmt"   //prepare/exec执行
+	ExecModeStmtTx = "StmtTx" //prepare/exec事务执行
 )
 
 //BatchWriter 批量写入器
@@ -100,6 +101,8 @@ func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Reco
 	case ExecModeTx:
 		return b.Task.Execer.BatchExecWithTx(ctx, b.opts)
 	case ExecModeStmt:
+		return b.Task.Execer.BatchExecStmt(ctx, b.opts)
+	case ExecModeStmtTx:
 		return b.Task.Execer.BatchExecStmtWithTx(ctx, b.opts)
 	}
 	return b.Task.Execer.BatchExec(ctx, b.opts)

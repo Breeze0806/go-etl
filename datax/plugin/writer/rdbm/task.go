@@ -77,6 +77,9 @@ func (t *Task) Init(ctx context.Context) (err error) {
 		return t.Wrapf(err, "FetchTableWithParam fail")
 	}
 
+	if setter, ok := t.Table.(database.TableConfigSetter); ok {
+		setter.SetConfig(t.PluginJobConf())
+	}
 	return
 }
 

@@ -1,28 +1,14 @@
-// Copyright 2020 the go-etl Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package database
 
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/pingcap/errors"
 )
 
 func TestDB(t *testing.T) {
@@ -143,6 +129,16 @@ func TestDB(t *testing.T) {
 		Records:   wantRecords,
 	}); err != nil {
 		t.Errorf("BatchExec error %v", err)
+		return
+	}
+
+	if err = db.BatchExecStmt(context.TODO(), &ParameterOptions{
+		Table:     gotTable,
+		TxOptions: nil,
+		Mode:      WriteModeInsert,
+		Records:   wantRecords,
+	}); err != nil {
+		t.Errorf("BatchExecStmt error %v", err)
 		return
 	}
 
@@ -621,6 +617,126 @@ func TestDB_BatchExec(t *testing.T) {
 	}
 }
 
+func TestDB_BatchExecStmt(t *testing.T) {
+	registerMock()
+	type args struct {
+		ctx  context.Context
+		opts *ParameterOptions
+	}
+	tests := []struct {
+		name    string
+		d       *DB
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "1",
+			d:    testMustDB("mock", testJSONFromString("{}")),
+			args: args{
+				ctx: context.TODO(),
+				opts: &ParameterOptions{
+					Table: &mockTableWithOther{
+						mockTable: &mockTable{
+							BaseTable: NewBaseTable("db", "schema", "table"),
+						},
+						execParams: map[string]func(t Table, txOpts *sql.TxOptions) Parameter{
+							"mock": func(t Table, txOpts *sql.TxOptions) Parameter {
+								return &mockParameter{
+									BaseParam: NewBaseParam(t, txOpts),
+									queryErr:  errors.New("mock error"),
+								}
+							},
+						},
+					},
+					Mode: "mock",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "2",
+			d:    testMustDB("mock", testJSONFromString("{}")),
+			args: args{
+				ctx: context.TODO(),
+				opts: &ParameterOptions{
+					Table: &mockTableWithOther{
+						mockTable: &mockTable{
+							BaseTable: NewBaseTable("db", "schema", "table"),
+						},
+						execParams: map[string]func(t Table, txOpts *sql.TxOptions) Parameter{
+							"mock": func(t Table, txOpts *sql.TxOptions) Parameter {
+								return &mockParameter{
+									BaseParam: NewBaseParam(t, txOpts),
+									queryErr:  errors.New("mock error"),
+								}
+							},
+						},
+					},
+					Mode: "mock1",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			d:    testMustDB("mock", testJSONFromString("{}")),
+			args: args{
+				ctx: context.TODO(),
+				opts: &ParameterOptions{
+					Table: &mockTableWithOther{
+						mockTable: &mockTable{
+							BaseTable: NewBaseTable("db", "schema", "table"),
+						},
+						execParams: map[string]func(t Table, txOpts *sql.TxOptions) Parameter{
+							"mock": func(t Table, txOpts *sql.TxOptions) Parameter {
+								return &mockParameter{
+									BaseParam: NewBaseParam(t, txOpts),
+								}
+							},
+						},
+					},
+					Mode: "mock",
+				},
+			},
+		},
+		{
+			name: "4",
+			d:    testMustDB("mock", testJSONFromString("{}")),
+			args: args{
+				ctx: context.TODO(),
+				opts: &ParameterOptions{
+					Table: &mockTableWithOther{
+						mockTable: &mockTable{
+							BaseTable: NewBaseTable("db", "schema", "table"),
+						},
+						execParams: map[string]func(t Table, txOpts *sql.TxOptions) Parameter{
+							"mock": func(t Table, txOpts *sql.TxOptions) Parameter {
+								return &mockParameter{
+									BaseParam: NewBaseParam(t, txOpts),
+									agrsErr:   errors.New("mock error"),
+								}
+							},
+						},
+					},
+					Mode: "mock",
+					Records: []element.Record{
+						element.NewDefaultRecord(),
+					},
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer tt.d.Close()
+			if err := tt.d.BatchExecStmt(tt.args.ctx, tt.args.opts); (err != nil) != tt.wantErr {
+				t.Errorf("DB.BatchExecStmtWithTx() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func TestDB_BatchExecWithTx(t *testing.T) {
 	registerMock()
 	type args struct {
@@ -1012,6 +1128,37 @@ func TestDB_Close(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.d.Close(); (err != nil) != tt.wantErr {
 				t.Errorf("DB.Close() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestDB_PingContext(t *testing.T) {
+	registerMock()
+	db := testMustDB("mock", testJSONFromString("{}"))
+	defer db.Close()
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		d       *DB
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "1",
+			d:    db,
+			args: args{
+				ctx: context.TODO(),
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.d.PingContext(tt.args.ctx); (err != nil) != tt.wantErr {
+				t.Errorf("DB.PingContext() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

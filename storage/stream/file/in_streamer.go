@@ -56,6 +56,11 @@ func RegisterOpener(name string, opener Opener) {
 	}
 }
 
+//UnregisterAllOpener 注销所有文件打开器
+func UnregisterAllOpener() {
+	openers.unregisterAll()
+}
+
 //InStreamer 输入流包装
 type InStreamer struct {
 	stream InStream
@@ -150,4 +155,10 @@ func (o *openerMap) opener(name string) (opener Opener, ok bool) {
 	defer o.RUnlock()
 	opener, ok = o.openers[name]
 	return
+}
+
+func (o *openerMap) unregisterAll() {
+	o.Lock()
+	defer o.Unlock()
+	o.openers = make(map[string]Opener)
 }

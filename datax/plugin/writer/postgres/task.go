@@ -25,7 +25,7 @@ import (
 
 var execModeMap = map[string]string{
 	database.WriteModeInsert: rdbm.ExecModeNormal,
-	postgres.WriteModeCopyIn: rdbm.ExecModeStmt,
+	postgres.WriteModeCopyIn: rdbm.ExecModeStmtTx,
 }
 
 func execMode(writeMode string) string {
