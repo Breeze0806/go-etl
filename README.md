@@ -230,6 +230,10 @@ datax -c postgresxlsx/config.json
 
 用于自动新增go代码文件中许可证
 
+```bash
+go run tools/license/main.go
+```
+
 ### libra
 
 主要用于数据库间数据校验
