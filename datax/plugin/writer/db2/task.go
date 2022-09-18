@@ -22,12 +22,11 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 
 	//db2 dialect
-	"github.com/Breeze0806/go-etl/storage/database/db2"
+	_ "github.com/Breeze0806/go-etl/storage/database/db2"
 )
 
 var execModeMap = map[string]string{
 	database.WriteModeInsert: rdbm.ExecModeNormal,
-	db2.WriteModeReplace:     rdbm.ExecModeNormal,
 }
 
 func execMode(writeMode string) string {

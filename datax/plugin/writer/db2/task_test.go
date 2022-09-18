@@ -19,7 +19,6 @@ import (
 
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"github.com/Breeze0806/go-etl/storage/database/db2"
 	_ "github.com/Breeze0806/go-etl/storage/database/db2"
 )
 
@@ -42,7 +41,7 @@ func Test_execMode(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				writeMode: db2.WriteModeReplace,
+				writeMode: "",
 			},
 			want: rdbm.ExecModeNormal,
 		},

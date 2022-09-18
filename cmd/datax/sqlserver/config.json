@@ -46,7 +46,10 @@
                     "parameter": {
                         "username": "sa",
                         "password": "Breeze_0806",
-                        "writeMode": "insert",
+                        "writeMode": "copyIn",
+                        "bulkOption":{
+                            "KeepNulls":true
+                        },
                         "column": ["*"],
                         "preSql": [],
                         "connection":  {

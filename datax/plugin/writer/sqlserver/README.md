@@ -10,6 +10,14 @@ SQLServerWriter通过github.com/denisenkom/go-mssqldb连接远程sql server数�
 
 SQLServerWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlserver采取了storage/database/sqlserver实现的Dialect。
 
+根据你配置的 `writeMode` 生成
+
+- `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
+
+**或者**
+
+- bulk copy 即`inster bulk ...` 与 insert into 行为一致，速度比insert into方式迅速，但是目前不知为何无法插入含有空值的记录
+
 ## 功能说明
 
 ### 配置样例
@@ -105,7 +113,7 @@ SQLServerWriter通过使用rdbmwriter中定义的查询流程调用go-etl自定�
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据。
+- 描述：写入模式，insert代表insert into方式写入数据,copyIn代表批量复制插入。
 - 必选：否
 - 默认值: insert
 

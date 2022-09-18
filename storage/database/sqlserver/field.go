@@ -224,8 +224,11 @@ func (v *Valuer) Value() (driver.Value, error) {
 	//mssql: Implicit conversion from data type nvarchar to binary is not allowed.
 	//Use the CONVERT function to run this query.
 	//原因是传入nil，在mssql.go的makeParam时TypeId是typeNull，导致makeDecl返回"nvarchar(1)"
-	if v.c.IsNil() && v.f.Type().(*FieldType).GoType() == database.GoTypeBytes {
-		return []byte(nil), nil
+	if v.c.IsNil() {
+		switch v.f.Type().(*FieldType).GoType() {
+		case database.GoTypeBytes:
+			return []byte(nil), nil
+		}
 	}
 
 	return database.NewGoValuer(v.f, v.c).Value()
