@@ -242,6 +242,13 @@ func TestNewInConfig(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "10",
+			args: args{
+				conf: testJSONFromString(`{"compress":"7z"}`),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -451,6 +458,13 @@ func TestNewOutConfig(t *testing.T) {
 					},
 				},
 			},
+		},
+		{
+			name: "10",
+			args: args{
+				conf: testJSONFromString(`{"compress":"7z"}`),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

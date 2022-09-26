@@ -21,6 +21,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/storage/stream/file/compress"
 	"github.com/Breeze0806/jodaTime"
 )
 
@@ -32,6 +33,7 @@ type InConfig struct {
 	NullFormat string   `json:"nullFormat"` // null文本
 	StartRow   int      `json:"startRow"`   // 读取开始行数，从1开始
 	Comment    string   `json:"comment"`    // 注释
+	Compress   string   `json:"compress"`   // 压缩
 }
 
 //NewInConfig 通过conf获取csv配置
@@ -58,6 +60,12 @@ func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	case "utf-8", "gbk":
 	default:
 		return nil, fmt.Errorf("encoding %v does not support", c.Encoding)
+	}
+
+	switch compress.Type(c.Compress) {
+	case compress.TypeNone, compress.TypeGzip, compress.TypeZip:
+	default:
+		return nil, fmt.Errorf("compress %v does not support", c.Encoding)
 	}
 
 	for _, v := range c.Columns {
@@ -104,6 +112,7 @@ type OutConfig struct {
 	NullFormat string   `json:"nullFormat"` // null文本
 	HasHeader  bool     `json:"hasHeader"`  // 是否有列头
 	Header     []string `json:"header"`     // 列头
+	Compress   string   `json:"compress"`   // 压缩
 }
 
 //NewOutConfig 通过conf获取csv配置
@@ -124,6 +133,11 @@ func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 		return nil, fmt.Errorf("encoding %v does not support", c.Encoding)
 	}
 
+	switch compress.Type(c.Compress) {
+	case compress.TypeNone, compress.TypeGzip, compress.TypeZip:
+	default:
+		return nil, fmt.Errorf("compress %v does not support", c.Encoding)
+	}
 	for _, v := range c.Columns {
 		if err = v.validate(); err != nil {
 			return nil, err

@@ -104,6 +104,12 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
 - 必选：否
 - 默认值：无
 
+#### compress
+
+- 描述：csv文件压缩方式，目前支持gz和zip，gz代表gzip压缩，zip代表zip压缩
+- 必选：否
+- 默认值：无压缩
+
 ### 类型转换
 
 目前CsvReader支持的csv数据类型需要在column配置中配置，请注意检查你的类型。

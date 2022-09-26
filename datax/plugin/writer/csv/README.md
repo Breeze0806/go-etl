@@ -106,6 +106,13 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 - 必选：否
 - 默认值：无
 
+
+#### compress
+
+- 描述：csv文件压缩方式，目前支持gz和zip，gz代表gzip压缩，zip代表zip压缩
+- 必选：否
+- 默认值：无压缩
+
 #### batchTimeout
 
 - 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。

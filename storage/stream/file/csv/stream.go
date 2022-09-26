@@ -24,6 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/stream/file"
+	"github.com/Breeze0806/go-etl/storage/stream/file/compress"
 	"github.com/pingcap/errors"
 )
 
@@ -97,6 +98,7 @@ func (s *Stream) Close() (err error) {
 //Rows 行读取器
 type Rows struct {
 	columns map[int]Column
+	rc      io.ReadCloser
 	reader  *csv.Reader
 	record  []string
 	conf    *InConfig
@@ -115,6 +117,10 @@ func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 		columns: make(map[int]Column),
 		conf:    conf,
 	}
+	if rows.rc, err = compress.Type(conf.Compress).ReadCloser(f); err != nil {
+		return nil, err
+	}
+
 	rows.reader = csv.NewReader(f)
 	rows.reader.Comma = conf.comma()
 	rows.reader.Comment = conf.comment()
@@ -160,7 +166,7 @@ func (r *Rows) Error() error {
 
 // Close 关闭读文件流
 func (r *Rows) Close() error {
-	return nil
+	return r.rc.Close()
 }
 
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
@@ -183,7 +189,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
 			strconv.Itoa(index), 0), nil
 	}
-	decodeFunc, _ := decoders[r.conf.encoding()]
+	decodeFunc := decoders[r.conf.encoding()]
 	s, err := decodeFunc(s)
 	if err != nil {
 		return nil, err
@@ -194,6 +200,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 //Writer csv流写入器
 type Writer struct {
 	writer  *csv.Writer
+	wc      io.WriteCloser
 	columns map[int]Column
 	conf    *OutConfig
 }
@@ -205,11 +212,16 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 	if conf, err = NewOutConfig(c); err != nil {
 		return nil, err
 	}
+
 	w := &Writer{
-		writer:  csv.NewWriter(f),
 		columns: make(map[int]Column),
 		conf:    conf,
 	}
+
+	if w.wc, err = compress.Type(conf.Compress).WriteCloser(f); err != nil {
+		return nil, err
+	}
+	w.writer = csv.NewWriter(w.wc)
 	w.writer.Comma = conf.comma()
 	for _, v := range conf.Columns {
 		w.columns[v.index()] = v
@@ -226,7 +238,7 @@ func (w *Writer) Flush() (err error) {
 //Close 关闭
 func (w *Writer) Close() (err error) {
 	w.writer.Flush()
-	return
+	return w.wc.Close()
 }
 
 //Write 将记录record 写入csv文件
@@ -279,7 +291,7 @@ func (w *Writer) getRecord(col element.Column, i int) (s string, err error) {
 	if err != nil {
 		return "", err
 	}
-	encodeFunc, _ := encoders[w.conf.encoding()]
+	encodeFunc := encoders[w.conf.encoding()]
 	s, err = encodeFunc(s)
 	if err != nil {
 		return "", err
