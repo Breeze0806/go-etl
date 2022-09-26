@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // Copyright 2020 the go-etl Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-<<<<<<< HEAD
-=======
->>>>>>> 7008151 (feat: 新增csv压缩读写特性)
-=======
->>>>>>> d250a1f (docs&sytle： 新增csv压缩说明和修复错误类型)
 package compress
 
 import (
