@@ -16,12 +16,7 @@ package element
 
 import (
 	"fmt"
-	"math"
-	"math/big"
-	"strconv"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 //ColumnType 列类型
@@ -47,14 +42,14 @@ func (c ColumnType) String() string {
 type ColumnValue interface {
 	fmt.Stringer
 
-	Type() ColumnType                    //列类型
-	IsNil() bool                         //是否为空
-	AsBool() (bool, error)               //转化为布尔值
-	AsBigInt() (*big.Int, error)         //转化为整数
-	AsDecimal() (decimal.Decimal, error) //转化为高精度实数
-	AsString() (string, error)           //转化为字符串
-	AsBytes() ([]byte, error)            //转化为字节流
-	AsTime() (time.Time, error)          // 转化为时间
+	Type() ColumnType                  //列类型
+	IsNil() bool                       //是否为空
+	AsBool() (bool, error)             //转化为布尔值
+	AsBigInt() (BigIntNumber, error)   //转化为整数
+	AsDecimal() (DecimalNumber, error) //转化为高精度实数
+	AsString() (string, error)         //转化为字符串
+	AsBytes() ([]byte, error)          //转化为字节流
+	AsTime() (time.Time, error)        // 转化为时间
 }
 
 //ColumnValueClonable 可克隆列值
@@ -71,11 +66,7 @@ type ColumnValueComparabale interface {
 //Column 列
 type Column interface {
 	ColumnValue
-	AsInt8() (int8, error)       //转化为8位整数
-	AsInt16() (int16, error)     //转化为16位整数
-	AsInt32() (int32, error)     //转化为32位整数
 	AsInt64() (int64, error)     //转化为64位整数
-	AsFloat32() (float32, error) //转化为32位实数
 	AsFloat64() (float64, error) //转化为64位实数
 	Clone() (Column, error)      //克隆
 	Cmp(Column) (int, error)     //比较, 1代表大于， 0代表相等， -1代表小于
@@ -109,13 +100,13 @@ func (n *nilColumnValue) AsBool() (bool, error) {
 }
 
 //AsBigInt 无法转化整数
-func (n *nilColumnValue) AsBigInt() (*big.Int, error) {
+func (n *nilColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, ErrNilValue
 }
 
 //AsDecimal 无法转化高精度实数
-func (n *nilColumnValue) AsDecimal() (decimal.Decimal, error) {
-	return decimal.Decimal{}, ErrNilValue
+func (n *nilColumnValue) AsDecimal() (DecimalNumber, error) {
+	return nil, ErrNilValue
 }
 
 //AsString 无法转化字符串
@@ -196,79 +187,13 @@ func (d *DefaultColumn) MemorySize() int64 {
 	return int64(d.byteSize + len(d.name) + 4)
 }
 
-//AsInt8 转化为8位整数
-func (d *DefaultColumn) AsInt8() (int8, error) {
-	bi, err := d.AsBigInt()
-	if err != nil {
-		return 0, NewTransformErrorFormString(d.Type().String(), "int8", err)
-	}
-	if bi.IsInt64() {
-		v := bi.Int64()
-		if v > math.MaxInt8 || v < math.MinInt8 {
-			return 0, NewTransformErrorFormString(d.Type().String(), "int8", fmt.Errorf("%v %v", v, strconv.ErrRange))
-		}
-		return int8(bi.Int64()), nil
-	}
-
-	return 0, NewTransformErrorFormString(d.Type().String(), "int8", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
-}
-
-//AsInt16 转化为16位整数
-func (d *DefaultColumn) AsInt16() (int16, error) {
-	bi, err := d.AsBigInt()
-	if err != nil {
-		return 0, NewTransformErrorFormString(d.Type().String(), "int16", err)
-	}
-	if bi.IsInt64() {
-		v := bi.Int64()
-		if v > math.MaxInt16 || v < math.MinInt16 {
-			return 0, NewTransformErrorFormString(d.Type().String(), "int16", fmt.Errorf("%v %v", v, strconv.ErrRange))
-		}
-		return int16(bi.Int64()), nil
-	}
-	return 0, NewTransformErrorFormString(d.Type().String(), "int16", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
-}
-
-//AsInt32 转化为32位整数
-func (d *DefaultColumn) AsInt32() (int32, error) {
-	bi, err := d.AsBigInt()
-	if err != nil {
-		return 0, NewTransformErrorFormString(d.Type().String(), "int32", err)
-	}
-	if bi.IsInt64() {
-		v := bi.Int64()
-		if v > math.MaxInt32 || v < math.MinInt32 {
-			return 0, NewTransformErrorFormString(d.Type().String(), "int32", fmt.Errorf("%v %v", v, strconv.ErrRange))
-		}
-		return int32(bi.Int64()), nil
-	}
-	return 0, NewTransformErrorFormString(d.Type().String(), "int32", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
-}
-
 //AsInt64 转化为64位整数
 func (d *DefaultColumn) AsInt64() (int64, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
 		return 0, NewTransformErrorFormString(d.Type().String(), "int64", err)
 	}
-	if bi.IsInt64() {
-		return int64(bi.Int64()), nil
-	}
-	return 0, NewTransformErrorFormString(d.Type().String(), "int64", fmt.Errorf("%v %v", d.String(), ErrValueNotInt64))
-}
-
-//AsFloat32 转化为32位实数
-func (d *DefaultColumn) AsFloat32() (float32, error) {
-	dec, err := d.AsDecimal()
-	if err != nil {
-		return 0, NewTransformErrorFormString(d.Type().String(), "float32", err)
-	}
-	v, _ := dec.Rat().Float32()
-	if math.Abs(float64(v)) > math.MaxFloat32 {
-		return 0, NewTransformErrorFormString(d.Type().String(), "float32",
-			fmt.Errorf("%v %v", d.String(), strconv.ErrRange))
-	}
-	return v, nil
+	return bi.Int64()
 }
 
 //AsFloat64 转化为64位实数
@@ -277,10 +202,5 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 	if err != nil {
 		return 0, NewTransformErrorFormString(d.Type().String(), "float64", err)
 	}
-	v, _ := dec.Float64()
-	if math.Abs(v) > math.MaxFloat64 {
-		return 0, NewTransformErrorFormString(d.Type().String(), "float64",
-			fmt.Errorf("%v %v", d.String(), strconv.ErrRange))
-	}
-	return v, nil
+	return dec.Float64()
 }

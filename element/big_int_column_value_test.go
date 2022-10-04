@@ -78,27 +78,21 @@ func TestNewBigIntColumnValueFromInt64(t *testing.T) {
 			args: args{
 				v: 0,
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(0),
-			},
+			want: NewBigIntColumnValueFromInt64(0),
 		},
 		{
 			name: "MaxInt",
 			args: args{
 				v: math.MaxInt64,
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MaxInt64),
-			},
+			want: NewBigIntColumnValueFromInt64(math.MaxInt64),
 		},
 		{
 			name: "MinInt",
 			args: args{
 				v: math.MinInt64,
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MinInt64),
-			},
+			want: NewBigIntColumnValueFromInt64(math.MinInt64),
 		},
 	}
 	for _, tt := range tests {
@@ -124,36 +118,28 @@ func TestNewBigIntColumnValueFromBigInt(t *testing.T) {
 			args: args{
 				v: big.NewInt(0),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(0),
-			},
+			want: NewBigIntColumnValue(big.NewInt(0)),
 		},
 		{
 			name: "FromMaxInt",
 			args: args{
 				v: big.NewInt(math.MaxInt64),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MaxInt64),
-			},
+			want: NewBigIntColumnValue(big.NewInt(math.MaxInt64)),
 		},
 		{
 			name: "MinInt",
 			args: args{
 				v: big.NewInt(math.MinInt64),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MinInt64),
-			},
+			want: NewBigIntColumnValue(big.NewInt(math.MinInt64)),
 		},
 		{
 			name: "MaxUint",
 			args: args{
 				v: new(big.Int).SetUint64(math.MaxUint64),
 			},
-			want: &BigIntColumnValue{
-				val: new(big.Int).SetUint64(math.MaxUint64),
-			},
+			want: NewBigIntColumnValue(new(big.Int).SetUint64(math.MaxUint64)),
 		},
 	}
 	for _, tt := range tests {
@@ -180,45 +166,35 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 			args: args{
 				v: big.NewInt(0).String(),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(0),
-			},
+			want: NewBigIntColumnValue(big.NewInt(0)),
 		},
 		{
 			name: "MaxInt",
 			args: args{
 				v: big.NewInt(math.MaxInt64).String(),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MaxInt64),
-			},
+			want: NewBigIntColumnValue(big.NewInt(math.MaxInt64)),
 		},
 		{
 			name: "MinInt",
 			args: args{
 				v: big.NewInt(math.MinInt64).String(),
 			},
-			want: &BigIntColumnValue{
-				val: big.NewInt(math.MinInt64),
-			},
+			want: NewBigIntColumnValue(big.NewInt(math.MinInt64)),
 		},
 		{
 			name: "MaxUint",
 			args: args{
 				v: new(big.Int).SetUint64(math.MaxUint64).String(),
 			},
-			want: &BigIntColumnValue{
-				val: new(big.Int).SetUint64(math.MaxUint64),
-			},
+			want: NewBigIntColumnValue(new(big.Int).SetUint64(math.MaxUint64)),
 		},
 		{
 			name: "NegUint",
 			args: args{
 				v: "-" + new(big.Int).SetUint64(math.MaxUint64).String(),
 			},
-			want: &BigIntColumnValue{
-				val: new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64)),
-			},
+			want: NewBigIntColumnValue(new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64))),
 		},
 
 		{
@@ -226,27 +202,19 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 			args: args{
 				v: "-0000" + new(big.Int).SetUint64(math.MaxUint64).String(),
 			},
-			want: &BigIntColumnValue{
-				val: new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64)),
-			},
+			want: NewBigIntColumnValue(new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64))),
 		},
 		{
 			name: "BigInt1",
 			args: args{
 				v: "213231321312391283921481934823742365746982570",
 			},
-			want: &BigIntColumnValue{
-				val: testBigIntFromString("213231321312391283921481934823742365746982570"),
-			},
+			want: NewBigIntColumnValue(testBigIntFromString("213231321312391283921481934823742365746982570")),
 		},
 		{
 			name: "BigInt2",
-			args: args{
-				v: "-213231321312391283921481934823742365746982570",
-			},
-			want: &BigIntColumnValue{
-				val: testBigIntFromString("-213231321312391283921481934823742365746982570"),
-			},
+			args: args{v: "-213231321312391283921481934823742365746982570"},
+			want: NewBigIntColumnValue(testBigIntFromString("-213231321312391283921481934823742365746982570")),
 		},
 		{
 			name: "UnValidNumber",
@@ -278,7 +246,7 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 				t.Errorf("NewBigIntColumnValueFromString() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !tt.wantErr && got.String() != tt.want.String() {
 				t.Errorf("NewBigIntColumnValueFromString() = %v, want %v", got, tt.want)
 			}
 		})
@@ -378,7 +346,7 @@ func TestBigIntColumnValue_AsBigInt(t *testing.T) {
 				t.Errorf("BigIntColumnValue.AsBigInt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got.Cmp(tt.want) != 0 {
+			if got.AsBigInt().Cmp(tt.want) != 0 {
 				t.Errorf("BigIntColumnValue.AsBigInt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -449,7 +417,7 @@ func TestBigIntColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("BigIntColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
+			if !got.AsDecimal().Equal(tt.want) {
 				t.Errorf("BigIntColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

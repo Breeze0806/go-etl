@@ -21,12 +21,11 @@ import (
 
 //错误
 var (
-	ErrPrecisionNotEnough       = errors.New("precision is not enough")       //精度不足错误
 	ErrColumnExist              = errors.New("column exist")                  //列存在错误
 	ErrColumnNotExist           = errors.New("column does not exist")         //列不存在错误
 	ErrNilValue                 = errors.New("column value is nil")           //空值错误
 	ErrIndexOutOfRange          = errors.New("column index is out of range")  //索引值超出范围
-	ErrValueNotInt64            = errors.New("value is not int64")            //不是64错误
+	ErrValueNotInt64            = errors.New("value is not int64")            //不是int64错误
 	ErrValueInfinity            = errors.New("value is infinity")             //无穷大实数错误
 	ErrNotColumnValueClonable   = errors.New("columnValue is not clonable")   //不是可克隆列值
 	ErrNotColumnValueComparable = errors.New("columnValue is not comparable") //不是可比较列值

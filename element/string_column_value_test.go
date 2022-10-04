@@ -223,7 +223,7 @@ func TestStringColumnValue_AsBigInt(t *testing.T) {
 				t.Errorf("StringColumnValue.AsBigInt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got.Cmp(tt.want) != 0 {
+			if !tt.wantErr && got.AsBigInt().Cmp(tt.want) != 0 {
 				t.Errorf("StringColumnValue.AsBigInt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -285,7 +285,7 @@ func TestStringColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("StringColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
+			if !tt.wantErr && got.String() != tt.want.String() {
 				t.Errorf("StringColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

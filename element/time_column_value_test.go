@@ -15,12 +15,9 @@
 package element
 
 import (
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 func TestNilTimeColumnValue_Type(t *testing.T) {
@@ -117,7 +114,7 @@ func TestTimeColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		t       *TimeColumnValue
-		want    *big.Int
+		want    BigIntNumber
 		wantErr bool
 	}{
 		{
@@ -144,7 +141,7 @@ func TestTimeColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		t       *TimeColumnValue
-		want    decimal.Decimal
+		want    DecimalNumber
 		wantErr bool
 	}{
 		{

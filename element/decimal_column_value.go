@@ -16,8 +16,6 @@ package element
 
 import (
 	"fmt"
-	"math"
-	"math/big"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -49,32 +47,34 @@ func (n *NilDecimalColumnValue) Clone() ColumnValue {
 type DecimalColumnValue struct {
 	notNilColumnValue
 
-	val decimal.Decimal //高精度实数
+	val DecimalNumber //高精度实数
 }
 
 //NewDecimalColumnValueFromFloat 根据float64 f生成高精度实数列值
 func NewDecimalColumnValueFromFloat(f float64) ColumnValue {
 	return &DecimalColumnValue{
-		val: decimal.NewFromFloat(f),
+		val: _DefaultNumberConverter.ConvertDecimalFromFloat(f),
 	}
 }
 
 //NewDecimalColumnValue 根据高精度实数 d生成高精度实数列值
 func NewDecimalColumnValue(d decimal.Decimal) ColumnValue {
 	return &DecimalColumnValue{
-		val: d,
+		val: &Decimal{
+			value: d,
+		},
 	}
 }
 
 //NewDecimalColumnValueFromString 根据字符串s生成高精度实数列值
 //不是数值型或者科学计数法的字符串，就会报错
 func NewDecimalColumnValueFromString(s string) (ColumnValue, error) {
-	d, err := decimal.NewFromString(s)
+	num, err := _DefaultNumberConverter.ConvertDecimal(s)
 	if err != nil {
-		return nil, err
+		return nil, NewSetError(s, TypeBigInt, fmt.Errorf("string %v is not valid decimal", s))
 	}
 	return &DecimalColumnValue{
-		val: d,
+		val: num,
 	}, nil
 }
 
@@ -85,30 +85,16 @@ func (d *DecimalColumnValue) Type() ColumnType {
 
 //AsBool 非0转化为true, 0转化为false
 func (d *DecimalColumnValue) AsBool() (bool, error) {
-	return d.val.Cmp(decimal.Zero) != 0, nil
+	return d.val.Bool()
 }
 
 //AsBigInt 对高精度实数取整，如123.67转化为123 123.12转化为123
-func (d *DecimalColumnValue) AsBigInt() (*big.Int, error) {
-	exp := d.val.Exponent()
-	value := d.val.Coefficient()
-	if exp == 0 {
-		return value, nil
-	}
-	diff := math.Abs(-float64(exp))
-
-	expScale := new(big.Int).Exp(_IntTen, big.NewInt(int64(diff)), nil)
-	if 0 > exp {
-		value = value.Quo(value, expScale)
-	} else if 0 < exp {
-		value = value.Mul(value, expScale)
-	}
-
-	return value, nil
+func (d *DecimalColumnValue) AsBigInt() (BigIntNumber, error) {
+	return d.val.BigInt(), nil
 }
 
 //AsDecimal 转化为高精度实数
-func (d *DecimalColumnValue) AsDecimal() (decimal.Decimal, error) {
+func (d *DecimalColumnValue) AsDecimal() (DecimalNumber, error) {
 	return d.val, nil
 }
 
@@ -145,5 +131,5 @@ func (d *DecimalColumnValue) Cmp(right ColumnValue) (int, error) {
 		return 0, err
 	}
 
-	return d.val.Cmp(rightValue), nil
+	return d.val.AsDecimal().Cmp(rightValue.AsDecimal()), nil
 }

@@ -147,7 +147,7 @@ func TestBoolColumnValue_AsBigInt(t *testing.T) {
 				t.Errorf("BoolColumnValue.AsBigInt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !tt.wantErr && got.AsBigInt().Cmp(tt.want) != 0 {
 				t.Errorf("BoolColumnValue.AsBigInt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -179,7 +179,7 @@ func TestBoolColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("BoolColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if got.AsDecimal().Cmp(tt.want) != 0 {
 				t.Errorf("BoolColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

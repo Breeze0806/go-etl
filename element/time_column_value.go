@@ -16,10 +16,7 @@ package element
 
 import (
 	"fmt"
-	"math/big"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 //NilTimeColumnValue 空值时间列值
@@ -76,13 +73,13 @@ func (t *TimeColumnValue) AsBool() (bool, error) {
 }
 
 //AsBigInt 无法转化整数
-func (t *TimeColumnValue) AsBigInt() (*big.Int, error) {
+func (t *TimeColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeBigInt, fmt.Errorf("val: %v", t.String()))
 }
 
 //AsDecimal 无法转化高精度实数
-func (t *TimeColumnValue) AsDecimal() (decimal.Decimal, error) {
-	return decimal.Decimal{}, NewTransformErrorFormColumnTypes(t.Type(), TypeDecimal, fmt.Errorf("val: %v", t.String()))
+func (t *TimeColumnValue) AsDecimal() (DecimalNumber, error) {
+	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeDecimal, fmt.Errorf("val: %v", t.String()))
 }
 
 //AsString 变为字符串

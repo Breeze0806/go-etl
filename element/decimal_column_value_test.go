@@ -133,7 +133,7 @@ func TestNewDecimalColumnValueFromFloat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewDecimalColumnValueFromFloat(tt.args.f); !reflect.DeepEqual(got, tt.want) {
+			if got := NewDecimalColumnValueFromFloat(tt.args.f); got.String() != tt.want.String() {
 				t.Errorf("NewDecimalColumnValueFromFloat() = %v, want %v", got, tt.want)
 			}
 		})
@@ -159,7 +159,7 @@ func TestNewDecimalColumnValue(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewDecimalColumnValue(tt.args.d); !reflect.DeepEqual(got, tt.want) {
+			if got := NewDecimalColumnValue(tt.args.d); got.String() != tt.want.String() {
 				t.Errorf("NewDecimalColumnValue() = %v, want %v", got, tt.want)
 			}
 		})
@@ -384,7 +384,7 @@ func TestDecimalColumnValue_AsBigInt(t *testing.T) {
 				t.Errorf("DecimalColumnValue.AsBigInt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && got.Cmp(tt.want) != 0 {
+			if !tt.wantErr && got.AsBigInt().Cmp(tt.want) != 0 {
 				t.Errorf("DecimalColumnValue.AsBigInt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -443,7 +443,7 @@ func TestDecimalColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("DecimalColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
+			if !got.AsDecimal().Equal(tt.want) {
 				t.Errorf("DecimalColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

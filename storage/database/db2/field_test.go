@@ -70,6 +70,15 @@ func (m *mockFieldType) DatabaseTypeName() string {
 func (m *mockFieldType) IsSupportted() bool {
 	return true
 }
+
+func mustDecimalColumnValueFromString(s string) element.ColumnValue {
+	c, err := element.NewDecimalColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
 func TestField_Quoted(t *testing.T) {
 	tests := []struct {
 		name string
@@ -507,7 +516,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: []byte("1.01"),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1.01), "test", 0),
+			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1.01"), "test", 0),
 		},
 		{
 			name: "DECIMAL error",

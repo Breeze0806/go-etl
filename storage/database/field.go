@@ -36,11 +36,7 @@ var (
 const (
 	GoTypeUnknown GoType = iota //未知类型
 	GoTypeBool                  //布尔类型
-	GoTypeInt8                  //Int8类型
-	GoTypeInt16                 //Int16类型
-	GoTypeInt32                 //Int32类型
 	GoTypeInt64                 //Int64类型
-	GoTypeFloat32               //Float32类型
 	GoTypeFloat64               //Float64类型
 	GoTypeString                //字符串类型
 	GoTypeBytes                 //字节流类型
@@ -51,11 +47,7 @@ const (
 var goTypeMap = map[GoType]string{
 	GoTypeUnknown: "unknow",
 	GoTypeBool:    "bool",
-	GoTypeInt8:    "int8",
-	GoTypeInt16:   "int16",
-	GoTypeInt32:   "int32",
 	GoTypeInt64:   "int64",
-	GoTypeFloat32: "float32",
 	GoTypeFloat64: "float64",
 	GoTypeString:  "string",
 	GoTypeBytes:   "bytes",
@@ -217,16 +209,8 @@ func (g *GoValuer) Value() (driver.Value, error) {
 	switch typ.GoType() {
 	case GoTypeBool:
 		return g.c.AsBool()
-	case GoTypeInt8:
-		return g.c.AsInt8()
-	case GoTypeInt16:
-		return g.c.AsInt16()
-	case GoTypeInt32:
-		return g.c.AsInt32()
 	case GoTypeInt64:
 		return g.c.AsInt64()
-	case GoTypeFloat32:
-		return g.c.AsFloat32()
 	case GoTypeFloat64:
 		return g.c.AsFloat64()
 	case GoTypeString:

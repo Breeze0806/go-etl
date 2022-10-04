@@ -16,11 +16,8 @@ package element
 
 import (
 	"fmt"
-	"math/big"
 	"strconv"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 //NilBytesColumnValue 空值字节流列值
@@ -97,7 +94,7 @@ func (b *BytesColumnValue) AsBool() (bool, error) {
 
 //AsBigInt 转化为整数，实数型以及科学性计数法字符串会被取整，不是数值型的会报错
 //如123.67转化为123 123.12转化为123
-func (b *BytesColumnValue) AsBigInt() (*big.Int, error) {
+func (b *BytesColumnValue) AsBigInt() (BigIntNumber, error) {
 	v, err := NewDecimalColumnValueFromString(b.String())
 	if err != nil {
 		return nil, NewTransformErrorFormColumnTypes(b.Type(), TypeBigInt, fmt.Errorf("err: %v, val: %v ", err, b.String()))
@@ -106,10 +103,10 @@ func (b *BytesColumnValue) AsBigInt() (*big.Int, error) {
 }
 
 //AsDecimal 转化为高精度师叔，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
-func (b *BytesColumnValue) AsDecimal() (decimal.Decimal, error) {
+func (b *BytesColumnValue) AsDecimal() (DecimalNumber, error) {
 	v, err := NewDecimalColumnValueFromString(b.String())
 	if err != nil {
-		return decimal.Decimal{}, NewTransformErrorFormColumnTypes(b.Type(), TypeDecimal, fmt.Errorf("err: %v, val: %v ", err, b.String()))
+		return nil, NewTransformErrorFormColumnTypes(b.Type(), TypeDecimal, fmt.Errorf("err: %v, val: %v ", err, b.String()))
 	}
 	return v.AsDecimal()
 }

@@ -55,11 +55,7 @@ type ColumnValue interface {
 //Column 列
 type Column interface {
 	ColumnValue
-	AsInt8() (int8, error)       //转化为8位整数
-	AsInt16() (int16, error)     //转化为16位整数
-	AsInt32() (int32, error)     //转化为32位整数
 	AsInt64() (int64, error)     //转化为64位整数
-	AsFloat32() (float32, error) //转化为32位实数
 	AsFloat64() (float64, error) //转化为64位实数
 	Clone() (Column, error)      //克隆
 	Cmp(Column) (int, error)     //比较, 1代表大于， 0代表相等， -1代表小于
@@ -70,6 +66,9 @@ type Column interface {
 ```
 
 DataX的内部类型在实现上会选用不同的golang类型：
+现在有两种实现方式，但是老方式在处理大树时存在性能上的问题，目前新实现方式还是beta版,未有较好实践验证。
+
++ 老的实现方式
 
 | 内部类型 | 实现类型        | 备注                              |
 | -------- | --------------- | --------------------------------- |
@@ -79,6 +78,83 @@ DataX的内部类型在实现上会选用不同的golang类型：
 | bytes    | []byte          |                                   |
 | string   | string          |                                   |
 | bool     | bool            |                                   |
+
+
++ 目前的实现方式
+
+| 内部类型 | 实现类型        | 备注                              |
+| -------- | --------------- | --------------------------------- |
+| time     | time.Time       |                                   |
+| bigInt   | BigIntNumber    | 使用Int64和BigIntStr交叉保存的方式，保证不失真  |
+| decimal  | DecimalNumber   | 使用Float64, Int64，BigIntStr，DecimalStr和Decimal交叉保存的方式，保证不失真 |
+| bytes    | []byte          |                                   |
+| string   | string          |                                   |
+| bool     | bool            |                                   |
+
+这两种实现方式之间的差距主要在数值方面做出了调整，通过以下接口进行了整合：
+```golang
+//NumberConverter 数字转化器
+type NumberConverter interface {
+	ConvertBigIntFromInt(i int64) (num BigIntNumber)
+	ConvertDecimalFromFloat(f float64) (num DecimalNumber)
+	ConvertBigInt(s string) (num BigIntNumber, err error)
+	ConvertDecimal(s string) (num DecimalNumber, err error)
+}
+
+//Number 数字
+type Number interface {
+	Bool() (bool, error)
+	String() string
+}
+
+//BigIntNumber 高精度整数
+type BigIntNumber interface {
+	Number
+
+	Int64() (int64, error)
+	Decimal() DecimalNumber
+	CloneBigInt() BigIntNumber
+	AsBigInt() *big.Int
+}
+
+//DecimalNumber 高精度实数
+type DecimalNumber interface {
+	Number
+
+	Float64() (float64, error)
+	BigInt() BigIntNumber
+	CloneDecimal() DecimalNumber
+	AsDecimal() decimal.Decimal
+}
+```
+主要实现了NumberConverter的Converter(目前的实现方式)和OldConverter(老的实现方式)，Converter比OldConverter性能更好, 通过number_bench_test.go的测试结果如下：
+```
+BenchmarkConverter_ConvertFromBigInt-4                	34292768	        40.13 ns/op	       8 B/op	       0 allocs/op
+BenchmarkOldConverter_ConvertFromBigInt-4             	19314712	        58.69 ns/op	      16 B/op	       1 allocs/op
+BenchmarkConverter_ConvertDecimalFromloat-4           	100000000	        15.74 ns/op	       8 B/op	       0 allocs/op
+BenchmarkOldConverter_ConvertDecimalFromFloat-4       	 1654504	       725.8 ns/op	      48 B/op	       2 allocs/op
+BenchmarkConverter_ConvertBigInt_Int64-4              	 5020077	       230.0 ns/op	      39 B/op	       2 allocs/op
+BenchmarkOldConverter_ConvertBigInt_Int64-4           	 2232102	       627.3 ns/op	     111 B/op	       5 allocs/op
+BenchmarkCoventor_ConvertBigInt_large_number-4        	   50010	     21211 ns/op	    8064 B/op	     216 allocs/op
+BenchmarkOldCoventor_ConvertBigInt_large_number-4     	   23709	     51818 ns/op	    9216 B/op	     360 allocs/op
+BenchmarkConverter_ConvertDecimal_Int64-4             	 3830624	       312.6 ns/op	      39 B/op	       2 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Int64-4          	 1995441	       611.4 ns/op	     116 B/op	       4 allocs/op
+BenchmarkConverter_ConvertDecimal_Float64-4           	 1707649	       671.4 ns/op	     178 B/op	       5 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Float64-4        	 1229505	       991.1 ns/op	     191 B/op	       6 allocs/op
+BenchmarkConverter_ConvertDecimal-4                   	   80113	     15009 ns/op	    2280 B/op	     144 allocs/op
+BenchmarkOldConverter_ConvertDecimal-4                	   56880	     26496 ns/op	    4608 B/op	     288 allocs/op
+BenchmarkConverter_ConvertDecimal_large_number-4      	   45754	     22387 ns/op	    5184 B/op	     144 allocs/op
+BenchmarkOldConverter_ConvertDecimal_large_number-4   	   16726	     69543 ns/op	   13248 B/op	     432 allocs/op
+BenchmarkConverter_ConvertDecimal_Exp-4               	   15516	     86355 ns/op	   18432 B/op	     648 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Exp-4            	   17992	     56777 ns/op	   11520 B/op	     432 allocs/op
+BenchmarkDecimal_Decmial_String-4                     	 3443062	       361.0 ns/op	      88 B/op	       5 allocs/op
+BenchmarkDecimal_DecmialStr_String-4                  	1000000000	         0.6694 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDecimal_Float64_String-4                     	 5254669	       260.7 ns/op	      48 B/op	       2 allocs/op
+BenchmarkDecimal_Int64_String-4                       	13537401	        89.62 ns/op	      24 B/op	       1 allocs/op
+BenchmarkDecimal_BigInt_String-4                      	 4664106	       247.4 ns/op	      56 B/op	       3 allocs/op
+BenchmarkDecimal_BigIntStr_String-4                   	1000000000	         0.6873 ns/op	       0 B/op	       0 allocs/op
+```
+另外，如果遇到问题可以通过修改number.go中_DefaultNumberConverter的取值回到老的实现方式
 
 类型之间相互转换的关系如下：
 

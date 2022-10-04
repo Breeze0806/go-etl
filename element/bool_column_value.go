@@ -69,19 +69,19 @@ func (b *BoolColumnValue) AsBool() (bool, error) {
 }
 
 //AsBigInt 转化成整数，true转化为1，false转化为0
-func (b *BoolColumnValue) AsBigInt() (*big.Int, error) {
+func (b *BoolColumnValue) AsBigInt() (BigIntNumber, error) {
 	if b.val {
-		return big.NewInt(1), nil
+		return NewBigIntColumnValue(big.NewInt(1)).AsBigInt()
 	}
-	return big.NewInt(0), nil
+	return NewBigIntColumnValue(big.NewInt(0)).AsBigInt()
 }
 
 //AsDecimal 转化成高精度实数，true转化为1.0，false转化为0.0
-func (b *BoolColumnValue) AsDecimal() (decimal.Decimal, error) {
+func (b *BoolColumnValue) AsDecimal() (DecimalNumber, error) {
 	if b.val {
-		return decimal.New(1, 0), nil
+		return NewDecimalColumnValue(decimal.New(1, 0)).AsDecimal()
 	}
-	return decimal.New(0, 1), nil
+	return NewDecimalColumnValue(decimal.New(0, 1)).AsDecimal()
 }
 
 //AsString 转化成字符串，true转化为"true"，false转化为"false"

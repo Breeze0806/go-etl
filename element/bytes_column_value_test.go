@@ -249,7 +249,7 @@ func TestBytesColumnValue_AsBigInt(t *testing.T) {
 				t.Errorf("BytesColumnValue.AsBigInt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got.Cmp(tt.want) != 0 {
+			if !tt.wantErr && got.AsBigInt().Cmp(tt.want) != 0 {
 				t.Errorf("BytesColumnValue.AsBigInt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -301,7 +301,7 @@ func TestBytesColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("BytesColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
+			if !tt.wantErr && got.String() != tt.want.String() {
 				t.Errorf("BytesColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})
