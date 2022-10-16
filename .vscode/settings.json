@@ -35,7 +35,7 @@
     "go.coverOnSingleTest": true,
     "go.coverOnSingleTestFile": true,
     "go.coverShowCounts": true,
-    "go.testOnSave": true,
-    "go.testFlags": [],
+    "go.testOnSave": false,
+    "go.testFlags": [""],
     "go.lintTool": "golint"
 }

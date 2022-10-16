@@ -10,7 +10,7 @@ COVERALLS_TOKEN=477d8d1f-b729-472f-b842-e0e4b03bc0c2
 # stable release.
 GO_VERSION := $(shell go version | cut -d " " -f 3)
 GO_MINOR_VERSION := $(word 2,$(subst ., ,$(GO_VERSION)))
-LINTABLE_MINOR_VERSIONS := 16
+LINTABLE_MINOR_VERSIONS := 18
 ifneq ($(filter $(LINTABLE_MINOR_VERSIONS),$(GO_MINOR_VERSION)),)
 SHOULD_LINT := true
 endif
@@ -25,7 +25,7 @@ dependencies:
 	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 	@echo "Installing golint..."
-	go get -v golang.org/x/lint/golint
+	go install golang.org/x/lint/golint
 else
 	@echo "Not installing golint, since we don't expect to lint on" $(GO_VERSION)
 endif

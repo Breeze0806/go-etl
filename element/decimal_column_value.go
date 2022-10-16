@@ -71,7 +71,7 @@ func NewDecimalColumnValue(d decimal.Decimal) ColumnValue {
 func NewDecimalColumnValueFromString(s string) (ColumnValue, error) {
 	num, err := _DefaultNumberConverter.ConvertDecimal(s)
 	if err != nil {
-		return nil, NewSetError(s, TypeBigInt, fmt.Errorf("string %v is not valid decimal", s))
+		return nil, NewSetError(s, TypeDecimal, fmt.Errorf("string %v is not valid decimal", s))
 	}
 	return &DecimalColumnValue{
 		val: num,

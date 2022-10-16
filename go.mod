@@ -7,6 +7,7 @@ require (
 	github.com/Breeze0806/jodaTime v1.0.1
 	github.com/denisenkom/go-mssqldb v0.12.2
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/godror/godror v0.33.3
 	github.com/google/uuid v1.3.0
 	github.com/ibmdb/go_ibm_db v0.4.1
 	github.com/lib/pq v1.10.7
