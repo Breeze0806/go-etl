@@ -138,7 +138,6 @@ func StartWrite(ctx context.Context, w BatchWriter,
 			if rerr != nil && rerr != exchange.ErrEmpty {
 				return
 			}
-
 			//当记录接受器receiver返回不为空错误，写入recordChan
 			if rerr != exchange.ErrEmpty {
 				select {
@@ -162,7 +161,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 				//当写入结束时，将剩余的记录写入数据库
 				if len(records) > 0 {
 					if err = w.BatchWrite(ctx, records); err != nil {
-						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %v",
+						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %+v",
 							w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
 					}
 				}
@@ -177,7 +176,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 			//当数据量超过单次批量数时 写入数据库
 			if len(records) >= w.BatchSize() {
 				if err = w.BatchWrite(ctx, records); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %v",
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %+v",
 						w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
 					goto End
 				}
@@ -187,7 +186,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 		case <-ticker.C:
 			if len(records) > 0 {
 				if err = w.BatchWrite(ctx, records); err != nil {
-					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %v",
+					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %+v",
 						w.JobID(), w.TaskGroupID(), w.TaskID(), records, err)
 					goto End
 				}

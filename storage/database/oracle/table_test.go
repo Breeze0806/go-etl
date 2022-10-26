@@ -58,7 +58,7 @@ func TestTable_Quoted(t *testing.T) {
 		{
 			name: "1",
 			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
-			want: `"db"."schema"."table"`,
+			want: `"schema"."table"`,
 		},
 	}
 	for _, tt := range tests {
@@ -79,7 +79,7 @@ func TestTable_String(t *testing.T) {
 		{
 			name: "1",
 			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
-			want: `"db"."schema"."table"`,
+			want: `"schema"."table"`,
 		},
 	}
 	for _, tt := range tests {
@@ -235,7 +235,7 @@ func TestInsertParam_Query(t *testing.T) {
 				},
 				t: NewTable(database.NewBaseTable("db", "schema", "table")),
 			},
-			wantQuery: `insert into "db"."schema"."table"("f1","f2","f3") values (:1,:2,:3)`,
+			wantQuery: `insert into "schema"."table"("f1","f2","f3") values (:1,:2,:3)`,
 		},
 	}
 	for _, tt := range tests {
@@ -287,7 +287,7 @@ func TestInsertParam_Agrs(t *testing.T) {
 				columns: [][]element.Column{
 					{
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f1", 0),
-						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(2), "f2", 0),
+						element.NewDefaultColumn(element.NewNilBigIntColumnValue(), "f2", 0),
 						element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(3), "f3", 0),
 					},
 					{
@@ -303,14 +303,14 @@ func TestInsertParam_Agrs(t *testing.T) {
 				},
 				fields: []database.Field{
 					NewField(database.NewBaseField(1, "f1", newMockColumnType("VARCHAR2"))),
-					NewField(database.NewBaseField(2, "f2", newMockColumnType("VARCHAR2"))),
+					NewField(database.NewBaseField(2, "f2", newMockColumnType("LONG"))),
 					NewField(database.NewBaseField(3, "f3", newMockColumnType("VARCHAR2"))),
 				},
 				t: NewTable(database.NewBaseTable("db", "schema", "table")),
 			},
 			wantValuers: []interface{}{
 				[]string{"1", "5", "9"},
-				[]string{"2", "4", "7"},
+				[][]byte{nil, []byte("4"), []byte("7")},
 				[]string{"3", "6", "8"},
 			},
 		},

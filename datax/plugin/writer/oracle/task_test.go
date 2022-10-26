@@ -35,14 +35,14 @@ func Test_execMode(t *testing.T) {
 			args: args{
 				writeMode: oracle.WriteModeInsert,
 			},
-			want: rdbm.ExecModeStmt,
+			want: rdbm.ExecModeNormal,
 		},
 		{
 			name: "2",
 			args: args{
 				writeMode: "",
 			},
-			want: rdbm.ExecModeStmt,
+			want: rdbm.ExecModeNormal,
 		},
 	}
 	for _, tt := range tests {

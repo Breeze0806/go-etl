@@ -113,6 +113,22 @@ func TestField_BindVar(t *testing.T) {
 			},
 			want: ":1",
 		},
+		{
+			name: "2",
+			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
+			args: args{
+				i: 1,
+			},
+			want: "to_date(:1,'yyyy-mm-dd hh24:mi:ss')",
+		},
+		{
+			name: "3",
+			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("TIMESTAMP"))),
+			args: args{
+				i: 1,
+			},
+			want: "to_timestamp(:1,'yyyy-mm-dd hh24:mi:ss.ff9')",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -389,16 +405,16 @@ func TestScanner_Scan(t *testing.T) {
 		},
 
 		{
-			name: "CLOB",
-			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("CLOB")))),
+			name: "VARCHAR2",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("VARCHAR2")))),
 			args: args{
 				src: "中文abc-123",
 			},
 			want: element.NewDefaultColumn(element.NewStringColumnValue("中文abc-123"), "f1", 0),
 		},
 		{
-			name: "BFILE nil",
-			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("BFILE")))),
+			name: "CHAR nil",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("CHAR")))),
 			args: args{
 				src: "",
 			},
@@ -542,6 +558,24 @@ func TestValuer_Value(t *testing.T) {
 		},
 		{
 			name: "5",
+			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("NUMBER"))),
+				element.NewDefaultColumn(element.NewNilBoolColumnValue(), "f2", 0)),
+			want: driver.Value(""),
+		},
+		{
+			name: "6",
+			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("BLOB"))),
+				element.NewDefaultColumn(element.NewNilBoolColumnValue(), "f2", 0)),
+			want: driver.Value(nil),
+		},
+		{
+			name: "7",
+			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("RAW"))),
+				element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(1), "f2", 0)),
+			want: driver.Value([]byte("1")),
+		},
+		{
+			name: "8",
 			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("BOOLEAN"))),
 				element.NewDefaultColumn(element.NewStringColumnValue("we"), "f2", 0)),
 			wantErr: true,

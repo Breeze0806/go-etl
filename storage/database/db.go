@@ -300,7 +300,7 @@ func (d *DB) batchExecStmt(ctx context.Context, param Parameter, records []eleme
 			return errors.Wrapf(err, "param.Args() fail")
 		}
 		if _, err = stmt.ExecContext(ctx, valuers...); err != nil {
-			return errors.Wrapf(err, "stmt.ExecContext fail")
+			return errors.Wrapf(err, "stmt.ExecContext(%v) fail", query)
 		}
 	}
 	if _, err = stmt.ExecContext(ctx); err != nil {
@@ -369,7 +369,7 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 			return errors.Wrapf(err, "param.Args() fail")
 		}
 		if _, err = stmt.ExecContext(ctx, valuers...); err != nil {
-			return errors.Wrapf(err, "stmt.ExecContext fail")
+			return errors.Wrapf(err, "stmt.ExecContext(%v) fail", query)
 		}
 	}
 	if _, err = stmt.ExecContext(ctx); err != nil {

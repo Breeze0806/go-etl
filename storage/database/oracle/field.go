@@ -51,6 +51,14 @@ func (f *Field) Quoted() string {
 
 //BindVar SQL占位符，用于SQL语句
 func (f *Field) BindVar(i int) string {
+	//解决时间格式错误ORA-01861: literal does not match format string
+	switch f.FieldType().DatabaseTypeName() {
+	case "DATE":
+		return "to_date(:" + strconv.Itoa(i) + ",'yyyy-mm-dd hh24:mi:ss')"
+	case "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE":
+		return "to_timestamp(:" + strconv.Itoa(i) + ",'yyyy-mm-dd hh24:mi:ss.ff9')"
+	}
+
 	return ":" + strconv.Itoa(i)
 }
 
@@ -122,8 +130,8 @@ func NewScanner(f *Field) *Scanner {
 // "BINARY_INTEGER" 做为bigint类型处理
 // "NUMBER", "FLOAT", "DOUBLE" 做为decimal类型处理
 // "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE", "DATE"做为time类型处理
-// "CLOB", "NCLOB", "BFILE", "BLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR", "LONG"做为string类型处理
-// "RAW", "LONG RAW"做为bytes类型处理
+// "CLOB", "NCLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR"做为string类型处理
+// "BFILE", "BLOB", "RAW", "LONG RAW", "LONG" 做为bytes类型处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	//todo: byteSize is 0, fix it
@@ -149,7 +157,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "RAW", "LONG RAW":
+	case "BFILE", "BLOB", "LONG", "RAW", "LONG RAW":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()
@@ -176,7 +184,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeTime)
 		}
-	case "CLOB", "NCLOB", "BFILE", "BLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR", "LONG":
+	case "CLOB", "NCLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR":
 		switch data := src.(type) {
 		case string:
 			if data == "" {
@@ -238,10 +246,12 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 
 //Value 赋值
 func (v *Valuer) Value() (value driver.Value, err error) {
-	if v.c.IsNil() {
-		return "", nil
-	}
-	if v.f.Type().DatabaseTypeName() == "BOOLEAN" {
+
+	switch v.f.Type().DatabaseTypeName() {
+	case "BOOLEAN":
+		if v.c.IsNil() {
+			return "", nil
+		}
 		var b bool
 		if b, err = v.c.AsBool(); err != nil {
 			return nil, err
@@ -250,7 +260,15 @@ func (v *Valuer) Value() (value driver.Value, err error) {
 			return "1", nil
 		}
 		return "0", nil
+	case "BFILE", "BLOB", "LONG", "RAW", "LONG RAW":
+		if v.c.IsNil() {
+			return nil, nil
+		}
+		return v.c.AsBytes()
 	}
 
+	if v.c.IsNil() {
+		return "", nil
+	}
 	return v.c.AsString()
 }

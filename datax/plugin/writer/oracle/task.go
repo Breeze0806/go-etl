@@ -25,14 +25,14 @@ import (
 )
 
 var execModeMap = map[string]string{
-	oracle.WriteModeInsert: rdbm.ExecModeStmt,
+	oracle.WriteModeInsert: rdbm.ExecModeNormal,
 }
 
 func execMode(writeMode string) string {
 	if mode, ok := execModeMap[writeMode]; ok {
 		return mode
 	}
-	return rdbm.ExecModeStmt
+	return rdbm.ExecModeNormal
 }
 
 //Task 任务

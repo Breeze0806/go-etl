@@ -41,7 +41,7 @@ func NewTable(b *database.BaseTable) *Table {
 
 //Quoted 表引用全名
 func (t *Table) Quoted() string {
-	return Quoted(t.Instance()) + "." + Quoted(t.Schema()) + "." + Quoted(t.Name())
+	return Quoted(t.Schema()) + "." + Quoted(t.Name())
 }
 
 func (t *Table) String() string {
@@ -102,6 +102,7 @@ func (ip *InsertParam) Query(_ []element.Record) (query string, err error) {
 //Agrs 通过多条记录 records生成批量insert into参数
 func (ip *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for fi, f := range ip.Table().Fields() {
+		var ba [][]byte
 		var sa []string
 		for _, r := range records {
 			var c element.Column
@@ -112,9 +113,24 @@ func (ip *InsertParam) Agrs(records []element.Record) (valuers []interface{}, er
 			if v, err = f.Valuer(c).Value(); err != nil {
 				return nil, err
 			}
-			sa = append(sa, v.(string))
+			switch data := v.(type) {
+			case nil:
+				ba = append(ba, nil)
+			case []byte:
+				ba = append(ba, data)
+			case string:
+				sa = append(sa, data)
+			}
 		}
-		valuers = append(valuers, interface{}(sa))
+		var a interface{}
+
+		if len(ba) > 0 {
+			a = ba
+		}
+		if len(sa) > 0 {
+			a = sa
+		}
+		valuers = append(valuers, a)
 	}
 	return
 }
