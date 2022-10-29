@@ -147,3 +147,8 @@ DB2Writer通过使用rdbmwriter中定义的查询流程调用go-etl自定义的s
 目前仅支持utf8字符集
 
 ## FAQ
+
+1.如何配置db2的odbc库
+
+- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin

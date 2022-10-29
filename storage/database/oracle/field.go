@@ -101,7 +101,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		"NUMBER", "FLOAT", "DOUBLE",
 		"TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE", "DATE",
 		"VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR", "LONG",
-		"CLOB", "NCLOB", "BFILE", "BLOB", "RAW", "LONG RAW":
+		"CLOB", "NCLOB", "BLOB", "RAW", "LONG RAW":
 		f.supportted = true
 	}
 	return f
@@ -131,7 +131,7 @@ func NewScanner(f *Field) *Scanner {
 // "NUMBER", "FLOAT", "DOUBLE" 做为decimal类型处理
 // "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE", "DATE"做为time类型处理
 // "CLOB", "NCLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR"做为string类型处理
-// "BFILE", "BLOB", "RAW", "LONG RAW", "LONG" 做为bytes类型处理
+// "BLOB", "RAW", "LONG RAW", "LONG" 做为bytes类型处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	//todo: byteSize is 0, fix it
@@ -157,7 +157,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "BFILE", "BLOB", "LONG", "RAW", "LONG RAW":
+	//todo test BFILE
+	case "BLOB", "LONG", "RAW", "LONG RAW":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()

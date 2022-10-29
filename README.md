@@ -23,6 +23,7 @@ go-etl将提供的etl能力如下：
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
 |              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
 |              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README.md)、[写](datax/plugin/writer/sqlserver/README.md) |
+|              | Oracle            | √            | √          | [读](datax/plugin/reader/oracle/README.md)、[写](datax/plugin/writer/oracle/README.md) |
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
@@ -38,6 +39,8 @@ make release
 ```
 
 #### windows
+
+需要mingw-w64 with gcc 7.2.0
 
 ```bash
 release.bat
@@ -90,6 +93,19 @@ datax -c postgres/config.json
 
 ```bash
 datax -c db2/config.json
+```
+
+#### 使用oracle同步
+
+- 注意使用前请下载相应的[Oracle Instant Client]( https://www.oracle.com/database/technologies/instant-client/downloads.html)，例如，连接oracle 11g最好下载12.x版本。
+- 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
+- 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
+Oracle Instant Client 19不再支持windows7
+- 可以使用cmd/datax/oracle/init.sql初始化数据库
+- 开启同步命令
+
+```bash
+datax -c oracle/config.json
 ```
 
 #### 使用sql server同步
@@ -156,7 +172,7 @@ datax -c postgresxlsx/config.json
 
 - [x] 实现db2数据库reader/writer插件
 - [x] 实现sql server数据库reader/writer插件
-- [ ] 实现oracle数据库reader/writer插件
+- [X] 实现oracle数据库reader/writer插件
 - [x] 实现cvs文件reader/writer插件
 - [x] 实现xlsx文件reader/writer插件
 - [ ] 实现监控模块
@@ -174,7 +190,7 @@ datax -c postgresxlsx/config.json
 
 - [x] 实现db2数据库的dialect 
 - [x] 实现sql server数据库的dialect
-- [ ] 实现oracle数据库的dialect
+- [X] 实现oracle数据库的dialect
 
 #### stream
 

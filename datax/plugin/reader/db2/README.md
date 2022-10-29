@@ -124,3 +124,7 @@ DB2Reader通过使用rdbmreader中定义的查询流程调用go-etl自定义的s
 
 ## FAQ
 
+1.如何配置db2的odbc库
+
+- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
