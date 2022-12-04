@@ -106,6 +106,30 @@ func (m *MockTable) SetConfig(conf *config.JSON) {
 	m.conf = conf
 }
 
+type MockTableWithJudger struct {
+	*MockTable
+
+	retry    bool
+	oneByOne bool
+}
+
+func NewMockTableWithJudger(bt *database.BaseTable,
+	retry bool, oneByOne bool) *MockTableWithJudger {
+	return &MockTableWithJudger{
+		MockTable: NewMockTable(bt),
+		retry:     retry,
+		oneByOne:  oneByOne,
+	}
+}
+
+func (m *MockTableWithJudger) ShouldRetry(err error) bool {
+	return m.retry
+}
+
+func (m *MockTableWithJudger) ShouldOneByOne(err error) bool {
+	return m.oneByOne
+}
+
 type MockExecer struct {
 	PingErr  error
 	QueryErr error

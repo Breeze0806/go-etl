@@ -16,6 +16,8 @@ package postgres
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"net"
 	"reflect"
 	"testing"
 
@@ -338,6 +340,106 @@ func TestTable_ExecParam(t *testing.T) {
 			}
 			if got1 != tt.want1 {
 				t.Errorf("Table.ExecParam() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldRetry(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.AddrError{},
+			},
+			want: true,
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: true,
+		},
+		{
+			name: "4",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &pq.Error{},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldRetry(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldRetry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldOneByOne(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.AddrError{},
+			},
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+		},
+		{
+			name: "4",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &pq.Error{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}

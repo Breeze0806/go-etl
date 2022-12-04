@@ -15,12 +15,14 @@
 package rdbm
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	rdbmreader "github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+	"github.com/Breeze0806/go-etl/schedule"
 )
 
 func testBaseConfig(conf *config.JSON) (bc *BaseConfig) {
@@ -30,6 +32,25 @@ func testBaseConfig(conf *config.JSON) (bc *BaseConfig) {
 		panic(err)
 	}
 	return bc
+}
+
+type mockNTimeTask struct {
+	err error
+	n   int
+}
+
+func (m *mockNTimeTask) Do() error {
+	m.n--
+	if m.n == 0 {
+		return m.err
+	}
+	return errors.New("mock error")
+}
+
+type mockRetryJudger struct{}
+
+func (m *mockRetryJudger) ShouldRetry(err error) bool {
+	return err != nil
 }
 
 func TestBaseConfig_GetColumns(t *testing.T) {
@@ -116,6 +137,66 @@ func TestBaseConfig_GetBatchSize(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.b.GetBatchSize(); got != tt.want {
 				t.Errorf("BaseConfig.GetBatchSize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseConfig_GetRetryStrategy(t *testing.T) {
+	type args struct {
+		j schedule.RetryJudger
+	}
+	tests := []struct {
+		name    string
+		b       *BaseConfig
+		args    args
+		want    schedule.RetryStrategy
+		wantErr bool
+	}{
+		{
+			name: "1",
+			b:    testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1s","n":3}}}`)),
+			args: args{
+				j: &mockRetryJudger{},
+			},
+			want: schedule.NewNTimesRetryStrategy(&mockRetryJudger{}, 3, 1*time.Second),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.GetRetryStrategy(tt.args.j)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BaseConfig.GetRetryStrategy() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseConfig.GetRetryStrategy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseConfig_IgnoreOneByOneError(t *testing.T) {
+	tests := []struct {
+		name string
+		b    *BaseConfig
+		want bool
+	}{
+		{
+			name: "1",
+			b:    testBaseConfig(testJSONFromString(`{"retry":{"ignoreOneByOneError":true}}`)),
+			want: true,
+		},
+		{
+			name: "2",
+			b:    testBaseConfig(testJSONFromString(`{"retry":{"ignoreOneByOneError":"true"}}`)),
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.b.IgnoreOneByOneError(); got != tt.want {
+				t.Errorf("BaseConfig.IgnoreOneByOneError() = %v, want %v", got, tt.want)
 			}
 		})
 	}

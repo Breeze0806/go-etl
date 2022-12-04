@@ -16,9 +16,6 @@ package db2
 
 import (
 	"github.com/Breeze0806/go-etl/storage/database"
-
-	//db2 driver
-	_ "github.com/ibmdb/go_ibm_db"
 )
 
 func init() {

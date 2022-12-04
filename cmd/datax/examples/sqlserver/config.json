@@ -1,0 +1,78 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "sqlserverreader",
+                    "parameter": {
+                        "username": "sa",
+                        "password": "Breeze_0806",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "sqlserver://192.168.15.130:1433?database=test&encrypt=disable",
+                                "table": {
+                                    "db":"test",
+                                    "schema":"SOURCE",
+                                    "name":"mytable"
+                                }
+                            },
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "sqlserverwriter",
+                    "parameter": {
+                        "username": "sa",
+                        "password": "Breeze_0806",
+                        "writeMode": "copyIn",
+                        "bulkOption":{
+                            "KeepNulls":true
+                        },
+                        "column": ["*"],
+                        "preSql": [],
+                        "connection":  {
+                                "url": "sqlserver://192.168.15.130:1433?database=test&encrypt=disable",
+                                "table": {
+                                    "db":"test",
+                                    "schema":"dest",
+                                    "name":"mytable"
+                                }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}

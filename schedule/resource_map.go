@@ -78,7 +78,6 @@ func (r *ResourceMap) loadLocked(key string) (resource MappedResource, ok bool) 
 	var rw *mappedResouceWrapper
 	if rw, ok = r.resources[key]; ok {
 		resource, rw.useCount = rw.resource, rw.useCount+1
-		resource = rw.resource
 		return
 	}
 	return

@@ -16,8 +16,11 @@ package db2
 
 import (
 	"database/sql"
+	"database/sql/driver"
 
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/ibmdb/go_ibm_db"
+	"github.com/pingcap/errors"
 )
 
 //Table mysql表
@@ -49,4 +52,15 @@ func (t *Table) AddField(baseField *database.BaseField) {
 //ExecParam 获取执行参数
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	return nil, false
+}
+
+//ShouldRetry 重试
+func (t *Table) ShouldRetry(err error) bool {
+	return errors.Cause(err) == driver.ErrBadConn
+}
+
+//ShouldOneByOne 单个重试
+func (t *Table) ShouldOneByOne(err error) bool {
+	_, ok := errors.Cause(err).(*go_ibm_db.Error)
+	return ok
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/pingcap/errors"
 )
@@ -49,6 +50,8 @@ type BatchWriter interface {
 type BaseBatchWriter struct {
 	Task     *Task
 	execMode string
+	strategy schedule.RetryStrategy
+	judger   database.Judger
 	opts     *database.ParameterOptions
 }
 
@@ -58,6 +61,21 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 		Task:     task,
 		execMode: execMode,
 	}
+
+	if j, ok := task.Table.(database.Judger); ok {
+		strategy, err := task.Config.GetRetryStrategy(j)
+		if err != nil {
+			log.Printf("[WARNING] jobID: %v taskgroupID:%v taskID: %v GetRetryStrategy fail error: %v",
+				task.JobID(), task.TaskGroupID(), task.TaskID(), err)
+		}
+		w.strategy = strategy
+		w.judger = j
+	}
+
+	if w.strategy == nil {
+		w.strategy = schedule.NewNoneRetryStrategy()
+	}
+
 	w.opts = &database.ParameterOptions{
 		Table:     task.Table,
 		Mode:      task.Config.GetWriteMode(),
@@ -92,7 +110,31 @@ func (b *BaseBatchWriter) BatchTimeout() time.Duration {
 }
 
 //BatchWrite 批次写入
-func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) error {
+func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) (err error) {
+	if b.strategy != nil {
+		retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
+			return b.batchWrite(ctx, records)
+		}))
+		err = retry.Do()
+	}
+
+	if b.judger != nil {
+		if b.judger.ShouldOneByOne(err) {
+			for _, r := range records {
+				retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
+					return b.batchWrite(ctx, []element.Record{r})
+				}))
+				err = retry.Do()
+				if b.Task.Config.IgnoreOneByOneError() {
+					err = nil
+				}
+			}
+		}
+	}
+	return err
+}
+
+func (b *BaseBatchWriter) batchWrite(ctx context.Context, records []element.Record) error {
 	b.opts.Records = records
 	defer func() {
 		b.opts.Records = nil
@@ -106,6 +148,20 @@ func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Reco
 		return b.Task.Execer.BatchExecStmtWithTx(ctx, b.opts)
 	}
 	return b.Task.Execer.BatchExec(ctx, b.opts)
+}
+
+type writeTask struct {
+	do func() error
+}
+
+func newWriteTask(do func() error) *writeTask {
+	return &writeTask{
+		do: do,
+	}
+}
+
+func (t *writeTask) Do() error {
+	return t.do()
 }
 
 //StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库

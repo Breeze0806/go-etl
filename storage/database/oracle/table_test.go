@@ -21,6 +21,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/godror/godror"
 )
 
 func TestNewTable(t *testing.T) {
@@ -402,6 +403,75 @@ func TestInsertParam_Agrs(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotValuers, tt.wantValuers) {
 				t.Errorf("InsertParam.Agrs() = %v, want %v", gotValuers, tt.wantValuers)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldRetry(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &godror.OraErr{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldRetry(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldRetry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldOneByOne(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &godror.OraErr{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}

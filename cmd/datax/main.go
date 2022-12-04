@@ -18,14 +18,25 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/Breeze0806/go-etl/cmd/datax/tools"
 )
 
 func main() {
 	initLog()
-	var filename = flag.String("c", "config.json", "config")
+	var configFile = flag.String("c", "config.json", "config")
+	var wizardFile = flag.String("w", "wizard.csv", "")
 	flag.Parse()
-	log.Debugf("%v", *filename)
-	e := newEnveronment(*filename)
+	if *wizardFile != "" {
+		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigs(); err != nil {
+			fmt.Printf("wizard generate configs fail. err: %v\n", err)
+			log.Errorf("wizard generate configs fail. err: %v", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	e := newEnveronment(*configFile)
 	defer e.close()
 	if err := e.build(); err != nil {
 		fmt.Printf("run fail. err: %v\n", err)

@@ -23,6 +23,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/schedule"
 )
 
 //Table 表结构
@@ -70,6 +71,13 @@ type TableConfigSetter interface {
 //ExecParameter Table的补充方法，用于写模式获取生成sql语句的方法
 type ExecParameter interface {
 	ExecParam(string, *sql.TxOptions) (Parameter, bool)
+}
+
+//Judger 错误判断器
+type Judger interface {
+	schedule.RetryJudger
+
+	ShouldOneByOne(err error) bool
 }
 
 //BaseTable 基本表，用于嵌入各种数据库Table的实现

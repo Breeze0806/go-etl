@@ -68,6 +68,12 @@ type DB struct {
 
 //NewDB 从数据源source中获取数据库连接池
 func NewDB(source Source) (d *DB, err error) {
+	var c *Config
+	c, err = NewConfig(source.Config())
+	if err != nil {
+		return nil, errors.Wrapf(err, "NewConfig(%v) fail", source.Config())
+	}
+
 	d = &DB{
 		Source: source,
 	}
@@ -83,12 +89,6 @@ func NewDB(source Source) (d *DB, err error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, "Open(%v) fail", d.Source.DriverName())
 		}
-	}
-
-	var c *Config
-	c, err = NewConfig(d.Config())
-	if err != nil {
-		return nil, errors.Wrapf(err, "NewConfig(%v) fail", d.Config())
 	}
 
 	d.db.SetMaxOpenConns(c.Pool.GetMaxOpenConns())

@@ -16,12 +16,15 @@ package sqlserver
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"net"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	mssql "github.com/denisenkom/go-mssqldb"
 )
 
 func TestTable_Quoted(t *testing.T) {
@@ -446,6 +449,106 @@ func TestCopyInParam_Agrs(t *testing.T) {
 
 			if !reflect.DeepEqual(gotValuers, tt.wantValuers) {
 				t.Errorf("CopyInParam.Agrs() = %v, want %v", gotValuers, tt.wantValuers)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldRetry(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.AddrError{},
+			},
+			want: true,
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: true,
+		},
+		{
+			name: "4",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &mssql.Error{},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldRetry(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldRetry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldOneByOne(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.AddrError{},
+			},
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+		},
+		{
+			name: "4",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &mssql.Error{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -1,0 +1,73 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "oraclereader",
+                    "parameter": {
+                        "connection":  {
+                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+                            "table": {
+                                "schema":"TEST",
+                                "name":"SRC"
+                            }
+                        },
+                        "username": "system",
+                        "password": "oracle",
+                        "column": ["*"],
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "oraclewriter",
+                    "parameter": {
+                        "connection":  {
+                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+                            "table": {
+                                "schema":"TEST",
+                                "name":"DEST"
+                            }
+                        },
+                        "username": "system",
+                        "password": "oracle",
+                        "writeMode": "insert",
+                        "column": ["*"],
+                        "preSql": [],
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}

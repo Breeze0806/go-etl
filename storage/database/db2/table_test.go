@@ -16,10 +16,12 @@ package db2
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/ibmdb/go_ibm_db"
 )
 
 func TestTable_Quoted(t *testing.T) {
@@ -121,6 +123,84 @@ func TestTable_AddField(t *testing.T) {
 			tt.tr.AddField(tt.args.baseField)
 			if !reflect.DeepEqual(tt.tr.Fields(), tt.want) {
 				t.Errorf("run %v Table.Fields() = %v want: %v", tt.name, tt.tr.Fields(), tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldRetry(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldRetry(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldRetry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldOneByOne(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: false,
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &go_ibm_db.Error{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}

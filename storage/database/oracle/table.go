@@ -22,6 +22,8 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/godror/godror"
+	"github.com/pingcap/errors"
 )
 
 //WriteModeInsert intert into 写入方式
@@ -60,6 +62,17 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 		return NewInsertParam(t, txOpts), true
 	}
 	return nil, false
+}
+
+//ShouldRetry 重试
+func (t *Table) ShouldRetry(err error) bool {
+	return godror.IsBadConn(errors.Cause(err))
+}
+
+//ShouldOneByOne 单个重试
+func (t *Table) ShouldOneByOne(err error) bool {
+	_, ok := errors.Cause(err).(*godror.OraErr)
+	return ok && !godror.IsBadConn(err)
 }
 
 //InsertParam Insert into 参数

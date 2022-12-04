@@ -19,11 +19,13 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"net"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	mssql "github.com/denisenkom/go-mssqldb"
+	"github.com/pingcap/errors"
 )
 
 //WriteModeCopyIn copy in写入方式
@@ -69,6 +71,22 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 		return NewCopyInParam(t, txOpts), true
 	}
 	return nil, false
+}
+
+//ShouldRetry 重试
+func (t *Table) ShouldRetry(err error) bool {
+	switch cause := errors.Cause(err).(type) {
+	case net.Error:
+		return true
+	default:
+		return cause == driver.ErrBadConn
+	}
+}
+
+//ShouldOneByOne 单个重试
+func (t *Table) ShouldOneByOne(err error) bool {
+	_, ok := errors.Cause(err).(*mssql.Error)
+	return ok
 }
 
 //CopyInParam copy in 参数

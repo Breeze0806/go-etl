@@ -23,6 +23,8 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
+	"github.com/Breeze0806/go-etl/element"
+	"github.com/Breeze0806/go-etl/storage/database"
 )
 
 func newMockBatchWriter(execer Execer, mode string) *BaseBatchWriter {
@@ -54,37 +56,19 @@ func TestStartWrite(t *testing.T) {
 			},
 		},
 		{
-			name: "2",
-			args: args{
-				ctx:      context.TODO(),
-				receiver: NewMockReceiverWithoutWait(10000, exchange.ErrTerminate),
-				writer:   newMockBatchWriter(&MockExecer{}, "Tx"),
-			},
-		},
-		{
 			name: "3",
 			args: args{
 				ctx:      context.TODO(),
 				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
-				writer:   newMockBatchWriter(&MockExecer{}, "Stmt"),
+				writer:   newMockBatchWriter(&MockExecer{}, ""),
 			},
 			wantErr: true,
-		},
-		{
-			name: "4",
-			args: args{
-				ctx:      context.TODO(),
-				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
-				writer:   newMockBatchWriter(&MockExecer{}, "StmtTx"),
-			},
-			waitCtx: 5 * time.Microsecond,
-			wantErr: false,
 		},
 		{
 			name: "5",
 			args: args{
 				ctx:      context.TODO(),
-				receiver: NewMockReceiverWithoutWait(10000, errors.New("mock error")),
+				receiver: NewMockReceiverWithoutWait(10000, nil),
 				writer:   newMockBatchWriter(&MockExecer{}, ""),
 			},
 			waitCtx: 5 * time.Microsecond,
@@ -140,6 +124,187 @@ func TestStartWrite(t *testing.T) {
 
 			if err := StartWrite(ctx, tt.args.writer, tt.args.receiver); (err != nil) != tt.wantErr {
 				t.Errorf("StartWrite() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestBaseBatchWriter_BatchWrite(t *testing.T) {
+	type args struct {
+		ctx     context.Context
+		records []element.Record
+	}
+	tests := []struct {
+		name    string
+		b       *BaseBatchWriter
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "1",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{"retry":""}`)),
+			}, "", nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "2",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{}`)),
+			}, "", nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "3",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{}`)),
+			}, ExecModeNormal, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "4",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{}`)),
+			}, ExecModeStmt, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "5",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{}`)),
+			}, ExecModeStmtTx, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "6",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), false, false),
+				Config: testBaseConfig(testJSONFromString(`{}`)),
+			}, ExecModeTx, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "7",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), true, true),
+				Config: testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3}}}`)),
+			}, ExecModeTx, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "8",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer:   &MockExecer{},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), true, true),
+				Config: testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3},"ignoreOneByOneError":true}}`)),
+			}, ExecModeTx, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.b.BatchWrite(tt.args.ctx, tt.args.records); (err != nil) != tt.wantErr {
+				t.Errorf("BaseBatchWriter.BatchWrite() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

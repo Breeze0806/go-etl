@@ -19,9 +19,12 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"net"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/go-sql-driver/mysql"
+	"github.com/pingcap/errors"
 )
 
 //WriteModeReplace replace into 写入方式
@@ -60,6 +63,22 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 		return NewReplaceParam(t, txOpts), true
 	}
 	return nil, false
+}
+
+//ShouldRetry 重试
+func (t *Table) ShouldRetry(err error) bool {
+	switch cause := errors.Cause(err).(type) {
+	case net.Error:
+		return true
+	default:
+		return cause == driver.ErrBadConn
+	}
+}
+
+//ShouldOneByOne 单个重试
+func (t *Table) ShouldOneByOne(err error) bool {
+	_, ok := errors.Cause(err).(*mysql.MySQLError)
+	return ok
 }
 
 //ReplaceParam Replace into 参数
