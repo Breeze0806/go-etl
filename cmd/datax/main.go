@@ -25,7 +25,7 @@ import (
 func main() {
 	initLog()
 	var configFile = flag.String("c", "config.json", "config")
-	var wizardFile = flag.String("w", "wizard.csv", "")
+	var wizardFile = flag.String("w", "", "wizard")
 	flag.Parse()
 	if *wizardFile != "" {
 		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigs(); err != nil {

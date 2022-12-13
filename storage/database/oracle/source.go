@@ -24,10 +24,10 @@ func init() {
 	database.RegisterDialect(d.Name(), d)
 }
 
-//Dialect db2数据库方言
+//Dialect oracle数据库方言
 type Dialect struct{}
 
-//Source 生产数据源
+//Source 生成oracle数据源
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
@@ -37,14 +37,14 @@ func (d Dialect) Name() string {
 	return "oracle"
 }
 
-//Source db2数据源
+//Source oracle数据源
 type Source struct {
 	*database.BaseSource //基础数据源
 
 	dsn string
 }
 
-//NewSource 生成db2数据源，在配置文件错误时会报错
+//NewSource 生成oracle数据源，在配置文件错误时会报错
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,
@@ -76,7 +76,7 @@ func (s *Source) Key() string {
 	return s.dsn
 }
 
-//Table 生成mysql的表
+//Table 生成oracle的表
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }

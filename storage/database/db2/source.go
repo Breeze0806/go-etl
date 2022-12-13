@@ -26,7 +26,7 @@ func init() {
 //Dialect db2数据库方言
 type Dialect struct{}
 
-//Source 生产数据源
+//Source 生成db2数据源
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
@@ -74,7 +74,7 @@ func (s *Source) Key() string {
 	return s.dsn
 }
 
-//Table 生成mysql的表
+//Table 生成db2的表
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }

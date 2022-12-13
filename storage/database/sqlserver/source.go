@@ -26,7 +26,7 @@ func init() {
 //Dialect mssql数据库方言
 type Dialect struct{}
 
-//Source 生产数据源
+//Source 生成mssql数据源
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }

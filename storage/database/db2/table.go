@@ -23,12 +23,12 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//Table mysql表
+//Table db2表
 type Table struct {
 	*database.BaseTable
 }
 
-//NewTable 创建mysql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
+//NewTable 创建db2表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,
