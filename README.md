@@ -29,7 +29,7 @@ go-etl将提供的etl能力如下：
 
 ### 用户手册
 
-查看[go-etl用户手册](README_USER.md)
+使用[go-etl用户手册](README_USER.md)开始
 
 ### 开发宝典
 
@@ -42,14 +42,9 @@ go-etl将提供的etl能力如下：
 
 #### plan
 
-- [x] 实现db2数据库reader/writer插件
-- [x] 实现sql server数据库reader/writer插件
-- [X] 实现oracle数据库reader/writer插件
-- [x] 实现cvs文件reader/writer插件
-- [x] 实现xlsx文件reader/writer插件
+- [ ] 实现关系型数据库的任务切分
 - [ ] 实现监控模块
 - [ ] 实现流控模块
-- [x] 实现关系型数据库入库重试保证数据不丢失功能
 - [ ] 实现关系型数据库入库断点续传
 
 ### storage
@@ -58,25 +53,11 @@ go-etl将提供的etl能力如下：
 
 目前已经实现了数据库的基础集成，已有mysql和postgresql的实现，如何实现可以查看godoc文档，利用它能非常方便地实现datax数据库间的同步，欢迎大家来提交新的数据同步方式，可以在下面选择新的数据库来同步
 
-##### plan
-
-- [x] 实现db2数据库的dialect 
-- [x] 实现sql server数据库的dialect
-- [X] 实现oracle数据库的dialect
-
 #### stream
 
 主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等
 
 #### file
-##### plan
-
-- [x] 实现文件流的数据传输框架
-- [x] 单元测试文件流的数据传输框架
-- [x] 实现cvs文件字节流的数据传输框架
-- [x] 单元测试cvs文件字节流的数据传输框架
-- [x] 实现xlsx文件字节流的数据传输框架
-- [x] 单元测试xlsx文件字节流的数据传输框架
 
 #### mq
 

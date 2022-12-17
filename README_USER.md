@@ -8,7 +8,6 @@
 
 1. golang 1.16以及以上
 
-
 #### 构建
 ```bash
 make dependencies
@@ -29,7 +28,9 @@ release.bat
 
 ## 如何开始
 
-下载对应操作系统的datax
+下载对应操作系统的datax，在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib，否则无法运行
+
+可以使用[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/)以及[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
 ### 使用方式
 
