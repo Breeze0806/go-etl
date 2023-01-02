@@ -29,6 +29,7 @@ type Config interface {
 	GetColumns() []Column              //获取列信息
 	GetBaseTable() *database.BaseTable //获取表信息
 	GetWhere() string                  //获取查询条件
+	GetSplitConfig() SplitConfig       //获取切分配置
 }
 
 //Column 列信息
@@ -48,11 +49,12 @@ func (b *BaseColumn) GetName() string {
 
 //BaseConfig 基础关系型数据读入器配置
 type BaseConfig struct {
-	Username   string     `json:"username"`   //用户名
-	Password   string     `json:"password"`   //密码
-	Column     []string   `json:"column"`     //列信息
-	Connection ConnConfig `json:"connection"` //连接信息
-	Where      string     `json:"where"`      //查询条件
+	Username   string      `json:"username"`   //用户名
+	Password   string      `json:"password"`   //密码
+	Column     []string    `json:"column"`     //列信息
+	Connection ConnConfig  `json:"connection"` //连接信息
+	Where      string      `json:"where"`      //查询条件
+	Split      SplitConfig `json:"split"`      //切分键
 }
 
 //NewBaseConfig 通过json配置conf获取基础关系型数据读入器配置
@@ -98,6 +100,11 @@ func (b *BaseConfig) GetBaseTable() *database.BaseTable {
 //GetWhere 获取查询条件
 func (b *BaseConfig) GetWhere() string {
 	return b.Where
+}
+
+//GetSplitConfig 获取切分配置
+func (b *BaseConfig) GetSplitConfig() SplitConfig {
+	return b.Split
 }
 
 //ConnConfig 连接配置

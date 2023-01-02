@@ -26,6 +26,7 @@ type DbHandler interface {
 	Querier(name string, conf *config.JSON) (Querier, error)      //通过数据库名name和json配置conf获取查询器
 	Config(conf *config.JSON) (Config, error)                     //通过json配置conf获取关系型数据库输入配置
 	TableParam(config Config, querier Querier) database.Parameter //通过关系型数据库输入配置config和查询器querier获取表参数
+	SplitParam(config Config, querier Querier) database.Parameter //通过关系型数据库输入配置config和查询器querier获取切分表参数
 }
 
 // BaseDbHandler 基础数据库句柄
@@ -54,5 +55,10 @@ func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 
 //TableParam 通过关系型数据库输入配置config和查询器querier获取表参数
 func (d *BaseDbHandler) TableParam(config Config, querier Querier) database.Parameter {
+	return NewTableParam(config, querier, d.opts)
+}
+
+//SplitParam 通过关系型数据库输入配置config和查询器querier获取切分表参数
+func (d *BaseDbHandler) SplitParam(config Config, querier Querier) database.Parameter {
 	return NewTableParam(config, querier, d.opts)
 }

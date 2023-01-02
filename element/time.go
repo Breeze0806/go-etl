@@ -25,6 +25,7 @@ var DefaultTimeFormat = "2006-01-02 15:04:05.999999999Z07:00"
 //TimeDecoder 时间解码器
 type TimeDecoder interface {
 	TimeDecode(t time.Time) (interface{}, error)
+	Layout() string
 }
 
 //TimeEncoder 时间编码器
@@ -68,4 +69,9 @@ func NewStringTimeDecoder(layout string) TimeDecoder {
 //TimeDecode 根据go时间格式layout的字符串时间编码成string
 func (d *StringTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
 	return t.Format(d.layout), nil
+}
+
+//Layout 时间格式
+func (d *StringTimeDecoder) Layout() string {
+	return d.layout
 }
