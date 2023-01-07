@@ -53,3 +53,24 @@ func TestStringTimeEncoder_TimeEncode(t *testing.T) {
 		})
 	}
 }
+
+func TestStringTimeDecoder_Layout(t *testing.T) {
+	tests := []struct {
+		name string
+		d    *StringTimeDecoder
+		want string
+	}{
+		{
+			name: "1",
+			d:    NewStringTimeDecoder(DefaultTimeFormat).(*StringTimeDecoder),
+			want: DefaultTimeFormat,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.d.Layout(); got != tt.want {
+				t.Errorf("StringTimeDecoder.Layout() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

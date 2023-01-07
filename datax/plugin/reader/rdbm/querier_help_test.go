@@ -17,6 +17,7 @@ package rdbm
 import (
 	"context"
 	"database/sql"
+	"math/big"
 	"strconv"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -101,9 +102,11 @@ func (m *MockTable) AddField(bf *database.BaseField) {
 }
 
 type MockQuerier struct {
-	PingErr  error
-	QueryErr error
-	FetchErr error
+	PingErr     error
+	QueryErr    error
+	FetchErr    error
+	FetchMinErr error
+	FetchMaxErr error
 }
 
 func (m *MockQuerier) Table(bt *database.BaseTable) database.Table {
@@ -118,16 +121,36 @@ func (m *MockQuerier) QueryContext(ctx context.Context, query string, args ...in
 	return nil, m.QueryErr
 }
 
-func (m *MockQuerier) FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error) {
+func (m *MockQuerier) FetchTableWithParam(ctx context.Context,
+	param database.Parameter) (database.Table, error) {
+	if _, ok := param.(*SplitParam); ok {
+		t := NewMockTable(database.NewBaseTable("db", "schema", "name"))
+		t.AddField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)))
+		return t, m.FetchErr
+	}
 	return nil, m.FetchErr
 }
 
-func (m *MockQuerier) FetchRecord(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {
-	_, err = handler.CreateRecord()
+func (m *MockQuerier) FetchRecord(ctx context.Context,
+	param database.Parameter, handler database.FetchHandler) (err error) {
+
+	r, err := handler.CreateRecord()
 	if err != nil {
 		return
 	}
-	return handler.OnRecord(element.NewDefaultRecord())
+	switch param.(type) {
+	case *MinParam:
+		if m.FetchMinErr != nil {
+			return m.FetchMinErr
+		}
+		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "f1", 0))
+	case *MaxParam:
+		if m.FetchMaxErr != nil {
+			return m.FetchMaxErr
+		}
+		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(30000)), "f1", 0))
+	}
+	return handler.OnRecord(r)
 }
 
 func (m *MockQuerier) FetchRecordWithTx(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {

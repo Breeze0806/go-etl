@@ -69,7 +69,7 @@ type Field interface {
 	Index() int                   //索引
 	Name() string                 //字段名
 	Quoted() string               //引用字段名
-	BindVar(int) string           //占位符号
+	BindVar(int) string           //占位符号, 从1开始
 	Select() string               //select字段名
 	Type() FieldType              //字段类型
 	Scanner() Scanner             //扫描器

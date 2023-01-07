@@ -1,8 +1,8 @@
-# datax开发者指南
+# go-etl开发者指南
 
 ## 同步框架简介
 
-datax主要离线数据同步框架，框架如下
+go-etl主要离线数据同步框架，框架如下
 
 ```
 readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)  
@@ -18,11 +18,11 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 
 ## 核心模块(core)介绍
 
-DataX完成单个数据同步的作业，我们称之为Job，DataX接受到一个Job之后，将启动一个进程来完成整个作业同步过程。
+go-etl完成单个数据同步的作业，我们称之为Job，go-etl接受到一个Job之后，将启动一个进程来完成整个作业同步过程。
 
-DataX Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
+go-etl Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
 
-### DataX调度流程
+### go-etl调度流程
 ```
     JOB--split--+-- task1--+           +--taskGroup1--+   
                 |-- task2--|           |--taskGroup2--|        
@@ -39,13 +39,13 @@ DataX Job模块是单个作业的中枢管理节点，承担了数据清理、�
                                      +----------------------------------------------+     
 ```
 
-如上所示，DataXJob启动后，会根据不同的源端切分策略，将Job切分成多个小的Task(子任务)，以便于并发执行。Task便是DataX作业的最小单元，每一个Task都会负 责一部分数据的同步工作。切分多个Task之后，DataX Job会调用Scheduler模块，根据配置的并发数据量，将拆分成的Task重新组合，组装成TaskGroup(任务组),Task数和taskGroup数可以不同（N:M）。每一个TaskGroup负责以一定的并发运行完毕分配好的所有Task，默认单个任务组的并发数量为4。每一个Task都由TaskGroup负责启动，Task启动后，会固定启动Reader—>Channel—>Writer的线程来完成任务同步工作。
+如上所示，go-etl Job启动后，会根据不同的源端切分策略，将Job切分成多个小的Task(子任务)，以便于并发执行。Task便是go-etl作业的最小单元，每一个Task都会负 责一部分数据的同步工作。切分多个Task之后，go-etl Job会调用Scheduler模块，根据配置的并发数据量，将拆分成的Task重新组合，组装成TaskGroup(任务组),Task数和taskGroup数可以不同（N:M）。每一个TaskGroup负责以一定的并发运行完毕分配好的所有Task，默认单个任务组的并发数量为4。每一个Task都由TaskGroup负责启动，Task启动后，会固定启动Reader—>Channel—>Writer的线程来完成任务同步工作。
 
-DataX作业运行起来之后，Job监控并等待多个TaskGroup模块任务完成，等待所有TaskGroup任务完成后Job成功退出。否则，异常退出，进程退出值非0。
+go-etl作业运行起来之后，Job监控并等待多个TaskGroup模块任务完成，等待所有TaskGroup任务完成后Job成功退出。否则，异常退出，进程退出值非0。
 
-举例来说，用户提交了一个DataX作业，并且配置了20个并发，目的是将一个100张分表的mysql数据同步到odps里面。DataX的调度决策思路是：DataXJob根据分库分表切分成了100个Task。 根据20个并发，DataX计算共需要分配4个TaskGroup。4个TaskGroup平分切分好的100个Task，每一个TaskGroup负责以5个并发共计运行25个Task。
+举例来说，用户提交了一个go-etl作业，并且配置了20个并发，目的是将一个100张分表的mysql数据同步到odps里面。go-etl的调度决策思路是：go-etlJob根据分库分表切分成了100个Task。 根据20个并发，go-etl计算共需要分配4个TaskGroup。4个TaskGroup平分切分好的100个Task，每一个TaskGroup负责以5个并发共计运行25个Task。
 
-+ Job:Job是DataX用以描述从一个源头到一个目的端的同步作业，是DataX数据同步的最小业务单元。比如：从一张mysql的表同步到odps的一个表的特定分区。   
++ Job:Job是go-etl用以描述从一个源头到一个目的端的同步作业，是go-etl数据同步的最小业务单元。比如：从一张mysql的表同步到odps的一个表的特定分区。   
 + Task:Task是为最大化而把Job拆分得到的最小执行单元。比如：读一张有1024个分表的mysql分库分表的Job，拆分成1024个读Task，用若干个并发执行。        
 + TaskGroup: 描述的是一组Task集合。在同一个TaskGroupContainer执行下的Task集合称之为TaskGroup
 + JobContainer: Job执行器，负责Job全局拆分、调度、前置语句和后置语句等工作的工作单元。类似Yarn中的JobTracker
@@ -107,12 +107,12 @@ Task组合*plugin.BaseTask,实现方法
 #### 命令生成 
 
 ```bash
-cd tools/datax/plugin
+cd tools/go-etl/plugin
 #新增一个名为Mysql的reader -p命令可以时任意大小写，用于指定reader的名字，如果新增-d 代表会删除原来的模板
 go run main.go -t reader -p Mysql
 ```
 
-这个命令会在datax/plugin/reader中自动生成一个如下DB2的reader模板来帮助开发
+这个命令会在go-etl/plugin/reader中自动生成一个如下DB2的reader模板来帮助开发
 
 ```
      plugin --- reader---mysql--+-----resources--+--plugin.json
@@ -233,12 +233,12 @@ Task组合*plugin.BaseTask,实现方法:
 #### 命令生成
 
 ```bash
-cd tools/datax/plugin
+cd tools/go-etl/plugin
 #新增一个名为Mysql的writer -p命令可以时任意大小写，用于指定writer的名字，如果新增-d 代表会删除原来的模板
 go run main.go -t writer -p Mysql
 ```
 
-这个命令会在datax/plugin/writer中自动生成如下一个DB2的writer模板来帮助开发
+这个命令会在go-etl/plugin/writer中自动生成如下一个DB2的writer模板来帮助开发
 
 ```
     plugin ---- writer--mysql---+-----resources--+--plugin.json
@@ -310,7 +310,7 @@ type Execer interface {
 
 ## 插件配置文件
 
-`DataX`使用`json`作为配置文件的格式。一个典型的`DataX`任务配置如下：
+`go-etl`使用`json`作为配置文件的格式。一个典型的`go-etl`任务配置如下：
 
 ```json
 {
@@ -451,12 +451,12 @@ go run tools/license/main.go
 
 在使用golang编译前，需要将插件注册到代码中去。
 
-golang静态编译的方式决定了Datax框架不能用运行时动态加载插件的方式去获取插件，为此这里只能使用注册代码的方式，以下命令会生成将由开发者开发的reader和writer插件注册到程序中的代码。
+golang静态编译的方式决定了go-etl框架不能用运行时动态加载插件的方式去获取插件，为此这里只能使用注册代码的方式，以下命令会生成将由开发者开发的reader和writer插件注册到程序中的代码。
 
 ```bash
 go generate ./...
 ```
-主要的原理如下会将对应datax/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在datax目录下生成plugin.go用于导入这些插件， 具体在tools/datax/build实现。
+主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现。
 
 ## 插件数据传输
 
@@ -470,7 +470,7 @@ go generate ./...
 
 ### 数据类型转化
 
-为了规范源端和目的端类型转换操作，保证数据不失真，DataX支持六种内部数据类型,具体见[文档](../element/README.md)的《数据类型转化》一章。
+为了规范源端和目的端类型转换操作，保证数据不失真，go-etl支持六种内部数据类型,具体见[文档](../element/README.md)的《数据类型转化》一章。
 
 ## 插件文档
 
@@ -482,7 +482,7 @@ go generate ./...
    - 给出典型场景下的同步任务的json配置文件。
    - 介绍每个参数的含义、是否必选、默认值、取值范围和其他约束。
 4. **类型转换**
-   - 插件是如何在实际的存储类型和`DataX`的内部类型之间进行转换的。
+   - 插件是如何在实际的存储类型和`go-etl`的内部类型之间进行转换的。
    - 以及是否存在特殊处理。
 5. **性能报告**
    - 软硬件环境，系统版本，java版本，CPU、内存等。

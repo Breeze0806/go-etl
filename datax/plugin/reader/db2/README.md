@@ -34,6 +34,9 @@ DB2Reader通过使用rdbmreader中定义的查询流程调用go-etl自定义的s
                         "username": "user",
                         "password": "passwd",
                         "column": ["*"],
+                        "split" : {
+                            "key":"id"
+                        },
                         "where": ""
                     }
                 }
@@ -77,6 +80,20 @@ DB2Reader通过使用rdbmreader中定义的查询流程调用go-etl自定义的s
 
 - 描述 主要用于配置db2表的表名
 - 必选：是
+- 默认值: 无
+
+#### split
+
+##### key
+
+- 描述 主要用于配置db2表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
+- 必选：否
+- 默认值: 无
+
+##### timeAccuracy
+
+- 描述 主要用于配置db2表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
+- 必选：否
 - 默认值: 无
 
 #### column

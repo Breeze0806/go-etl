@@ -111,6 +111,131 @@ func (q *QueryParam) Query(_ []element.Record) (string, error) {
 }
 
 //Agrs 获取查询参数
-func (q *QueryParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
+	if q.Config.GetSplitConfig().Key != "" {
+		for _, v := range q.Table().Fields() {
+			if q.Config.GetSplitConfig().Key == v.Name() {
+				var left, right element.Column
+				if left, err = q.Config.GetSplitConfig().Range.leftColumn(); err != nil {
+					return
+				}
+				if right, err = q.Config.GetSplitConfig().Range.rightColumn(); err != nil {
+					return
+				}
+				var li, ri interface{}
+				if li, err = v.Valuer(left).Value(); err != nil {
+					return
+				}
+				if ri, err = v.Valuer(right).Value(); err != nil {
+					return
+				}
+				a = append(a, li, ri)
+				return
+			}
+		}
+	}
+	return nil, nil
+}
+
+//SplitParam 切分参数
+type SplitParam struct {
+	*database.BaseParam
+
+	Config Config
+}
+
+//NewSplitParam 获取表参数配置config，通过表参数获取对应数据库的表table和事务选项opts获取切分表参数
+func NewSplitParam(config Config, table TableParamTable, opts *sql.TxOptions) *SplitParam {
+	return &SplitParam{
+		BaseParam: database.NewBaseParam(table.Table(config.GetBaseTable()), opts),
+
+		Config: config,
+	}
+}
+
+//Query 获取查询语句
+func (s *SplitParam) Query(_ []element.Record) (string, error) {
+	buf := bytes.NewBufferString("select ")
+
+	buf.WriteString(s.Config.GetSplitConfig().Key)
+	buf.WriteString(" from ")
+	buf.WriteString(s.Table().Quoted())
+	buf.WriteString(" where 1 = 2")
+
+	return buf.String(), nil
+}
+
+//Agrs 获取查询参数
+func (s *SplitParam) Agrs(_ []element.Record) ([]interface{}, error) {
+	return nil, nil
+}
+
+//MinParam 最小值参数
+type MinParam struct {
+	*database.BaseParam
+
+	Config Config
+}
+
+//NewMinParam 通过关系型数据库输入配置config，对应数据库表table和事务选项opts获取最小值参数
+func NewMinParam(config Config, table database.Table, opts *sql.TxOptions) *MinParam {
+	return &MinParam{
+		BaseParam: database.NewBaseParam(table, opts),
+
+		Config: config,
+	}
+}
+
+//Query 获取查询语句
+func (m *MinParam) Query(_ []element.Record) (string, error) {
+	buf := bytes.NewBufferString("select min(")
+	buf.WriteString(m.Config.GetSplitConfig().Key)
+
+	buf.WriteString(") from ")
+	buf.WriteString(m.Table().Quoted())
+	if m.Config.GetWhere() != "" {
+		buf.WriteString(" where ")
+		buf.WriteString(m.Config.GetWhere())
+	}
+	return buf.String(), nil
+}
+
+//Agrs 获取查询参数
+func (m *MinParam) Agrs(_ []element.Record) ([]interface{}, error) {
+	return nil, nil
+}
+
+//MaxParam 最大值参数
+type MaxParam struct {
+	*database.BaseParam
+
+	Config Config
+}
+
+//NewMaxParam 通过关系型数据库输入配置config，对应数据库表table和事务选项opts获取查询参数
+func NewMaxParam(config Config, table database.Table, opts *sql.TxOptions) *MaxParam {
+	return &MaxParam{
+		BaseParam: database.NewBaseParam(table, opts),
+
+		Config: config,
+	}
+}
+
+//Query 获取查询语句
+func (m *MaxParam) Query(_ []element.Record) (string, error) {
+	buf := bytes.NewBufferString("select max(")
+	buf.WriteString(m.Config.GetSplitConfig().Key)
+
+	buf.WriteString(") from ")
+	buf.WriteString(m.Table().Quoted())
+	if m.Config.GetWhere() != "" {
+		buf.WriteString(" where ")
+		buf.WriteString(m.Config.GetWhere())
+	}
+	return buf.String(), nil
+}
+
+//Agrs 获取查询参数
+func (m *MaxParam) Agrs(_ []element.Record) ([]interface{}, error) {
 	return nil, nil
 }

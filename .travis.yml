@@ -6,6 +6,7 @@ go:
 branches:
   only:
     - main
+    - v0.1.x
 install:
   - make dependencies
 script:

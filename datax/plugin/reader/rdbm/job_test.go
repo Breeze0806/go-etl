@@ -172,10 +172,174 @@ func TestJob_Split(t *testing.T) {
 			name: "1",
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
+				Config:  &BaseConfig{},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
 				number: 1,
+			},
+			jobConf: testJSONFromString(`{}`),
+			want: []*config.JSON{
+				testJSONFromString(`{}`),
+			},
+		},
+		{
+			name: "2",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{}`),
+			want: []*config.JSON{
+				testJSONFromString(`{"split":{"range":{"type":"bigInt","layout":"","left":"10000","right":"20000"}},"where":"f1 >= $1 and f1 < $2"}`),
+				testJSONFromString(`{"split":{"range":{"type":"bigInt","layout":"","left":"20000","right":"30000"}},"where":"f1 >= $1 and f1 <= $2"}`),
+			},
+		},
+		{
+			name: "3",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Where: "a < 1",
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{"where":"a < 1"}`),
+			want: []*config.JSON{
+				testJSONFromString(`{"where":"(a < 1) and (f1 >= $1 and f1 < $2)","split":{"range":{"type":"bigInt","layout":"","left":"10000","right":"20000"}}}`),
+				testJSONFromString(`{"where":"(a < 1) and (f1 >= $1 and f1 <= $2)","split":{"range":{"type":"bigInt","layout":"","left":"20000","right":"30000"}}}`),
+			},
+		},
+		{
+			name: "4",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{
+					FetchErr: errors.New("mock error"),
+				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{}`),
+			wantErr: true,
+		},
+		{
+			name: "5",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{
+					FetchMinErr: errors.New("mock error"),
+				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{"where":"a < 1"}`),
+			wantErr: true,
+		},
+		{
+			name: "6",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{
+					FetchMaxErr: errors.New("mock error"),
+				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{"where":"a < 1"}`),
+			wantErr: true,
+		},
+		{
+			name: "7",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Split: SplitConfig{
+						Key: "f1",
+					},
+				},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 0,
+			},
+			jobConf: testJSONFromString(`{}`),
+			wantErr: true,
+		},
+		{
+			name: "8",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config:  &BaseConfig{},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
 			},
 			jobConf: testJSONFromString(`{}`),
 			want: []*config.JSON{
