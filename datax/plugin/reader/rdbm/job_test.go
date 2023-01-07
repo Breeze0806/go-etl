@@ -173,6 +173,10 @@ func TestJob_Split(t *testing.T) {
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
 				Config:  &BaseConfig{},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -193,6 +197,9 @@ func TestJob_Split(t *testing.T) {
 					},
 				},
 				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -215,6 +222,9 @@ func TestJob_Split(t *testing.T) {
 					},
 				},
 				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -239,6 +249,9 @@ func TestJob_Split(t *testing.T) {
 				Querier: &MockQuerier{
 					FetchErr: errors.New("mock error"),
 				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -259,6 +272,9 @@ func TestJob_Split(t *testing.T) {
 				Querier: &MockQuerier{
 					FetchMinErr: errors.New("mock error"),
 				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -279,6 +295,9 @@ func TestJob_Split(t *testing.T) {
 				Querier: &MockQuerier{
 					FetchMaxErr: errors.New("mock error"),
 				},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -297,6 +316,9 @@ func TestJob_Split(t *testing.T) {
 					},
 				},
 				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),
@@ -310,6 +332,10 @@ func TestJob_Split(t *testing.T) {
 			j: &Job{
 				BaseJob: plugin.NewBaseJob(),
 				Config:  &BaseConfig{},
+				Querier: &MockQuerier{},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{}, nil
+				}),
 			},
 			args: args{
 				ctx:    context.TODO(),

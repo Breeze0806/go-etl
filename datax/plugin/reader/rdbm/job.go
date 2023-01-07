@@ -92,7 +92,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	}
 
 	var splitTable database.Table
-	param := NewSplitParam(j.Config, j.Querier, nil)
+	param := j.handler.SplitParam(j.Config, j.Querier)
 	if splitTable, err = j.Querier.FetchTableWithParam(ctx, param); err != nil {
 		err = errors.Wrapf(err, "FetchTableWithParam fail")
 		return
@@ -105,7 +105,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 		minColumn, err = r.GetByIndex(0)
 		return nil
 	})
-	minParam := NewMinParam(j.Config, splitTable, nil)
+	minParam := j.handler.MinParam(j.Config, splitTable)
 	if err = j.Querier.FetchRecord(ctx, minParam, minHandler); err != nil {
 		err = errors.Wrapf(err, "FetchTableWithParam fail")
 		return
@@ -119,7 +119,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 		return nil
 	})
 
-	maxParam := NewMaxParam(j.Config, splitTable, nil)
+	maxParam := j.handler.MaxParam(j.Config, splitTable)
 	if err = j.Querier.FetchRecord(ctx, maxParam, maxHandler); err != nil {
 		err = errors.Wrapf(err, "FetchTableWithParam fail")
 		return

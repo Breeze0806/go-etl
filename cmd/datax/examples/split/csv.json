@@ -1,0 +1,65 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "csvreader",
+                    "parameter": {
+                        "path":["examples/split/split.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+                "writer":{
+                    "name": "mysqlwriter",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "writeMode": "insert",
+                        "column": ["*"],
+                        "preSql": [],
+                        "connection":  {
+                                "url": "tcp(192.168.15.130:3306)/mysql?parseTime=false",
+                                "table": {
+                                    "db":"source",
+                                    "name":"split"
+                                }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":3000,
+                "record":400,
+                "channel":4
+            }
+        }
+    }
+}

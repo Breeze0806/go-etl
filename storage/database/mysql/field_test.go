@@ -22,6 +22,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/shopspring/decimal"
 )
 
 type mockFieldType struct {
@@ -412,6 +413,14 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: int64(123),
 			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123), "test", 0),
+		},
+		{
+			name: "SMALLINT",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TINYINT")))),
+			args: args{
+				src: int32(123),
+			},
 			wantErr: true,
 		},
 		//"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"
@@ -538,6 +547,22 @@ func TestScanner_Scan(t *testing.T) {
 				src: nil,
 			},
 			want: element.NewDefaultColumn(element.NewNilDecimalColumnValue(), "test", 0),
+		},
+		{
+			name: "FLOAT",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("FLOAT")))),
+			args: args{
+				src: float32(1.234),
+			},
+			want: element.NewDefaultColumn(element.NewDecimalColumnValue(decimal.NewFromFloat32(float32(1.234))), "test", 0),
+		},
+		{
+			name: "DOUBLE",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("FLOAT")))),
+			args: args{
+				src: float64(1.23456789),
+			},
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(float64(1.23456789)), "test", 0),
 		},
 		{
 			name: "DECIMAL",

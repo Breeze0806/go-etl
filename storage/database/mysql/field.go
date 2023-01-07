@@ -20,6 +20,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -143,6 +144,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			if cv, err = element.NewBigIntColumnValueFromString(string(data)); err != nil {
 				return
 			}
+		case int64:
+			cv = element.NewBigIntColumnValueFromInt64(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
@@ -190,6 +193,10 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			if cv, err = element.NewDecimalColumnValueFromString(string(data)); err != nil {
 				return
 			}
+		case float32:
+			cv = element.NewDecimalColumnValue(decimal.NewFromFloat32(data))
+		case float64:
+			cv = element.NewDecimalColumnValueFromFloat(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
 		}

@@ -285,6 +285,28 @@ datax -c examples/postgrescsv/config.json
 datax -c examples/postgresxlsx/config.json
 ```
 
+#### 使用切分键
+
+这里假设数据按切分键分布是均匀的，合理使用这样的切分键可以使同步更快。
+
+##### 测试方式
+- 使用程序生成mysql数据产生split.csv
+```bash
+cd cmd/datax/examples/split
+go run main.go
+```
+- 使用init.sql建表
+- 同步至mysql数据库
+```bash
+cd ../..
+datax -c examples/split/csv.json
+```
+- 修改examples/split/mysql.json的split的key为id,dt,str
+- mysql数据库切分同步整形，日期，字符串类型
+```bash
+datax -c examples/split/mysql.json
+```
+
 #### 其他同步例子
 
 除了上述例子外，在go-etl特性中所列出的数据源都可以交叉使用，还配置例如mysql到postgresql数据源，mysql到oracle,oracle到db2等等，
