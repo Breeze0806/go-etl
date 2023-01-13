@@ -28,7 +28,7 @@ func main() {
 	var wizardFile = flag.String("w", "", "wizard")
 	flag.Parse()
 	if *wizardFile != "" {
-		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigs(); err != nil {
+		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigsAndScripts(); err != nil {
 			fmt.Printf("wizard generate configs fail. err: %v\n", err)
 			log.Errorf("wizard generate configs fail. err: %v", err)
 			os.Exit(1)

@@ -32,6 +32,13 @@ release.bat
 
 可以使用[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/)以及[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
+### 查看版本
+
+```
+datax version
+v0.1.0 (git commit: 6c7016c389bc3a8faed2dc0fee80c99412c53557) complied by v0.1.0 at 2023-01-13 21:41:55+08:00
+```
+
 ### 使用方式
 
 ```bash
@@ -42,15 +49,16 @@ Usage of datax:
         wizard
 ```
 
-### 批量生成配置集
+### 批量生成配置集和执行脚本
 
 ```bash
-datax -c testData/xlsx.json -w testData/wizard.csv 
+datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
 ```
 -c 指定数据源配置文件 -w 指定源目的配置向导文件。
 
 执行结果会在数据源配置文件目录文件生成源目的配置向导文件行数的配置集，分别以指定数据源配置文件1.json,指定数据源配置文件2.json,...,指定数据源配置文件[n].json的配置集。
 
+另外，在当前目录会生成执行脚本run.bat或者run.sh。
 #### 数据源配置文件
 
 数据源配置文件是json文件，使用数据源相互组合，如从mysql同步到postgres中
