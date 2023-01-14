@@ -89,7 +89,12 @@ go-etl将提供的etl能力如下：
 
 ##### build
 
+```bash
+go generate ./...
+```
 发布命令，用于将由开发者开发的reader和writer插件注册到程序中的代码
+
+另外，该命令也会把编译信息如软件版本，git版本，go编译版本和编译时间写入命令行中
 
 ##### plugin
 

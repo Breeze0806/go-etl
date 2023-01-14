@@ -19,6 +19,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
@@ -192,6 +193,164 @@ func TestJob_Split(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Job.Split() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestJob_Prepare(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		j       *Job
+		args    args
+		timeout time.Duration
+		wantErr bool
+	}{
+		{
+			name: "1",
+			j: &Job{
+				conf: &BaseConfig{
+					PreSQL: []string{
+						"delate",
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+		},
+		{
+			name: "2",
+			j: &Job{
+				conf: &BaseConfig{
+					PreSQL: []string{
+						"wait",
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+			timeout: 10 * time.Millisecond,
+			wantErr: true,
+		},
+		{
+			name: "3",
+			j: &Job{
+				conf: &BaseConfig{
+					PreSQL: []string{
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{
+					ExecErr: errors.New("mock error"),
+				},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(tt.args.ctx)
+			go func() {
+				if tt.timeout != 0 {
+					<-time.After(tt.timeout)
+				}
+				cancel()
+			}()
+			if err := tt.j.Prepare(ctx); (err != nil) != tt.wantErr {
+				t.Errorf("Job.Prepare() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestJob_Post(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		j       *Job
+		args    args
+		timeout time.Duration
+		wantErr bool
+	}{
+		{
+			name: "1",
+			j: &Job{
+				conf: &BaseConfig{
+					PostSQL: []string{
+						"delate",
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+		},
+		{
+			name: "2",
+			j: &Job{
+				conf: &BaseConfig{
+					PostSQL: []string{
+						"wait",
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+			timeout: 10 * time.Millisecond,
+			wantErr: true,
+		},
+		{
+			name: "3",
+			j: &Job{
+				conf: &BaseConfig{
+					PostSQL: []string{
+						"drop",
+						"create",
+					},
+				},
+				Execer: &MockExecer{ExecErr: errors.New("mock error")},
+			},
+			args: args{
+				ctx: context.TODO(),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(tt.args.ctx)
+			go func() {
+				if tt.timeout != 0 {
+					<-time.After(tt.timeout)
+				}
+				cancel()
+			}()
+			if err := tt.j.Post(ctx); (err != nil) != tt.wantErr {
+				t.Errorf("Job.Post() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

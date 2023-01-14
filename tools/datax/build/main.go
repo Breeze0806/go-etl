@@ -16,10 +16,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -131,7 +133,27 @@ func (m *maker) FromFile(filename string) (writer.Writer, error) {
 func (m *maker) Default() (writer.Writer, error) {
 	return NewWriterFromString(pluginConfig)
 }`
-	sourcePath = "../../../datax/"
+	versionCode = `package main
+
+import (
+	"os"
+	"fmt"
+	"strings"
+)
+
+const version = "%v (git commit: %v) complied by %v"
+
+func init() {
+	if len(os.Args) > 1 {
+		if strings.ToLower(os.Args[1]) == "version" {
+			fmt.Println(version)
+			os.Exit(0)
+		}
+	}
+}
+`
+	sourcePath  = "../../../datax/"
+	programPath = "../../../cmd/datax/version.go"
 )
 
 var (
@@ -305,13 +327,13 @@ func main() {
 	parser := pluginParser{}
 	if err := parser.readPackages(sourcePath + "plugin/reader"); err != nil {
 		log.Errorf("readPackages %v", err)
-		return
+		os.Exit(1)
 	}
 	br := &strings.Builder{}
 	for _, info := range parser.infos {
 		if err := info.genFile(sourcePath+"plugin/reader", readerCode); err != nil {
 			log.Errorf("genFile %v", err)
-			return
+			os.Exit(1)
 		}
 		imports = append(imports, info.genImport("reader"))
 		br.WriteString(fmt.Sprintf(readerCase, info.Name, info.Name, "plugin/reader/"+info.shotPackage+"/resources/plugin.json"))
@@ -323,12 +345,12 @@ func main() {
 	bw := &strings.Builder{}
 	if err := parser.readPackages(sourcePath + "plugin/writer"); err != nil {
 		log.Errorf("readPackages %v", err)
-		return
+		os.Exit(1)
 	}
 	for _, info := range parser.infos {
 		if err := info.genFile(sourcePath+"plugin/writer", writerCode); err != nil {
 			log.Errorf("genFile %v", err)
-			return
+			os.Exit(1)
 		}
 		imports = append(imports, info.genImport("writer"))
 		bw.WriteString(fmt.Sprintf(writerCase, info.Name, info.Name, "plugin/writer/"+info.shotPackage+"/resources/plugin.json"))
@@ -336,11 +358,16 @@ func main() {
 
 	if err := writeAllPlugins(imports); err != nil {
 		log.Errorf("writeAllPlugins fail. err: %v", err)
-		return
+		os.Exit(1)
 	}
 	if err := writeAllPluginsTest(br.String(), bw.String()); err != nil {
 		log.Errorf("writeAllPlugins fail. err: %v", err)
-		return
+		os.Exit(1)
+	}
+
+	if err := writeVersionCode(); err != nil {
+		log.Errorf("writeAllPlugins fail. err: %v", err)
+		os.Exit(1)
 	}
 }
 
@@ -416,7 +443,7 @@ import (
 		f.WriteString(v)
 		f.WriteString("\n")
 	}
-	f.WriteString(")\n")
+	_, err = f.WriteString(")\n")
 	return
 }
 
@@ -428,7 +455,60 @@ func writeAllPluginsTest(readCases, writerCases string) (err error) {
 	}
 	defer f.Close()
 
-	f.WriteString(fmt.Sprintf(testFile, readCases, writerCases))
+	_, err = f.WriteString(fmt.Sprintf(testFile, readCases, writerCases))
 
 	return
+}
+
+func writeVersionCode() (err error) {
+	var f *os.File
+	f, err = os.Create(programPath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	version := ""
+	if version, err = getVersion(); err != nil {
+		return
+	}
+	_, err = f.WriteString(version)
+	return
+}
+
+func getVersion() (version string, err error) {
+	output := ""
+	if output, err = cmdOutput("git", "describe", "--abbrev=0", "--tags"); err != nil {
+		err = fmt.Errorf("use git to tag version fail. error: %w", err)
+		return
+	}
+	tagVersion := strings.ReplaceAll(output, "\r", "")
+	tagVersion = strings.ReplaceAll(tagVersion, "\n", "")
+	if output, err = cmdOutput("git", "log", "-1", `--pretty=format:%H`); err != nil {
+		err = fmt.Errorf("use git to get version fail. error: %w", err)
+		return
+	}
+	gitVersion := output
+
+	//now := time.Now().Format("2006-01-02 15:04:05Z07:00")
+
+	if output, err = cmdOutput("go", "version"); err != nil {
+		err = fmt.Errorf("use git to get version fail. error: %w", err)
+		return
+	}
+	goVersion := strings.ReplaceAll(output, "\r", "")
+	goVersion = strings.ReplaceAll(goVersion, "\n", "")
+	version = fmt.Sprintf(versionCode, tagVersion, gitVersion, goVersion)
+	return
+}
+
+func cmdOutput(cmd string, arg ...string) (output string, err error) {
+	c := exec.Command(cmd, arg...)
+	var stdout, stderr bytes.Buffer
+	c.Stdout = &stdout
+	c.Stderr = &stderr
+	if err = c.Run(); err != nil {
+		err = fmt.Errorf("%v(%s)", err, stderr.String())
+		return
+	}
+	return stdout.String(), nil
 }

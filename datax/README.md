@@ -287,6 +287,8 @@ type Execer interface {
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
 	//批量执行
 	BatchExec(ctx context.Context, opts *database.ParameterOptions) (err error)
+	//prepare/exec批量执行
+	BatchExecStmt(ctx context.Context, opts *database.ParameterOptions) (err error)
 	//事务批量执行
 	BatchExecWithTx(ctx context.Context, opts *database.ParameterOptions) (err error)
 	//事务prepare/exec批量执行

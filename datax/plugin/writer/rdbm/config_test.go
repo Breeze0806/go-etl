@@ -201,3 +201,130 @@ func TestBaseConfig_IgnoreOneByOneError(t *testing.T) {
 		})
 	}
 }
+
+func TestBaseConfig_GetPreSQL(t *testing.T) {
+	tests := []struct {
+		name string
+		b    *BaseConfig
+		want []string
+	}{
+		{
+			name: "1",
+			b: &BaseConfig{
+				PreSQL: []string{"delete from a", "create table a"},
+			},
+			want: []string{"delete from a", "create table a"},
+		},
+		{
+			name: "2",
+			b: &BaseConfig{
+				PreSQL: []string{"", "delete from a", "", "create table a", ""},
+			},
+			want: []string{"delete from a", "create table a"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.b.GetPreSQL(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseConfig.GetPreSQL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseConfig_GetPostSQL(t *testing.T) {
+	tests := []struct {
+		name string
+		b    *BaseConfig
+		want []string
+	}{
+		{
+			name: "1",
+			b: &BaseConfig{
+				PostSQL: []string{"delete from a", "create table a"},
+			},
+			want: []string{"delete from a", "create table a"},
+		},
+		{
+			name: "2",
+			b: &BaseConfig{
+				PostSQL: []string{"", "delete from a", "", "create table a", ""},
+			},
+			want: []string{"delete from a", "create table a"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.b.GetPostSQL(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BaseConfig.GetPostSQL() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewBaseConfig(t *testing.T) {
+	type args struct {
+		conf *config.JSON
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantC   *BaseConfig
+		wantErr bool
+	}{
+		{
+			name: "1",
+			args: args{
+				conf: testJSONFromString(`{"preSQL":["select * from a"]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "2",
+			args: args{
+				conf: testJSONFromString(`{"preSQL":[" select * from a"]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			args: args{
+				conf: testJSONFromString(`{"preSQL":[" SELECT * from a"]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "4",
+			args: args{
+				conf: testJSONFromString(`{"postSQL":["select * from a"]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "5",
+			args: args{
+				conf: testJSONFromString(`{"postSQL":[" select * from a"]}`),
+			},
+			wantErr: true,
+		},
+		{
+			name: "6",
+			args: args{
+				conf: testJSONFromString(`{"postSQL":[" SELECT * from a"]}`),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotC, err := NewBaseConfig(tt.args.conf)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewBaseConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotC, tt.wantC) {
+				t.Errorf("NewBaseConfig() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}

@@ -136,6 +136,7 @@ type MockExecer struct {
 	FetchErr error
 	BatchN   int
 	BatchErr error
+	ExecErr  error
 }
 
 func (m *MockExecer) Table(bt *database.BaseTable) database.Table {
@@ -151,7 +152,10 @@ func (m *MockExecer) QueryContext(ctx context.Context, query string, args ...int
 }
 
 func (m *MockExecer) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	return nil, nil
+	if query == "wait" {
+		time.Sleep(100 * time.Millisecond)
+	}
+	return nil, m.ExecErr
 }
 
 func (m *MockExecer) FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error) {

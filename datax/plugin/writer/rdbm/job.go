@@ -30,6 +30,7 @@ type Job struct {
 
 	Handler DbHandler //数据库句柄
 	Execer  Execer    //执行器
+	conf    Config    //配置
 }
 
 //NewJob 通过数据库句柄获取工作
@@ -47,8 +48,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		return errors.Wrapf(err, "GetString fail")
 	}
 
-	var conf Config
-	if conf, err = j.Handler.Config(j.PluginJobConf()); err != nil {
+	if j.conf, err = j.Handler.Config(j.PluginJobConf()); err != nil {
 		return errors.Wrapf(err, "Config fail")
 	}
 
@@ -57,9 +57,9 @@ func (j *Job) Init(ctx context.Context) (err error) {
 		jobSettingConf, _ = config.NewJSONFromString("{}")
 		err = nil
 	}
-	jobSettingConf.Set("username", conf.GetUsername())
-	jobSettingConf.Set("password", conf.GetPassword())
-	jobSettingConf.Set("url", conf.GetURL())
+	jobSettingConf.Set("username", j.conf.GetUsername())
+	jobSettingConf.Set("password", j.conf.GetPassword())
+	jobSettingConf.Set("url", j.conf.GetURL())
 
 	if j.Execer, err = j.Handler.Execer(name, jobSettingConf); err != nil {
 		return errors.Wrapf(err, "Execer fail")
@@ -69,6 +69,38 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	err = j.Execer.PingContext(timeoutCtx)
 	if err != nil {
 		return errors.Wrapf(err, "PingContext fail")
+	}
+	return
+}
+
+//Prepare 准备
+func (j *Job) Prepare(ctx context.Context) (err error) {
+	preSQL := j.conf.GetPreSQL()
+	for _, v := range preSQL {
+		select {
+		case <-ctx.Done():
+			return errors.Wrap(ctx.Err(), "canceled")
+		default:
+		}
+		if _, err = j.Execer.ExecContext(ctx, v); err != nil {
+			return errors.Wrapf(err, "ExecContext(%v) fail.", v)
+		}
+	}
+	return
+}
+
+//Post 后置
+func (j *Job) Post(ctx context.Context) (err error) {
+	postSQL := j.conf.GetPostSQL()
+	for _, v := range postSQL {
+		select {
+		case <-ctx.Done():
+			return errors.Wrap(ctx.Err(), "canceled")
+		default:
+		}
+		if _, err = j.Execer.ExecContext(ctx, v); err != nil {
+			return errors.Wrapf(err, "ExecContext(%v) fail.", v)
+		}
 	}
 	return
 }

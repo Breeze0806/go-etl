@@ -45,6 +45,8 @@ Postgres/Greenplum通过使用rdbmwriter中定义的查询流程调用go-etl自�
                                     "name":"type_table"
                                 }
                          },
+                        "preSql": ["create table a like b"],
+                        "postSql": ["drop table a"],
                         "batchTimeout": "1s",
                         "batchSize":1000
                     }
@@ -125,7 +127,13 @@ Postgres/Greenplum通过使用rdbmwriter中定义的查询流程调用go-etl自�
 
 #### preSql
 
-- 描述 主要用于在写入数据前的sql语句组，目前还没支持
+- 描述 主要用于在写入数据前的sql语句组,不要使用select语句，否则会报错。
+- 必选：否
+- 默认值: 无
+
+#### postSql
+
+- 描述 主要用于在写入数据后的sql语句组,不要使用select语句，否则会报错。
 - 必选：否
 - 默认值: 无
 

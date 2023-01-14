@@ -16,6 +16,8 @@ package rdbm
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -43,6 +45,8 @@ type Config interface {
 	GetBatchTimeout() time.Duration                                          //单次批量写入超时时间
 	GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy, error) //获取重试策略
 	IgnoreOneByOneError() bool                                               //忽略一个个重试的错误
+	GetPreSQL() []string                                                     //获取准备的SQL语句
+	GetPostSQL() []string                                                    //获取结束的SQL语句
 }
 
 //BaseConfig 用于实现基本的关系数据库配置，如无特殊情况采用该配置，帮助快速实现writer
@@ -54,6 +58,8 @@ type BaseConfig struct {
 	WriteMode           string                `json:"writeMode"`    //写入模式,如插入insert
 	BatchSize           int                   `json:"batchSize"`    //单次批量写入数
 	BatchTimeout        time2.Duration        `json:"batchTimeout"` //单次批量写入超时时间
+	PreSQL              []string              `json:"preSQL"`       //准备的SQL语句
+	PostSQL             []string              `json:"postSQL"`      //结束的SQL语句
 	ignoreOneByOneError bool                  //忽略一个个重试的错误
 	newRetryStrategy    func(j schedule.RetryJudger) (schedule.RetryStrategy, error)
 }
@@ -70,6 +76,14 @@ func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 
 	c.newRetryStrategy = func(j schedule.RetryJudger) (schedule.RetryStrategy, error) {
 		return schedule.NewRetryStrategy(j, conf)
+	}
+
+	if err = checkHasSelect(c.PreSQL); err != nil {
+		return nil, fmt.Errorf("check preSQL fail. error: %v", err)
+	}
+
+	if err = checkHasSelect(c.PostSQL); err != nil {
+		return nil, fmt.Errorf("check postSQL fail. error: %v", err)
 	}
 	return
 }
@@ -127,6 +141,16 @@ func (b *BaseConfig) GetBatchSize() int {
 	return b.BatchSize
 }
 
+//GetPreSQL 获取准备的SQL语句
+func (b *BaseConfig) GetPreSQL() []string {
+	return getSQlsWithoutEmpty(b.PreSQL)
+}
+
+//GetPostSQL 获取结束的SQL语句
+func (b *BaseConfig) GetPostSQL() []string {
+	return getSQlsWithoutEmpty(b.PostSQL)
+}
+
 //IgnoreOneByOneError 忽略一个个重试的错误
 func (b *BaseConfig) IgnoreOneByOneError() bool {
 	return b.ignoreOneByOneError
@@ -136,4 +160,23 @@ func (b *BaseConfig) IgnoreOneByOneError() bool {
 func (b *BaseConfig) GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy,
 	error) {
 	return b.newRetryStrategy(j)
+}
+
+func getSQlsWithoutEmpty(sqls []string) (res []string) {
+	for _, v := range sqls {
+		if v != "" {
+			res = append(res, v)
+		}
+	}
+	return res
+}
+
+func checkHasSelect(sqls []string) (err error) {
+	for i, v := range sqls {
+		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(v)), "select") {
+			err = fmt.Errorf("%vst sql(%v) has select", i, v)
+			return
+		}
+	}
+	return
 }

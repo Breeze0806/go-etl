@@ -32,6 +32,13 @@ release.bat
 
 可以使用[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/)以及[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
+### 查看版本
+
+```
+datax version
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go version go1.16.5 windows/amd64
+```
+
 ### 使用方式
 
 ```bash
@@ -42,15 +49,16 @@ Usage of datax:
         wizard
 ```
 
-### 批量生成配置集
+### 批量生成配置集和执行脚本
 
 ```bash
-datax -c testData/xlsx.json -w testData/wizard.csv 
+datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
 ```
 -c 指定数据源配置文件 -w 指定源目的配置向导文件。
 
 执行结果会在数据源配置文件目录文件生成源目的配置向导文件行数的配置集，分别以指定数据源配置文件1.json,指定数据源配置文件2.json,...,指定数据源配置文件[n].json的配置集。
 
+另外，在当前目录会生成执行脚本run.bat或者run.sh。
 #### 数据源配置文件
 
 数据源配置文件是json文件，使用数据源相互组合，如从mysql同步到postgres中
@@ -305,6 +313,19 @@ datax -c examples/split/csv.json
 - mysql数据库切分同步整形，日期，字符串类型
 ```bash
 datax -c examples/split/mysql.json
+```
+
+#### 使用preSql和postSql
+
+preSql和postSql分别是写入数据前和写入数据后的sql语句组
+
+##### 测试方式
+在本例子中，采用了全量导入的方式
+1.写入数据前先建立了一个临时表
+2.在写入数据后，将原表删除，将临时表重名为新表
+
+```bash
+datax -c examples/prePostSql/mysql.json
 ```
 
 #### 其他同步例子

@@ -23,7 +23,7 @@ import (
 //Plugin 插件
 type Plugin interface {
 	Pluggable
-	//预检查，在数据库中用于检查权限
+	//预检查
 	PreCheck(ctx context.Context) error
 	//准备
 	Prepare(ctx context.Context) error

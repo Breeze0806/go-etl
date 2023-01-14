@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
@@ -42,8 +43,8 @@ func NewWizard(dataSourceFile, csvFile string) (w *Wizard) {
 	return
 }
 
-//GenerateConfigs 生成配置文件集
-func (w *Wizard) GenerateConfigs() (err error) {
+//GenerateConfigsAndScripts 生成配置文件集和执行脚本
+func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 	var dataSource *config.JSON
 	if dataSource, err = config.NewJSONFromFile(w.dataSourceFile); err != nil {
 		return err
@@ -69,10 +70,11 @@ func (w *Wizard) GenerateConfigs() (err error) {
 
 	line := 0
 	var record []string
+	var scripts []string
 	for {
 		line++
 		if record, err = r.Read(); err == io.EOF {
-			return nil
+			break
 		}
 
 		if err != nil {
@@ -137,10 +139,17 @@ func (w *Wizard) GenerateConfigs() (err error) {
 			return fmt.Errorf("writer name(%v) does not support", writerName)
 		}
 
-		err = ioutil.WriteFile(dataSourcePrefix+"_"+strconv.Itoa(line)+dataSourceExt,
-			[]byte(cloneDataSource.String()), 0644)
+		filename := dataSourcePrefix + "_" + strconv.Itoa(line) + dataSourceExt
+		err = ioutil.WriteFile(filename, []byte(cloneDataSource.String()), 0644)
 		if err != nil {
 			return err
 		}
+		scripts = append(scripts, generateScript(filename))
 	}
+
+	err = ioutil.WriteFile("run"+ext(), []byte(strings.Join(scripts, "\n")), 0644)
+	if err != nil {
+		return err
+	}
+	return
 }
