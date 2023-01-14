@@ -56,7 +56,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 	}
 
 	dataSourceExt := filepath.Ext(dataSourceAbsFile)
-	os.MkdirAll(filepath.Join(filepath.Dir(dataSourceAbsFile), "config"), 0644)
+	os.MkdirAll(filepath.Join(filepath.Dir(dataSourceAbsFile), "config"), 0755)
 	dataSourcePrefix := filepath.Join(filepath.Dir(dataSourceAbsFile), "config",
 		filepath.Base(dataSourceAbsFile)[:len(filepath.Base(dataSourceAbsFile))-len(dataSourceExt)])
 
