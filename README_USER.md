@@ -314,6 +314,7 @@ datax -c examples/split/csv.json
 ```bash
 datax -c examples/split/mysql.json
 ```
+
 #### 使用preSql和postSql
 
 preSql和postSql分别是写入数据前和写入数据后的sql语句组
