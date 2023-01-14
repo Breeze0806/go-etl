@@ -24,7 +24,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	mylog "github.com/Breeze0806/go/log"
 )
@@ -142,7 +141,7 @@ import (
 	"strings"
 )
 
-const version = "%v (git commit: %v) complied by %v at %v"
+const version = "%v (git commit: %v) complied by %v"
 
 func init() {
 	if len(os.Args) > 1 {
@@ -490,7 +489,7 @@ func getVersion() (version string, err error) {
 	}
 	gitVersion := output
 
-	now := time.Now().Format("2006-01-02 15:04:05Z07:00")
+	//now := time.Now().Format("2006-01-02 15:04:05Z07:00")
 
 	if output, err = cmdOutput("go", "version"); err != nil {
 		err = fmt.Errorf("use git to get version fail. error: %w", err)
@@ -498,7 +497,7 @@ func getVersion() (version string, err error) {
 	}
 	goVersion := strings.ReplaceAll(output, "\r", "")
 	goVersion = strings.ReplaceAll(goVersion, "\n", "")
-	version = fmt.Sprintf(versionCode, tagVersion, gitVersion, goVersion, now)
+	version = fmt.Sprintf(versionCode, tagVersion, gitVersion, goVersion)
 	return
 }
 

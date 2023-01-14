@@ -36,7 +36,7 @@ release.bat
 
 ```
 datax version
-v0.1.0 (git commit: 6c7016c389bc3a8faed2dc0fee80c99412c53557) complied by v0.1.0 at 2023-01-13 21:41:55+08:00
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go version go1.16.5 windows/amd64
 ```
 
 ### 使用方式
@@ -313,6 +313,18 @@ datax -c examples/split/csv.json
 - mysql数据库切分同步整形，日期，字符串类型
 ```bash
 datax -c examples/split/mysql.json
+```
+#### 使用preSql和postSql
+
+preSql和postSql分别是写入数据前和写入数据后的sql语句组
+
+##### 测试方式
+在本例子中，采用了全量导入的方式
+1.写入数据前先建立了一个临时表
+2.在写入数据后，将原表删除，将临时表重名为新表
+
+```bash
+datax -c examples/prePostSql/mysql.json
 ```
 
 #### 其他同步例子
