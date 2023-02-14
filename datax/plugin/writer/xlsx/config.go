@@ -22,12 +22,17 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
+//SingleConfig xlsx单个输入设置
+type SingleConfig struct {
+	file.BaseConfig
+	xlsx.OutConfig
+}
+
 //Config xlsx输出配置
 type Config struct {
-	file.BaseConfig
+	SingleConfig
 
-	Columns []xlsx.Column `json:"column"`
-	Xlsxs   []Xlsx        `json:"xlsxs"`
+	Xlsxs []Xlsx `json:"xlsxs"`
 }
 
 //Xlsx xlsx内容配置

@@ -15,30 +15,41 @@
 package xlsx
 
 import (
-	"encoding/json"
+	"reflect"
+	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
-	//xlsx storage
-	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
-//Config xlsx输入配置
-type Config struct {
-	xlsx.InConfig
-	Xlsxs []Xlsx `json:"xlsxs"`
-}
-
-//Xlsx xlsx文件配置
-type Xlsx struct {
-	Path   string   `json:"path"`
-	Sheets []string `json:"sheets"`
-}
-
-//NewConfig 读取json配置conf获取xlsx输入配置
-func NewConfig(conf *config.JSON) (c *Config, err error) {
-	c = &Config{}
-	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {
-		return
+func TestNewConfig(t *testing.T) {
+	type args struct {
+		conf *config.JSON
 	}
-	return
+	tests := []struct {
+		name    string
+		args    args
+		wantC   *Config
+		wantErr bool
+	}{
+		{
+			name: "1",
+			args: args{
+				conf: testJSONFromString(`{"xlsxs":1}`),
+			},
+			wantC:   &Config{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotC, err := NewConfig(tt.args.conf)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotC, tt.wantC) {
+				t.Errorf("NewConfig() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
 }

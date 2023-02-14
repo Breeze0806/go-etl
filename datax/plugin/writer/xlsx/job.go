@@ -46,11 +46,9 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	for _, v := range j.conf.Xlsxs {
 		conf, _ := config.NewJSONFromString("{}")
 		conf.Set("path", v.Path)
-		conf.Set("content.column", j.conf.Columns)
+		conf.Set("content", j.conf.SingleConfig)
 		conf.Set("content.sheets", v.Sheets)
-		conf.Set("content.batchSize", j.conf.GetBatchSize())
 		conf.Set("content.batchTimeout", j.conf.GetBatchTimeout().String())
-
 		configs = append(configs, conf)
 	}
 	return

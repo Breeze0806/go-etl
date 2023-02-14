@@ -47,12 +47,13 @@ func TestJob_Split(t *testing.T) {
 		{
 			name:    "1",
 			j:       NewJob(),
-			jobConf: testJSONFromString(`{"xlsxs":[{"path":"file1","sheets":["Sheet1"]}],"column":[]}`),
+			jobConf: testJSONFromString(`{"xlsxs":[{"path":"file1","sheets":["Sheet1","Sheet2"]},{"path":"file2","sheets":["Sheet1"]}],"batchSize":1000,"batchTimeout":"2s","column":[],"nullFormat":"(null)","hasHeader":true,"header":["1"],"sheetRow":2}`),
 			args: args{
 				ctx: context.TODO(),
 			},
 			wantConfigs: []*config.JSON{
-				testJSONFromString(`{"path":"file1","content":{"column":[],"sheets":["Sheet1"],"batchSize":1000,"batchTimeout":"1s"}}`),
+				testJSONFromString(`{"path":"file1","content":{"batchSize":1000,"batchTimeout":"2s","column":[],"sheets":["Sheet1","Sheet2"],"nullFormat":"(null)","hasHeader":true,"header":["1"],"sheetRow":2}}`),
+				testJSONFromString(`{"path":"file2","content":{"batchSize":1000,"batchTimeout":"2s","column":[],"sheets":["Sheet1"],"nullFormat":"(null)","hasHeader":true,"header":["1"],"sheetRow":2}}`),
 			},
 		},
 	}

@@ -20,7 +20,6 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
-	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 	"github.com/pingcap/errors"
 )
 
@@ -49,11 +48,10 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	for _, x := range j.conf.Xlsxs {
 		conf, _ := config.NewJSONFromString("{}")
 		conf.Set("path", x.Path)
+
 		for i, v := range x.Sheets {
-			xlsxConfig := xlsx.InConfig{
-				Sheet:   v,
-				Columns: j.conf.Columns,
-			}
+			xlsxConfig := j.conf.InConfig
+			xlsxConfig.Sheet = v
 			conf.Set("content."+strconv.Itoa(i), xlsxConfig)
 		}
 		configs = append(configs, conf)

@@ -44,12 +44,13 @@ func TestJob_Split(t *testing.T) {
 	}{
 		{
 			name:    "1",
-			jobConf: testJSONFromString(`{"xlsxs":[{"path":"file1","sheets":["Sheet1"]}],"column":[]}`),
+			jobConf: testJSONFromString(`{"xlsxs":[{"path":"file1","sheets":["Sheet1","Sheet2"]},{"path":"file2","sheets":["Sheet1"]}],"column":[],"nullFormat":"(null)","startRow":2}`),
 			args: args{
 				ctx: context.TODO(),
 			},
 			wantConfigs: []*config.JSON{
-				testJSONFromString(`{"path":"file1","content":[{"column":[],"sheet":"Sheet1","nullFormat":"","startRow":0}]}`),
+				testJSONFromString(`{"path":"file1","content":[{"column":[],"sheet":"Sheet1","nullFormat":"(null)","startRow":2},{"column":[],"sheet":"Sheet2","nullFormat":"(null)","startRow":2}]}`),
+				testJSONFromString(`{"path":"file2","content":[{"column":[],"sheet":"Sheet1","nullFormat":"(null)","startRow":2}]}`),
 			},
 		},
 	}
