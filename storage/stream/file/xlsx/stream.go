@@ -147,11 +147,12 @@ func (r *Rows) Scan() (columns []element.Column, err error) {
 }
 
 func (r *Rows) getColum(index int, s string) (element.Column, error) {
+	byteSize := element.ByteSize(s)
 	c, ok := r.columns[index]
 	if ok && element.ColumnType(c.Type) == element.TypeTime {
 		if s == r.config.NullFormat {
 			return element.NewDefaultColumn(element.NewNilTimeColumnValue(),
-				strconv.Itoa(index), 0), nil
+				strconv.Itoa(index), byteSize), nil
 		}
 		layout := c.layout()
 		t, err := time.Parse(layout, s)
@@ -160,13 +161,13 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 		}
 		return element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(t,
 			element.NewStringTimeDecoder(layout)),
-			strconv.Itoa(index), 0), nil
+			strconv.Itoa(index), byteSize), nil
 	}
 	if s == r.config.NullFormat {
 		return element.NewDefaultColumn(element.NewNilStringColumnValue(),
-			strconv.Itoa(index), 0), nil
+			strconv.Itoa(index), byteSize), nil
 	}
-	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), 0), nil
+	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), byteSize), nil
 }
 
 //Writer xlsx流写入器

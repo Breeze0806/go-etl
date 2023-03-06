@@ -132,8 +132,8 @@ func NewScanner(f *Field) *Scanner {
 //"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"作为字节流处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
-	//todo: byteSize is 0, fix it
-	var byteSize int
+	byteSize := element.ByteSize(src)
+
 	switch s.f.Type().DatabaseTypeName() {
 	//todo: test year
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR":

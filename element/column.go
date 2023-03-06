@@ -17,6 +17,7 @@ package element
 import (
 	"fmt"
 	"time"
+	"unsafe"
 )
 
 //ColumnType 列类型
@@ -137,7 +138,7 @@ type DefaultColumn struct {
 	byteSize int
 }
 
-//NewDefaultColumn 根据列值v,列名name,字节流大小byteSiz，生成默认列
+//NewDefaultColumn 根据列值v,列名name,字节流大小byteSize，生成默认列
 func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	return &DefaultColumn{
 		ColumnValue: v,
@@ -203,4 +204,19 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 		return 0, NewTransformErrorFormString(d.Type().String(), "float64", err)
 	}
 	return dec.Float64()
+}
+
+//ByteSize 字节大小
+func ByteSize(src interface{}) int {
+	switch data := src.(type) {
+	case nil:
+		return 0
+	case bool:
+		return 1
+	case string:
+		return len(data)
+	case []byte:
+		return len(data)
+	}
+	return int(unsafe.Sizeof(src))
 }

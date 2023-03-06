@@ -215,9 +215,10 @@ Task组合*plugin.BaseTask,实现方法:
 
 - `Init`：Task对象的初始化。此时可以通过`PluginJobConf()`获取与本`Task`相关的配置。这里的配置是`Job`的`split`方法返回的配置列表中的其中一个。
 - `Prepare`：局部的准备工作。
-- StartWrite`：从`RecordReceiver`中读取数据，写入目标数据源。`RecordReceiver`中的数据来自Reader和Writer之间的缓存队列。
-- `Post`: 局部的后置工作。
-- `Destroy`: Task象自身的销毁工作。
+- `StartWrite`：从`RecordReceiver`中读取数据，写入目标数据源。`RecordReceiver`中的数据来自Reader和Writer之间的缓存队列。
+- `Post`: 局Task部的后置工作。
+- `Destroy`: Task自身的销毁工作。
+- `SupportFailOver`: Task是否支持故障转移。
 
 #### Writer
 
