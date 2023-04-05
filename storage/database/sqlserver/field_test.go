@@ -22,6 +22,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/shopspring/decimal"
 )
 
 type mockFieldType struct {
@@ -62,6 +63,13 @@ func (m *mockFieldType) IsSupportted() bool {
 	return true
 }
 
+func testDecimalColumnValueFromString(s string) element.ColumnValue {
+	d, err := element.NewDecimalColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return d
+}
 func TestField_Quoted(t *testing.T) {
 	tests := []struct {
 		name string
@@ -387,7 +395,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				true,
 			},
-			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 1),
 		},
 		{
 			name: "BITNull",
@@ -412,7 +420,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				int64(123456789),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123456789), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123456789),
+				"f1", element.ByteSize(int64(123456789))),
 		},
 		{
 			name: "BIGINTNull",
@@ -437,7 +446,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				float32(123456789.1),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(float64(123456789.1)), "f1", 0),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValue(decimal.NewFromFloat32(float32(123456789.1))), "f1", element.ByteSize(123456789.1)),
 		},
 		{
 			name: "FLOAT",
@@ -445,7 +454,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				float64(123456789.1234),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(float64(123456789.1234)), "f1", 0),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(
+				float64(123456789.1234)), "f1", element.ByteSize(float64(123456789.1234))),
 		},
 		{
 			name: "DECIMAL",
@@ -453,7 +463,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				[]byte("123456789.0123456789"),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(float64(123456789.0123456789)), "f1", 0),
+			want: element.NewDefaultColumn(testDecimalColumnValueFromString("123456789.0123456789"), "f1", element.ByteSize([]byte("123456789.0123456789"))),
 		},
 		{
 			name: "DECIMALErr",
@@ -486,7 +496,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				"中文1234abc",
 			},
-			want: element.NewDefaultColumn(element.NewStringColumnValue("中文1234abc"), "f1", 0),
+			want: element.NewDefaultColumn(element.NewStringColumnValue("中文1234abc"), "f1",
+				element.ByteSize("中文1234abc")),
 		},
 		{
 			name: "NVARCHARNull",
@@ -511,7 +522,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				[]byte("中文1234abc"),
 			},
-			want: element.NewDefaultColumn(element.NewBytesColumnValueNoCopy([]byte("中文1234abc")), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBytesColumnValueNoCopy(
+				[]byte("中文1234abc")), "f1", element.ByteSize("中文1234abc")),
 		},
 		{
 			name: "BINARYNull",
@@ -536,8 +548,11 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local),
 			},
-			want: element.NewDefaultColumn(
-				element.NewTimeColumnValueWithDecoder(time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local), element.NewStringTimeDecoder(dateLayout)), "test", 0),
+			want: element.NewDefaultColumn(element.
+				NewTimeColumnValueWithDecoder(
+					time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local),
+					element.NewStringTimeDecoder(dateLayout)), "test",
+				element.ByteSize(time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local))),
 		},
 		{
 			name: "DATEnull",
@@ -563,7 +578,10 @@ func TestScanner_Scan(t *testing.T) {
 				src: time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local),
 			},
 			want: element.NewDefaultColumn(
-				element.NewTimeColumnValueWithDecoder(time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local), element.NewStringTimeDecoder(datetimeLayout)), "test", 0),
+				element.NewTimeColumnValueWithDecoder(
+					time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local),
+					element.NewStringTimeDecoder(datetimeLayout)), "test",
+				element.ByteSize(time.Date(2022, 9, 4, 14, 56, 0, 0, time.Local))),
 		},
 		{
 			name: "DATETIMENull",
@@ -595,6 +613,9 @@ func TestScanner_Scan(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(tt.s.Column(), tt.want) {
+				t.Errorf("Column() = %v, want %v", tt.s.Column(), tt.want)
 			}
 		})
 	}

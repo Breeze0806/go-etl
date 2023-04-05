@@ -369,7 +369,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: true,
 			},
-			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 1),
 		},
 		{
 			name: "3",
@@ -397,7 +397,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: int64(123456789012),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(123456789012)), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(123456789012)), "f1", element.ByteSize(int64(123456789012))),
 		},
 		{
 			name: "6",
@@ -416,7 +416,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: []byte("中国"),
 			},
-			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中国")), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中国")), "f1", element.ByteSize([]byte("中国"))),
 		},
 
 		{
@@ -455,7 +455,7 @@ func TestScanner_Scan(t *testing.T) {
 				src: time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC),
 			},
 			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
-				time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC), element.NewStringTimeDecoder("2006-01-02")), "f1", 0),
+				time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC), element.NewStringTimeDecoder("2006-01-02")), "f1", element.ByteSize(time.Date(2021, 6, 17, 0, 0, 0, 0, time.UTC))),
 		},
 		{
 			name: "10error",
@@ -483,7 +483,7 @@ func TestScanner_Scan(t *testing.T) {
 				src: time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC),
 			},
 			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
-				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC), element.NewStringTimeDecoder(timestampLayout)), "f1", 0),
+				time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC), element.NewStringTimeDecoder(timestampLayout)), "f1", element.ByteSize(time.Date(2021, 6, 17, 22, 24, 8, 8, time.UTC))),
 		},
 		{
 			name: "12",
@@ -511,7 +511,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: "中国",
 			},
-			want: element.NewDefaultColumn(element.NewStringColumnValue("中国"), "f1", 0),
+			want: element.NewDefaultColumn(element.NewStringColumnValue("中国"), "f1", element.ByteSize("中国")),
 		},
 		{
 			name: "14err",
@@ -547,7 +547,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: 1234567890.1231233,
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.1231233), "f1", 0),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1234567890.1231233), "f1", element.ByteSize(1234567890.1231233)),
 		},
 		{
 			name: "18",
@@ -556,7 +556,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: []byte("1234567890.1231233"),
 			},
-			want: element.NewDefaultColumn(testDecimalColumnValueFromString("1234567890.1231233"), "f1", 0),
+			want: element.NewDefaultColumn(testDecimalColumnValueFromString("1234567890.1231233"), "f1", element.ByteSize([]byte("1234567890.1231233"))),
 		},
 		{
 			name: "19",
@@ -595,7 +595,7 @@ func TestScanner_Scan(t *testing.T) {
 			}
 
 			if !reflect.DeepEqual(tt.s.Column(), tt.want) {
-				t.Errorf("Column() = %v, want %v", tt.s.Column(), tt.want)
+				t.Errorf("Column() = %v %v, want %v", tt.s.Column().ByteSize(), tt.s.Column(), tt.want)
 			}
 		})
 	}

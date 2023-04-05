@@ -132,8 +132,7 @@ func NewScanner(f *Field) *Scanner {
 //"BOOLEAN" 作为布尔值处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
-	//todo: byteSize is 0, fix it
-	var byteSize int
+	byteSize := element.ByteSize(src)
 	switch s.f.Type().DatabaseTypeName() {
 	case "BIGINT", "INTEGER", "SMALLINT":
 		switch data := src.(type) {

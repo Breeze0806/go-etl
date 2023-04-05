@@ -134,8 +134,8 @@ func NewScanner(f *Field) *Scanner {
 // "BLOB", "RAW", "LONG RAW", "LONG" 做为bytes类型处理
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
-	//todo: byteSize is 0, fix it
-	var byteSize int
+	byteSize := element.ByteSize(src)
+
 	switch s.f.Type().DatabaseTypeName() {
 	case "BOOLEAN":
 		switch data := src.(type) {
@@ -216,6 +216,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			}
 		case godror.Number:
 			s = string(data)
+			byteSize = len(s)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
 		}

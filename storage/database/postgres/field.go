@@ -131,8 +131,7 @@ func NewScanner(f *Field) *Scanner {
 //Scan 根据列类型读取数据
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
-	//todo: byteSize is 0, fix it
-	var byteSize int
+	byteSize := element.ByteSize(src)
 	switch s.f.Type().DatabaseTypeName() {
 	case oid.TypeName[oid.T_bool]:
 		switch data := src.(type) {

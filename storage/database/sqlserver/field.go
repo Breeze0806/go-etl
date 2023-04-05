@@ -21,6 +21,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -126,12 +127,12 @@ func NewScanner(f *Field) *Scanner {
 //Scan 根据列类型读取数据
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
-	var byteSize int
+	byteSize := element.ByteSize(src)
 	switch s.f.Type().DatabaseTypeName() {
 	case "BIT":
 		switch data := src.(type) {
 		case nil:
-			cv = element.NewNilBigIntColumnValue()
+			cv = element.NewNilBoolColumnValue()
 		case bool:
 			cv = element.NewBoolColumnValue(data)
 		default:
@@ -151,7 +152,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilDecimalColumnValue()
 		case float32:
-			cv = element.NewDecimalColumnValueFromFloat(float64(data))
+			cv = element.NewDecimalColumnValue(decimal.NewFromFloat32(data))
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		case []byte:

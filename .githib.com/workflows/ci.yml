@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - main
+    - v0.1.x
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+    - name: Install
+      run: make dependencies
+    - name: Build
+      run: make release
+    - name: Test
+      run: |
+        make lint
+        make cover
+        bash <(curl -s https://codecov.io/bash)

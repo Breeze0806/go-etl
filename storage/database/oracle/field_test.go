@@ -273,7 +273,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: true,
 			},
-			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", 1),
 		},
 		{
 			name: "BOOLEANnil",
@@ -298,7 +298,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: int64(math.MaxInt64),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(math.MaxInt64)), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(math.MaxInt64)),
+				"f1", element.ByteSize(int64(math.MaxInt64))),
 		},
 		{
 			name: "BINARY_INTEGERuint64",
@@ -306,7 +307,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValue(new(big.Int).SetUint64(uint64(math.MaxUint64))), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValue(new(big.Int).SetUint64(uint64(math.MaxUint64))),
+				"f1", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{
 			name: "BINARY_INTEGERnil",
@@ -331,7 +333,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: []byte("中文"),
 			},
-			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中文")), "f1", 0),
+			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中文")),
+				"f1", element.ByteSize([]byte("中文"))),
 		},
 		{
 			name: "RAWnil",
@@ -358,7 +361,8 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
 				time.Date(2022, 10, 16, 10, 18, 33, 999999999, time.UTC),
-				element.NewStringTimeDecoder(dateLayout)), "f1", 0),
+				element.NewStringTimeDecoder(dateLayout)), "f1",
+				element.ByteSize(time.Date(2022, 10, 16, 10, 18, 33, 999999999, time.UTC))),
 		},
 		{
 			name: "DATE nil",
@@ -385,7 +389,8 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(
 				time.Date(2022, 10, 16, 10, 18, 33, 999999999, time.UTC),
-				element.NewStringTimeDecoder(datetimeLayout)), "f1", 0),
+				element.NewStringTimeDecoder(datetimeLayout)), "f1",
+				element.ByteSize(time.Date(2022, 10, 16, 10, 18, 33, 999999999, time.UTC))),
 		},
 		{
 			name: "TIMESTAMP WITH TIME ZONE nil",
@@ -410,7 +415,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: "中文abc-123",
 			},
-			want: element.NewDefaultColumn(element.NewStringColumnValue("中文abc-123"), "f1", 0),
+			want: element.NewDefaultColumn(element.NewStringColumnValue("中文abc-123"), "f1",
+				element.ByteSize("中文abc-123")),
 		},
 		{
 			name: "CHAR nil",
@@ -443,7 +449,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: float32(8.23),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValue(decimal.NewFromFloat32(float32(8.23))), "f1", 0),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValue(
+				decimal.NewFromFloat32(float32(8.23))), "f1", element.ByteSize(float32(8.23))),
 		},
 		{
 			name: "DOUBLE float64",
@@ -451,7 +458,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: float64(8.23),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(8.23), "f1", 0),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(8.23),
+				"f1", element.ByteSize(float64(8.23))),
 		},
 		{
 			name: "NUMBER int64",
@@ -459,7 +467,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: int64(1234567890),
 			},
-			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1234567890"), "f1", 0),
+			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1234567890"),
+				"f1", element.ByteSize(int64(1234567890))),
 		},
 		{
 			name: "NUMBER uint64",
@@ -467,7 +476,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(1234567890),
 			},
-			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1234567890"), "f1", 0),
+			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1234567890"),
+				"f1", element.ByteSize(uint64(1234567890))),
 		},
 		{
 			name: "NUMBER bool",
@@ -475,7 +485,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: true,
 			},
-			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1"), "f1", 0),
+			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("1"), "f1", 1),
 		},
 		{
 			name: "NUMBER",
@@ -483,7 +493,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: godror.Number("8.23"),
 			},
-			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("8.23"), "f1", 0),
+			want: element.NewDefaultColumn(mustDecimalColumnValueFromString("8.23"), "f1", 4),
 		},
 		{
 			name: "NUMBER err",
