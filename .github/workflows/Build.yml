@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+    branches:
+    - main
+    - v0.1.x
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.16', '1.17' , '1.18']
+    name: Go ${{ matrix.go }} sample
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Depend
+        run: sudo make dependencies
+      - name: Test
+        run: |
+          sudo make lint
+          sudo make cover
+      - name: CodeCov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: ./coverage.txt
+      - name: Pre-Build
+        run: sudo git fetch --prune --unshallow
+      - name: Build
+        run: sudo make release

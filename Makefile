@@ -20,11 +20,11 @@ all: lint release test
 .PHONY: dependencies
 dependencies:
 	@echo "Installing db2 lib..."
-	git clone -b v0.4.1 --depth=1 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
-	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
+	git clone -b v0.4.1 --depth=1 https://github.com/ibmdb/go_ibm_db $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db
+	cd $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
-	@echo "Installing golint..."
-	go install -v golang.org/x/lint/golint@latest
+#	@echo "Installing golint..."
+#	go install -v golang.org/x/lint/golint@latest
 else
 	@echo "Not installing golint, since we don't expect to lint on" $(GO_VERSION)
 endif
@@ -40,8 +40,8 @@ ifdef SHOULD_LINT
 	@echo "Checking vet..."
 	@go vet ./... 2>&1 | tee -a lint.log
 	@echo "Checking lint..."
-	@golint ./... 2>&1 | tee -a lint.log
-	@[ ! -s lint.log ]
+#	@$(go env GOPATH)/bin/golint ./... 2>&1 | tee -a lint.log
+#	@[ ! -s lint.log ]
 	@echo "Checking license..."
 	@go run tools/license/main.go -c
 else

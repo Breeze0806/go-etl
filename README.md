@@ -1,5 +1,12 @@
 # go-etl
-[![Go Report Card][report-img]][report][![GoDoc][doc-img]][doc][![LICENSE][license-img]][license][![Build Status][ci-img]][ci][![Coverage Status][cov-img]][cov]
+[![LICENSE][license-img]][license]
+[![Language][lang-img]][lang]
+[![Build][ci-img]][ci]
+[![Go Report Card][report-img]][report]
+[![GitHub release][release-img]][release]
+[![GitHub release date][release-date-img]][release-date]
+[![Coverage Status][cov-img]][cov]
+[![GoDoc][doc-img]][doc]
 
 go-etl是一个集数据源抽取，转化，加载，同步校验的工具集，提供强大的数据同步，数据转化甚至数据校验的功能。
 
@@ -112,13 +119,19 @@ go run tools/license/main.go
 
 主要用于数据库间数据校验
 
+[lang-img]:https://img.shields.io/badge/Language-Go-blue.svg
+[lang]:https://golang.org/
 [report-img]:https://goreportcard.com/badge/github.com/Breeze0806/go-etl
 [report]:https://goreportcard.com/report/github.com/Breeze0806/go-etl
 [doc-img]:https://godoc.org/github.com/Breeze0806/go-etl?status.svg
 [doc]:https://godoc.org/github.com/Breeze0806/go-etl
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license]: https://github.com/Breeze0806/go-etl/blob/main/LICENSE
-[ci-img]: https://app.travis-ci.com/Breeze0806/go-etl.svg?branch=main
-[ci]: https://app.travis-ci.com/Breeze0806/go-etl
+[ci-img]: https://github.com/Breeze0806/go-etl/actions/workflows/Build.yml/badge.svg
+[ci]: https://github.com/Breeze0806/go-etl/actions/workflows/Build.yml
+[release-img]: https://img.shields.io/github/tag/Breeze0806/go-etl.svg?label=release
+[release]: https://github.com/Breeze0806/go-etl/releases
+[release-date-img]: https://img.shields.io/github/release-date/Breeze0806/go-etl.svg
+[release-date]: https://github.com/Breeze0806/go-etl/releases
 [cov-img]: https://codecov.io/gh/Breeze0806/go-etl/branch/main/graph/badge.svg?token=UGb27Nysga
 [cov]: https://codecov.io/gh/Breeze0806/go-etl
