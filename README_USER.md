@@ -17,9 +17,9 @@ make release
 ### windows
 
 #### 依赖
-1.需要mingw-w64 with gcc 7.2.0以上的环境进行编译
-2.golang 1.16以及以上
-3.最小编译环境为win7 
+1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
+2. golang 1.16以及以上
+3. 最小编译环境为win7 
 
 #### 构建
 ```bash

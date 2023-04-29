@@ -16,4 +16,5 @@ require (
 	github.com/xuri/excelize/v2 v2.6.1
 	go.uber.org/atomic v1.9.0
 	golang.org/x/text v0.4.0
+	golang.org/x/time v0.3.0
 )

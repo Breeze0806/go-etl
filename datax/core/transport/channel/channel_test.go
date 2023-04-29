@@ -17,19 +17,30 @@ package channel
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 )
 
+type mockRecord struct {
+	*element.DefaultRecord
+
+	n int64
+}
+
+func (m *mockRecord) ByteSize() int64 {
+	return m.n
+}
 func TestChannel_PushPop(t *testing.T) {
-	ch, _ := NewChannel(context.TODO())
+	ch, _ := NewChannel(context.TODO(), nil)
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())
 	}
 
-	if n := ch.Push(element.NewDefaultRecord()); n != 1 {
+	if n, _ := ch.Push(element.NewDefaultRecord()); n != 1 {
 		t.Errorf("Push() = %v want 1", n)
 	}
 	if n := ch.PushTerminate(); n != 2 {
@@ -41,7 +52,7 @@ func TestChannel_PushPop(t *testing.T) {
 }
 
 func TestChannel_PushAllPopAll(t *testing.T) {
-	ch, _ := NewChannel(context.TODO())
+	ch, _ := NewChannel(context.TODO(), nil)
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())
@@ -61,5 +72,72 @@ func TestChannel_PushAllPopAll(t *testing.T) {
 		return nil
 	}); err != nil {
 		t.Errorf("PopAll() = %v want nil", err)
+	}
+}
+
+func TestChannelWithRateLimit(t *testing.T) {
+	conf, _ := config.NewJSONFromString(`{
+		"job":{
+			"setting":{
+				"speed":{
+					"byte":10000,
+					"record":10
+				}
+			}
+		}
+	}`)
+	want := 1000
+	ch, _ := NewChannel(context.TODO(), conf)
+	defer ch.Close()
+	var wg sync.WaitGroup
+	wg.Add(1)
+	n := 0
+	go func() {
+		defer wg.Done()
+		for {
+			r, _ := ch.Pop()
+			switch r.(type) {
+			case *element.TerminateRecord:
+				return
+			}
+			n++
+		}
+	}()
+	for i := 0; i < want; i++ {
+		ch.Push(&mockRecord{
+			DefaultRecord: element.NewDefaultRecord(),
+			n:             int64(100),
+		})
+	}
+	ch.PushTerminate()
+	wg.Wait()
+
+	if n != want {
+		t.Errorf("want:%v n:%v", want, n)
+	}
+}
+
+func TestChannelWithRateLimit_Err(t *testing.T) {
+	conf, _ := config.NewJSONFromString(`{
+		"job":{
+			"setting":{
+				"speed":{
+					"byte":10000,
+					"record":10
+				}
+			}
+		}
+	}`)
+	want := 1000
+	ch, _ := NewChannel(context.TODO(), conf)
+	defer ch.Close()
+	for i := 0; i < want; i++ {
+		_, err := ch.Push(&mockRecord{
+			DefaultRecord: element.NewDefaultRecord(),
+			n:             int64(100000),
+		})
+		if err == nil {
+			t.Fatal("want error back")
+		}
 	}
 }

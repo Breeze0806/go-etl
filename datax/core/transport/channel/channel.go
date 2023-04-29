@@ -17,18 +17,38 @@ package channel
 import (
 	"context"
 
+	"github.com/Breeze0806/go-etl/config"
+	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/element"
+	"golang.org/x/time/rate"
 )
 
 //Channel 通道
 type Channel struct {
+	limiter *rate.Limiter
 	records *element.RecordChan
+	ctx     context.Context
 }
 
 //NewChannel 创建通道
-func NewChannel(ctx context.Context) (*Channel, error) {
+func NewChannel(ctx context.Context, conf *config.JSON) (*Channel, error) {
+	r := -1
+	b := -1.0
+	if conf != nil {
+		b = conf.GetFloat64OrDefaullt(coreconst.DataxJobSettingSpeedByte, -1.0)
+		r = int(conf.GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, -1))
+	}
+	var limiter *rate.Limiter
+	if b > 0 {
+		limiter = rate.NewLimiter(rate.Limit(b), int(b))
+	}
+	if r < 0 {
+		r = 0
+	}
 	return &Channel{
-		records: element.NewRecordChan(ctx),
+		records: element.NewRecordChanBuffer(ctx, r),
+		ctx:     ctx,
+		limiter: limiter,
 	}, nil
 }
 
@@ -43,8 +63,14 @@ func (c *Channel) IsEmpty() bool {
 }
 
 //Push 将记录r加入通道
-func (c *Channel) Push(r element.Record) int {
-	return c.records.PushBack(r)
+func (c *Channel) Push(r element.Record) (n int, err error) {
+	if c.limiter != nil {
+		if err = c.limiter.WaitN(c.ctx, int(r.ByteSize())); err != nil {
+			return 0, err
+		}
+	}
+
+	return c.records.PushBack(r), nil
 }
 
 //Pop 将记录弹出，当通道中不存在记录，就会返回false
@@ -68,6 +94,7 @@ func (c *Channel) Close() {
 }
 
 //PushTerminate 加入终止记录
-func (c *Channel) PushTerminate() int {
-	return c.Push(element.GetTerminateRecord())
+func (c *Channel) PushTerminate() (n int) {
+	n, _ = c.Push(element.GetTerminateRecord())
+	return
 }
