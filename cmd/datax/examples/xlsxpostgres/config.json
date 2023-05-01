@@ -11,14 +11,6 @@
                     "retryIntervalInMsec":0
                 }
             }
-        },
-        "transport":{
-            "channel":{
-                "speed":{
-                    "byte": 100,
-                    "record":100
-                }
-            }
         }
     },
     "job":{
@@ -67,8 +59,8 @@
         ],
         "setting":{
             "speed":{
-                "byte":3000,
-                "record":400,
+                "byte":0,
+                "record":1024,
                 "channel":4
             }
         }

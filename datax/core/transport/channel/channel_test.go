@@ -87,6 +87,7 @@ func TestChannelWithRateLimit(t *testing.T) {
 		}
 	}`)
 	want := 1000
+	b := 100
 	ch, _ := NewChannel(context.TODO(), conf)
 	defer ch.Close()
 	var wg sync.WaitGroup
@@ -106,7 +107,7 @@ func TestChannelWithRateLimit(t *testing.T) {
 	for i := 0; i < want; i++ {
 		ch.Push(&mockRecord{
 			DefaultRecord: element.NewDefaultRecord(),
-			n:             int64(100),
+			n:             int64(b),
 		})
 	}
 	ch.PushTerminate()
@@ -114,6 +115,14 @@ func TestChannelWithRateLimit(t *testing.T) {
 
 	if n != want {
 		t.Errorf("want:%v n:%v", want, n)
+	}
+
+	if ch.StatsJSON().TotalByte != int64(b*want) {
+		t.Errorf("TotalByte:%v want:%v", ch.StatsJSON().TotalByte, b*want)
+	}
+
+	if ch.StatsJSON().TotalRecord != int64(want+1) {
+		t.Errorf("TotalRecord:%v want:%v", ch.StatsJSON().TotalRecord, want+1)
 	}
 }
 

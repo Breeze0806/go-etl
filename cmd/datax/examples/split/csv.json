@@ -56,8 +56,8 @@
         ],
         "setting":{
             "speed":{
-                "byte":3000,
-                "record":400,
+                "byte":0,
+                "record":1024,
                 "channel":4
             }
         }

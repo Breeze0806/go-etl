@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"database/sql"
 
 	"github.com/Breeze0806/go-etl/config"
-	rdbmreader "github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+	dbmsreader "github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -55,5 +55,5 @@ func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 
 //TableParam 通过关系型数据库配置和执行器获取表参数
 func (d *BaseDbHandler) TableParam(config Config, execer Execer) database.Parameter {
-	return rdbmreader.NewTableParam(config, execer, d.opts)
+	return dbmsreader.NewTableParam(config, execer, d.opts)
 }

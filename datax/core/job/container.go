@@ -454,6 +454,7 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	job.SetPluginJobConf(readerConfig)
 	job.SetPeerPluginJobConf(writerConfig)
 	job.SetPeerPluginName(c.writerPluginName)
+	job.SetJobID(c.jobID)
 	err = job.Init(c.ctx)
 	if err != nil {
 		return
@@ -474,6 +475,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	job.SetPluginJobConf(writerConfig)
 	job.SetPeerPluginJobConf(readerConfig)
 	job.SetPeerPluginName(c.readerPluginName)
+	job.SetJobID(c.jobID)
 	err = job.Init(c.ctx)
 	if err != nil {
 		return

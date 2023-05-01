@@ -17,7 +17,7 @@ package mysql
 import (
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/Breeze0806/go-etl/storage/database/mysql"
 )
@@ -56,8 +56,8 @@ func Test_batchWriter_BatchSize(t *testing.T) {
 		{
 			name: "1",
 			b: &batchWriter{
-				BaseBatchWriter: rdbm.NewBaseBatchWriter(&rdbm.Task{
-					Config: &rdbm.BaseConfig{
+				BaseBatchWriter: dbms.NewBaseBatchWriter(&dbms.Task{
+					Config: &dbms.BaseConfig{
 						BatchSize: 1000,
 					},
 					Table: newMockTable(maxNumPlaceholder / 1000),
@@ -68,8 +68,8 @@ func Test_batchWriter_BatchSize(t *testing.T) {
 		{
 			name: "1",
 			b: &batchWriter{
-				BaseBatchWriter: rdbm.NewBaseBatchWriter(&rdbm.Task{
-					Config: &rdbm.BaseConfig{
+				BaseBatchWriter: dbms.NewBaseBatchWriter(&dbms.Task{
+					Config: &dbms.BaseConfig{
 						BatchSize: 10000,
 					},
 					Table: newMockTable(32),
@@ -101,21 +101,21 @@ func Test_execMode(t *testing.T) {
 			args: args{
 				writeMode: database.WriteModeInsert,
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 		{
 			name: "2",
 			args: args{
 				writeMode: mysql.WriteModeReplace,
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 		{
 			name: "3",
 			args: args{
 				writeMode: "",
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 	}
 	for _, tt := range tests {

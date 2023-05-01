@@ -67,8 +67,8 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	c.retryInterval = time.Duration(
 		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 10000)) * time.Millisecond
 	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
-	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v",
-		c.jobID, c.taskGroupID, c.sleepInterval, c.retryInterval, c.retryMaxCount)
+	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
+		c.jobID, c.taskGroupID, c.sleepInterval, c.retryInterval, c.retryMaxCount, conf)
 	return
 }
 

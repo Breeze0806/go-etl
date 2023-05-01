@@ -129,14 +129,18 @@ datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv
         ],
         "setting":{
             "speed":{
-                "byte":3000,
-                "record":400,
+                "byte":0,
+                "record":1024,
                 "channel":4
             }
         }
     }
 }
 ```
+#### 流控配置
+
+之前speed的byte和record配置并不会生效，现在加入流控特性后，byte和record将会生效，byte会限制缓存消息字节数，而record会限制缓存消息条数，如果byte设置过小会导致缓存过小而导致同步数据失败。当byte为0或负数时，限制器将不会工作。
+
 
 #### 源目的配置向导文件
 源目的配置向导文件是csv文件，每行配置可以配置如下:
@@ -295,7 +299,7 @@ datax -c examples/postgresxlsx/config.json
 
 #### 使用切分键
 
-这里假设数据按切分键分布是均匀的，合理使用这样的切分键可以使同步更快。
+这里假设数据按切分键分布是均匀的，合理使用这样的切分键可以使同步更快，另外为了加快对最大值和最小值的查询，这里对于大表可以预设最大最小值
 
 ##### 测试方式
 - 使用程序生成mysql数据产生split.csv

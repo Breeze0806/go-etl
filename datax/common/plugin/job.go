@@ -17,6 +17,10 @@ package plugin
 //Job 工作
 type Job interface {
 	Plugin
+	//工作ID
+	JobID() int64
+	//设置工作ID
+	SetJobID(jobID int64)
 	Collector() JobCollector   //todo 工作采集器目前未使用
 	SetCollector(JobCollector) //todo  设置工作采集器目前未使用
 }
@@ -25,6 +29,7 @@ type Job interface {
 type BaseJob struct {
 	*BasePlugin
 
+	id        int64
 	collector JobCollector
 }
 
@@ -33,6 +38,16 @@ func NewBaseJob() *BaseJob {
 	return &BaseJob{
 		BasePlugin: NewBasePlugin(),
 	}
+}
+
+//JobID 工作ID
+func (b *BaseJob) JobID() int64 {
+	return b.id
+}
+
+//SetJobID 设置工作ID
+func (b *BaseJob) SetJobID(jobID int64) {
+	b.id = jobID
 }
 
 //Collector 采集器

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"context"
@@ -344,6 +344,36 @@ func TestJob_Split(t *testing.T) {
 			jobConf: testJSONFromString(`{}`),
 			want: []*config.JSON{
 				testJSONFromString(`{}`),
+			},
+		},
+		{
+			name: "9",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					Split: SplitConfig{
+						Key:          "f1",
+						TimeAccuracy: "day",
+						Range: SplitRange{
+							Type:  "time",
+							Left:  "2023-05-01",
+							Right: "2023-05-03",
+						},
+					},
+				},
+				Querier: &MockQuerier{isTime: true},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{isTime: true}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{}`),
+			want: []*config.JSON{
+				testJSONFromString(`{"split":{"range":{"type":"time","layout":"2006-01-02","left":"2023-05-01","right":"2023-05-02"}},"where":"f1 >= $1 and f1 < $2"}`),
+				testJSONFromString(`{"split":{"range":{"type":"time","layout":"2006-01-02","left":"2023-05-02","right":"2023-05-03"}},"where":"f1 >= $1 and f1 <= $2"}`),
 			},
 		},
 	}
