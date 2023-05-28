@@ -1220,7 +1220,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 						"speed":{
 							"byte":1,
 							"record":1,
-							"channel":4
+							"channel":0
 						}
 					}
 				}
@@ -1251,7 +1251,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 						"speed":{
 							"byte":400,
 							"record":3000,
-							"channel":4
+							"channel":0
 						}
 					}
 				}
@@ -1864,25 +1864,9 @@ func TestContainer_split(t *testing.T) {
 					]
 				}
 			}`)),
-			wantErr: true,
+			wantErr: false,
 			wantConfig: testJSONFromString(`{
-				"content":[
-					{
-						"reader":{
-							"name": "mock",
-							"parameter" : {
-
-							}
-						},
-						"writer":{
-							"name": "mock",
-							"parameter" : {
-
-							}
-						},
-						"transformer" : ["1","2"]
-					}
-				]
+				"content":[{"reader":{"name":"mock","parameter":{"id":1}},"writer":{"name":"mock","parameter":{"id":4}},"transformer":["1","2"],"taskId":0},{"reader":{"name":"mock","parameter":{"id":2}},"writer":{"name":"mock","parameter":{"id":5}},"transformer":["1","2"],"taskId":1},{"reader":{"name":"mock","parameter":{"id":3}},"writer":{"name":"mock","parameter":{"id":6}},"transformer":["1","2"],"taskId":2}]
 			}`),
 		},
 		{

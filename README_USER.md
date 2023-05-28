@@ -76,14 +76,6 @@ datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv
                     "retryIntervalInMsec":0
                 }
             }
-        },
-        "transport":{
-            "channel":{
-                "speed":{
-                    "byte": 100,
-                    "record":100
-                }
-            }
         }
     },
     "job":{
@@ -139,8 +131,21 @@ datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv
 ```
 #### 流控配置
 
-之前speed的byte和record配置并不会生效，现在加入流控特性后，byte和record将会生效，byte会限制缓存消息字节数，而record会限制缓存消息条数，如果byte设置过小会导致缓存过小而导致同步数据失败。当byte为0或负数时，限制器将不会工作。
+之前speed的byte和record配置并不会生效，现在加入流控特性后，byte和record将会生效，byte会限制缓存消息字节数，而record会限制缓存消息条数，如果byte设置过小会导致缓存过小而导致同步数据失败。当byte为0或负数时，限制器将不会工作,例如byte为10485760，现在为10Mb(10*1024*1024)。
+```json
+{
+    "job":{
+        "setting":{
+            "speed":{
+                "byte":,
+                "record":10485760,
+                "channel":4
+            }
+        }
+    }
+}    
 
+```
 
 #### 源目的配置向导文件
 源目的配置向导文件是csv文件，每行配置可以配置如下:

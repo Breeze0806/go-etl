@@ -268,6 +268,7 @@ func (c *Container) schedule() (err error) {
 		coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(tasksConfigs))
 	defer c.taskSchduler.Stop()
 	var taskGroups []*taskgroup.Container
+
 	for i := range tasksConfigs {
 		var taskGroup *taskgroup.Container
 		taskGroup, err = taskgroup.NewContainer(c.ctx, tasksConfigs[i])
@@ -294,7 +295,7 @@ func (c *Container) schedule() (err error) {
 				}
 				stats := taskGroup.Stats()
 				for _, v := range stats {
-					fmt.Printf("%s\r", v.String())
+					fmt.Printf("\n%s\r", v.String())
 				}
 			}
 		}(taskGroup)
@@ -408,6 +409,12 @@ func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
 
+	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
+		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
+		return nil
+	}
+
 	if isByteLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedByte, 0) > 0; isByteLimit {
 		globalLimitedByteSpeed := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedByte, 10*1024*1024)
 		channelLimitedByteSpeed, err := c.Config().GetInt64(coreconst.DataxCoreTransportChannelSpeedByte)
@@ -450,13 +457,12 @@ func (c *Container) adjustChannelNumber() error {
 		return nil
 	}
 
-	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
-		//此时 DataxJobSettingSpeedChannel必然存在
-		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
-		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
-		return nil
-	}
-
+	// if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
+	// 	//此时 DataxJobSettingSpeedChannel必然存在
+	// 	c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+	// 	log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
+	// 	return nil
+	// }
 	return errors.New("job speed should be setted")
 }
 

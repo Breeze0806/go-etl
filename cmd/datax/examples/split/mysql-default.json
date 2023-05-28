@@ -16,7 +16,12 @@
                         "username": "root",
                         "password": "123456",
                         "split" : {
-                            "key":"str"
+                            "key":"id",
+                            "range":{
+                                "type":"bigInt",
+                                "left":"100000",
+                                "right":"900000"
+                            }
                         },
                         "column": ["*"],
                         "connection":  {
@@ -56,7 +61,7 @@
             "speed":{
                 "byte":0,
                 "record":1024,
-                "channel":4
+                "channel":10
             }
         }
     }

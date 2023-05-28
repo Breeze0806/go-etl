@@ -4,20 +4,6 @@
             "job":{
                 "id": 1,
                 "sleepInterval":100
-            },
-            "taskGroup":{
-                "id": 1,
-                "failover":{
-                    "retryIntervalInMsec":0
-                }
-            }
-        },
-        "transport":{
-            "channel":{
-                "speed":{
-                    "byte": 100,
-                    "record":100
-                }
             }
         }
     },
