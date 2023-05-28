@@ -260,7 +260,7 @@ type Stats struct {
 }
 
 func (s *Stats) String() string {
-	data, _ := json.MarshalIndent(s, "", "    ")
+	data, _ := json.Marshal(s)
 	return string(data)
 }
 

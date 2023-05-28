@@ -294,7 +294,7 @@ func (c *Container) schedule() (err error) {
 				}
 				stats := taskGroup.Stats()
 				for _, v := range stats {
-					fmt.Println(v.String())
+					fmt.Printf("%s\r", v.String())
 				}
 			}
 		}(taskGroup)
