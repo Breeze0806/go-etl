@@ -77,11 +77,13 @@ func TestChannel_PushAllPopAll(t *testing.T) {
 
 func TestChannelWithRateLimit(t *testing.T) {
 	conf, _ := config.NewJSONFromString(`{
-		"job":{
-			"setting":{
-				"speed":{
-					"byte":10000,
-					"record":10
+		"core":{
+			"transport":{
+				"channel":{
+					"speed":{
+						"byte":10000,
+						"record":10
+					}
 				}
 			}
 		}
@@ -128,11 +130,13 @@ func TestChannelWithRateLimit(t *testing.T) {
 
 func TestChannelWithRateLimit_Err(t *testing.T) {
 	conf, _ := config.NewJSONFromString(`{
-		"job":{
-			"setting":{
-				"speed":{
-					"byte":10000,
-					"record":10
+		"core":{
+			"transport":{
+				"channel":{
+					"speed":{
+						"byte":10000,
+						"record":10
+					}
 				}
 			}
 		}

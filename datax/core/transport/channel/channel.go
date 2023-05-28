@@ -16,6 +16,7 @@ package channel
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -74,9 +75,10 @@ func NewChannel(ctx context.Context, conf *config.JSON) (*Channel, error) {
 	r := -1
 	b := -1.0
 	if conf != nil {
-		b = conf.GetFloat64OrDefaullt(coreconst.DataxJobSettingSpeedByte, -1.0)
-		r = int(conf.GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedRecord, -1))
+		b = conf.GetFloat64OrDefaullt(coreconst.DataxCoreTransportChannelSpeedByte, -1.0)
+		r = int(conf.GetInt64OrDefaullt(coreconst.DataxCoreTransportChannelSpeedRecord, -1))
 	}
+	fmt.Println(b, r)
 	var limiter *rate.Limiter
 	if b > 0 {
 		limiter = rate.NewLimiter(rate.Limit(b), int(b))

@@ -1,0 +1,54 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            },
+            "taskGroup":{
+                "id": 1,
+                "failover":{
+                    "retryIntervalInMsec":0
+                }
+            }
+        },
+        "transport":{
+            "channel":{
+                "speed":{
+                    "byte": 100,
+                    "record":100
+                }
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "csvreader",
+                    "parameter": {
+                        "path":["examples/limit/src.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+                "writer":{
+                    "name": "csvwriter",
+                    "parameter": {
+                        "path":["examples/limit/dest.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":1024,
+                "record":100,
+                "channel":4
+            }
+        }
+    }
+}

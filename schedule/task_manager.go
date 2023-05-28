@@ -47,6 +47,16 @@ func (t *MappedTaskManager) Size() int {
 	return t.lockedSize()
 }
 
+//Runs 获取当前在跑的任务
+func (t *MappedTaskManager) Runs() (tasks []MappedTask) {
+	t.Lock()
+	for _, v := range t.run {
+		tasks = append(tasks, v)
+	}
+	t.Unlock()
+	return
+}
+
 //lockedSize 未加锁的任务数
 func (t *MappedTaskManager) lockedSize() int {
 	return t.num

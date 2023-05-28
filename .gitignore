@@ -12,3 +12,4 @@ datax/plugin.go
 *.txt
 *.out
 *.exe
+*.csv

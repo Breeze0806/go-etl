@@ -87,6 +87,17 @@ func (c *Container) Do() error {
 	return c.Start()
 }
 
+//Stats 获取统计信息
+func (c *Container) Stats() (stats []Stats) {
+	for _, v := range c.tasks.manager.Runs() {
+		stat := v.(*taskExecer).Stats()
+		stat.JobID = c.jobID
+		stat.TaskGroupID = c.taskGroupID
+		stats = append(stats, stat)
+	}
+	return
+}
+
 //Start 开始运行，使用任务调度器执行这些JSON配置
 func (c *Container) Start() (err error) {
 	log.Infof("datax job(%v) taskgruop(%v)  start", c.jobID, c.taskGroupID)

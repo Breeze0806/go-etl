@@ -16,11 +16,13 @@ package job
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
@@ -282,9 +284,18 @@ func (c *Container) schedule() (err error) {
 		taskGroups = append(taskGroups, taskGroup)
 		go func(taskGroup *taskgroup.Container) {
 			defer c.wg.Done()
-			select {
-			case taskGroup.Err = <-errChan:
-			case <-c.ctx.Done():
+			for {
+				select {
+				case taskGroup.Err = <-errChan:
+					return
+				case <-c.ctx.Done():
+					return
+				case <-time.After(1 * time.Second):
+				}
+				stats := taskGroup.Stats()
+				for _, v := range stats {
+					fmt.Println(v.String())
+				}
 			}
 		}(taskGroup)
 	}
@@ -358,6 +369,13 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 		return
 	}
 
+	var speed *config.JSON
+	speed, err = c.Config().GetConfig(coreconst.DataxJobSettingSpeed)
+	if err != nil {
+		return
+	}
+
+	speed.Remove("channel")
 	channelsPerTaskGroup := c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskgroupChannel, 5)
 	channelNumber := c.needChannelNumber
 	if channelNumber > int64(len(tasksConfigs)) {
@@ -377,6 +395,7 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 
 	for i, v := range ss {
 		for j, vj := range v {
+			tasksConfigs[vj].Set(coreconst.DataxCoreTransportChannelSpeed, speed)
 			confs[i].Set(coreconst.DataxJobContent+"."+strconv.Itoa(j), tasksConfigs[vj])
 		}
 	}
