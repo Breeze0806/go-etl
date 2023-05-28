@@ -17,7 +17,7 @@ package postgres
 import (
 	"github.com/Breeze0806/go-etl/config"
 	spiwriter "github.com/Breeze0806/go-etl/datax/common/spi/writer"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 
 	//postgres storage
@@ -37,8 +37,8 @@ func (w *Writer) ResourcesConfig() *config.JSON {
 //Job 工作
 func (w *Writer) Job() spiwriter.Job {
 	job := &Job{
-		Job: rdbm.NewJob(rdbm.NewBaseDbHandler(
-			func(name string, conf *config.JSON) (e rdbm.Execer, err error) {
+		Job: dbms.NewJob(dbms.NewBaseDbHandler(
+			func(name string, conf *config.JSON) (e dbms.Execer, err error) {
 				if e, err = database.Open(name, conf); err != nil {
 					return nil, err
 				}
@@ -52,8 +52,8 @@ func (w *Writer) Job() spiwriter.Job {
 //Task 任务
 func (w *Writer) Task() spiwriter.Task {
 	task := &Task{
-		Task: rdbm.NewTask(rdbm.NewBaseDbHandler(
-			func(name string, conf *config.JSON) (e rdbm.Execer, err error) {
+		Task: dbms.NewTask(dbms.NewBaseDbHandler(
+			func(name string, conf *config.JSON) (e dbms.Execer, err error) {
 				if e, err = database.Open(name, conf); err != nil {
 					return nil, err
 				}

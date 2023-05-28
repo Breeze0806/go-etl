@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"context"
@@ -85,24 +85,11 @@ func (j *Job) Destroy(ctx context.Context) (err error) {
 	return errors.Wrapf(err, "Close fail")
 }
 
-//Split 切分
-func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
-	if j.Config.GetSplitConfig().Key == "" || number == 1 {
-		return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
-	}
-
-	var splitTable database.Table
-	param := j.handler.SplitParam(j.Config, j.Querier)
-	if splitTable, err = j.Querier.FetchTableWithParam(ctx, param); err != nil {
-		err = errors.Wrapf(err, "FetchTableWithParam fail")
-		return
-	}
-
-	var minColumn element.Column
+func (j *Job) fetchMin(ctx context.Context, splitTable database.Table) (c element.Column, err error) {
 	minHandler := database.NewBaseFetchHandler(func() (element.Record, error) {
 		return element.NewDefaultRecord(), nil
 	}, func(r element.Record) (err error) {
-		minColumn, err = r.GetByIndex(0)
+		c, err = r.GetByIndex(0)
 		return nil
 	})
 	minParam := j.handler.MinParam(j.Config, splitTable)
@@ -110,12 +97,14 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 		err = errors.Wrapf(err, "FetchTableWithParam fail")
 		return
 	}
+	return
+}
 
-	var maxColumn element.Column
+func (j *Job) fetchMax(ctx context.Context, splitTable database.Table) (c element.Column, err error) {
 	maxHandler := database.NewBaseFetchHandler(func() (element.Record, error) {
 		return element.NewDefaultRecord(), nil
 	}, func(r element.Record) error {
-		maxColumn, err = r.GetByIndex(0)
+		c, err = r.GetByIndex(0)
 		return nil
 	})
 
@@ -124,6 +113,45 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 		err = errors.Wrapf(err, "FetchTableWithParam fail")
 		return
 	}
+	return
+}
+
+//Split 切分
+func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
+	if j.Config.GetSplitConfig().Key == "" || number == 1 {
+		return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
+	}
+
+	if j.Config.GetSplitConfig().Range.Type == "" {
+		return j.split(ctx, number, j)
+	}
+	conf := j.Config.GetSplitConfig()
+	return j.split(ctx, number, &conf)
+}
+
+func (j *Job) split(ctx context.Context, number int, fetcher splitRangeFetcher) (configs []*config.JSON, err error) {
+	var splitTable database.Table
+	log.Debugf("jobID: %v start to split", j.JobID())
+
+	param := j.handler.SplitParam(j.Config, j.Querier)
+	if splitTable, err = j.Querier.FetchTableWithParam(ctx, param); err != nil {
+		err = errors.Wrapf(err, "FetchTableWithParam fail")
+		return
+	}
+	log.Debugf("jobID: %v fetch split table end", j.JobID())
+
+	var minColumn element.Column
+	if minColumn, err = fetcher.fetchMin(ctx, splitTable); err != nil {
+		err = errors.Wrapf(err, "fetchMin fail")
+		return
+	}
+	log.Debugf("jobID: %v split fetchMin = %v", j.JobID(), minColumn)
+	var maxColumn element.Column
+	if maxColumn, err = fetcher.fetchMax(ctx, splitTable); err != nil {
+		err = errors.Wrapf(err, "fetchMax fail")
+		return
+	}
+	log.Debugf("jobID: %v split fetchMax = %v", j.JobID(), maxColumn)
 
 	ranges, err := split(minColumn, maxColumn, number,
 		j.Config.GetSplitConfig().TimeAccuracy, splitTable.Fields()[0])

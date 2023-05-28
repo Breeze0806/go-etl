@@ -16,6 +16,7 @@ package taskgroup
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -63,7 +64,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 		ctx:          ctx,
 		attemptCount: atomic.NewInt32(int32(attemptCount)),
 	}
-	t.channel, err = channel.NewChannel(ctx)
+	t.channel, err = channel.NewChannel(ctx, taskConf)
 	if err != nil {
 		return nil, err
 	}
@@ -248,4 +249,25 @@ Loop:
 
 	log.Debugf("taskExecer %v shutdown writer", t.key)
 	t.writerRunner.Shutdown()
+}
+
+//Stats 统计信息
+type Stats struct {
+	JobID       int64             `json:"jobID"`
+	TaskGroupID int64             `json:"taskGroupID"`
+	TaskID      int64             `json:"taskID"`
+	Channel     channel.StatsJSON `json:"channel"`
+}
+
+func (s *Stats) String() string {
+	data, _ := json.Marshal(s)
+	return string(data)
+}
+
+//Stats 获取统计信息
+func (t *taskExecer) Stats() Stats {
+	return Stats{
+		TaskID:  t.taskID,
+		Channel: t.channel.StatsJSON(),
+	}
 }

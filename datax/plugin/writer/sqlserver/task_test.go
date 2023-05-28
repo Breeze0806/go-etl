@@ -17,7 +17,7 @@ package sqlserver
 import (
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/Breeze0806/go-etl/storage/database/sqlserver"
 )
@@ -36,21 +36,21 @@ func Test_execMode(t *testing.T) {
 			args: args{
 				writeMode: database.WriteModeInsert,
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 		{
 			name: "2",
 			args: args{
 				writeMode: sqlserver.WriteModeCopyIn,
 			},
-			want: rdbm.ExecModeStmt,
+			want: dbms.ExecModeStmt,
 		},
 		{
 			name: "3",
 			args: args{
 				writeMode: "",
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 	}
 	for _, tt := range tests {

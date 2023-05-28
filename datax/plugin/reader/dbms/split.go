@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"time"
@@ -29,12 +30,83 @@ const (
 	maxDuration time.Duration = 1<<63 - 1
 )
 
+type splitRangeFetcher interface {
+	fetchMax(ctx context.Context, splitTable database.Table) (element.Column, error)
+	fetchMin(ctx context.Context, splitTable database.Table) (element.Column, error)
+}
+
 //SplitConfig 切分配置
 type SplitConfig struct {
 	Key string `json:"key"` //切分键
 	//day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
 	TimeAccuracy string     `json:"timeAccuracy"` //切分时间精度（默认为day）
 	Range        SplitRange `json:"range"`        //切分范围
+}
+
+func (s *SplitConfig) fetchMin(ctx context.Context,
+	splitTable database.Table) (c element.Column, err error) {
+	if err = s.build(splitTable); err != nil {
+		return
+	}
+	return s.Range.leftColumn(s.Key)
+}
+
+func (s *SplitConfig) fetchMax(ctx context.Context,
+	splitTable database.Table) (c element.Column, err error) {
+	if err = s.build(splitTable); err != nil {
+		return
+	}
+	return s.Range.rightColumn(s.Key)
+}
+
+func (s *SplitConfig) build(splitTable database.Table) (err error) {
+	if err = s.checkType(splitTable); err != nil {
+		return err
+	}
+	return s.setLayout()
+}
+
+func (s *SplitConfig) setLayout() error {
+	if s.Range.Type == string(element.TypeTime) {
+		tl := &timeLayout{}
+		tl.getLayout(s.TimeAccuracy)
+		s.Range.Layout = tl.layout
+		if s.Range.Layout == "" {
+			return fmt.Errorf(
+				"timeAccuracy(%v) should not be empty or valid when set range as non-empty",
+				s.TimeAccuracy)
+		}
+	}
+	return nil
+}
+
+func (s SplitConfig) checkType(splitTable database.Table) (err error) {
+	if typ, ok := splitTable.Fields()[0].Type().(database.ValuerGoType); ok {
+		switch typ.GoType() {
+		case database.GoTypeInt64:
+			switch element.ColumnType(s.Range.Type) {
+			case element.TypeBigInt:
+			default:
+				return fmt.Errorf("checkType %v is not %v but %v",
+					s.Key, database.GoTypeInt64, s.Range.Type)
+			}
+		case database.GoTypeString:
+			switch element.ColumnType(s.Range.Type) {
+			case element.TypeBigInt, element.TypeString:
+			default:
+				return fmt.Errorf("checkType %v is not %v but %v",
+					s.Key, database.GoTypeString, s.Range.Type)
+			}
+		case database.GoTypeTime:
+			switch element.ColumnType(s.Range.Type) {
+			case element.TypeTime:
+			default:
+				return fmt.Errorf("checkType %v is not %v but %v",
+					s.Key, database.GoTypeTime, s.Range.Type)
+			}
+		}
+	}
+	return nil
 }
 
 //SplitRange 切分范围配置
@@ -46,33 +118,33 @@ type SplitRange struct {
 	where  string
 }
 
-func (s SplitRange) leftColumn() (element.Column, error) {
-	return s.fetchColumn(s.Left)
+func (s SplitRange) leftColumn(key string) (element.Column, error) {
+	return s.fetchColumn(key, s.Left)
 }
 
-func (s SplitRange) rightColumn() (element.Column, error) {
-	return s.fetchColumn(s.Right)
+func (s SplitRange) rightColumn(key string) (element.Column, error) {
+	return s.fetchColumn(key, s.Right)
 }
 
-func (s SplitRange) fetchColumn(value string) (element.Column, error) {
+func (s SplitRange) fetchColumn(key string, value string) (element.Column, error) {
 	switch element.ColumnType(s.Type) {
 	case element.TypeBigInt:
 		bi, ok := new(big.Int).SetString(value, 10)
 		if !ok {
-			return nil, errors.Errorf("value is not %v", element.TypeBigInt)
+			return nil, errors.Errorf("column(%v) value is not %v", key, element.TypeBigInt)
 		}
-		return element.NewDefaultColumn(element.NewBigIntColumnValue(bi), "", 0), nil
+		return element.NewDefaultColumn(element.NewBigIntColumnValue(bi), key, 0), nil
 	case element.TypeString:
-		return element.NewDefaultColumn(element.NewStringColumnValue(value), "", 0), nil
+		return element.NewDefaultColumn(element.NewStringColumnValue(value), key, 0), nil
 	case element.TypeTime:
 		t, err := time.Parse(s.Layout, value)
 		if err != nil {
-			return nil, errors.Wrap(err, "value is not valid time")
+			return nil, errors.Wrapf(err, "column(%v) value is not valid time", key)
 		}
 		return element.NewDefaultColumn(element.NewTimeColumnValueWithDecoder(t,
-			element.NewStringTimeDecoder(s.Layout)), "", 0), nil
+			element.NewStringTimeDecoder(s.Layout)), key, 0), nil
 	}
-	return nil, errors.Errorf("type(%v) does not support", s.Type)
+	return nil, errors.Errorf("column(%v) type(%v) does not support", key, s.Type)
 }
 
 func split(min, max element.Column, num int,
@@ -215,7 +287,6 @@ func bigint2String(res *big.Int, radix int64) string {
 
 type timeLayout struct {
 	layout string
-	min    time.Time
 }
 
 func (t *timeLayout) unit() time.Duration {

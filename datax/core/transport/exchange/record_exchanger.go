@@ -51,7 +51,7 @@ func NewRecordExchanger(ch *channel.Channel, tran transform.Transformer) *Record
 
 //GetFromReader 从Reader中获取记录
 //当交换器关闭，通道为空或者收到终止消息也会报错
-func (r *RecordExchanger) GetFromReader() (element.Record, error) {
+func (r *RecordExchanger) GetFromReader() (newRecord element.Record, err error) {
 	if r.isShutdown {
 		return nil, ErrShutdown
 	}
@@ -64,7 +64,10 @@ func (r *RecordExchanger) GetFromReader() (element.Record, error) {
 	case *element.TerminateRecord:
 		return nil, ErrTerminate
 	default:
-		return record, nil
+		if newRecord, err = r.tran.DoTransform(record); err != nil {
+			return nil, err
+		}
+		return
 	}
 }
 
@@ -85,10 +88,9 @@ func (r *RecordExchanger) SendWriter(record element.Record) (err error) {
 	if r.isShutdown {
 		return ErrShutdown
 	}
-	var newRecord element.Record
-	if newRecord, err = r.tran.DoTransform(record); err == nil {
-		r.ch.Push(newRecord)
-	}
+
+	r.ch.Push(record)
+
 	return
 }
 

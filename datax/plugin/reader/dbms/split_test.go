@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
+	"context"
+	"database/sql"
 	"math/big"
 	"reflect"
 	"testing"
@@ -23,6 +25,16 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
+
+type MockFieldTypeWithGoType struct {
+	*database.BaseFieldType
+}
+
+func NewMockFieldTypeWithGoType() *MockFieldType {
+	return &MockFieldType{
+		BaseFieldType: database.NewBaseFieldType(&sql.ColumnType{}),
+	}
+}
 
 func TestSplitRange_fetchColumn(t *testing.T) {
 	type args struct {
@@ -101,7 +113,7 @@ func TestSplitRange_fetchColumn(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.s.fetchColumn(tt.args.value)
+			got, err := tt.s.fetchColumn("", tt.args.value)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SplitRange.fetchColumn() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -977,13 +989,316 @@ func Test_split(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotRanges, err := split(tt.args.min, tt.args.max, tt.args.num, tt.args.timeAccuracy, tt.args.splitField)
-			t.Log(err)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("split() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotRanges, tt.wantRanges) {
 				t.Errorf("split() = %+v, want %+v", gotRanges, tt.wantRanges)
+			}
+		})
+	}
+}
+
+func TestSplitConfig_fetchMin(t *testing.T) {
+	type args struct {
+		ctx   context.Context
+		field database.Field
+	}
+	tests := []struct {
+		name    string
+		s       SplitConfig
+		args    args
+		wantC   element.Column
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeBigInt),
+					Left: "100000",
+				},
+			},
+			args: args{
+				ctx: context.TODO(),
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(100000)),
+				"f1", 0),
+		},
+		{
+			name: "2",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeString),
+					Left: "100000",
+				},
+			},
+			args: args{
+				ctx: context.TODO(),
+				field: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			splitTable := NewMockTable(database.NewBaseTable("db", "schema", "table"))
+			splitTable.AppendField(tt.args.field)
+			gotC, err := tt.s.fetchMin(tt.args.ctx, splitTable)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SplitConfig.fetchMin() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotC, tt.wantC) {
+				t.Errorf("SplitConfig.fetchMin() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}
+
+func TestSplitConfig_fetchMax(t *testing.T) {
+	type args struct {
+		ctx   context.Context
+		field database.Field
+	}
+	tests := []struct {
+		name    string
+		s       SplitConfig
+		args    args
+		wantC   element.Column
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type:  string(element.TypeBigInt),
+					Right: "100000",
+				},
+			},
+			args: args{
+				ctx: context.TODO(),
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(100000)),
+				"f1", 0),
+		},
+		{
+			name: "2",
+			s: SplitConfig{
+				Range: SplitRange{
+					Type: string(element.TypeString),
+				},
+			},
+			args: args{
+				ctx: context.TODO(),
+				field: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			splitTable := NewMockTable(database.NewBaseTable("db", "schema", "table"))
+			splitTable.AppendField(tt.args.field)
+			gotC, err := tt.s.fetchMax(tt.args.ctx, splitTable)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SplitConfig.fetchMax() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotC, tt.wantC) {
+				t.Errorf("SplitConfig.fetchMax() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}
+
+func TestSplitConfig_checkType(t *testing.T) {
+	type args struct {
+		field database.Field
+	}
+	tests := []struct {
+		name    string
+		s       SplitConfig
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeBigInt),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+		},
+		{
+			name: "2",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeString),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeInt64)),
+					NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantErr: true,
+		},
+		{
+			name: "3",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeBigInt),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeString)),
+					NewMockFieldType(database.GoTypeString)),
+			},
+		},
+		{
+			name: "4",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeString),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeString)),
+					NewMockFieldType(database.GoTypeString)),
+			},
+		},
+		{
+			name: "5",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeDecimal),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeString)),
+					NewMockFieldType(database.GoTypeString)),
+			},
+			wantErr: true,
+		},
+		{
+			name: "6",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeTime),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeTime)),
+					NewMockFieldType(database.GoTypeTime)),
+			},
+		},
+		{
+			name: "7",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeString),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeTime)),
+					NewMockFieldType(database.GoTypeTime)),
+			},
+			wantErr: true,
+		},
+		{
+			name: "8",
+			s: SplitConfig{
+				Key: "f1",
+				Range: SplitRange{
+					Type: string(element.TypeString),
+				},
+			},
+			args: args{
+				field: NewMockField(database.NewBaseField(0, "f1",
+					NewMockFieldType(database.GoTypeTime)),
+					NewMockFieldTypeWithGoType()),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			splitTable := NewMockTable(database.NewBaseTable("db", "schema", "table"))
+			splitTable.AppendField(tt.args.field)
+			if err := tt.s.checkType(splitTable); (err != nil) != tt.wantErr {
+				t.Errorf("SplitConfig.checkType() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestSplitConfig_setLayout(t *testing.T) {
+	tests := []struct {
+		name    string
+		s       SplitConfig
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s: SplitConfig{
+				TimeAccuracy: "day",
+				Range: SplitRange{
+					Type: string(element.TypeTime),
+				},
+			},
+			want:    "2006-01-02",
+			wantErr: false,
+		},
+		{
+			name: "2",
+			s: SplitConfig{
+				TimeAccuracy: "",
+				Range: SplitRange{
+					Type: string(element.TypeTime),
+				},
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.s.setLayout(); (err != nil) != tt.wantErr {
+				t.Errorf("SplitConfig.setLayout() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.s.Range.Layout != tt.want {
+				t.Errorf("SplitConfig.Range.Layout = %v, want %v", tt.s.Range.Layout, tt.want)
 			}
 		})
 	}

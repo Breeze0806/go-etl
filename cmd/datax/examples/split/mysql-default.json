@@ -4,20 +4,6 @@
             "job":{
                 "id": 1,
                 "sleepInterval":100
-            },
-            "taskGroup":{
-                "id": 1,
-                "failover":{
-                    "retryIntervalInMsec":0
-                }
-            }
-        },
-        "transport":{
-            "channel":{
-                "speed":{
-                    "byte": 100,
-                    "record":100
-                }
             }
         }
     },
@@ -25,11 +11,27 @@
         "content":[
             {
                 "reader":{
-                    "name": "csvreader",
+                    "name": "mysqlreader",
                     "parameter": {
-                        "path":["examples/split/split.csv"],
-                        "encoding":"utf-8",
-                        "delimiter":","
+                        "username": "root",
+                        "password": "123456",
+                        "split" : {
+                            "key":"id",
+                            "range":{
+                                "type":"bigInt",
+                                "left":"100000",
+                                "right":"900000"
+                            }
+                        },
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "tcp(192.168.15.130:3306)/source?parseTime=false",
+                                "table": {
+                                    "db":"source",
+                                    "name":"split"
+                                }
+                            },
+                        "where": ""
                     }
                 },
                 "writer":{
@@ -39,11 +41,12 @@
                         "password": "123456",
                         "writeMode": "insert",
                         "column": ["*"],
+                        "session": [],
                         "preSql": [],
                         "connection":  {
                                 "url": "tcp(192.168.15.130:3306)/mysql?parseTime=false",
                                 "table": {
-                                    "db":"source",
+                                    "db":"destination",
                                     "name":"split"
                                 }
                          },

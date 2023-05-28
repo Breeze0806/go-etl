@@ -1220,7 +1220,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 						"speed":{
 							"byte":1,
 							"record":1,
-							"channel":4
+							"channel":0
 						}
 					}
 				}
@@ -1251,7 +1251,7 @@ func TestContainer_adjustChannelNumber(t *testing.T) {
 						"speed":{
 							"byte":400,
 							"record":3000,
-							"channel":4
+							"channel":0
 						}
 					}
 				}
@@ -1864,25 +1864,9 @@ func TestContainer_split(t *testing.T) {
 					]
 				}
 			}`)),
-			wantErr: true,
+			wantErr: false,
 			wantConfig: testJSONFromString(`{
-				"content":[
-					{
-						"reader":{
-							"name": "mock",
-							"parameter" : {
-
-							}
-						},
-						"writer":{
-							"name": "mock",
-							"parameter" : {
-
-							}
-						},
-						"transformer" : ["1","2"]
-					}
-				]
+				"content":[{"reader":{"name":"mock","parameter":{"id":1}},"writer":{"name":"mock","parameter":{"id":4}},"transformer":["1","2"],"taskId":0},{"reader":{"name":"mock","parameter":{"id":2}},"writer":{"name":"mock","parameter":{"id":5}},"transformer":["1","2"],"taskId":1},{"reader":{"name":"mock","parameter":{"id":3}},"writer":{"name":"mock","parameter":{"id":6}},"transformer":["1","2"],"taskId":2}]
 			}`),
 		},
 		{
@@ -2758,7 +2742,9 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 				"job":{
 					"setting":{
 						"speed":{
-							"channel":4
+							"channel":4,
+							"byte":100,
+							"record":100
 						}
 					},
 					"content":[
@@ -2894,7 +2880,9 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 					"job":{
 						"setting":{
 							"speed":{
-								"channel":4
+								"channel":4,
+								"byte":100,
+								"record":100
 							}
 						},
 						"content":[
@@ -2910,6 +2898,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 										"loadBalanceResourceMark":"a",
 										"id" : "A"
 									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
+									}
 								}
 							},
 							{
@@ -2923,6 +2921,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 									"parameter":{
 										"loadBalanceResourceMark":"a",
 										"id" : "E"
+									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
 									}
 								}
 							}
@@ -2944,7 +2952,9 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 					"job":{
 						"setting":{
 							"speed":{
-								"channel":4
+								"channel":4,
+								"byte":100,
+								"record":100
 							}
 						},
 						"content":[
@@ -2960,6 +2970,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 										"loadBalanceResourceMark":"a",
 										"id" : "D"
 									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
+									}
 								}
 							},
 							{
@@ -2973,6 +2993,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 									"parameter":{
 										"loadBalanceResourceMark":"a",
 										"id" : "G"
+									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
 									}
 								}
 							}
@@ -2994,7 +3024,9 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 					"job":{
 						"setting":{
 							"speed":{
-								"channel":4
+								"channel":4,
+								"byte":100,
+								"record":100
 							}
 						},
 						"content":[
@@ -3010,6 +3042,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 										"loadBalanceResourceMark":"a",
 										"id" : "F"
 									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
+									}
 								}
 							},
 							{
@@ -3023,6 +3065,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 									"parameter":{
 										"loadBalanceResourceMark":"a",
 										"id" : "C"
+									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
 									}
 								}
 							}
@@ -3044,7 +3096,9 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 					"job":{
 						"setting":{
 							"speed":{
-								"channel":4
+								"channel":4,
+								"byte":100,
+								"record":100
 							}
 						},
 						"content":[
@@ -3060,6 +3114,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 										"loadBalanceResourceMark":"a",
 										"id" : "B"
 									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
+									}
 								}
 							},
 							{
@@ -3073,6 +3137,16 @@ func TestContainer_distributeTaskIntoTaskGroup(t *testing.T) {
 									"parameter":{
 										"loadBalanceResourceMark":"a",
 										"id" : "H"
+									}
+								},
+								"core":{
+									"transport":{
+										"channel":{
+											"speed":{
+												"byte":100,
+												"record":100
+											}
+										}
 									}
 								}
 							}

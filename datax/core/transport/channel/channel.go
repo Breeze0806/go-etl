@@ -16,19 +16,78 @@ package channel
 
 import (
 	"context"
+	"sync"
 
+	"github.com/Breeze0806/go-etl/config"
+	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/element"
+	"golang.org/x/time/rate"
 )
 
 //Channel 通道
 type Channel struct {
+	limiter *rate.Limiter
 	records *element.RecordChan
+	ctx     context.Context
+	stats   Stats
+}
+
+//Stats Channel的统计信息
+type Stats struct {
+	sync.RWMutex
+	StatsJSON
+}
+
+//StatsJSON Channel的JSON统计信息
+type StatsJSON struct {
+	TotalByte   int64 `json:"totalByte"`
+	TotalRecord int64 `json:"totalRecord"`
+	Byte        int64 `json:"byte"`
+	Record      int64 `json:"record"`
+}
+
+func (s *Stats) increase(b int64) {
+	s.Lock()
+	defer s.Unlock()
+	s.TotalByte += b
+	s.Byte += b
+	s.TotalRecord++
+	s.Record++
+}
+
+func (s *Stats) reduce(b int64) {
+	s.Lock()
+	defer s.Unlock()
+	s.Byte -= b
+	s.Record--
+}
+
+//statsJSON 返回json的机构体
+func (s *Stats) statsJSON() StatsJSON {
+	s.RLock()
+	defer s.RUnlock()
+	return s.StatsJSON
 }
 
 //NewChannel 创建通道
-func NewChannel(ctx context.Context) (*Channel, error) {
+func NewChannel(ctx context.Context, conf *config.JSON) (*Channel, error) {
+	r := -1
+	b := -1.0
+	if conf != nil {
+		b = conf.GetFloat64OrDefaullt(coreconst.DataxCoreTransportChannelSpeedByte, -1.0)
+		r = int(conf.GetInt64OrDefaullt(coreconst.DataxCoreTransportChannelSpeedRecord, -1))
+	}
+	var limiter *rate.Limiter
+	if b > 0 {
+		limiter = rate.NewLimiter(rate.Limit(b), int(b))
+	}
+	if r < 0 {
+		r = 0
+	}
 	return &Channel{
-		records: element.NewRecordChan(ctx),
+		records: element.NewRecordChanBuffer(ctx, r),
+		ctx:     ctx,
+		limiter: limiter,
 	}, nil
 }
 
@@ -43,13 +102,23 @@ func (c *Channel) IsEmpty() bool {
 }
 
 //Push 将记录r加入通道
-func (c *Channel) Push(r element.Record) int {
-	return c.records.PushBack(r)
+func (c *Channel) Push(r element.Record) (n int, err error) {
+	if c.limiter != nil {
+		if err = c.limiter.WaitN(c.ctx, int(r.ByteSize())); err != nil {
+			return 0, err
+		}
+	}
+	c.stats.increase(r.ByteSize())
+	return c.records.PushBack(r), nil
 }
 
 //Pop 将记录弹出，当通道中不存在记录，就会返回false
 func (c *Channel) Pop() (r element.Record, ok bool) {
-	return c.records.PopFront()
+	r, ok = c.records.PopFront()
+	if r != nil {
+		c.stats.reduce(r.ByteSize())
+	}
+	return
 }
 
 //PushAll 通过fetchRecord函数加入多条记录
@@ -68,6 +137,12 @@ func (c *Channel) Close() {
 }
 
 //PushTerminate 加入终止记录
-func (c *Channel) PushTerminate() int {
-	return c.Push(element.GetTerminateRecord())
+func (c *Channel) PushTerminate() (n int) {
+	n, _ = c.Push(element.GetTerminateRecord())
+	return
+}
+
+//StatsJSON 返回Channel的统计信息
+func (c *Channel) StatsJSON() StatsJSON {
+	return c.stats.statsJSON()
 }

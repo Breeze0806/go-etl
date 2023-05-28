@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
-	rdbmreader "github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+	dbmsreader "github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/schedule"
 )
 
@@ -57,24 +57,24 @@ func TestBaseConfig_GetColumns(t *testing.T) {
 	tests := []struct {
 		name        string
 		b           *BaseConfig
-		wantColumns []rdbmreader.Column
+		wantColumns []dbmsreader.Column
 	}{
 		{
 			name: "1",
 			b: &BaseConfig{
 				Column: []string{"f1", "f2", "f3", "f4"},
 			},
-			wantColumns: []rdbmreader.Column{
-				&rdbmreader.BaseColumn{
+			wantColumns: []dbmsreader.Column{
+				&dbmsreader.BaseColumn{
 					Name: "f1",
 				},
-				&rdbmreader.BaseColumn{
+				&dbmsreader.BaseColumn{
 					Name: "f2",
 				},
-				&rdbmreader.BaseColumn{
+				&dbmsreader.BaseColumn{
 					Name: "f3",
 				},
-				&rdbmreader.BaseColumn{
+				&dbmsreader.BaseColumn{
 					Name: "f4",
 				},
 			},

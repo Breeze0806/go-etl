@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"encoding/json"
@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
-	rdbmreader "github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+	dbmsreader "github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/Breeze0806/go/time2"
@@ -38,7 +38,7 @@ type Config interface {
 	GetUsername() string                                                     //获取用户名
 	GetPassword() string                                                     //获取密码
 	GetURL() string                                                          //获取连接url
-	GetColumns() []rdbmreader.Column                                         //获取列信息
+	GetColumns() []dbmsreader.Column                                         //获取列信息
 	GetBaseTable() *database.BaseTable                                       //获取表信息
 	GetWriteMode() string                                                    //获取写入模式
 	GetBatchSize() int                                                       //单次批量写入数
@@ -54,7 +54,7 @@ type BaseConfig struct {
 	Username            string                `json:"username"`     //用户名
 	Password            string                `json:"password"`     //密码
 	Column              []string              `json:"column"`       //列信息
-	Connection          rdbmreader.ConnConfig `json:"connection"`   //连接信息
+	Connection          dbmsreader.ConnConfig `json:"connection"`   //连接信息
 	WriteMode           string                `json:"writeMode"`    //写入模式,如插入insert
 	BatchSize           int                   `json:"batchSize"`    //单次批量写入数
 	BatchTimeout        time2.Duration        `json:"batchTimeout"` //单次批量写入超时时间
@@ -104,9 +104,9 @@ func (b *BaseConfig) GetURL() string {
 }
 
 //GetColumns 获取列信息
-func (b *BaseConfig) GetColumns() (columns []rdbmreader.Column) {
+func (b *BaseConfig) GetColumns() (columns []dbmsreader.Column) {
 	for _, v := range b.Column {
-		columns = append(columns, &rdbmreader.BaseColumn{
+		columns = append(columns, &dbmsreader.BaseColumn{
 			Name: v,
 		})
 	}

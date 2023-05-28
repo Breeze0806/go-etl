@@ -17,7 +17,7 @@ package oracle
 import (
 	"testing"
 
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database/oracle"
 )
 
@@ -35,14 +35,14 @@ func Test_execMode(t *testing.T) {
 			args: args{
 				writeMode: oracle.WriteModeInsert,
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 		{
 			name: "2",
 			args: args{
 				writeMode: "",
 			},
-			want: rdbm.ExecModeNormal,
+			want: dbms.ExecModeNormal,
 		},
 	}
 	for _, tt := range tests {

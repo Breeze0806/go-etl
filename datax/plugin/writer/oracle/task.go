@@ -18,29 +18,29 @@ import (
 	"context"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 
 	//oracle dialect
 	"github.com/Breeze0806/go-etl/storage/database/oracle"
 )
 
 var execModeMap = map[string]string{
-	oracle.WriteModeInsert: rdbm.ExecModeNormal,
+	oracle.WriteModeInsert: dbms.ExecModeNormal,
 }
 
 func execMode(writeMode string) string {
 	if mode, ok := execModeMap[writeMode]; ok {
 		return mode
 	}
-	return rdbm.ExecModeNormal
+	return dbms.ExecModeNormal
 }
 
 //Task 任务
 type Task struct {
-	*rdbm.Task
+	*dbms.Task
 }
 
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
-	return rdbm.StartWrite(ctx, rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil), receiver)
+	return dbms.StartWrite(ctx, dbms.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil), receiver)
 }

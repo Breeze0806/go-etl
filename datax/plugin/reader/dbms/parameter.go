@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"bytes"
@@ -116,10 +116,10 @@ func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
 		for _, v := range q.Table().Fields() {
 			if q.Config.GetSplitConfig().Key == v.Name() {
 				var left, right element.Column
-				if left, err = q.Config.GetSplitConfig().Range.leftColumn(); err != nil {
+				if left, err = q.Config.GetSplitConfig().Range.leftColumn(v.Name()); err != nil {
 					return
 				}
-				if right, err = q.Config.GetSplitConfig().Range.rightColumn(); err != nil {
+				if right, err = q.Config.GetSplitConfig().Range.rightColumn(v.Name()); err != nil {
 					return
 				}
 				var li, ri interface{}

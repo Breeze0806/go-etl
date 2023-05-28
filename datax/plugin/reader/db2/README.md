@@ -8,7 +8,7 @@ DB2Reader插件实现了从DB2 LUW数据库读取数据。在底层实现上，D
 
 DB2Reader通过github.com/ibmdb/go_ibm_db使用db2的odbc库连接远程DB2 LUW数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程DB2 LUW数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
 
-DB2Reader通过使用rdbmreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中DB2采取了storage/database/db2实现的Dialect。
+DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中DB2采取了storage/database/db2实现的Dialect。
 
 ## 功能说明
 
@@ -92,7 +92,24 @@ DB2Reader通过使用rdbmreader中定义的查询流程调用go-etl自定义的s
 
 ##### timeAccuracy
 
-- 描述 主要用于配置db2表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
+- 描述 主要用于配置db2表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒），在range设置默认值是必须有值
+- 必选：否
+- 默认值: 无
+
+##### range
+
+###### type
+- 描述 主要用于配置db2表的切分键默认值类型，值为bigInt/string/time，这里会检查表切分键中的类型，请务必确保类型正确。
+- 必选：否
+- 默认值: 无
+
+###### left
+- 描述 主要用于配置db2表的切分键默认最大值
+- 必选：否
+- 默认值: 无
+
+###### right
+- 描述 主要用于配置db2表的切分键默认最小值
 - 必选：否
 - 默认值: 无
 

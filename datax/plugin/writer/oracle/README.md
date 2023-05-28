@@ -8,7 +8,7 @@ OracleReader插件实现了向Oracle数据库写入数据。在底层实现上�
 
 OracleReader通过github.com/godror/godror使用的Oracle Instant Client连接远程oracle数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程Oracle数据库执行。
 
-OracleReader通过使用rdbmwriter中中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Oracle采取了storage/database/oracle实现的Dialect。
+OracleReader通过使用dbmswriter中中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Oracle采取了storage/database/oracle实现的Dialect。
 
 根据你配置的 `writeMode` 生成
 

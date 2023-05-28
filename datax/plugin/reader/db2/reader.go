@@ -17,7 +17,7 @@ package db2
 import (
 	"github.com/Breeze0806/go-etl/config"
 	spireader "github.com/Breeze0806/go-etl/datax/common/spi/reader"
-	"github.com/Breeze0806/go-etl/datax/plugin/reader/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -34,7 +34,7 @@ func (r *Reader) ResourcesConfig() *config.JSON {
 //Job 工作
 func (r *Reader) Job() spireader.Job {
 	job := &Job{
-		Job: rdbm.NewJob(rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
+		Job: dbms.NewJob(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {
 			if q, err = database.Open(name, conf); err != nil {
 				return nil, err
 			}
@@ -48,7 +48,7 @@ func (r *Reader) Job() spireader.Job {
 //Task 任务
 func (r *Reader) Task() spireader.Task {
 	task := &Task{
-		Task: rdbm.NewTask(rdbm.NewBaseDbHandler(func(name string, conf *config.JSON) (q rdbm.Querier, err error) {
+		Task: dbms.NewTask(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {
 			if q, err = database.Open(name, conf); err != nil {
 				return nil, err
 			}

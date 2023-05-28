@@ -16,11 +16,13 @@ package job
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
@@ -266,6 +268,7 @@ func (c *Container) schedule() (err error) {
 		coreconst.DataxCoreContainerJobMaxWorkerNumber, 4)), len(tasksConfigs))
 	defer c.taskSchduler.Stop()
 	var taskGroups []*taskgroup.Container
+
 	for i := range tasksConfigs {
 		var taskGroup *taskgroup.Container
 		taskGroup, err = taskgroup.NewContainer(c.ctx, tasksConfigs[i])
@@ -281,11 +284,26 @@ func (c *Container) schedule() (err error) {
 		}
 		taskGroups = append(taskGroups, taskGroup)
 		go func(taskGroup *taskgroup.Container) {
-			defer c.wg.Done()
-			select {
-			case taskGroup.Err = <-errChan:
-			case <-c.ctx.Done():
+			defer func() {
+				fmt.Printf("\n")
+				c.wg.Done()
+			}()
+			// timer := time.NewTimer(taskGroup.SleepInterval)
+			// defer timer.Stop()
+			for {
+				select {
+				case taskGroup.Err = <-errChan:
+					return
+				case <-c.ctx.Done():
+					return
+				case <-time.After(taskGroup.SleepInterval):
+				}
+				stats := taskGroup.Stats()
+				for _, v := range stats {
+					fmt.Printf("%s\r", v.String())
+				}
 			}
+
 		}(taskGroup)
 	}
 End:
@@ -358,6 +376,13 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 		return
 	}
 
+	var speed *config.JSON
+	speed, err = c.Config().GetConfig(coreconst.DataxJobSettingSpeed)
+	if err != nil {
+		return
+	}
+
+	speed.Remove("channel")
 	channelsPerTaskGroup := c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskgroupChannel, 5)
 	channelNumber := c.needChannelNumber
 	if channelNumber > int64(len(tasksConfigs)) {
@@ -377,6 +402,7 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 
 	for i, v := range ss {
 		for j, vj := range v {
+			tasksConfigs[vj].Set(coreconst.DataxCoreTransportChannelSpeed, speed)
 			confs[i].Set(coreconst.DataxJobContent+"."+strconv.Itoa(j), tasksConfigs[vj])
 		}
 	}
@@ -388,6 +414,12 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
+
+	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
+		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
+		return nil
+	}
 
 	if isByteLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedByte, 0) > 0; isByteLimit {
 		globalLimitedByteSpeed := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedByte, 10*1024*1024)
@@ -431,13 +463,12 @@ func (c *Container) adjustChannelNumber() error {
 		return nil
 	}
 
-	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
-		//此时 DataxJobSettingSpeedChannel必然存在
-		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
-		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
-		return nil
-	}
-
+	// if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
+	// 	//此时 DataxJobSettingSpeedChannel必然存在
+	// 	c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+	// 	log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
+	// 	return nil
+	// }
 	return errors.New("job speed should be setted")
 }
 
@@ -454,6 +485,7 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	job.SetPluginJobConf(readerConfig)
 	job.SetPeerPluginJobConf(writerConfig)
 	job.SetPeerPluginName(c.writerPluginName)
+	job.SetJobID(c.jobID)
 	err = job.Init(c.ctx)
 	if err != nil {
 		return
@@ -474,6 +506,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	job.SetPluginJobConf(writerConfig)
 	job.SetPeerPluginJobConf(readerConfig)
 	job.SetPeerPluginName(c.readerPluginName)
+	job.SetJobID(c.jobID)
 	err = job.Init(c.ctx)
 	if err != nil {
 		return

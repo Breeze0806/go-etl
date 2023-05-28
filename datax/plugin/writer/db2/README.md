@@ -7,7 +7,7 @@ DB2Writer插件实现了向DB2 LUW 数据库写入数据。在底层实现上，
 ## 实现原理
 DB2Writer通过github.com/ibmdb/go_ibm_db利用db2的odbc库连接远程DB2 LUW数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程DB2数据库执行。
 
-DB2Writer通过使用rdbmwriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中DB2采取了storage/database/db2实现的Dialect。
+DB2Writer通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中DB2采取了storage/database/db2实现的Dialect。
 
 根据你配置的 `writeMode` 生成
 

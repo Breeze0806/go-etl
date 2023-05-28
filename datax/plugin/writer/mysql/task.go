@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/rdbm"
+	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/Breeze0806/go-etl/storage/database/mysql"
 )
@@ -26,24 +26,24 @@ import (
 const maxNumPlaceholder = 65535
 
 var execModeMap = map[string]string{
-	database.WriteModeInsert: rdbm.ExecModeNormal,
-	mysql.WriteModeReplace:   rdbm.ExecModeNormal,
+	database.WriteModeInsert: dbms.ExecModeNormal,
+	mysql.WriteModeReplace:   dbms.ExecModeNormal,
 }
 
 func execMode(writeMode string) string {
 	if mode, ok := execModeMap[writeMode]; ok {
 		return mode
 	}
-	return rdbm.ExecModeNormal
+	return dbms.ExecModeNormal
 }
 
 //Task 任务
 type Task struct {
-	*rdbm.Task
+	*dbms.Task
 }
 
 type batchWriter struct {
-	*rdbm.BaseBatchWriter
+	*dbms.BaseBatchWriter
 }
 
 func (b *batchWriter) BatchSize() (size int) {
@@ -56,5 +56,5 @@ func (b *batchWriter) BatchSize() (size int) {
 
 //StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
-	return rdbm.StartWrite(ctx, &batchWriter{BaseBatchWriter: rdbm.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil)}, receiver)
+	return dbms.StartWrite(ctx, &batchWriter{BaseBatchWriter: dbms.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil)}, receiver)
 }

@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rdbm
+package dbms
 
 import (
 	"context"
 	"database/sql"
-	"math/big"
 	"strconv"
+	"time"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
@@ -84,6 +84,7 @@ func (m *MockField) Valuer(c element.Column) database.Valuer {
 
 type MockTable struct {
 	*database.BaseTable
+	conf *config.JSON
 }
 
 func NewMockTable(bt *database.BaseTable) *MockTable {
@@ -101,76 +102,96 @@ func (m *MockTable) AddField(bf *database.BaseField) {
 	m.AppendField(NewMockField(bf, NewMockFieldType(database.GoType(i))))
 }
 
-type MockQuerier struct {
-	PingErr     error
-	QueryErr    error
-	FetchErr    error
-	FetchMinErr error
-	FetchMaxErr error
+func (m *MockTable) SetConfig(conf *config.JSON) {
+	m.conf = conf
 }
 
-func (m *MockQuerier) Table(bt *database.BaseTable) database.Table {
+type MockTableWithJudger struct {
+	*MockTable
+
+	retry    bool
+	oneByOne bool
+}
+
+func NewMockTableWithJudger(bt *database.BaseTable,
+	retry bool, oneByOne bool) *MockTableWithJudger {
+	return &MockTableWithJudger{
+		MockTable: NewMockTable(bt),
+		retry:     retry,
+		oneByOne:  oneByOne,
+	}
+}
+
+func (m *MockTableWithJudger) ShouldRetry(err error) bool {
+	return m.retry
+}
+
+func (m *MockTableWithJudger) ShouldOneByOne(err error) bool {
+	return m.oneByOne
+}
+
+type MockExecer struct {
+	PingErr  error
+	QueryErr error
+	FetchErr error
+	BatchN   int
+	BatchErr error
+	ExecErr  error
+}
+
+func (m *MockExecer) Table(bt *database.BaseTable) database.Table {
 	return NewMockTable(bt)
 }
 
-func (m *MockQuerier) PingContext(ctx context.Context) error {
+func (m *MockExecer) PingContext(ctx context.Context) error {
 	return m.PingErr
 }
 
-func (m *MockQuerier) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (m *MockExecer) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	return nil, m.QueryErr
 }
 
-func (m *MockQuerier) FetchTableWithParam(ctx context.Context,
-	param database.Parameter) (database.Table, error) {
-	if _, ok := param.(*SplitParam); ok {
-		t := NewMockTable(database.NewBaseTable("db", "schema", "name"))
-		t.AddField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)))
-		return t, m.FetchErr
+func (m *MockExecer) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	if query == "wait" {
+		time.Sleep(100 * time.Millisecond)
 	}
-	return nil, m.FetchErr
+	return nil, m.ExecErr
 }
 
-func (m *MockQuerier) FetchRecord(ctx context.Context,
-	param database.Parameter, handler database.FetchHandler) (err error) {
-
-	r, err := handler.CreateRecord()
-	if err != nil {
-		return
-	}
-	switch param.(type) {
-	case *MinParam:
-		if m.FetchMinErr != nil {
-			return m.FetchMinErr
-		}
-		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "f1", 0))
-	case *MaxParam:
-		if m.FetchMaxErr != nil {
-			return m.FetchMaxErr
-		}
-		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(30000)), "f1", 0))
-	}
-	return handler.OnRecord(r)
+func (m *MockExecer) FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error) {
+	return NewMockTable(nil), m.FetchErr
 }
 
-func (m *MockQuerier) FetchRecordWithTx(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {
-	_, err = handler.CreateRecord()
-	if err != nil {
-		return
+func (m *MockExecer) BatchExec(ctx context.Context, opts *database.ParameterOptions) (err error) {
+	m.BatchN--
+	if m.BatchN <= 0 {
+		return m.BatchErr
 	}
-	return handler.OnRecord(element.NewDefaultRecord())
+	return nil
 }
 
-func (m *MockQuerier) Close() error {
+func (m *MockExecer) BatchExecStmt(ctx context.Context, opts *database.ParameterOptions) (err error) {
+	return
+}
+
+func (m *MockExecer) BatchExecWithTx(ctx context.Context, opts *database.ParameterOptions) (err error) {
+	return
+}
+
+func (m *MockExecer) BatchExecStmtWithTx(ctx context.Context, opts *database.ParameterOptions) (err error) {
+	return
+}
+
+func (m *MockExecer) Close() error {
 	return nil
 }
 
 func testJSON() *config.JSON {
 	return testJSONFromString(`{
-		"name" : "rdbmreader",
+		"name" : "dbmswriter",
 		"developer":"Breeze0806",
-		"dialect":"rdbm",
-		"description":"rdbm is base package for relational database"
+		"dialect":"dbms",
+		"description":"dbms is base package for relational database"
 	}`)
 }
 
@@ -182,27 +203,40 @@ func testJSONFromString(json string) *config.JSON {
 	return conf
 }
 
-type MockSender struct {
-	CreateErr error
-	SendErr   error
+type MockReceiver struct {
+	err    error
+	n      int
+	ticker *time.Ticker
 }
 
-func (m *MockSender) CreateRecord() (element.Record, error) {
-	return element.NewDefaultRecord(), m.CreateErr
+func NewMockReceiver(n int, err error, wait time.Duration) *MockReceiver {
+	return &MockReceiver{
+		err:    err,
+		n:      n,
+		ticker: time.NewTicker(wait),
+	}
 }
 
-func (m *MockSender) SendWriter(record element.Record) error {
-	return m.SendErr
+func NewMockReceiverWithoutWait(n int, err error) *MockReceiver {
+	return &MockReceiver{
+		err: err,
+		n:   n,
+	}
 }
 
-func (m *MockSender) Flush() error {
-	return nil
+func (m *MockReceiver) GetFromReader() (element.Record, error) {
+	m.n--
+	if m.n <= 0 {
+		return nil, m.err
+	}
+	if m.ticker != nil {
+		<-m.ticker.C
+		return element.NewDefaultRecord(), nil
+	}
+	return element.NewDefaultRecord(), nil
 }
 
-func (m *MockSender) Terminate() error {
-	return nil
-}
-
-func (m *MockSender) Shutdown() error {
+func (m *MockReceiver) Shutdown() error {
+	m.ticker.Stop()
 	return nil
 }
