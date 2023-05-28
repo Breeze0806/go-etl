@@ -61,7 +61,7 @@
             "speed":{
                 "byte":0,
                 "record":1024,
-                "channel":10
+                "channel":4
             }
         }
     }

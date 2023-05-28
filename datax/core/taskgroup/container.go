@@ -39,7 +39,7 @@ type Container struct {
 	wg            sync.WaitGroup
 	tasks         *taskManager
 	ctx           context.Context
-	sleepInterval time.Duration
+	SleepInterval time.Duration
 	retryInterval time.Duration
 	retryMaxCount int32
 }
@@ -62,13 +62,13 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		return nil, err
 	}
 
-	c.sleepInterval = time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 100)) * time.Millisecond
+	c.SleepInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 1000)) * time.Millisecond
 	c.retryInterval = time.Duration(
 		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 10000)) * time.Millisecond
 	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
 	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
-		c.jobID, c.taskGroupID, c.sleepInterval, c.retryInterval, c.retryMaxCount, conf)
+		c.jobID, c.taskGroupID, c.SleepInterval, c.retryInterval, c.retryMaxCount, conf)
 	return
 }
 
@@ -135,7 +135,7 @@ func (c *Container) Start() (err error) {
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) manage tasks", c.jobID, c.taskGroupID)
-	ticker := time.NewTicker(c.sleepInterval)
+	ticker := time.NewTicker(c.SleepInterval)
 	defer ticker.Stop()
 QueueLoop:
 	//任务队列不为空

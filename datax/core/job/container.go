@@ -284,20 +284,26 @@ func (c *Container) schedule() (err error) {
 		}
 		taskGroups = append(taskGroups, taskGroup)
 		go func(taskGroup *taskgroup.Container) {
-			defer c.wg.Done()
+			defer func() {
+				fmt.Printf("\n")
+				c.wg.Done()
+			}()
+			// timer := time.NewTimer(taskGroup.SleepInterval)
+			// defer timer.Stop()
 			for {
 				select {
 				case taskGroup.Err = <-errChan:
 					return
 				case <-c.ctx.Done():
 					return
-				case <-time.After(1 * time.Second):
+				case <-time.After(taskGroup.SleepInterval):
 				}
 				stats := taskGroup.Stats()
 				for _, v := range stats {
-					fmt.Printf("\n%s\r", v.String())
+					fmt.Printf("%s\r", v.String())
 				}
 			}
+
 		}(taskGroup)
 	}
 End:
