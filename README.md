@@ -38,14 +38,14 @@ go-etl将提供的etl能力如下：
 
 使用[go-etl用户手册](README_USER.md)开始数据同步
 
-### 开发宝典
+### 数据同步开发宝典
 
-参考[go-etl开发者文档](datax/README.md)来帮助开发
+参考[go-etl数据同步开发者文档](datax/README.md)来帮助开发
 
 ## 模块简介
 ### datax
 
-本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go的etl框架，目前主要实现了job框架内的数据同步能力，监控等功能还未实现.
+本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go的etl框架，目前主要实现了job框架内的数据同步能力.
 
 #### plan
 

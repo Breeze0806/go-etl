@@ -23,7 +23,7 @@ import (
 var log = mylog.NewDefaultLogger(os.Stdout, mylog.DebugLevel, "[datax]")
 
 func init() {
-	f, err := os.Create("datax.log")
+	f, err := os.OpenFile("datax.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}

@@ -100,6 +100,7 @@ func main() {
 	wg.Wait()
 }
 
+//添加许可证
 func readPackages(path string) (packages []string, err error) {
 	var list []os.FileInfo
 	list, err = ioutil.ReadDir(path)
@@ -119,6 +120,7 @@ func readPackages(path string) (packages []string, err error) {
 	return
 }
 
+//检查许可证
 func addLicenseHeader(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {

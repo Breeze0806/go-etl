@@ -1,6 +1,6 @@
 # 数据库存储开发者指南
 
-数据库存储是数据库查询和执行SQL的框架，用于关系型数据库的抽象
+数据库存储是数据库查询和执行SQL的框架，用于数据库的抽象,其底层是借助golang标准库的database/sql的接口来实现的。
 
 ## 数据库存储简介
 
@@ -45,7 +45,7 @@ type Source interface {
 
 具体实现Source接口时，可以组合BaseSource以简化具体实现Source接口的实现Table方法可以返回具体的表结构接口。可以看mysql包source.go的实现。
 
-另外，连接信息依赖Config的依赖。目前Config需要用下面的方式定义，否则无法使用rdbm包来实现datax的插件，可以看mysql包config.go的实现。
+另外，连接信息依赖Config的依赖。目前Config需要用下面的方式定义，否则无法使用dbms包来实现datax的插件，可以看mysql包config.go的实现。
 
 ```go
 type Config struct {

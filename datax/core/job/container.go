@@ -83,31 +83,38 @@ func (c *Container) Start() (err error) {
 
 	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobID)
 	if err = c.preHandle(); err != nil {
+		log.Errorf("DataX jobContainer %v preHandle failed.", c.jobID, err)
 		return
 	}
 
 	log.Infof("DataX jobContainer %v starts to init.", c.jobID)
 	if err = c.init(); err != nil {
+		log.Errorf("DataX jobContainer %v init failed.", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to prepare.", c.jobID)
 	if err = c.prepare(); err != nil {
+		log.Errorf("DataX jobContainer %v prepare failed.", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to split.", c.jobID)
 	if err = c.split(); err != nil {
+		log.Errorf("DataX jobContainer %v split failed.", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to schedule.", c.jobID)
 	if err = c.schedule(); err != nil {
+		log.Errorf("DataX jobContainer %v schedule failed.", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to post.", c.jobID)
 	if err = c.post(); err != nil {
+		log.Errorf("DataX jobContainer %v post failed.", c.jobID, err)
 		return
 	}
 	log.Debugf("DataX jobContainer %v starts to postHandle.", c.jobID)
 	if err = c.postHandle(); err != nil {
+		log.Errorf("DataX jobContainer %v postHandle failed.", c.jobID, err)
 		return
 	}
 
@@ -379,7 +386,8 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	var speed *config.JSON
 	speed, err = c.Config().GetConfig(coreconst.DataxJobSettingSpeed)
 	if err != nil {
-		return
+		speed, _ = config.NewJSONFromString("{}")
+		err = nil
 	}
 
 	speed.Remove("channel")
@@ -415,8 +423,8 @@ func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
 
-	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
-		c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+	if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 1) > 0; isChannelLimit {
+		c.needChannelNumber = c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 1)
 		log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
 		return nil
 	}
