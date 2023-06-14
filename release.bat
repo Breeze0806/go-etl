@@ -9,3 +9,4 @@ go generate ./...
 cd cmd\datax
 go build 
 cd ../..
+go run tools/datax/release/main.go

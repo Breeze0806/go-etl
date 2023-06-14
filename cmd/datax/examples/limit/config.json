@@ -28,6 +28,13 @@
                 },
                "transformer":[]
             }
-        ]
+        ],
+        "setting":{
+            "speed":{
+                "byte":10485760,
+                "record":1024,
+                "channel":4
+            }
+        }
     }
 }

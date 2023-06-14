@@ -119,6 +119,8 @@ data -c config.json
 
 #### 2.1.2 使用示例
 
+注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+
 ##### 2.1.2.1 使用mysql同步
 
 - 使用cmd/datax/examples/mysql/init.sql初始化数据库**用于测试**
@@ -264,10 +266,10 @@ go run main.go
 cd ../..
 datax -c examples/split/csv.json
 ```
-- 修改examples/split/mysql.json的split的key为id,dt,str
+- 修改examples/split/config.json的split的key为id,dt,str
 - mysql数据库切分同步整形，日期，字符串类型
 ```bash
-datax -c examples/split/mysql.json
+datax -c examples/split/config.json
 ```
 
 #### 2.1.5 使用preSql和postSql
@@ -280,7 +282,7 @@ preSql和postSql分别是写入数据前和写入数据后的sql语句组
 2.在写入数据后，将原表删除，将临时表重名为新表
 
 ```bash
-datax -c examples/prePostSql/mysql.json
+datax -c examples/prePostSql/config.json
 ```
 
 #### 2.1.6 流控配置
@@ -300,6 +302,15 @@ datax -c examples/prePostSql/mysql.json
     }
 }    
 ```
+##### 2.1.6.1 流控测试
+- 使用程序生成src.csv,发起流控测试
+```bash
+cd cmd/datax/examples/limit
+go run main.go
+cd ../..
+datax -c examples/limit/config.json
+```
+
 
 ### 2.2 多任务数据同步
 

@@ -13,3 +13,6 @@ datax/plugin.go
 *.txt
 *.out
 *.exe
+release/*
+*.zip
+*.tar.gz

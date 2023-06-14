@@ -178,7 +178,7 @@ func (c *Container) init() (err error) {
 
 	writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf)
 
-	collector := statplugin.NewDefaultJobCollector(c.Communication())
+	collector := statplugin.NewDefaultJobCollector()
 	c.jobReader, err = c.initReaderJob(collector, readerConfig, writerConfig)
 	if err != nil {
 		return

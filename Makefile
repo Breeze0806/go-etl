@@ -59,7 +59,7 @@ cover:
 .PHONY: release
 release:
 	@go generate ./... && cd cmd/datax && go build && cd ../..
-
+	@go run tools/datax/release/main.go
 .PHONY: doc
 doc:
 	@godoc -http=:6080
