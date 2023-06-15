@@ -181,11 +181,23 @@ func main() {
 	})
 
 	switch *typ {
+	// datax/plugin/reader中自动生成一个如下mysql的reader模板来帮助开发
+	//     reader---mysql--+-----resources--+--plugin.json
+	//                     |--job.go        |--plugin_job_template.json
+	//                     |--reader.go
+	//                     |--README.md
+	//                     |--task.go
 	case "reader":
 		files = append(files, file{
 			filename: filepath.Join(packPath, "reader.go"),
 			content:  fmt.Sprintf(readerFile, p),
 		})
+	//  datax/plugin/writer中自动生成如下一个mysql的writer模板来帮助开发
+	// 	writer--mysql---+-----resources--+--plugin.json
+	// 					|--job.go        |--plugin_job_template.json
+	// 					|--README.md
+	// 					|--task.go
+	// 					|--writer.go
 	case "writer":
 		files = append(files, file{
 			filename: filepath.Join(packPath, "writer.go"),

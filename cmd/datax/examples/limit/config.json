@@ -1,0 +1,40 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "csvreader",
+                    "parameter": {
+                        "path":["examples/limit/src.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+                "writer":{
+                    "name": "csvwriter",
+                    "parameter": {
+                        "path":["examples/limit/dest.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":10485760,
+                "record":1024,
+                "channel":4
+            }
+        }
+    }
+}

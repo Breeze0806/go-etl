@@ -1,4 +1,4 @@
-# go-etl开发者指南
+# go-etl数据同步开发者指南
 
 ## 同步框架简介
 
@@ -112,14 +112,14 @@ cd tools/go-etl/plugin
 go run main.go -t reader -p Mysql
 ```
 
-这个命令会在go-etl/plugin/reader中自动生成一个如下DB2的reader模板来帮助开发
+这个命令会在datax/plugin/reader中自动生成一个如下mysql的reader模板来帮助开发
 
 ```
-     plugin --- reader---mysql--+-----resources--+--plugin.json
-                                |--job.go        |--plugin_job_template.json
-                                |--reader.go
-                                |--README.md
-                                |--task.go
+    reader---mysql--+-----resources--+--plugin.json
+                    |--job.go        |--plugin_job_template.json
+                    |--reader.go
+                    |--README.md
+                    |--task.go
 ```
 
 如下，不要忘了在plugin.json加入开发者名字和描述
@@ -142,9 +142,9 @@ go run main.go -t reader -p Mysql
 
 查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### rdbm reader
+##### dbms reader
 
-rdbm reader通过抽象数据库存储的DBWrapper结构体成如下Querier，然后利用Querier完成Job和Task的实现
+dbms reader通过抽象数据库存储的DBWrapper结构体成如下Querier，然后利用Querier完成Job和Task的实现
 
 ```go
 //Querier 查询器
@@ -166,7 +166,7 @@ type Querier interface {
 }
 ```
 
-像mysql实现Job和Reader,对于Task需要使用rdbm.StartRead函数实现StartRead方法
+像mysql实现Job和Reader,对于Task需要使用dbms.StartRead函数实现StartRead方法
 
 #### 二维表文件流
 
@@ -239,14 +239,13 @@ cd tools/go-etl/plugin
 go run main.go -t writer -p Mysql
 ```
 
-这个命令会在go-etl/plugin/writer中自动生成如下一个DB2的writer模板来帮助开发
-
+这个命令会在datax/plugin/writer中自动生成如下一个mysql的writer模板来帮助开发
 ```
-    plugin ---- writer--mysql---+-----resources--+--plugin.json
-                                |--job.go        |--plugin_job_template.json
-                                |--README.md
-                                |--task.go
-                                |--writer.go
+    writer--mysql---+-----resources--+--plugin.json
+                    |--job.go        |--plugin_job_template.json
+                    |--README.md
+                    |--task.go
+                    |--writer.go
 ```
 
 如下，不要忘了在plugin.json加入开发者名字和描述
@@ -261,17 +260,17 @@ go run main.go -t writer -p Mysql
 
 另外，这个可以帮助开发者避免在使用插件注册命令后编译时报错。
 
-#### 关系型数据库
+#### 数据库
 
-如果你想帮忙实现关系型数据库的数据源，根据以下方式去实现你的数据源将更加方便
+如果你想帮忙实现数据库的数据源，根据以下方式去实现你的数据源将更加方便，当然前提你所使用的驱动库必须实现golang标准库的database/sql的接口。
 
 ##### 数据库存储
 
 查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### rdbm writer
+##### dbms writer
 
-rdbm writer通过抽象数据库存储的DBWrapper结构体成如下Execer，然后利用Execer完成Job和Task的实现
+dbms writer通过抽象数据库存储的DBWrapper结构体成如下Execer，然后利用Execer完成Job和Task的实现
 
 ```go
 //Execer 执行器
@@ -299,7 +298,7 @@ type Execer interface {
 }
 ```
 
-像mysql实现Job和Writer,对于Task需要使用rdbm.StartWrite函数实现StartWrite方法
+像mysql实现Job和Writer,对于Task需要使用dbms.StartWrite函数实现StartWrite方法
 
 #### 二维表文件流
 
@@ -408,7 +407,7 @@ type Execer interface {
   - 使用正确的数据类型。比如，bool类型的值使用`true`/`false`，而非`"yes"`/`"true"`/`0`等。
   - 合理使用集合类型，比如，用数组替代有分隔符的字符串。
 
-- 类似通用：遵守同一类型的插件的习惯，比如关系型数据库的`connection`参数都是如下结构：
+- 类似通用：遵守同一类型的插件的习惯，比如数据库的`connection`参数都是如下结构：
 
   ```json
   {

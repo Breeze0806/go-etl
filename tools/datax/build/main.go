@@ -371,6 +371,7 @@ func main() {
 	}
 }
 
+//生成plugin的reader/writer插件文件
 type pluginParser struct {
 	infos []pluginInfo
 }
@@ -475,6 +476,8 @@ func writeVersionCode() (err error) {
 	return
 }
 
+//通过git获取git版本号 `tag`` (git commit: `git version`) complied by gp version `go version`
+//例如 v0.1.2 (git commit: c26eb4e15751e41d32402cbf3c7f1ea8af4e3e47) complied by go version go1.16.14 windows/amd64
 func getVersion() (version string, err error) {
 	output := ""
 	if output, err = cmdOutput("git", "describe", "--abbrev=0", "--tags"); err != nil {

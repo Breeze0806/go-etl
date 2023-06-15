@@ -17,16 +17,18 @@ package plugin
 import (
 	"reflect"
 	"testing"
+
+	"github.com/Breeze0806/go/encoding"
 )
 
 type mockJobCollector struct {
 }
 
-func (m *mockJobCollector) MessageMap() map[string][]string {
+func (m *mockJobCollector) MessageMap() *encoding.JSON {
 	return nil
 }
 
-func (m *mockJobCollector) MessageByKey(key string) []string {
+func (m *mockJobCollector) MessageByKey(key string) *encoding.JSON {
 	return nil
 }
 

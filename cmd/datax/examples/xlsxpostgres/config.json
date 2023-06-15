@@ -50,13 +50,6 @@
                 },
                "transformer":[]
             }
-        ],
-        "setting":{
-            "speed":{
-                "byte":0,
-                "record":1024,
-                "channel":4
-            }
-        }
+        ]
     }
 }

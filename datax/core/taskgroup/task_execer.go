@@ -24,7 +24,6 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
-	"github.com/Breeze0806/go-etl/datax/core/statistics/communication"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup/runner"
 	"github.com/Breeze0806/go-etl/datax/core/transport/channel"
 	"github.com/Breeze0806/go-etl/datax/core/transport/exchange"
@@ -43,14 +42,13 @@ type taskExecer struct {
 	readerRunner runner.Runner    //执行运行器
 	wg           sync.WaitGroup
 	errors       chan error
-	//todo: taskCommunication没用
-	taskCommunication communication.Communication
-	destroy           sync.Once
-	key               string
-	exchanger         *exchange.RecordExchanger
-	cancalMutex       sync.Mutex         //由于取消函数会被多线程调用,需要加锁
-	cancel            context.CancelFunc //取消函数
-	attemptCount      *atomic.Int32      //执行次数
+
+	destroy      sync.Once
+	key          string
+	exchanger    *exchange.RecordExchanger
+	cancalMutex  sync.Mutex         //由于取消函数会被多线程调用,需要加锁
+	cancel       context.CancelFunc //取消函数
+	attemptCount *atomic.Int32      //执行次数
 }
 
 //newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey

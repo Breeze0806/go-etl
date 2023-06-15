@@ -36,6 +36,8 @@ func main() {
 		return
 	}
 
+	log.Infof("config: %v\n", *configFile)
+
 	e := newEnveronment(*configFile)
 	defer e.close()
 	if err := e.build(); err != nil {

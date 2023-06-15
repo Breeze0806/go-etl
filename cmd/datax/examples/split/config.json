@@ -11,35 +11,43 @@
         "content":[
             {
                 "reader":{
-                    "name": "postgresreader",
+                    "name": "mysqlreader",
                     "parameter": {
-                        "username": "postgres",
+                        "username": "root",
                         "password": "123456",
+                        "split" : {
+                            "key":"id",
+                            "range":{
+                                "type":"bigInt",
+                                "left":"100000",
+                                "right":"900000"
+                            }
+                        },
                         "column": ["*"],
                         "connection":  {
-                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
+                                "url": "tcp(192.168.15.130:3306)/source?parseTime=false",
                                 "table": {
-                                    "db":"postgres",
-                                    "schema":"source",
-                                    "name":"type_table"
+                                    "db":"source",
+                                    "name":"split"
                                 }
                             },
                         "where": ""
                     }
                 },
                 "writer":{
-                    "name": "postgreswriter",
+                    "name": "mysqlwriter",
                     "parameter": {
-                        "username": "postgres",
+                        "username": "root",
                         "password": "123456",
                         "writeMode": "insert",
                         "column": ["*"],
+                        "session": [],
                         "preSql": [],
                         "connection":  {
-                                "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
+                                "url": "tcp(192.168.15.130:3306)/mysql?parseTime=false",
                                 "table": {
-                                    "schema":"destination",
-                                    "name":"type_table"
+                                    "db":"destination",
+                                    "name":"split"
                                 }
                          },
                         "batchTimeout": "1s",
@@ -48,6 +56,13 @@
                 },
                "transformer":[]
             }
-        ]
+        ],
+        "setting":{
+            "speed":{
+                "byte":0,
+                "record":1024,
+                "channel":4
+            }
+        }
     }
 }
