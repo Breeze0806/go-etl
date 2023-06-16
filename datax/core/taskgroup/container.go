@@ -16,6 +16,7 @@ package taskgroup
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/core"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/pingcap/errors"
 )
@@ -53,6 +55,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		ctx:          ctx,
 	}
 	c.SetConfig(conf)
+	c.SetMetrics(container.NewMetrics())
 	c.jobID, err = c.Config().GetInt64(coreconst.DataxCoreContainerJobID)
 	if err != nil {
 		return nil, err
@@ -61,7 +64,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	if err != nil {
 		return nil, err
 	}
-
+	c.Metrics().Set("taskGroupID", c.taskGroupID)
 	c.SleepInterval = time.Duration(
 		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 1000)) * time.Millisecond
 	c.retryInterval = time.Duration(
@@ -85,17 +88,6 @@ func (c *Container) TaskGroupID() int64 {
 //Do 执行
 func (c *Container) Do() error {
 	return c.Start()
-}
-
-//Stats 获取统计信息
-func (c *Container) Stats() (stats []Stats) {
-	for _, v := range c.tasks.manager.Runs() {
-		stat := v.(*taskExecer).Stats()
-		stat.JobID = c.jobID
-		stat.TaskGroupID = c.taskGroupID
-		stats = append(stats, stat)
-	}
-	return
 }
 
 //Start 开始运行，使用任务调度器执行这些JSON配置
@@ -197,29 +189,46 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 	log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobID, c.taskGroupID, te.Key())
 	go func(te *taskExecer) {
 		defer c.wg.Done()
-		timer := time.NewTimer(c.retryInterval)
-		defer timer.Stop()
-		select {
-		case te.Err = <-errChan:
-			//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
-			if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
-				log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
-					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
-				//关闭任务
-				te.Shutdown()
-				select {
-				case <-timer.C:
-				case <-c.ctx.Done():
+		statsTimer := time.NewTicker(c.SleepInterval)
+		defer statsTimer.Stop()
+		for {
+			select {
+			case te.Err = <-errChan:
+				//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
+				if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
+					log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
+						c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
+					//关闭任务
+					te.Shutdown()
+					timer := time.NewTimer(c.retryInterval)
+					defer timer.Stop()
+					select {
+					case <-timer.C:
+					case <-c.ctx.Done():
+						return
+					}
+					//从运行队列移到待执行队列
+					c.tasks.removeRunAndPushRemain(te)
+				} else {
+					log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
+					//从任务调度器移除
+					c.tasks.removeRun(te)
+					c.setStats(te)
+					return
 				}
-				//从运行队列移到待执行队列
-				c.tasks.removeRunAndPushRemain(te)
-			} else {
-				log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
-				//从任务调度器移除
-				c.tasks.removeRun(te)
+			case <-c.ctx.Done():
+				return
+			case <-statsTimer.C:
+				c.setStats(te)
 			}
-		case <-c.ctx.Done():
 		}
 	}(te)
 	return
+}
+
+func (c *Container) setStats(te *taskExecer) {
+	key := "metrics." + strconv.FormatInt(te.taskID, 10)
+	stats := te.Stats()
+
+	c.Metrics().Set(key, stats)
 }

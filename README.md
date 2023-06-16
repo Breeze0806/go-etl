@@ -34,9 +34,9 @@ go-etl将提供的etl能力如下：
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
-### 用户手册
+### 数据同步用户手册
 
-使用[go-etl用户手册](README_USER.md)开始数据同步
+使用[go-etl数据同步用户手册](README_USER.md)开始数据同步
 
 ### 数据同步开发宝典
 
@@ -52,7 +52,6 @@ go-etl将提供的etl能力如下：
 - [x] 实现关系型数据库的任务切分
 - [x] 实现监控模块
 - [x] 实现流控模块
-- [ ] 实现关系型数据库入库断点续传
 
 ### storage
 

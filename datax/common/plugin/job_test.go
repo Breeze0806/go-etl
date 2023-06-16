@@ -24,11 +24,11 @@ import (
 type mockJobCollector struct {
 }
 
-func (m *mockJobCollector) MessageMap() *encoding.JSON {
+func (m *mockJobCollector) JSON() *encoding.JSON {
 	return nil
 }
 
-func (m *mockJobCollector) MessageByKey(key string) *encoding.JSON {
+func (m *mockJobCollector) JSONByKey(key string) *encoding.JSON {
 	return nil
 }
 

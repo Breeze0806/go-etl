@@ -1,4 +1,4 @@
-# go-etl用户手册
+# go-etl数据同步用户手册
 
 go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
 
@@ -103,23 +103,6 @@ data -c config.json
         ]
     }
 }
-```
-#### 流控配置
-
-之前speed的byte和record配置并不会生效，现在加入流控特性后，byte和record将会生效，byte会限制缓存消息字节数，而record会限制缓存消息条数，如果byte设置过小会导致缓存过小而导致同步数据失败。当byte为0或负数时，限制器将不会工作,例如byte为10485760，现在为10Mb(10*1024*1024)。
-```json
-{
-    "job":{
-        "setting":{
-            "speed":{
-                "byte":,
-                "record":10485760,
-                "channel":4
-            }
-        }
-    }
-}    
-
 ```
 
 `reader`和`writer`的配置如下：

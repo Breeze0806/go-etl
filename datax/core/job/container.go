@@ -16,7 +16,6 @@ package job
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -32,6 +31,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/common/util"
 	"github.com/Breeze0806/go-etl/datax/core"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 	statplugin "github.com/Breeze0806/go-etl/datax/core/statistics/container/plugin"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
 	"github.com/Breeze0806/go-etl/schedule"
@@ -68,10 +68,12 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		ctx:          ctx,
 	}
 	c.SetConfig(conf)
+	c.SetMetrics(container.NewMetrics())
 	c.jobID = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobID, -1)
 	if c.jobID < 0 {
 		return nil, errors.New("container job id is invalid")
 	}
+	c.Metrics().Set("jobID", c.jobID)
 	return
 }
 
@@ -178,7 +180,7 @@ func (c *Container) init() (err error) {
 
 	writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf)
 
-	collector := statplugin.NewDefaultJobCollector()
+	collector := statplugin.NewDefaultJobCollector(c.Metrics())
 	c.jobReader, err = c.initReaderJob(collector, readerConfig, writerConfig)
 	if err != nil {
 		return
@@ -290,28 +292,26 @@ func (c *Container) schedule() (err error) {
 			goto End
 		}
 		taskGroups = append(taskGroups, taskGroup)
-		go func(taskGroup *taskgroup.Container) {
+		go func(taskGroup *taskgroup.Container, i int) {
 			defer func() {
-				fmt.Printf("\n")
 				c.wg.Done()
 			}()
-			// timer := time.NewTimer(taskGroup.SleepInterval)
-			// defer timer.Stop()
+			statsTimer := time.NewTicker(taskGroup.SleepInterval)
+			defer statsTimer.Stop()
 			for {
 				select {
 				case taskGroup.Err = <-errChan:
+					c.setStats(taskGroup, i)
 					return
 				case <-c.ctx.Done():
+					c.setStats(taskGroup, i)
 					return
-				case <-time.After(taskGroup.SleepInterval):
+				case <-statsTimer.C:
+					c.setStats(taskGroup, i)
 				}
-				stats := taskGroup.Stats()
-				for _, v := range stats {
-					fmt.Printf("%s\r", v.String())
-				}
-			}
 
-		}(taskGroup)
+			}
+		}(taskGroup, i)
 	}
 End:
 	c.wg.Wait()
@@ -327,6 +327,11 @@ End:
 		return errors.NewNoStackError(b.String())
 	}
 	return
+}
+
+func (c *Container) setStats(taskGroup *taskgroup.Container, i int) {
+	stats := taskGroup.Metrics().JSON().Clone()
+	c.Metrics().Set("metrics."+strconv.Itoa(i), stats)
 }
 
 //post 后置通知
