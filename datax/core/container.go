@@ -16,21 +16,34 @@ package core
 
 import (
 	"github.com/Breeze0806/go-etl/config"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 )
 
 //Container 容器
 type Container interface {
 	Start() error
+	Metrics() *container.Metrics
 }
 
 //BaseCotainer 基础容器
 type BaseCotainer struct {
-	conf *config.JSON
+	conf    *config.JSON
+	metrics *container.Metrics
 }
 
 //NewBaseCotainer 创建基础容器
 func NewBaseCotainer() *BaseCotainer {
 	return &BaseCotainer{}
+}
+
+//SetMetrics 设置指标
+func (b *BaseCotainer) SetMetrics(metrics *container.Metrics) {
+	b.metrics = metrics
+}
+
+//Metrics 指标
+func (b *BaseCotainer) Metrics() *container.Metrics {
+	return b.metrics
 }
 
 //SetConfig 设置JSON配置

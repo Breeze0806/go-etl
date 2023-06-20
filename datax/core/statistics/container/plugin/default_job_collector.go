@@ -16,23 +16,26 @@ package plugin
 
 import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 	"github.com/Breeze0806/go/encoding"
 )
 
 //DefaultJobCollector 默认工作收集器
-type DefaultJobCollector struct{}
+type DefaultJobCollector struct {
+	metrics *container.Metrics
+}
 
 //NewDefaultJobCollector 创建默认工作收集器
-func NewDefaultJobCollector() plugin.JobCollector {
-	return &DefaultJobCollector{}
+func NewDefaultJobCollector(metrics *container.Metrics) plugin.JobCollector {
+	return &DefaultJobCollector{metrics: metrics}
 }
 
-//MessageMap 空方法
-func (d *DefaultJobCollector) MessageMap() *encoding.JSON {
-	return nil
+//JSON  获取json的指标
+func (d *DefaultJobCollector) JSON() *encoding.JSON {
+	return d.metrics.JSON()
 }
 
-//MessageByKey 空方法
-func (d *DefaultJobCollector) MessageByKey(key string) *encoding.JSON {
-	return nil
+//JSONByKey 获取关键字是key的json的指标
+func (d *DefaultJobCollector) JSONByKey(key string) *encoding.JSON {
+	return d.metrics.Get(key)
 }

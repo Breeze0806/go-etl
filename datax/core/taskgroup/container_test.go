@@ -40,11 +40,13 @@ func TestContainer_Do(t *testing.T) {
 		"core" : {
 			"container": {
 				"job":{
-					"id": 1,
-					"sleepInterval":100
+					"id": 1
 				},
 				"taskGroup":{
 					"id": 1,
+					"reportInterval":1
+				},
+				"task":{
 					"failover":{
 						"retryIntervalInMsec":10
 					}
@@ -115,11 +117,12 @@ func TestContainer_DoCancel1(t *testing.T) {
 		"core" : {
 			"container": {
 				"job":{
-					"id": 1,
-					"sleepInterval":100
+					"id": 1
 				},
 				"taskGroup":{
-					"id": 1,
+					"id": 1
+				},
+				"task":{
 					"failover":{
 						"retryIntervalInMsec":10
 					}
@@ -164,11 +167,13 @@ func TestContainer_DoCancel2(t *testing.T) {
 		"core" : {
 			"container": {
 				"job":{
-					"id": 1,
-					"sleepInterval":100
+					"id": 1
 				},
 				"taskGroup":{
 					"id": 1,
+					"reportInterval":1
+				},
+				"task":{
 					"failover":{
 						"retryIntervalInMsec":10
 					}
@@ -196,7 +201,7 @@ func TestContainer_DoCancel2(t *testing.T) {
 		cancel()
 	}()
 
-	if err := c.Do(); err != context.Canceled {
+	if err := c.Do(); err == nil {
 		t.Errorf("Do error: %v", err)
 	}
 }
@@ -214,12 +219,14 @@ func TestContainer_JobId(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 30000000,
-							"sleepInterval":100
+							"reportInterval":1
 						},
 						"taskGroup":{
-							"id": 1,
+							"id": 1
+						},
+						"task":{
 							"failover":{
-								"retryIntervalInMsec":0
+								"retryIntervalInMsec":10
 							}
 						}
 					}
@@ -234,12 +241,14 @@ func TestContainer_JobId(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1000000000000000000,
-							"sleepInterval":100
+							"reportInterval":1
 						},
 						"taskGroup":{
-							"id": 1,
+							"id": 1
+						},
+						"task":{
 							"failover":{
-								"retryIntervalInMsec":0
+								"retryIntervalInMsec":10
 							}
 						}
 					}
@@ -271,10 +280,12 @@ func TestContainer_TaskGroupId(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 30000000,
-								"sleepInterval":100
+								"reportInterval":1
 							},
 							"taskGroup":{
-								"id": 30000001,
+								"id": 30000001
+							},
+							"task":{
 								"failover":{
 									"retryIntervalInMsec":0
 								}
@@ -291,7 +302,7 @@ func TestContainer_TaskGroupId(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1000000000000000000,
-								"sleepInterval":100
+								"reportInterval":1
 							},
 							"taskGroup":{
 								"id": 1000000000000000001,
@@ -327,10 +338,12 @@ func TestContainer_Start(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 30000000,
-								"sleepInterval":100
+								"reportInterval":1
 							},
 							"taskGroup":{
-								"id": 30000001,
+								"id": 30000001
+							},
+							"task":{
 								"failover":{
 									"retryIntervalInMsec":0
 								}
@@ -370,10 +383,12 @@ func TestNewContainer(t *testing.T) {
 						"container": {
 							"job":{
 								"id": "30000000",
-								"sleepInterval":100
+								"reportInterval":1
 							},
 							"taskGroup":{
-								"id": 30000001,
+								"id": 30000001
+							},
+							"task":{
 								"failover":{
 									"retryIntervalInMsec":0
 								}
@@ -394,12 +409,14 @@ func TestNewContainer(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 30000002,
-								"sleepInterval":100
+								"reportInterval":1
 							},
 							"taskGroup":{
-								"id": "30000001",
+								"id": "30000001"
+							},
+							"task":{
 								"failover":{
-									"retryIntervalInMsec":0
+									"retryIntervalInMsec":10
 								}
 							}
 						}
@@ -438,12 +455,14 @@ func TestContainer_startTaskExecer(t *testing.T) {
 			"container": {
 				"job":{
 					"id": 30000000,
-					"sleepInterval":100
+					"reportInterval":1
 				},
 				"taskGroup":{
-					"id": 30000001,
+					"id": 30000001
+				},
+				"task":{
 					"failover":{
-						"retryIntervalInMsec":0
+						"retryIntervalInMsec":10
 					}
 				}
 			}

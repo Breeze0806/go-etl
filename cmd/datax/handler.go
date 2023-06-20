@@ -12,13 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package plugin
+package main
 
-import "github.com/Breeze0806/go/encoding"
+import (
+	"net/http"
 
-//JobCollector 工作信息采集器，用于统计整个工作的进度，错误信息等
-//toto 当前未实现监控模块，为此需要在后面来实现这个接口的结构体
-type JobCollector interface {
-	JSON() *encoding.JSON
-	JSONByKey(key string) *encoding.JSON
+	"github.com/Breeze0806/go-etl/datax"
+)
+
+type handler struct {
+	engine *datax.Engine
+}
+
+func newHandler(engine *datax.Engine) *handler {
+	return &handler{
+		engine: engine,
+	}
+}
+
+func (h *handler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	if h.engine.Metrics().JSON() == nil {
+		return
+	}
+	w.Write([]byte(h.engine.Metrics().JSON().String()))
 }

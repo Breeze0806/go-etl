@@ -251,10 +251,8 @@ Loop:
 
 //Stats 统计信息
 type Stats struct {
-	JobID       int64             `json:"jobID"`
-	TaskGroupID int64             `json:"taskGroupID"`
-	TaskID      int64             `json:"taskID"`
-	Channel     channel.StatsJSON `json:"channel"`
+	TaskID  int64             `json:"taskID"`
+	Channel channel.StatsJSON `json:"channel"`
 }
 
 func (s *Stats) String() string {

@@ -16,6 +16,7 @@ package taskgroup
 
 import (
 	"context"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/core"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/pingcap/errors"
 )
@@ -33,15 +35,15 @@ type Container struct {
 
 	Err error
 
-	jobID         int64
-	taskGroupID   int64
-	scheduler     *schedule.TaskSchduler
-	wg            sync.WaitGroup
-	tasks         *taskManager
-	ctx           context.Context
-	SleepInterval time.Duration
-	retryInterval time.Duration
-	retryMaxCount int32
+	jobID          int64
+	taskGroupID    int64
+	scheduler      *schedule.TaskSchduler
+	wg             sync.WaitGroup
+	tasks          *taskManager
+	ctx            context.Context
+	ReportInterval time.Duration
+	retryInterval  time.Duration
+	retryMaxCount  int32
 }
 
 //NewContainer 根据JSON配置conf创建任务组容器
@@ -53,6 +55,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		ctx:          ctx,
 	}
 	c.SetConfig(conf)
+	c.SetMetrics(container.NewMetrics())
 	c.jobID, err = c.Config().GetInt64(coreconst.DataxCoreContainerJobID)
 	if err != nil {
 		return nil, err
@@ -61,14 +64,14 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	if err != nil {
 		return nil, err
 	}
-
-	c.SleepInterval = time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 1000)) * time.Millisecond
+	c.Metrics().Set("taskGroupID", c.taskGroupID)
+	c.ReportInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupReportinterval, 1)) * time.Second
 	c.retryInterval = time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 10000)) * time.Millisecond
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverRetryintervalinmsec, 1000)) * time.Millisecond
 	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
-	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
-		c.jobID, c.taskGroupID, c.SleepInterval, c.retryInterval, c.retryMaxCount, conf)
+	log.Infof("datax job(%v) taskgruop(%v) reportInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
+		c.jobID, c.taskGroupID, c.ReportInterval, c.retryInterval, c.retryMaxCount, conf)
 	return
 }
 
@@ -85,17 +88,6 @@ func (c *Container) TaskGroupID() int64 {
 //Do 执行
 func (c *Container) Do() error {
 	return c.Start()
-}
-
-//Stats 获取统计信息
-func (c *Container) Stats() (stats []Stats) {
-	for _, v := range c.tasks.manager.Runs() {
-		stat := v.(*taskExecer).Stats()
-		stat.JobID = c.jobID
-		stat.TaskGroupID = c.taskGroupID
-		stats = append(stats, stat)
-	}
-	return
 }
 
 //Start 开始运行，使用任务调度器执行这些JSON配置
@@ -135,7 +127,7 @@ func (c *Container) Start() (err error) {
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) manage tasks", c.jobID, c.taskGroupID)
-	ticker := time.NewTicker(c.SleepInterval)
+	ticker := time.NewTicker(c.ReportInterval)
 	defer ticker.Stop()
 QueueLoop:
 	//任务队列不为空
@@ -194,32 +186,51 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 		c.wg.Done()
 		return err
 	}
-	log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobID, c.taskGroupID, te.Key())
 	go func(te *taskExecer) {
-		defer c.wg.Done()
-		timer := time.NewTimer(c.retryInterval)
-		defer timer.Stop()
-		select {
-		case te.Err = <-errChan:
-			//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
-			if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
-				log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
-					c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
-				//关闭任务
-				te.Shutdown()
-				select {
-				case <-timer.C:
-				case <-c.ctx.Done():
+		log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobID, c.taskGroupID, te.Key())
+		defer func() {
+			log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
+			c.wg.Done()
+		}()
+		statsTimer := time.NewTicker(c.ReportInterval)
+		defer statsTimer.Stop()
+		for {
+			select {
+			case te.Err = <-errChan:
+				//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
+				if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
+					log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
+						c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
+					//关闭任务
+					te.Shutdown()
+					timer := time.NewTimer(c.retryInterval)
+					defer timer.Stop()
+					select {
+					case <-timer.C:
+					case <-c.ctx.Done():
+						return
+					}
+					//从运行队列移到待执行队列
+					c.tasks.removeRunAndPushRemain(te)
+				} else {
+					//从任务调度器移除
+					c.tasks.removeRun(te)
+					c.setStats(te)
 				}
-				//从运行队列移到待执行队列
-				c.tasks.removeRunAndPushRemain(te)
-			} else {
-				log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
-				//从任务调度器移除
-				c.tasks.removeRun(te)
+				return
+			case <-c.ctx.Done():
+				return
+			case <-statsTimer.C:
+				c.setStats(te)
 			}
-		case <-c.ctx.Done():
 		}
 	}(te)
 	return
+}
+
+func (c *Container) setStats(te *taskExecer) {
+	key := "metrics." + strconv.FormatInt(te.taskID, 10)
+	stats := te.Stats()
+
+	c.Metrics().Set(key, stats)
 }

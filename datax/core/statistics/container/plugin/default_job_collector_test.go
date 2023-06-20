@@ -12,83 +12,67 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core
+package plugin
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 )
 
-func testJSONFromString(s string) *config.JSON {
-	j, err := config.NewJSONFromString(s)
-	if err != nil {
-		panic(err)
-	}
-	return j
+type testStruct struct {
+	Path string `json:"path"`
 }
 
-func TestBaseCotainer_SetConfig(t *testing.T) {
-	type args struct {
-		conf *config.JSON
-	}
-	tests := []struct {
-		name string
-		b    *BaseCotainer
-		args args
-		want *config.JSON
-	}{
-		{
-			name: "1",
-			b:    NewBaseCotainer(),
-			args: args{
-				conf: testJSONFromString("{}"),
-			},
-			want: testJSONFromString("{}"),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.b.SetConfig(tt.args.conf)
-			if got := tt.b.Config(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Config() = %v, want: %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestBaseCotainer_SetGetMetrics(t *testing.T) {
-	type testStruct struct {
-		Path string `json:"path"`
-	}
-
-	type args struct {
-		metrics *container.Metrics
-	}
+func TestDefaultJobCollector_JSON(t *testing.T) {
 	m := container.NewMetrics()
 	m.Set("test", testStruct{Path: "value"})
 	tests := []struct {
 		name string
-		b    *BaseCotainer
-		args args
+		d    *DefaultJobCollector
 		want string
 	}{
 		{
 			name: "1",
-			b:    NewBaseCotainer(),
-			args: args{
-				metrics: m,
-			},
+			d:    NewDefaultJobCollector(m).(*DefaultJobCollector),
 			want: `{"test":{"path":"value"}}`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.b.SetMetrics(tt.args.metrics)
-			if got := tt.b.Metrics().JSON().String(); got != tt.want {
-				t.Errorf("Metrics() = %v, want: %v", got, tt.want)
+			if got := tt.d.JSON().String(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultJobCollector.JSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultJobCollector_JSONByKey(t *testing.T) {
+	m := container.NewMetrics()
+	m.Set("test", testStruct{Path: "value"})
+	type args struct {
+		key string
+	}
+	tests := []struct {
+		name string
+		d    *DefaultJobCollector
+		args args
+		want string
+	}{
+		{
+			name: "1",
+			d:    NewDefaultJobCollector(m).(*DefaultJobCollector),
+			args: args{
+				key: "test",
+			},
+			want: `{"path":"value"}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.d.JSONByKey(tt.args.key).String(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultJobCollector.JSONByKey() = %v, want %v", got, tt.want)
 			}
 		})
 	}

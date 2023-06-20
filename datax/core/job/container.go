@@ -16,7 +16,6 @@ package job
 
 import (
 	"context"
-	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -32,6 +31,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 	"github.com/Breeze0806/go-etl/datax/common/util"
 	"github.com/Breeze0806/go-etl/datax/core"
+	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 	statplugin "github.com/Breeze0806/go-etl/datax/core/statistics/container/plugin"
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
 	"github.com/Breeze0806/go-etl/schedule"
@@ -54,6 +54,7 @@ type Container struct {
 	endTransferTimeStamp   int64
 	needChannelNumber      int64
 	totalStage             int
+	reportInterval         time.Duration
 	//todo ErrorRecordChecker未使用
 	errorLimit   util.ErrorRecordChecker
 	taskSchduler *schedule.TaskSchduler
@@ -68,10 +69,13 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		ctx:          ctx,
 	}
 	c.SetConfig(conf)
+	c.SetMetrics(container.NewMetrics())
 	c.jobID = c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobID, -1)
 	if c.jobID < 0 {
 		return nil, errors.New("container job id is invalid")
 	}
+	c.reportInterval = time.Duration(c.Config().GetFloat64OrDefaullt(coreconst.DataxCoreContainerJobReportinterval, 1)) * time.Second
+	c.Metrics().Set("jobID", c.jobID)
 	return
 }
 
@@ -83,38 +87,38 @@ func (c *Container) Start() (err error) {
 
 	log.Debugf("DataX jobContainer %v starts to preHandle.", c.jobID)
 	if err = c.preHandle(); err != nil {
-		log.Errorf("DataX jobContainer %v preHandle failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v preHandle failed. err: %v", c.jobID, err)
 		return
 	}
 
 	log.Infof("DataX jobContainer %v starts to init.", c.jobID)
 	if err = c.init(); err != nil {
-		log.Errorf("DataX jobContainer %v init failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v init failed. err: %v", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to prepare.", c.jobID)
 	if err = c.prepare(); err != nil {
-		log.Errorf("DataX jobContainer %v prepare failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v prepare failed. err: %v", c.jobID, err)
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to split.", c.jobID)
+	log.Infof("DataX jobContainer %v starts to split. err: %v", c.jobID)
 	if err = c.split(); err != nil {
-		log.Errorf("DataX jobContainer %v split failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v split failed. err: %v", c.jobID, err)
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to schedule.", c.jobID)
+	log.Infof("DataX jobContainer %v starts to schedule. err: %v", c.jobID)
 	if err = c.schedule(); err != nil {
-		log.Errorf("DataX jobContainer %v schedule failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v schedule failed. err: %v", c.jobID, err)
 		return
 	}
 	log.Infof("DataX jobContainer %v starts to post.", c.jobID)
 	if err = c.post(); err != nil {
-		log.Errorf("DataX jobContainer %v post failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v post failed. err: %v", c.jobID, err)
 		return
 	}
 	log.Debugf("DataX jobContainer %v starts to postHandle.", c.jobID)
 	if err = c.postHandle(); err != nil {
-		log.Errorf("DataX jobContainer %v postHandle failed.", c.jobID, err)
+		log.Errorf("DataX jobContainer %v postHandle failed. err: %v", c.jobID, err)
 		return
 	}
 
@@ -178,7 +182,7 @@ func (c *Container) init() (err error) {
 
 	writerConfig.Set(coreconst.DataxJobSetting, jobSettingConf)
 
-	collector := statplugin.NewDefaultJobCollector()
+	collector := statplugin.NewDefaultJobCollector(c.Metrics())
 	c.jobReader, err = c.initReaderJob(collector, readerConfig, writerConfig)
 	if err != nil {
 		return
@@ -290,28 +294,26 @@ func (c *Container) schedule() (err error) {
 			goto End
 		}
 		taskGroups = append(taskGroups, taskGroup)
-		go func(taskGroup *taskgroup.Container) {
+		go func(taskGroup *taskgroup.Container, i int) {
 			defer func() {
-				fmt.Printf("\n")
 				c.wg.Done()
 			}()
-			// timer := time.NewTimer(taskGroup.SleepInterval)
-			// defer timer.Stop()
+			statsTimer := time.NewTicker(c.reportInterval)
+			defer statsTimer.Stop()
 			for {
 				select {
 				case taskGroup.Err = <-errChan:
+					c.setStats(taskGroup, i)
 					return
 				case <-c.ctx.Done():
+					c.setStats(taskGroup, i)
 					return
-				case <-time.After(taskGroup.SleepInterval):
+				case <-statsTimer.C:
+					c.setStats(taskGroup, i)
 				}
-				stats := taskGroup.Stats()
-				for _, v := range stats {
-					fmt.Printf("%s\r", v.String())
-				}
-			}
 
-		}(taskGroup)
+			}
+		}(taskGroup, i)
 	}
 End:
 	c.wg.Wait()
@@ -327,6 +329,11 @@ End:
 		return errors.NewNoStackError(b.String())
 	}
 	return
+}
+
+func (c *Container) setStats(taskGroup *taskgroup.Container, i int) {
+	stats := taskGroup.Metrics().JSON().Clone()
+	c.Metrics().Set("metrics."+strconv.Itoa(i), stats)
 }
 
 //post 后置通知

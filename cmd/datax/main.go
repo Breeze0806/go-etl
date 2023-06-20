@@ -26,6 +26,7 @@ func main() {
 	initLog()
 	var configFile = flag.String("c", "config.json", "config")
 	var wizardFile = flag.String("w", "", "wizard")
+	var httpAddr = flag.String("http", "", "http")
 	flag.Parse()
 	if *wizardFile != "" {
 		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigsAndScripts(); err != nil {
@@ -38,7 +39,7 @@ func main() {
 
 	log.Infof("config: %v\n", *configFile)
 
-	e := newEnveronment(*configFile)
+	e := newEnveronment(*configFile, *httpAddr)
 	defer e.close()
 	if err := e.build(); err != nil {
 		fmt.Printf("run fail. err: %v\n", err)

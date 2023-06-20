@@ -3,7 +3,7 @@
         "container": {
             "job":{
                 "id": 1,
-                "sleepInterval":100
+                "sleepInterval":1000
             }
         }
     },
@@ -31,7 +31,7 @@
         ],
         "setting":{
             "speed":{
-                "byte":10485760,
+                "byte":204800,
                 "record":1024,
                 "channel":4
             }

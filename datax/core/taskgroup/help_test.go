@@ -25,6 +25,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/reader"
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
+	"github.com/Breeze0806/go-etl/element"
 )
 
 type mockPlugin struct {
@@ -120,6 +121,7 @@ func newMockRandReaderTask(errs []error) *mockRandReaderTask {
 }
 
 func (m *mockRandReaderTask) StartRead(ctx context.Context, sender plugin.RecordSender) error {
+	defer sender.SendWriter(element.GetTerminateRecord())
 	if x := m.rand.Int31n(math.MaxInt16); x < math.MaxInt16/2 {
 		return m.startReadErr
 	}

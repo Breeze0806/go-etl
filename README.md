@@ -34,9 +34,9 @@ go-etl将提供的etl能力如下：
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
 
-### 用户手册
+### 数据同步用户手册
 
-使用[go-etl用户手册](README_USER.md)开始数据同步
+使用[go-etl数据同步用户手册](README_USER.md)开始数据同步
 
 ### 数据同步开发宝典
 
@@ -46,14 +46,6 @@ go-etl将提供的etl能力如下：
 ### datax
 
 本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go的etl框架，目前主要实现了job框架内的数据同步能力.
-
-#### plan
-
-- [x] 实现关系型数据库的任务切分
-- [x] 实现监控模块
-- [x] 实现流控模块
-- [ ] 实现关系型数据库入库断点续传
-
 ### storage
 
 #### database
@@ -65,28 +57,11 @@ go-etl将提供的etl能力如下：
 主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等
 
 #### file
-
-#### mq
-
-##### plan
-
-暂无时间安排计划，欢迎来实现
-
-#### elasticsearch
-
-##### plan
-
-暂无时间安排计划，欢迎来实现
+主要用于文件的解析，如cvs，excel等
 
 ### transform
 
-主要用于类sql数据转化
-
-#### plan
-
-- [ ] 引入tidb数据库的mysql解析能力
-- [ ] 引入tidb数据库的mysql函数计算能力
-- [ ] 运用mysql解析能力和mysql函数计算能力实现数据转化能力
+主要用于类sql数据转化,类似百度引擎
 
 ### tools
 
@@ -106,6 +81,10 @@ go generate ./...
 ##### plugin
 
 数据源插件模板新增工具，用于新增一个reader或writer模板，配合发布命令使用，减少开发者负担
+
+##### plugin
+
+数据源插件打包工具
 
 #### license
 
