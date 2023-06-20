@@ -123,6 +123,24 @@ data -c config.json
 
 ##### 2.1.2.1 使用mysql同步
 
+`reader`和`writer`的配置如下：
+
+| 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
+| ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
+| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
+|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
+|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
+|              | SQL Server         | √            | √          | [读](datax/plugin/reader/sqlserver/README.md)、[写](datax/plugin/writer/sqlserver/README.md) |
+|              | Oracle             | √            | √          | [读](datax/plugin/reader/oracle/README.md)、[写](datax/plugin/writer/oracle/README.md) |
+| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
+|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
+
+#### 2.1.2 使用示例
+
+注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
+
+##### 2.1.2.1 使用mysql同步
+
 - 使用cmd/datax/examples/mysql/init.sql初始化数据库**用于测试**
 - 开启同步mysql命令
 
