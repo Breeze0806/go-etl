@@ -35,15 +35,15 @@ type Container struct {
 
 	Err error
 
-	jobID         int64
-	taskGroupID   int64
-	scheduler     *schedule.TaskSchduler
-	wg            sync.WaitGroup
-	tasks         *taskManager
-	ctx           context.Context
-	SleepInterval time.Duration
-	retryInterval time.Duration
-	retryMaxCount int32
+	jobID          int64
+	taskGroupID    int64
+	scheduler      *schedule.TaskSchduler
+	wg             sync.WaitGroup
+	tasks          *taskManager
+	ctx            context.Context
+	ReportInterval time.Duration
+	retryInterval  time.Duration
+	retryMaxCount  int32
 }
 
 //NewContainer 根据JSON配置conf创建任务组容器
@@ -65,13 +65,13 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		return nil, err
 	}
 	c.Metrics().Set("taskGroupID", c.taskGroupID)
-	c.SleepInterval = time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerJobSleepinterval, 1000)) * time.Millisecond
+	c.ReportInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupReportinterval, 1)) * time.Second
 	c.retryInterval = time.Duration(
-		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 10000)) * time.Millisecond
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverRetryintervalinmsec, 1000)) * time.Millisecond
 	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
-	log.Infof("datax job(%v) taskgruop(%v) sleepInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
-		c.jobID, c.taskGroupID, c.SleepInterval, c.retryInterval, c.retryMaxCount, conf)
+	log.Infof("datax job(%v) taskgruop(%v) reportInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
+		c.jobID, c.taskGroupID, c.ReportInterval, c.retryInterval, c.retryMaxCount, conf)
 	return
 }
 
@@ -127,7 +127,7 @@ func (c *Container) Start() (err error) {
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) manage tasks", c.jobID, c.taskGroupID)
-	ticker := time.NewTicker(c.SleepInterval)
+	ticker := time.NewTicker(c.ReportInterval)
 	defer ticker.Stop()
 QueueLoop:
 	//任务队列不为空
@@ -186,10 +186,13 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 		c.wg.Done()
 		return err
 	}
-	log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobID, c.taskGroupID, te.Key())
 	go func(te *taskExecer) {
-		defer c.wg.Done()
-		statsTimer := time.NewTicker(c.SleepInterval)
+		log.Debugf("datax job(%v) taskgruop(%v) task(%v) start", c.jobID, c.taskGroupID, te.Key())
+		defer func() {
+			log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
+			c.wg.Done()
+		}()
+		statsTimer := time.NewTicker(c.ReportInterval)
 		defer statsTimer.Stop()
 		for {
 			select {
@@ -210,12 +213,11 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 					//从运行队列移到待执行队列
 					c.tasks.removeRunAndPushRemain(te)
 				} else {
-					log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
 					//从任务调度器移除
 					c.tasks.removeRun(te)
 					c.setStats(te)
-					return
 				}
+				return
 			case <-c.ctx.Done():
 				return
 			case <-statsTimer.C:

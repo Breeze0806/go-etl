@@ -44,7 +44,7 @@ func TestNewContainer(t *testing.T) {
 						"container": {
 							"job":{
 								"id": -3,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -67,7 +67,7 @@ func TestNewContainer(t *testing.T) {
 						"container": {
 							"job":{
 								"id": "1000",
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -110,7 +110,7 @@ func TestContainer_preHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -135,7 +135,7 @@ func TestContainer_preHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -157,7 +157,7 @@ func TestContainer_preHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -183,7 +183,7 @@ func TestContainer_preHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -209,7 +209,7 @@ func TestContainer_preHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -251,7 +251,7 @@ func TestContainer_postHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -276,7 +276,7 @@ func TestContainer_postHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -298,7 +298,7 @@ func TestContainer_postHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -324,7 +324,7 @@ func TestContainer_postHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -350,7 +350,7 @@ func TestContainer_postHandle(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -406,7 +406,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -443,7 +443,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -471,7 +471,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -503,7 +503,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -537,7 +537,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -572,7 +572,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -610,7 +610,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -648,7 +648,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -686,7 +686,7 @@ func TestContainer_init(t *testing.T) {
 						"container": {
 							"job":{
 								"id": 1,
-								"sleepInterval":100
+								"reportInterval":100
 							},
 							"taskGroup":{
 								"id": 30000001,
@@ -755,7 +755,7 @@ func TestContainer_prepare(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -792,7 +792,7 @@ func TestContainer_prepare(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -830,7 +830,7 @@ func TestContainer_prepare(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -899,7 +899,7 @@ func TestContainer_post(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -936,7 +936,7 @@ func TestContainer_post(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -974,7 +974,7 @@ func TestContainer_post(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -1042,7 +1042,7 @@ func TestContainer_destroy(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -1079,7 +1079,7 @@ func TestContainer_destroy(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,
@@ -1117,7 +1117,7 @@ func TestContainer_destroy(t *testing.T) {
 					"container": {
 						"job":{
 							"id": 1,
-							"sleepInterval":100
+							"reportInterval":100
 						},
 						"taskGroup":{
 							"id": 30000001,

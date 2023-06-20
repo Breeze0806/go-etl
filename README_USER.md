@@ -429,12 +429,16 @@ datax -h
 帮助显示
 
 ```bash
-Usage of datax:  
-  -c string   #数据源配置文件
+Usage of datax:
+  -c string
         config (default "config.json")
-  -w string   #源目的配置向导文件
+  -http string
+        http
+  -w string
         wizard
 ```
+
+-http 新增监听端口，如:8080, 开启后访问127.0.0.1:8080/metrics获取实时的吞吐量
 
 #### 2.3.2 查看版本
 

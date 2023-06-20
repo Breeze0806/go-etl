@@ -30,12 +30,12 @@ func NewDefaultJobCollector(metrics *container.Metrics) plugin.JobCollector {
 	return &DefaultJobCollector{metrics: metrics}
 }
 
-//JSON json
+//JSON  获取json的指标
 func (d *DefaultJobCollector) JSON() *encoding.JSON {
 	return d.metrics.JSON()
 }
 
-//JSONByKey 空方法
+//JSONByKey 获取关键字是key的json的指标
 func (d *DefaultJobCollector) JSONByKey(key string) *encoding.JSON {
 	return d.metrics.Get(key)
 }
