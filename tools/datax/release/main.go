@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile("release/README_USER.md", data, 0644)
+	err = ioutil.WriteFile("release/README_USER.md", data, os.ModePerm)
 	if err != nil {
 		fmt.Println("WriteFile release/README_USER.md fail. err:", err)
 		os.Exit(1)
@@ -75,15 +75,15 @@ func main() {
 	}
 	tagVersion := strings.ReplaceAll(output, "\r", "")
 	tagVersion = strings.ReplaceAll(tagVersion, "\n", "")
-
+	os.MkdirAll("release/bin", os.ModePerm)
 	if runtime.GOOS == "windows" {
-		os.Rename("cmd/datax/datax.exe", "release/datax.exe")
+		os.Rename("cmd/datax/datax.exe", "release/bin/datax.exe")
 		if err = zipDir("release", "datax-"+tagVersion+"-windows-x86_64.zip"); err != nil {
 			fmt.Printf("uzipDir fail. error: %v\n", err)
 			os.Exit(1)
 		}
 	} else if runtime.GOOS == "linux" {
-		os.Rename("cmd/datax/datax", "release/datax")
+		os.Rename("cmd/datax/datax", "release/bin/datax")
 		if err = tarDir("release", "datax-"+tagVersion+"-linux-x86_64.tar.gz"); err != nil {
 			fmt.Printf("tarDir fail. error: %v\n", err)
 			os.Exit(1)
@@ -108,7 +108,7 @@ func copyMarkdown(path string) (err error) {
 				err = nil
 				continue
 			}
-			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), 0644)
+			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
 			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README.md"), data, 0644)
 			if err != nil {
 				return
@@ -119,7 +119,7 @@ func copyMarkdown(path string) (err error) {
 }
 
 func copyConfig() (err error) {
-	os.MkdirAll(destExamplePath, 0644)
+	os.MkdirAll(destExamplePath, os.ModePerm)
 	var list []os.FileInfo
 	list, err = ioutil.ReadDir(sourceExamplePath)
 	if err != nil {
@@ -133,7 +133,7 @@ func copyConfig() (err error) {
 				err = nil
 				continue
 			}
-			os.MkdirAll(filepath.Join(destExamplePath, v.Name()), 0644)
+			os.MkdirAll(filepath.Join(destExamplePath, v.Name()), os.ModePerm)
 			err = ioutil.WriteFile(filepath.Join(destExamplePath, v.Name(), "config.json"), data, 0644)
 			if err != nil {
 				return
