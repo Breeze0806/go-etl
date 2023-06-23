@@ -41,8 +41,9 @@ type Container struct {
 	wg             sync.WaitGroup
 	tasks          *taskManager
 	ctx            context.Context
-	ReportInterval time.Duration
+	reportInterval time.Duration
 	retryInterval  time.Duration
+	sleepInterval  time.Duration
 	retryMaxCount  int32
 }
 
@@ -65,13 +66,15 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 		return nil, err
 	}
 	c.Metrics().Set("taskGroupID", c.taskGroupID)
-	c.ReportInterval = time.Duration(
+	c.reportInterval = time.Duration(
 		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupReportinterval, 1)) * time.Second
+	c.sleepInterval = time.Duration(
+		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskGroupSleepinterval, 1)) * time.Second
 	c.retryInterval = time.Duration(
 		c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverRetryintervalinmsec, 1000)) * time.Millisecond
 	c.retryMaxCount = int32(c.Config().GetInt64OrDefaullt(coreconst.DataxCoreContainerTaskFailoverMaxretrytimes, 1))
 	log.Infof("datax job(%v) taskgruop(%v) reportInterval: %v retryInterval: %v retryMaxCount: %v config: %v",
-		c.jobID, c.taskGroupID, c.ReportInterval, c.retryInterval, c.retryMaxCount, conf)
+		c.jobID, c.taskGroupID, c.reportInterval, c.retryInterval, c.retryMaxCount, conf)
 	return
 }
 
@@ -127,28 +130,35 @@ func (c *Container) Start() (err error) {
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) manage tasks", c.jobID, c.taskGroupID)
-	ticker := time.NewTicker(c.ReportInterval)
+	ticker := time.NewTicker(c.sleepInterval)
 	defer ticker.Stop()
 QueueLoop:
 	//任务队列不为空
-	for !c.tasks.isEmpty() {
+	for !c.tasks.isRunsEmpty() {
+		for !c.tasks.isEmpty() {
+			select {
+			case <-c.ctx.Done():
+				break QueueLoop
+			default:
+			}
+			//从待执行队列加入运行队列
+			te, ok := c.tasks.popRemainAndAddRun()
+			if !ok {
+				select {
+				case <-ticker.C:
+				case <-c.ctx.Done():
+					break QueueLoop
+				}
+				continue
+			}
+			if err = c.startTaskExecer(te); err != nil {
+				return
+			}
+		}
 		select {
 		case <-c.ctx.Done():
 			break QueueLoop
-		default:
-		}
-		//从待执行队列加入运行队列
-		te, ok := c.tasks.popRemainAndAddRun()
-		if !ok {
-			select {
-			case <-ticker.C:
-			case <-c.ctx.Done():
-				break QueueLoop
-			}
-			continue
-		}
-		if err = c.startTaskExecer(te); err != nil {
-			return
+		case <-ticker.C:
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) wait tasks end", c.jobID, c.taskGroupID)
@@ -192,7 +202,7 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 			log.Debugf("datax job(%v) taskgruop(%v) task(%v) end", c.jobID, c.taskGroupID, te.Key())
 			c.wg.Done()
 		}()
-		statsTimer := time.NewTicker(c.ReportInterval)
+		statsTimer := time.NewTicker(c.reportInterval)
 		defer statsTimer.Stop()
 		for {
 			select {

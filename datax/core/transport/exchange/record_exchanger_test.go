@@ -63,7 +63,7 @@ func (m *mockRecord) String() string {
 	return ""
 }
 func TestRecordExchanger(t *testing.T) {
-	ch, _ := channel.NewChannel(context.TODO(), nil)
+	ch := channel.NewChannel(context.TODO(), nil)
 	defer ch.Close()
 	re := NewRecordExchangerWithoutTransformer(ch)
 	defer re.Shutdown()

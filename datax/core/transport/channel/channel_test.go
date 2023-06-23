@@ -34,7 +34,7 @@ func (m *mockRecord) ByteSize() int64 {
 	return m.n
 }
 func TestChannel_PushPop(t *testing.T) {
-	ch, _ := NewChannel(context.TODO(), nil)
+	ch := NewChannel(context.TODO(), nil)
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())
@@ -52,7 +52,7 @@ func TestChannel_PushPop(t *testing.T) {
 }
 
 func TestChannel_PushAllPopAll(t *testing.T) {
-	ch, _ := NewChannel(context.TODO(), nil)
+	ch := NewChannel(context.TODO(), nil)
 	defer ch.Close()
 	if !ch.IsEmpty() {
 		t.Errorf("IsEmpty() = %v want true", ch.IsEmpty())
@@ -90,7 +90,7 @@ func TestChannelWithRateLimit(t *testing.T) {
 	}`)
 	want := 1000
 	b := 100
-	ch, _ := NewChannel(context.TODO(), conf)
+	ch := NewChannel(context.TODO(), conf)
 	defer ch.Close()
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -142,7 +142,7 @@ func TestChannelWithRateLimit_Err(t *testing.T) {
 		}
 	}`)
 	want := 1000
-	ch, _ := NewChannel(context.TODO(), conf)
+	ch := NewChannel(context.TODO(), conf)
 	defer ch.Close()
 	for i := 0; i < want; i++ {
 		_, err := ch.Push(&mockRecord{

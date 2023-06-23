@@ -82,7 +82,7 @@ go generate ./...
 
 数据源插件模板新增工具，用于新增一个reader或writer模板，配合发布命令使用，减少开发者负担
 
-##### plugin
+##### release
 
 数据源插件打包工具
 
