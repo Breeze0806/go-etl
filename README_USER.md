@@ -451,3 +451,43 @@ datax version
 ```bash
 v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go version go1.16.5 windows/amd64
 ```
+
+#### 2.3.3 开启监控端口
+```bash
+datax -http :8443 -c examples/limit/config.json
+```
+
+使用浏览器访问http://127.0.0.1:8443/metrics获取当前监控数据
+
+```json
+{"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
+```
+
+使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
+```
+/debug/pprof/
+
+Types of profiles available:
+Count	Profile
+19	allocs
+0	block
+0	cmdline
+18	goroutine
+19	heap
+0	mutex
+0	profile
+10	threadcreate
+0	trace
+full goroutine stack dump
+Profile Descriptions:
+
+allocs: A sampling of all past memory allocations
+block: Stack traces that led to blocking on synchronization primitives
+cmdline: The command line invocation of the current program
+goroutine: Stack traces of all current goroutines
+heap: A sampling of memory allocations of live objects. You can specify the gc GET parameter to run GC before taking the heap sample.
+mutex: Stack traces of holders of contended mutexes
+profile: CPU profile. You can specify the duration in the seconds GET parameter. After you get the profile file, use the go tool pprof command to investigate the profile.
+threadcreate: Stack traces that led to the creation of new OS threads
+trace: A trace of execution of the current program. You can specify the duration in the seconds GET parameter. After you get the trace file, use the go tool trace command to investigate the trace.
+```

@@ -20,17 +20,17 @@ import (
 	"github.com/Breeze0806/go-etl/datax"
 )
 
-type handler struct {
+type metricHandler struct {
 	engine *datax.Engine
 }
 
-func newHandler(engine *datax.Engine) *handler {
-	return &handler{
+func newMetricHandler(engine *datax.Engine) *metricHandler {
+	return &metricHandler{
 		engine: engine,
 	}
 }
 
-func (h *handler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
+func (h *metricHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	if h.engine.Metrics().JSON() == nil {
 		return
