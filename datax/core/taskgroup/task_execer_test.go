@@ -85,10 +85,12 @@ func Test_newTaskExecer(t *testing.T) {
 				taskConf: testJSONFromString(`{
 						"taskId":2,
 						"reader":{
-							"name":"mock2"
+							"name":"mock2",
+							"parameter":{}
 						},
 						"writer":{
-							"name":"mock2"
+							"name":"mock2",
+							"parameter":{}
 						}
 					}`),
 				jobID:        2,
@@ -123,10 +125,12 @@ func Test_newTaskExecer(t *testing.T) {
 				taskConf: testJSONFromString(`{
 						"taskId":3,
 						"reader":{
-							"name":"mock"
+							"name":"mock",
+							"parameter":{}
 						},
 						"writer":{
-							"name":"mock2"
+							"name":"mock2",
+							"parameter":{}
 						}
 					}`),
 				jobID:        4,
@@ -167,6 +171,45 @@ func Test_newTaskExecer(t *testing.T) {
 						"writer":{
 							"name":"mock",
 							"parameter":{}
+						}
+					}`),
+				jobID:        6,
+				taskGroupID:  6,
+				attemptCount: 0,
+			},
+			wantErr: true,
+		},
+		{
+			name: "7",
+			args: args{
+				ctx: context.Background(),
+				taskConf: testJSONFromString(`{
+						"taskId":6,
+						"reader":{
+							"name":"mock",
+							"parameter":{}
+						},
+						"writer":{
+							"name":"mock"
+						}
+					}`),
+				jobID:        6,
+				taskGroupID:  6,
+				attemptCount: 0,
+			},
+			wantErr: true,
+		},
+		{
+			name: "8",
+			args: args{
+				ctx: context.Background(),
+				taskConf: testJSONFromString(`{
+						"taskId":6,
+						"reader":{
+							"name":"mock"
+						},
+						"writer":{
+							"name":"mock"
 						}
 					}`),
 				jobID:        6,

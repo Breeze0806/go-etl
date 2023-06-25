@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -73,10 +73,15 @@ func (e *enveronment) initServer() *enveronment {
 	if e.addr != "" {
 		r := http.NewServeMux()
 		recoverHandler := handlers.RecoveryHandler(handlers.PrintRecoveryStack(true))
-		r.Handle("/metrics", recoverHandler(newHandler(e.engine)))
+		r.Handle("/metrics", newMetricHandler(e.engine))
+		r.HandleFunc("/debug/pprof/", pprof.Index)
+		r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		r.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 		e.server = &http.Server{
 			Addr:    e.addr,
-			Handler: handlers.CompressHandler(r),
+			Handler: recoverHandler(r),
 		}
 		go func() {
 			log.Debugf("listen begin: %v", e.addr)

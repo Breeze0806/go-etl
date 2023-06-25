@@ -134,7 +134,7 @@ go run main.go -t reader -p Mysql
 
 另外，以帮助开发者避免在使用插件注册命令后编译时报错。
 
-#### 关系型数据库
+#### 数据库
 
 如果你想帮忙实现关系型数据库的数据源，根据以下方式去实现你的数据源将更加方便
 
@@ -493,3 +493,51 @@ go generate ./...
    - 不同参数下同步速度（Rec/s, MB/s），机器负载（load, cpu）等，对数据源压力（load, cpu, mem等）。
 6. **约束限制**：是否存在其他的使用限制条件。
 7. **FAQ**：用户经常会遇到的问题。
+
+## 从源码进行编译
+
+### linux
+
+#### 依赖
+
+1. golang 1.16以及以上版本
+
+#### 构建
+```bash
+make dependencies
+make release
+```
+
+### windows
+
+####  依赖
+1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
+2. golang 1.16以及以上
+3. 最小编译环境为win7 
+
+####  构建
+```bash
+release.bat
+```
+
+### 编译产物
+
+```
+    +---datax---|---plugin---+---reader--mysql---|--README.md
+    |                        | .......
+    |                        |
+    |                        |---writer--mysql---|--README.md
+    |                        | .......
+    |
+    +---bin----datax
+    +---exampales---+---csvpostgres----config.json
+    |               |---db2------------config.json
+    |               | .......
+    |
+    +---README_USER.md
+
+```
++ datax/plugin下是各插件的文档
++ bin下的是数据同步程序datax
++ exampales下是各场景的数据同步的配置文档
++ README_USER.md是用户使用手册

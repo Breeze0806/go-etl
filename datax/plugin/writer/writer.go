@@ -15,10 +15,6 @@
 package writer
 
 import (
-	"os"
-	"path/filepath"
-	"runtime"
-
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax/common/plugin/loader"
 	"github.com/Breeze0806/go-etl/datax/common/spi"
@@ -36,35 +32,25 @@ type Writer interface {
 //Maker 写入生成器
 type Maker interface {
 	Default() (Writer, error)
-	FromFile(filename string) (Writer, error)
 }
 
 //RegisterWriter 注册创建函数new写入器,返回的是资源插件配置文件地州，出错时会返回error
 //目前未在代码中实际使用，而是通过tools/datax/build的tools/datax/build命令自动将resources/plugin.json
 //中的内容放入到新生成的代码文件中，用以注册Writer
-func RegisterWriter(maker Maker) (pluginConfig string, err error) {
-	_, file, _, ok := runtime.Caller(1)
-	if !ok {
-		return "", errors.New("fail to get filename")
-	}
-	path := filepath.Dir(file)
-	pluginConfig = filepath.Join(path, "resources", "plugin.json")
+func RegisterWriter(maker Maker) (err error) {
 	var writer Writer
-	if writer, err = maker.FromFile(pluginConfig); err != nil {
-		if !os.IsNotExist(errors.Cause(err)) {
-			return
-		}
-		if writer, err = maker.Default(); err != nil {
-			return "", err
-		}
+
+	if writer, err = maker.Default(); err != nil {
+		return err
 	}
+
 	name, err := writer.ResourcesConfig().GetString("name")
 	if err != nil {
-		return "", err
+		return err
 	}
 	if name == "" {
-		return "", errors.New("name is empty")
+		return errors.New("name is empty")
 	}
 	loader.RegisterWriter(name, writer)
-	return pluginConfig, nil
+	return nil
 }

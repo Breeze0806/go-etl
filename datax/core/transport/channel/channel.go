@@ -70,7 +70,7 @@ func (s *Stats) statsJSON() StatsJSON {
 }
 
 //NewChannel 创建通道
-func NewChannel(ctx context.Context, conf *config.JSON) (*Channel, error) {
+func NewChannel(ctx context.Context, conf *config.JSON) *Channel {
 	r := -1
 	b := -1.0
 	if conf != nil {
@@ -88,7 +88,7 @@ func NewChannel(ctx context.Context, conf *config.JSON) (*Channel, error) {
 		records: element.NewRecordChanBuffer(ctx, r),
 		ctx:     ctx,
 		limiter: limiter,
-	}, nil
+	}
 }
 
 //Size 通道记录大小

@@ -64,3 +64,7 @@ func (t *taskManager) popRemainAndAddRun() (te *taskExecer, ok bool) {
 	}
 	return nil, ok
 }
+
+func (t *taskManager) isRunsEmpty() bool {
+	return len(t.manager.Runs()) == 0
+}

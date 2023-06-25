@@ -15,8 +15,6 @@ go-etl将提供的etl能力如下：
 1. 主流数据库的数据抽取以及数据加载的能力，在storage包中实现
 2. 类二维表的数据流的数据抽取以及数据加载的能力，在stream包中实现
 3. 类似datax的数据同步能力，在datax包中实现
-4. 以mysql sql语法为基础的数据筛选、转化能力，在transform包中实现
-5. 数据库间的数据校验能力，在libra包中实现 (目前计划中)
 
 鉴于本人实在精力有限，欢迎大家来提交issue或者***加QQ群185188648***来讨论go-etl，让我们一起进步!
 
@@ -59,10 +57,6 @@ go-etl将提供的etl能力如下：
 #### file
 主要用于文件的解析，如cvs，excel等
 
-### transform
-
-主要用于类sql数据转化,类似百度引擎
-
 ### tools
 
 工具集用于编译，新增许可证等
@@ -82,9 +76,9 @@ go generate ./...
 
 数据源插件模板新增工具，用于新增一个reader或writer模板，配合发布命令使用，减少开发者负担
 
-##### plugin
+##### release
 
-数据源插件打包工具
+数据同步程序和用户使用文档打包工具
 
 #### license
 
@@ -93,10 +87,6 @@ go generate ./...
 ```bash
 go run tools/license/main.go
 ```
-
-### libra
-
-主要用于数据库间数据校验
 
 [lang-img]:https://img.shields.io/badge/Language-Go-blue.svg
 [lang]:https://golang.org/

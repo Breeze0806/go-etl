@@ -39,34 +39,20 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/reader"
 )
 
-var _pluginConfig string
-
 func init() {
 	var err error
 	maker := &maker{}
-	if _pluginConfig, err = reader.RegisterReader(maker); err != nil {
+	if err = reader.RegisterReader(maker); err != nil {
 		panic(err)
 	}
 }
 
 var pluginConfig = %v
 
-//NewReaderFromFile 创建读取器
-func NewReaderFromFile(filename string) (rd reader.Reader, err error) {
-	r := &Reader{}
-	r.pluginConf, err = config.NewJSONFromFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	rd = r
-	return
-}
-
 //NewReaderFromString 创建读取器
-func NewReaderFromString(filename string) (rd reader.Reader, err error) {
+func NewReaderFromString(plugin string) (rd reader.Reader, err error) {
 	r := &Reader{}
-	r.pluginConf, err = config.NewJSONFromString(filename)
-	if err != nil {
+	if r.pluginConf, err = config.NewJSONFromString(plugin); err != nil {
 		return nil, err
 	}
 	rd = r
@@ -74,10 +60,6 @@ func NewReaderFromString(filename string) (rd reader.Reader, err error) {
 }
 
 type maker struct{}
-
-func (m *maker) FromFile(filename string) (reader.Reader, error) {
-	return NewReaderFromFile(filename)
-}
 
 func (m *maker) Default() (reader.Reader, error) {
 	return NewReaderFromString(pluginConfig)
@@ -90,34 +72,20 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/writer"
 )
 
-var _pluginConfig string
-
 func init() {
 	var err error
 	maker := &maker{}
-	if _pluginConfig, err = writer.RegisterWriter(maker); err != nil {
+	if err = writer.RegisterWriter(maker); err != nil {
 		panic(err)
 	}
 }
 
 var pluginConfig = %v
 
-//NewWriterFromFile 创建写入器
-func NewWriterFromFile(filename string) (wr writer.Writer, err error) {
-	w := &Writer{}
-	w.pluginConf, err = config.NewJSONFromFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	wr = w
-	return
-}
-
 //NewWriterFromString 创建写入器
-func NewWriterFromString(filename string) (wr writer.Writer, err error) {
+func NewWriterFromString(plugin string) (wr writer.Writer, err error) {
 	w := &Writer{}
-	w.pluginConf, err = config.NewJSONFromString(filename)
-	if err != nil {
+	if w.pluginConf, err = config.NewJSONFromString(plugin); err != nil {
 		return nil, err
 	}
 	wr = w
@@ -125,10 +93,6 @@ func NewWriterFromString(filename string) (wr writer.Writer, err error) {
 }
 
 type maker struct{}
-
-func (m *maker) FromFile(filename string) (writer.Writer, error) {
-	return NewWriterFromFile(filename)
-}
 
 func (m *maker) Default() (writer.Writer, error) {
 	return NewWriterFromString(pluginConfig)

@@ -16,7 +16,6 @@ package taskgroup
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -62,10 +61,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 		ctx:          ctx,
 		attemptCount: atomic.NewInt32(int32(attemptCount)),
 	}
-	t.channel, err = channel.NewChannel(ctx, taskConf)
-	if err != nil {
-		return nil, err
-	}
+	t.channel = channel.NewChannel(ctx, taskConf)
 
 	t.taskID, err = taskConf.GetInt64(coreconst.TaskID)
 	if err != nil {
@@ -253,11 +249,6 @@ Loop:
 type Stats struct {
 	TaskID  int64             `json:"taskID"`
 	Channel channel.StatsJSON `json:"channel"`
-}
-
-func (s *Stats) String() string {
-	data, _ := json.Marshal(s)
-	return string(data)
 }
 
 //Stats 获取统计信息
