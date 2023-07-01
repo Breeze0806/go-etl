@@ -39,6 +39,7 @@ type Table interface {
 
 //Parameter 带有表，事务模式，sql语句的执行参数
 type Parameter interface {
+	SetTable(Table)                               //设置表或者视图
 	Table() Table                                 //表或者视图
 	TxOptions() *sql.TxOptions                    //事务模式
 	Query([]element.Record) (string, error)       //sql prepare语句
@@ -139,6 +140,11 @@ func NewBaseParam(table Table, txOpts *sql.TxOptions) *BaseParam {
 		table:  table,
 		txOpts: txOpts,
 	}
+}
+
+//SetTable 设置表
+func (b *BaseParam) SetTable(table Table) {
+	b.table = table
 }
 
 //Table 获取表

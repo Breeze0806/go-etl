@@ -376,6 +376,31 @@ func TestJob_Split(t *testing.T) {
 				testJSONFromString(`{"split":{"range":{"type":"time","layout":"2006-01-02","left":"2023-05-02","right":"2023-05-03"}},"where":"f1 >= $1 and f1 <= $2"}`),
 			},
 		},
+		{
+			name: "10",
+			j: &Job{
+				BaseJob: plugin.NewBaseJob(),
+				Config: &BaseConfig{
+					QuerySQL: []string{
+						"select a,b from table_a join table_b on table_a.id = table_b.id",
+						"select a,b,c from table_a join table_b on table_a.id = table_b.id",
+					},
+				},
+				Querier: &MockQuerier{isTime: true},
+				handler: newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+					return &MockQuerier{isTime: true}, nil
+				}),
+			},
+			args: args{
+				ctx:    context.TODO(),
+				number: 2,
+			},
+			jobConf: testJSONFromString(`{}`),
+			want: []*config.JSON{
+				testJSONFromString(`{"querySQL":["select a,b from table_a join table_b on table_a.id = table_b.id"]}`),
+				testJSONFromString(`{"querySQL":["select a,b,c from table_a join table_b on table_a.id = table_b.id"]}`),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

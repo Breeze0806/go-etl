@@ -1,0 +1,44 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "mysqlreader",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "tcp(192.168.15.130:3306)/source?parseTime=false",
+                                "table": {
+                                    "db":"source",
+                                    "name":"type_table"
+                                }
+                            },
+                        "where": "",
+                        "querySQL":["select b.id,a.t_varchar,b.dt,b.str from source.type_table as a inner join source.split as b on b.id=a.t_primary"]
+                    }
+                },
+                "writer":{
+                    "name": "csvwriter",
+                    "parameter": {
+                        "path":["b.txt"],
+                        "encoding":"utf-8",
+                        "delimiter":",",
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ]
+    }
+}

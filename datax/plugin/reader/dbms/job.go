@@ -118,6 +118,16 @@ func (j *Job) fetchMax(ctx context.Context, splitTable database.Table) (c elemen
 
 //Split 切分
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
+	if len(j.Config.GetQuerySQL()) > 0 {
+		for _, v := range j.Config.GetQuerySQL() {
+			conf := j.PluginJobConf().CloneConfig()
+			conf.Remove("querySQL")
+			_ = conf.Set("querySQL.0", v)
+			configs = append(configs, conf)
+		}
+		return
+	}
+
 	if j.Config.GetSplitConfig().Key == "" || number == 1 {
 		return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
 	}

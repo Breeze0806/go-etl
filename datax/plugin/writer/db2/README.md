@@ -141,7 +141,7 @@ DB2Writer通过使用dbmswriter中定义的查询流程调用go-etl自定义的s
 | decimal      | DOUBLE, REAL, DECIMAL     |
 | string       | VARCHAR,CHAR              |
 | time         | DATE,TIME,TIMESTAMP       |
-| bytes        | BLOB                      |
+| bytes        | BLOB,CLOB                 |
 
 ## 性能报告
 

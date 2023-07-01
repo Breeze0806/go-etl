@@ -207,6 +207,33 @@ func Test_queryParam_Query(t *testing.T) {
 			},
 			want: "select f1 from db.schema.table where a <> 1",
 		},
+		{
+			name: "5",
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
+				QuerySQL: []string{
+					"select a,b from table_a join table_b on table_a.id = table_b.id",
+				},
+			},
+			args: args{
+				in0: nil,
+			},
+			want: "select a,b from table_a join table_b on table_a.id = table_b.id",
+		},
+		{
+			name: "6",
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
+				QuerySQL: []string{
+					"select a,b from table_a join table_b on table_a.id = table_b.id",
+					"aaaa",
+				},
+			},
+			args: args{
+				in0: nil,
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -359,6 +386,19 @@ func Test_queryParam_Agrs(t *testing.T) {
 				in0: nil,
 			},
 			wantErr: true,
+		},
+		{
+			name: "7",
+			t:    NewMockTable(database.NewBaseTable("db", "schema", "table")),
+			config: &BaseConfig{
+				QuerySQL: []string{
+					"select a,b from table_a join table_b on table_a.id = table_b.id",
+				},
+			},
+			args: args{
+				in0: nil,
+			},
+			want: nil,
 		},
 	}
 	for _, tt := range tests {

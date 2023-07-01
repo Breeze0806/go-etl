@@ -91,6 +91,14 @@ func NewQueryParam(config Config, table database.Table, opts *sql.TxOptions) *Qu
 
 //Query 获取查询语句
 func (q *QueryParam) Query(_ []element.Record) (string, error) {
+	if len(q.Config.GetQuerySQL()) > 1 {
+		return "", errors.NewNoStackError("too much querySQL")
+	}
+
+	if len(q.Config.GetQuerySQL()) == 1 {
+		return q.Config.GetQuerySQL()[0], nil
+	}
+
 	buf := bytes.NewBufferString("select ")
 	if len(q.Table().Fields()) == 0 {
 		return "", errors.NewNoStackError("column is empty")
@@ -112,6 +120,10 @@ func (q *QueryParam) Query(_ []element.Record) (string, error) {
 
 //Agrs 获取查询参数
 func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
+	if len(q.Config.GetQuerySQL()) > 0 {
+		return nil, nil
+	}
+
 	if q.Config.GetSplitConfig().Key != "" {
 		for _, v := range q.Table().Fields() {
 			if q.Config.GetSplitConfig().Key == v.Name() {

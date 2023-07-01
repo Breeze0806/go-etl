@@ -77,10 +77,13 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	}
 
 	param := t.handler.TableParam(t.Config, t.Querier)
-	if t.Table, err = t.Querier.FetchTableWithParam(ctx, param); err != nil {
-		return t.Wrapf(err, "FetchTableWithParam fail")
+	if len(t.Config.GetQuerySQL()) == 0 {
+		if t.Table, err = t.Querier.FetchTableWithParam(ctx, param); err != nil {
+			return t.Wrapf(err, "FetchTableWithParam fail")
+		}
+		return
 	}
-
+	t.Table = param.Table()
 	return
 }
 

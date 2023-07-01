@@ -18,6 +18,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"strconv"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/pingcap/errors"
@@ -117,10 +118,6 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 		}
 		return table, nil
 	}
-	adder, ok := table.(FieldAdder)
-	if !ok {
-		return nil, errors.Errorf("Table is not FieldAdder")
-	}
 	query, agrs, err := getQueryAndAgrs(param, nil)
 	if err != nil {
 		return nil, err
@@ -130,24 +127,8 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 		return nil, errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
-	names, err := rows.Columns()
-	if err != nil {
-		return nil, errors.Wrapf(err, "rows.Columns() fail")
-	}
-	types, err := rows.ColumnTypes()
-	if err != nil {
-		return nil, errors.Wrapf(err, "rows.ColumnTypes() fail")
-	}
-	for i := range names {
-		adder.AddField(NewBaseField(i, names[i], NewBaseFieldType(types[i])))
-	}
 
-	for _, v := range table.Fields() {
-		if !v.Type().IsSupportted() {
-			return nil, errors.Errorf("table: %v filed:%v type(%v) is not supportted", table.Quoted(), v.Name(), v.Type().DatabaseTypeName())
-		}
-	}
-	return table, nil
+	return fetchTableByRows(rows, table)
 }
 
 //FetchRecord 通过上下文ctx，sql参数param以及记录处理函数onRecord
@@ -165,6 +146,15 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHand
 		return errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
+	table := param.Table()
+	if len(table.Fields()) == 0 {
+		table, err = fetchTableByRows(rows, table)
+		if err != nil {
+			return errors.Wrapf(err, "fetchTableByRows fail")
+		}
+		param.SetTable(table)
+	}
+
 	return readRowsToRecord(rows, param, handler)
 }
 
@@ -197,6 +187,14 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler Fet
 		return errors.Wrapf(err, "QueryContext(%v) fail", query)
 	}
 	defer rows.Close()
+	table := param.Table()
+	if len(table.Fields()) == 0 {
+		table, err = fetchTableByRows(rows, table)
+		if err != nil {
+			return errors.Wrapf(err, "fetchTableByRows fail")
+		}
+		param.SetTable(table)
+	}
 	return readRowsToRecord(rows, param, handler)
 }
 
@@ -407,6 +405,38 @@ func getQueryAndAgrs(param Parameter, records []element.Record) (query string, a
 		return
 	}
 	return
+}
+
+func fetchTableByRows(rows *sql.Rows, table Table) (Table, error) {
+	names, err := rows.Columns()
+	if err != nil {
+		return nil, errors.Wrapf(err, "rows.Columns() fail")
+	}
+	types, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, errors.Wrapf(err, "rows.ColumnTypes() fail")
+	}
+
+	adder, ok := table.(FieldAdder)
+	if !ok {
+		return nil, errors.Errorf("Table is not FieldAdder")
+	}
+	nameMap := make(map[string]struct{})
+	for i, v := range names {
+		name := v
+		if _, ok := nameMap[v]; ok {
+			name = v + strconv.Itoa(i)
+		}
+		nameMap[name] = struct{}{}
+		adder.AddField(NewBaseField(i, name, NewBaseFieldType(types[i])))
+	}
+
+	for _, v := range table.Fields() {
+		if !v.Type().IsSupportted() {
+			return nil, errors.Errorf("table: %v filed:%v type(%v) is not supportted", table.Quoted(), v.Name(), v.Type().DatabaseTypeName())
+		}
+	}
+	return table, nil
 }
 
 func readRowsToRecord(rows *sql.Rows, param Parameter, handler FetchHandler) (err error) {
