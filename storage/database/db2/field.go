@@ -86,7 +86,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	switch f.DatabaseTypeName() {
 	case "BIGINT", "INTEGER", "SMALLINT":
 		f.goType = database.GoTypeInt64
-	case "BLOB":
+	case "BLOB", "CLOB":
 		f.goType = database.GoTypeBytes
 	case "DOUBLE", "REAL":
 		f.goType = database.GoTypeFloat64
@@ -150,7 +150,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "BLOB":
+	case "BLOB", "CLOB":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()

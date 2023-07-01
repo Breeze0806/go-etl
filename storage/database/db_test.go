@@ -1036,6 +1036,24 @@ func TestDB_FetchRecord(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "4",
+			d:    db,
+			args: args{
+				ctx: context.TODO(),
+				param: &mockParameter{
+					BaseParam: NewBaseParam(db.Table(NewBaseTable("db", "schema", "table")), nil),
+				},
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), nil
+					},
+					func(r element.Record) error {
+						return errors.New("mock error")
+					}),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1112,6 +1130,24 @@ func TestDB_FetchRecordWithTx(t *testing.T) {
 				}, func(r element.Record) error {
 					return nil
 				}),
+			},
+			wantErr: true,
+		},
+		{
+			name: "4",
+			d:    db,
+			args: args{
+				ctx: context.TODO(),
+				param: &mockParameter{
+					BaseParam: NewBaseParam(db.Table(NewBaseTable("db", "schema", "table")), nil),
+				},
+				handler: NewBaseFetchHandler(
+					func() (element.Record, error) {
+						return element.NewDefaultRecord(), nil
+					},
+					func(r element.Record) error {
+						return errors.New("mock error")
+					}),
 			},
 			wantErr: true,
 		},

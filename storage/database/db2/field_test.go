@@ -290,10 +290,15 @@ func TestFieldType_IsSupportted(t *testing.T) {
 			f:    NewFieldType(newMockFieldType("DECIMAL")),
 			want: true,
 		},
-		//"BLOB"
+		//"BLOB" "CLOB"
 		{
 			name: "BLOB",
 			f:    NewFieldType(newMockFieldType("BLOB")),
+			want: true,
+		},
+		{
+			name: "CLOB",
+			f:    NewFieldType(newMockFieldType("CLOB")),
 			want: true,
 		},
 		//unknown
@@ -383,10 +388,15 @@ func TestFieldType_GoType(t *testing.T) {
 			f:    NewFieldType(newMockFieldType("DECIMAL")),
 			want: database.GoTypeString,
 		},
-		//"BLOB"
+		//"BLOB" "CLOB"
 		{
 			name: "BLOB",
 			f:    NewFieldType(newMockFieldType("BLOB")),
+			want: database.GoTypeBytes,
+		},
+		{
+			name: "CLOB",
+			f:    NewFieldType(newMockFieldType("CLOB")),
 			want: database.GoTypeBytes,
 		},
 		//unknown
@@ -536,6 +546,15 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("1.01a")),
 				"test", element.ByteSize([]byte("1.01a"))),
+		},
+		{
+			name: "CLOB",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CLOB")))),
+			args: args{
+				src: []byte("中文abc"),
+			},
+			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中文abc")),
+				"test", element.ByteSize([]byte("中文abc"))),
 		},
 		{
 			name: "BLOB nil",

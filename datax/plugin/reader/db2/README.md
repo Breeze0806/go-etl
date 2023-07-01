@@ -37,7 +37,8 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
                         "split" : {
                             "key":"id"
                         },
-                        "where": ""
+                        "where": "",
+                        "querySql":["select a,b from table_a join table_b on table_a.id = table_b.id"]
                     }
                 }
             }
@@ -133,6 +134,13 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
 - 必选：否
 - 默认值: 无
 
+#### querySql
+
+- 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
+当用户配置querySql时，MysqlReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
+- 必选：否
+- 默认值：无
+
 ### 类型转换
 
 目前  DB2Reader支持大部分  DB2类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
@@ -145,7 +153,7 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
 | decimal      | DOUBLE, REAL, DECIMAL     |
 | string       | VARCHAR,CHAR              |
 | time         | DATE,TIME,TIMESTAMP       |
-| bytes        | BLOB                      |
+| bytes        | BLOB,CLOB                 |
 
 ## 性能报告
 
