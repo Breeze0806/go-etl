@@ -457,12 +457,20 @@ v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go ver
 datax -http :8443 -c examples/limit/config.json
 ```
 
+##### 2.3.3.1 获取当前监控数据
+
 使用浏览器访问http://127.0.0.1:8443/metrics获取当前监控数据
 
 ```json
 {"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
 ```
 
+- totalByte 总共的字节数
+- totalRecord 总共的记录数
+- byte 在通道里的字节数
+- record 在通道里的记录数
+
+##### 2.3.3.2 获取当前调试数据
 使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
 ```
 /debug/pprof/
