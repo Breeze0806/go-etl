@@ -17,7 +17,9 @@ package dbms
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"math/big"
+	"reflect"
 	"strconv"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -108,6 +110,7 @@ type MockQuerier struct {
 	FetchMinErr error
 	FetchMaxErr error
 	isTime      bool
+	config      *config.JSON
 }
 
 func (m *MockQuerier) Table(bt *database.BaseTable) database.Table {
@@ -210,4 +213,17 @@ func (m *MockSender) Terminate() error {
 
 func (m *MockSender) Shutdown() error {
 	return nil
+}
+
+func equalConfigJSON(gotConfig, wantConfig *config.JSON) bool {
+	var got, want interface{}
+	err := json.Unmarshal([]byte(gotConfig.String()), &got)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(wantConfig.String()), &want)
+	if err != nil {
+		panic(err)
+	}
+	return reflect.DeepEqual(got, want)
 }

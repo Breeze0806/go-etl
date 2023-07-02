@@ -360,16 +360,26 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	if err != nil {
 		return
 	}
+	var setting *config.JSON
+	setting, err = c.Config().GetConfig(coreconst.DataxJobSetting)
+	if err != nil {
+		setting, err = nil, nil
+	}
+
 	log.Infof("DataX jobContainer %v tansformer config is %v", c.jobID, transformConfs)
 	for i := range readerConfs {
 		var taskConfig *config.JSON
 		taskConfig, _ = config.NewJSONFromString("{}")
 		taskConfig.Set(coreconst.JobReaderName, c.readerPluginName)
-
+		if setting != nil {
+			readerConfs[i].Set(coreconst.DataxJobSetting, setting)
+		}
 		taskConfig.SetRawString(coreconst.JobReaderParameter, readerConfs[i].String())
 
 		taskConfig.Set(coreconst.JobWriterName, c.writerPluginName)
-
+		if setting != nil {
+			writerConfs[i].Set(coreconst.DataxJobSetting, setting)
+		}
 		taskConfig.SetRawString(coreconst.JobWriterParameter, writerConfs[i].String())
 
 		if len(transformConfs) != 0 {

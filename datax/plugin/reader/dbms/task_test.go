@@ -34,17 +34,63 @@ func TestTask_Init(t *testing.T) {
 		conf    *config.JSON
 		jobConf *config.JSON
 		wantErr bool
+		want    *config.JSON
 	}{
 		{
 			name: "1",
 			t: NewTask(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-				return &MockQuerier{}, nil
+				return &MockQuerier{
+					config: conf,
+				}, nil
 			})),
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSON(),
-			jobConf: testJSONFromString(`{}`),
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
+				"connection":{
+					"url":"breeze0806.xxx"
+				},
+				"username":"breeze0806",
+				"password":"breeze0806",
+				"job":{
+					"setting":{
+						"pool":{
+						  "maxOpenConns":8,
+						  "maxIdleConns":8,
+						  "connMaxIdleTime":"40m",
+						  "connMaxLifetime":"40m"
+						},
+						"retry":{
+						  "type":"ntimes",
+						  "strategy":{
+							"n":3,
+							"wait":"1s"
+						  },
+						  "ignoreOneByOneError":true
+						}
+					}
+				}
+			}`),
+			want: testJSONFromString(`{
+				"url":"breeze0806.xxx",
+				"username":"breeze0806",
+				"password":"breeze0806",
+				"pool":{
+					"maxOpenConns":8,
+					"maxIdleConns":8,
+					"connMaxIdleTime":"40m",
+					"connMaxLifetime":"40m"
+				  },
+				  "retry":{
+					"type":"ntimes",
+					"strategy":{
+					  "n":3,
+					  "wait":"1s"
+					},
+					"ignoreOneByOneError":true
+				  }
+			}`),
 		},
 		{
 			name: "2",
@@ -129,8 +175,17 @@ func TestTask_Init(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.t.SetPluginConf(tt.conf)
 			tt.t.SetPluginJobConf(tt.jobConf)
-			if err := tt.t.Init(tt.args.ctx); (err != nil) != tt.wantErr {
+			err := tt.t.Init(tt.args.ctx)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Task.Init() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err != nil {
+				return
+			}
+			if !equalConfigJSON(tt.t.Querier.(*MockQuerier).config, tt.want) {
+				t.Fatalf("Querier.config = %v, want = %v", tt.t.Querier.(*MockQuerier).config, tt.want)
+				return
 			}
 		})
 	}
