@@ -250,6 +250,12 @@ ignoreOneByOneError 是否忽略一个个重试错误
 2. 类型有`forever`,指永久重复重试策略,`"strategy":{"wait":"1s"}`,wait代表等待时间
 3. 类型有`exponential`,指幂等重复重试策略,`"strategy":{"init":"100ms","max":"4s"}`,init代表开始时间，max代表最大时间
 
+##### 2.1.3.3 测试数据
+
+```bash
+datax -c examples/global/config.json
+```
+
 #### 2.1.4 使用切分键
 
 这里假设数据按切分键分布是均匀的，合理使用这样的切分键可以使同步更快，另外为了加快对最大值和最小值的查询，这里对于大表可以预设最大最小值
