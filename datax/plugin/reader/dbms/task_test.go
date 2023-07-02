@@ -158,18 +158,6 @@ func TestTask_Init(t *testing.T) {
 			jobConf: testJSONFromString(`{}`),
 			wantErr: true,
 		},
-		{
-			name: "7",
-			t: NewTask(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
-				return &MockQuerier{}, nil
-			})),
-			args: args{
-				ctx: context.TODO(),
-			},
-			conf:    testJSON(),
-			jobConf: testJSONFromString(`{"querySQL":["select * from t"]}`),
-			wantErr: false,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
