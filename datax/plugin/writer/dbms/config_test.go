@@ -155,7 +155,7 @@ func TestBaseConfig_GetRetryStrategy(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1s","n":3}}}`)),
+			b:    testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"type":"ntimes","strategy":{"wait":"1s","n":3}}}}}`)),
 			args: args{
 				j: &mockRetryJudger{},
 			},
@@ -184,12 +184,12 @@ func TestBaseConfig_IgnoreOneByOneError(t *testing.T) {
 	}{
 		{
 			name: "1",
-			b:    testBaseConfig(testJSONFromString(`{"retry":{"ignoreOneByOneError":true}}`)),
+			b:    testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"ignoreOneByOneError":true}}}}`)),
 			want: true,
 		},
 		{
 			name: "2",
-			b:    testBaseConfig(testJSONFromString(`{"retry":{"ignoreOneByOneError":"true"}}`)),
+			b:    testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"ignoreOneByOneError":"true"}}}}`)),
 			want: false,
 		},
 	}

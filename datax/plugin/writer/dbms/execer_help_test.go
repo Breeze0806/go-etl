@@ -17,6 +17,8 @@ package dbms
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -137,6 +139,7 @@ type MockExecer struct {
 	BatchN   int
 	BatchErr error
 	ExecErr  error
+	config   *config.JSON
 }
 
 func (m *MockExecer) Table(bt *database.BaseTable) database.Table {
@@ -239,4 +242,17 @@ func (m *MockReceiver) GetFromReader() (element.Record, error) {
 func (m *MockReceiver) Shutdown() error {
 	m.ticker.Stop()
 	return nil
+}
+
+func equalConfigJSON(gotConfig, wantConfig *config.JSON) bool {
+	var got, want interface{}
+	err := json.Unmarshal([]byte(gotConfig.String()), &got)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal([]byte(wantConfig.String()), &want)
+	if err != nil {
+		panic(err)
+	}
+	return reflect.DeepEqual(got, want)
 }

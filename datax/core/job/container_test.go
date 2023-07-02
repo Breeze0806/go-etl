@@ -1655,6 +1655,225 @@ func TestContainer_mergeTaskConfigs(t *testing.T) {
 			wantTaskConfigs: nil,
 			wantErr:         true,
 		},
+		{
+			name: "4",
+			c: testContainer(testJSONFromString(`{
+				"core":{
+					"container": {
+						"job":{
+							"id": 1
+						}
+					}
+				},
+				"job":{
+					"content":[
+						{
+							"reader":{
+								"name": "mock",
+								"parameter" : {
+
+								}
+							},
+							"writer":{
+								"name": "mockErr",
+								"parameter" : {
+
+								}
+							},
+							"transformer" : ["1","2"]
+						}
+					],
+					"setting":{
+						"pool":{
+						  "maxOpenConns":8,
+						  "maxIdleConns":8,
+						  "connMaxIdleTime":"40m",
+						  "connMaxLifetime":"40m"
+						},
+						"retry":{
+						  "type":"ntimes",
+						  "strategy":{
+							"n":3,
+							"wait":"1s"
+						  },
+						  "ignoreOneByOneError":true
+						}
+					}
+				}
+			}`)),
+			args: args{
+				readerConfs: []*config.JSON{
+					testJSONFromString(`{"id":1}`),
+					testJSONFromString(`{"id":2}`),
+					testJSONFromString(`{"id":3}`),
+				},
+				writerConfs: []*config.JSON{
+					testJSONFromString(`{"id":4}`),
+					testJSONFromString(`{"id":5}`),
+					testJSONFromString(`{"id":6}`),
+				},
+			},
+			wantTaskConfigs: []*config.JSON{
+				testJSONFromString(`{
+					"taskId":0,
+					"reader":{
+						"name" : "mock",
+						"parameter" : {
+							"id":1,
+							"job":{
+								"setting":{
+									"pool":{
+										"maxOpenConns":8,
+										"maxIdleConns":8,
+										"connMaxIdleTime":"40m",
+										"connMaxLifetime":"40m"
+									},
+									"retry":{
+										"type":"ntimes",
+										"strategy":{
+										"n":3,
+										"wait":"1s"
+										},
+										"ignoreOneByOneError":true
+									}
+								}
+							}
+						}
+						
+					},
+					"transformer" :["1","2"],
+					"writer":{
+						"name" : "mockErr",
+						"parameter" : {
+							"id":4,
+							"job":{
+								"setting":{
+									"pool":{
+										"maxOpenConns":8,
+										"maxIdleConns":8,
+										"connMaxIdleTime":"40m",
+										"connMaxLifetime":"40m"
+									},
+									"retry":{
+										"type":"ntimes",
+										"strategy":{
+										"n":3,
+										"wait":"1s"
+										},
+										"ignoreOneByOneError":true
+									}
+								}
+							}
+						}
+					}
+				}`),
+				testJSONFromString(`{
+					"taskId":1,
+					"reader":{
+					"name" : "mock",
+					"parameter" : {
+						"id":2,
+						"job":{
+							"setting":{
+								"pool":{
+									"maxOpenConns":8,
+									"maxIdleConns":8,
+									"connMaxIdleTime":"40m",
+									"connMaxLifetime":"40m"
+								},
+								"retry":{
+									"type":"ntimes",
+									"strategy":{
+									"n":3,
+									"wait":"1s"
+									},
+									"ignoreOneByOneError":true
+								}
+							}
+						}
+					}
+				},
+				"transformer" :["1","2"],
+				"writer":{
+					"name" : "mockErr",
+					"parameter" : {
+						"id":5,
+						"job":{
+							"setting":{
+								"pool":{
+									"maxOpenConns":8,
+									"maxIdleConns":8,
+									"connMaxIdleTime":"40m",
+									"connMaxLifetime":"40m"
+								},
+								"retry":{
+									"type":"ntimes",
+									"strategy":{
+									"n":3,
+									"wait":"1s"
+									},
+									"ignoreOneByOneError":true
+								}
+							}
+						}
+					}
+				}
+			}`),
+				testJSONFromString(`{
+				"taskId":2,
+				"reader":{
+				"name" : "mock",
+				"parameter" : {
+					"id":3,
+					"job":{
+						"setting":{
+							"pool":{
+								"maxOpenConns":8,
+								"maxIdleConns":8,
+								"connMaxIdleTime":"40m",
+								"connMaxLifetime":"40m"
+							},
+							"retry":{
+								"type":"ntimes",
+								"strategy":{
+								"n":3,
+								"wait":"1s"
+								},
+								"ignoreOneByOneError":true
+							}
+						}
+					}
+				}
+				
+			},
+			"transformer" :["1","2"],
+			"writer":{
+				"name" : "mockErr",
+				"parameter" : {
+					"id":6,
+					"job":{
+						"setting":{
+							"pool":{
+							  "maxOpenConns":8,
+							  "maxIdleConns":8,
+							  "connMaxIdleTime":"40m",
+							  "connMaxLifetime":"40m"
+							},
+							"retry":{
+							  "type":"ntimes",
+							  "strategy":{
+								"n":3,
+								"wait":"1s"
+							  },
+							  "ignoreOneByOneError":true
+							}
+						}
+					}
+				}
+			}
+		}`),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1774,14 +1993,16 @@ func TestContainer_split(t *testing.T) {
 				"reader":{
 					"name" : "mock",
 					"parameter" : {
-						"id":1
+						"id":1,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				},
 				"transformer" :["1","2"],
 				"writer":{
 					"name" : "mock",
 					"parameter" : {
-						"id":4
+						"id":4,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				}
 			},
@@ -1790,14 +2011,16 @@ func TestContainer_split(t *testing.T) {
 				"reader":{
 					"name" : "mock",
 					"parameter" : {
-						"id":2
+						"id":2,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				},
 				"transformer" :["1","2"],
 				"writer":{
 					"name" : "mock",
 					"parameter" : {
-						"id":5
+						"id":5,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				}
 			},
@@ -1806,14 +2029,16 @@ func TestContainer_split(t *testing.T) {
 				"reader":{
 					"name" : "mock",
 					"parameter" : {
-						"id":3
+						"id":3,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				},
 				"transformer" :["1","2"],
 				"writer":{
 					"name" : "mock",
 					"parameter" : {
-						"id":6
+						"id":6,
+						"job":{"setting":{"speed":{"byte":400,"record":3000,"channel":4}}}
 					}
 				}
 			}]
@@ -1866,7 +2091,119 @@ func TestContainer_split(t *testing.T) {
 			}`)),
 			wantErr: false,
 			wantConfig: testJSONFromString(`{
-				"content":[{"reader":{"name":"mock","parameter":{"id":1}},"writer":{"name":"mock","parameter":{"id":4}},"transformer":["1","2"],"taskId":0},{"reader":{"name":"mock","parameter":{"id":2}},"writer":{"name":"mock","parameter":{"id":5}},"transformer":["1","2"],"taskId":1},{"reader":{"name":"mock","parameter":{"id":3}},"writer":{"name":"mock","parameter":{"id":6}},"transformer":["1","2"],"taskId":2}]
+				"content": [
+					{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+								"id": 1,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {
+								"id": 4,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"transformer": [
+							"1",
+							"2"
+						],
+						"taskId": 0
+					},
+					{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+								"id": 2,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {
+								"id": 5,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"transformer": [
+							"1",
+							"2"
+						],
+						"taskId": 1
+					},
+					{
+						"reader": {
+							"name": "mock",
+							"parameter": {
+								"id": 3,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"writer": {
+							"name": "mock",
+							"parameter": {
+								"id": 6,
+								"job": {
+									"setting": {
+										"speed": {
+											"byte": 400,
+											"record": 3000,
+											"channel": 4
+										}
+									}
+								}
+							}
+						},
+						"transformer": [
+							"1",
+							"2"
+						],
+						"taskId": 2
+					}
+				]
 			}`),
 		},
 		{
@@ -2214,6 +2551,7 @@ func TestContainer_split(t *testing.T) {
 			want, _ := tt.wantConfig.GetConfig("content")
 
 			if !equalConfigJSON(got, want) {
+				t.Errorf("%v", tt.c.Config())
 				t.Errorf("got: %v want: %v", got, want)
 			}
 		})

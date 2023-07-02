@@ -311,6 +311,16 @@ cd ../..
 datax -c examples/limit/config.json
 ```
 
+#### 2.1.7 querySQL配置
+
+数据库读取器使用querySQL去查询数据库
+
+
+##### 2.1.7.1 querySQL配置测试
+
+```bash
+datax -c examples/querysql/config.json
+```
 
 ### 2.2 多任务数据同步
 
@@ -465,10 +475,10 @@ datax -http :8443 -c examples/limit/config.json
 {"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
 ```
 
-- totalByte 总共的字节数
-- totalRecord 总共的记录数
-- byte 在通道里的字节数
-- record 在通道里的记录数
+- totalByte 总共数据同步的字节数
+- totalRecord 总共数据同步的记录数
+- byte 在通道里数据同步的字节数
+- record 在通道里数据同步的记录数
 
 ##### 2.3.3.2 获取当前调试数据
 使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息

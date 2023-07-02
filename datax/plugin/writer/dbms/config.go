@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
+	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	dbmsreader "github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/Breeze0806/go-etl/storage/database"
@@ -71,11 +72,15 @@ func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	if err != nil {
 		return nil, err
 	}
-
-	c.ignoreOneByOneError, _ = conf.GetBool("retry.ignoreOneByOneError")
+	var jobsetting *config.JSON
+	jobsetting, err = conf.GetConfig(coreconst.DataxJobSetting)
+	if err != nil {
+		jobsetting, err = config.NewJSONFromString("{}")
+	}
+	c.ignoreOneByOneError, _ = jobsetting.GetBool("retry.ignoreOneByOneError")
 
 	c.newRetryStrategy = func(j schedule.RetryJudger) (schedule.RetryStrategy, error) {
-		return schedule.NewRetryStrategy(j, conf)
+		return schedule.NewRetryStrategy(j, jobsetting)
 	}
 
 	if err = checkHasSelect(c.PreSQL); err != nil {
