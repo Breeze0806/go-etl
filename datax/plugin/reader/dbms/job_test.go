@@ -451,8 +451,8 @@ func TestJob_Split(t *testing.T) {
 			},
 			jobConf: testJSONFromString(`{}`),
 			want: []*config.JSON{
-				testJSONFromString(`{"querySQL":["select a,b from table_a join table_b on table_a.id = table_b.id"]}`),
-				testJSONFromString(`{"querySQL":["select a,b,c from table_a join table_b on table_a.id = table_b.id"]}`),
+				testJSONFromString(`{"querySql":["select a,b from table_a join table_b on table_a.id = table_b.id"]}`),
+				testJSONFromString(`{"querySql":["select a,b,c from table_a join table_b on table_a.id = table_b.id"]}`),
 			},
 		},
 	}
