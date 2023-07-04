@@ -17,6 +17,7 @@ package dbms
 import (
 	"context"
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -173,6 +174,58 @@ func TestTask_Init(t *testing.T) {
 			}
 			if !equalConfigJSON(tt.t.Querier.(*MockQuerier).config, tt.want) {
 				t.Fatalf("Querier.config = %v, want = %v", tt.t.Querier.(*MockQuerier).config, tt.want)
+				return
+			}
+		})
+	}
+}
+
+func TestTask_Init_Config_QuerySQL(t *testing.T) {
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		t       *Task
+		args    args
+		conf    *config.JSON
+		jobConf *config.JSON
+		want    []string
+	}{
+		{
+			name: "1",
+			t: NewTask(newMockDbHandler(func(name string, conf *config.JSON) (Querier, error) {
+				return &MockQuerier{
+					config: conf,
+				}, nil
+			})),
+			args: args{
+				ctx: context.TODO(),
+			},
+			conf: testJSON(),
+			jobConf: testJSONFromString(`{
+				"connection":{
+					"url":"breeze0806.xxx"
+				},
+				"username":"breeze0806",
+				"password":"breeze0806",
+				"querySql":["select * from A"]
+			}`),
+			want: []string{
+				"select * from A",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.t.SetPluginConf(tt.conf)
+			tt.t.SetPluginJobConf(tt.jobConf)
+			err := tt.t.Init(tt.args.ctx)
+			if err != nil {
+				return
+			}
+			if !reflect.DeepEqual(tt.t.Config.GetQuerySQL(), tt.want) {
+				t.Fatalf("Querier.config = %v, want = %v", tt.t.Config.GetQuerySQL(), tt.want)
 				return
 			}
 		})

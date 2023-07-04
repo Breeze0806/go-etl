@@ -317,15 +317,15 @@ cd ../..
 datax -c examples/limit/config.json
 ```
 
-#### 2.1.7 querySQL配置
+#### 2.1.7 querySql配置
 
-数据库读取器使用querySQL去查询数据库
+数据库读取器使用querySql去查询数据库
 
 
-##### 2.1.7.1 querySQL配置测试
+##### 2.1.7.1 querySql配置测试
 
 ```bash
-datax -c examples/querysql/config.json
+datax -c examples/querySql/config.json
 ```
 
 ### 2.2 多任务数据同步

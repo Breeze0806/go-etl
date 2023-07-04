@@ -56,7 +56,7 @@ type BaseConfig struct {
 	Connection ConnConfig  `json:"connection"` //连接信息
 	Where      string      `json:"where"`      //查询条件
 	Split      SplitConfig `json:"split"`      //切分键
-	QuerySQL   []string    `json:"querySQL"`   //查询sql
+	QuerySQL   []string    `json:"querySql"`   //查询sql
 }
 
 //NewBaseConfig 通过json配置conf获取基础关系型数据读入器配置

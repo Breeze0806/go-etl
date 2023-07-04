@@ -24,7 +24,7 @@
                                 }
                             },
                         "where": "",
-                        "querySQL":["select b.id,a.t_varchar,b.dt,b.str from source.type_table as a inner join source.split as b on b.id=a.t_primary"]
+                        "querySql":["select b.id,a.t_varchar,b.dt,b.str from source.type_table as a inner join source.split as b on b.id=a.t_primary"]
                     }
                 },
                 "writer":{

@@ -121,8 +121,8 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	if len(j.Config.GetQuerySQL()) > 0 {
 		for _, v := range j.Config.GetQuerySQL() {
 			conf := j.PluginJobConf().CloneConfig()
-			conf.Remove("querySQL")
-			_ = conf.Set("querySQL.0", v)
+			conf.Remove("querySql")
+			_ = conf.Set("querySql.0", v)
 			configs = append(configs, conf)
 		}
 		return
