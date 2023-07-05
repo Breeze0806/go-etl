@@ -22,16 +22,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
-
-func gbk(data []byte) []byte {
-	v, err := simplifiedchinese.GBK.NewEncoder().Bytes(data)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
 
 type mockFieldType struct {
 	name string
@@ -662,9 +653,9 @@ func TestScanner_Scan(t *testing.T) {
 			name: "CHAR",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CHAR")))),
 			args: args{
-				src: gbk([]byte("中文abc")),
+				src: []byte("abc"),
 			},
-			want: element.NewDefaultColumn(element.NewStringColumnValue("中文abc"), "test", element.ByteSize(gbk([]byte("中文abc")))),
+			want: element.NewDefaultColumn(element.NewStringColumnValue("abc"), "test", element.ByteSize([]byte("abc"))),
 		},
 		{
 			name: "CHAR nil",

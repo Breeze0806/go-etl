@@ -20,7 +20,6 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 var (
@@ -191,12 +190,12 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilStringColumnValue()
 		case []byte:
-			var v []byte
-			v, err = simplifiedchinese.GBK.NewDecoder().Bytes(data)
+			var buf []byte
+			buf, err = decodeChinese(data)
 			if err != nil {
 				return err
 			}
-			cv = element.NewStringColumnValue(string(v))
+			cv = element.NewStringColumnValue(string(buf))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeString)
 		}
