@@ -1,6 +1,6 @@
 # go-etl数据同步开发者指南
 
-## 同步框架简介
+## 1 同步框架简介
 
 go-etl主要离线数据同步框架，框架如下
 
@@ -16,13 +16,13 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 
 + Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
 
-## 核心模块(core)介绍
+## 2 核心模块(core)介绍
 
 go-etl完成单个数据同步的作业，我们称之为Job，go-etl接受到一个Job之后，将启动一个进程来完成整个作业同步过程。
 
 go-etl Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
 
-### go-etl调度流程
+### 2.1 调度流程
 ```
     JOB--split--+-- task1--+           +--taskGroup1--+   
                 |-- task2--|           |--taskGroup2--|        
@@ -51,13 +51,13 @@ go-etl作业运行起来之后，Job监控并等待多个TaskGroup模块任务�
 + JobContainer: Job执行器，负责Job全局拆分、调度、前置语句和后置语句等工作的工作单元。类似Yarn中的JobTracker
 + TaskGroupContainer: TaskGroup执行器，负责执行一组Task的工作单元，类似Yarn中的TaskTracker。
 
-## 编程接口
+## 3 编程接口
 
-### Reader插件接口
+### 3.1 Reader插件接口
 
 Reader需要实现以下接口:
 
-#### Job
+#### 3.1.1 Job
 
 Job组合*plugin.BaseJob，实现方法
 
@@ -75,7 +75,7 @@ Job组合*plugin.BaseJob，实现方法
 - `Post`: 全局的后置工作。
 - `Destroy`: Job对象自身的销毁工作。
 
-#### Task
+#### 3.1.2 Task
 
 Task组合*plugin.BaseTask,实现方法
 
@@ -93,7 +93,7 @@ Task组合*plugin.BaseTask,实现方法
 - `Post`: 局部的后置工作。
 - `Destroy`: Task象自身的销毁工作。
 
-#### Reader
+#### 3.1.3 Reader
 
 ```golang
     Job() reader.Job
@@ -104,7 +104,7 @@ Task组合*plugin.BaseTask,实现方法
 
 + `Task`: 获取上述的Task的实例
 
-#### 命令生成 
+#### 3.1.4 命令生成 
 
 ```bash
 cd tools/go-etl/plugin
@@ -134,15 +134,15 @@ go run main.go -t reader -p Mysql
 
 另外，以帮助开发者避免在使用插件注册命令后编译时报错。
 
-#### 数据库
+#### 3.1.5 数据库
 
 如果你想帮忙实现关系型数据库的数据源，根据以下方式去实现你的数据源将更加方便
 
-##### 数据库存储
+##### 3.1.5.1 数据库存储
 
 查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### dbms reader
+##### 3.1.5.2 数据库读取器
 
 dbms reader通过抽象数据库存储的DBWrapper结构体成如下Querier，然后利用Querier完成Job和Task的实现
 
@@ -168,21 +168,21 @@ type Querier interface {
 
 像mysql实现Job和Reader,对于Task需要使用dbms.StartRead函数实现StartRead方法
 
-#### 二维表文件流
+#### 3.1.6 二维表文件流
 
-##### 二维表文件流存储
+##### 3.1.6.1 二维表文件流存储
 
 查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### file reader
+##### 3.1.6.2 文件读取器
 
 像cvs那样Task和Reader,这里需要独立实现Job，实现切分方法Split和初始化方法Init
 
-### Writer插件接口
+### 3.2 Writer插件接口
 
 Writer 需要实现以下接口:
 
-#### Job
+#### 3.2.1 Job
 
 Job组合*plugin.BaseJob,实现方法:
 
@@ -200,7 +200,7 @@ Job组合*plugin.BaseJob,实现方法:
 - `Post`: 全局的后置工作。
 - `Destroy`: Job对象自身的销毁工作。
 
-#### Task
+#### 3.2.2 Task
 
 Task组合*plugin.BaseTask,实现方法:
 
@@ -220,7 +220,7 @@ Task组合*plugin.BaseTask,实现方法:
 - `Destroy`: Task自身的销毁工作。
 - `SupportFailOver`: Task是否支持故障转移。
 
-#### Writer
+#### 3.2.3 Writer
 
 ```golang
     Job() writer.Job
@@ -231,7 +231,7 @@ Task组合*plugin.BaseTask,实现方法:
 
 + `Task`: 获取上述的Task的实例
 
-#### 命令生成
+#### 3.2.4 命令生成
 
 ```bash
 cd tools/go-etl/plugin
@@ -260,15 +260,15 @@ go run main.go -t writer -p Mysql
 
 另外，这个可以帮助开发者避免在使用插件注册命令后编译时报错。
 
-#### 数据库
+#### 3.2.5 数据库
 
 如果你想帮忙实现数据库的数据源，根据以下方式去实现你的数据源将更加方便，当然前提你所使用的驱动库必须实现golang标准库的database/sql的接口。
 
-##### 数据库存储
+##### 3.2.5.1 数据库存储
 
 查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### dbms writer
+##### 3.2.5.2 数据库写入器
 
 dbms writer通过抽象数据库存储的DBWrapper结构体成如下Execer，然后利用Execer完成Job和Task的实现
 
@@ -300,17 +300,17 @@ type Execer interface {
 
 像mysql实现Job和Writer,对于Task需要使用dbms.StartWrite函数实现StartWrite方法
 
-#### 二维表文件流
+#### 3.2.6 二维表文件流
 
-##### 二维表文件流存储
+##### 3.2.6.1 二维表文件流存储
 
 查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
-##### file writer
+##### 3.2.6.2 文件读取器
 
 像cvs那样Task和Writer,这里需要独立实现Job，实现切分方法Split和初始化方法Init
 
-## 插件配置文件
+## 4 插件配置文件
 
 `go-etl`使用`json`作为配置文件的格式。一个典型的`go-etl`任务配置如下：
 
@@ -392,7 +392,7 @@ type Execer interface {
 
 任务的**配置中`job.content.reader.parameter`的value部分会传给`Reader.Job`；`job.content.writer.parameter`的value部分会传给`Writer.Job`** ，`Reader.Job`和`Writer.Job`可以通过`super.getPluginJobConf()`来获取。
 
-### 如何设计配置参数
+### 4.1 如何设计配置参数
 
 > 配置文件的设计是插件开发的第一步！
 
@@ -421,7 +421,7 @@ type Execer interface {
   }
   ```
 
-### 如何使用`config.JSON`结构体
+### 4.2 如何使用`config.JSON`结构体
 
 ```josn
 {
@@ -439,9 +439,9 @@ GetConfig中要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b
 
 更多`json.Config`的操作请参考`config`包的文档。
 
-## 插件打包发布
+## 5 插件打包发布
 
-### 新增许可证（license）
+### 5.1 新增许可证（license）
 
 当你开发完一个功能后在提交前，请运行如下命令用于自动加入许可证
 
@@ -449,7 +449,7 @@ GetConfig中要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b
 go run tools/license/main.go
 ```
 
-### 插件注册
+### 5.2 插件注册
 
 在使用golang编译前，需要将插件注册到代码中去。
 
@@ -460,7 +460,7 @@ go generate ./...
 ```
 主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现。
 
-## 插件数据传输
+## 6. 插件数据传输
 
 跟一般的`生产者-消费者`模式一样，`Reader`插件和`Writer`插件之间也是通过`channel`来实现数据的传输的。`channel`可以是内存的，也可能是持久化的，插件不必关心。插件通过`RecordSender`往`channel`写入数据，通过`RecordReceiver`从`channel`读取数据。
 
@@ -470,11 +470,11 @@ go generate ./...
 
 `Writer`插件调用`RecordReceiver.getFromReader()`方法获取`Record`，然后把`Column`遍历出来，写入目标存储中。当`Reader`尚未退出，传输还在进行时，如果暂时没有数据`RecordReceiver.getFromReader()`方法会阻塞直到有数据。如果传输已经结束，会返回`ErrTerminate`，`Writer`插件可以据此判断是否结束`startWrite`方法。
 
-### 数据类型转化
+### 6.1 数据类型转化
 
 为了规范源端和目的端类型转换操作，保证数据不失真，go-etl支持六种内部数据类型,具体见[文档](../element/README.md)的《数据类型转化》一章。
 
-## 插件文档
+## 7. 插件文档
 
 在插件文档README.md文档中加入以下几章内容
 
@@ -494,33 +494,33 @@ go generate ./...
 6. **约束限制**：是否存在其他的使用限制条件。
 7. **FAQ**：用户经常会遇到的问题。
 
-## 从源码进行编译
+## 8. 从源码进行编译
 
-### linux
+### 8.1 linux
 
-#### 依赖
+#### 8.1.1 依赖
 
 1. golang 1.16以及以上版本
 
-#### 构建
+#### 8.1.2 构建
 ```bash
 make dependencies
 make release
 ```
 
-### windows
+### 8.2 windows
 
-####  依赖
+####  8.2.1 依赖
 1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
 2. golang 1.16以及以上
 3. 最小编译环境为win7 
 
-####  构建
+####  8.2.2 构建
 ```bash
 release.bat
 ```
 
-### 编译产物
+### 8.3 编译产物
 
 ```
     +---datax---|---plugin---+---reader--mysql---|--README.md
@@ -541,3 +541,39 @@ release.bat
 + bin下的是数据同步程序datax
 + exampales下是各场景的数据同步的配置文档
 + README_USER.md是用户使用手册
+
+## 9. 调试http接口
+
+```bash
+datax -http :8443 -c examples/limit/config.json
+```
+
+### 9.1 获取当前调试数据
+使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
+```
+/debug/pprof/
+
+Types of profiles available:
+Count	Profile
+19	allocs
+0	block
+0	cmdline
+18	goroutine
+19	heap
+0	mutex
+0	profile
+10	threadcreate
+0	trace
+full goroutine stack dump
+Profile Descriptions:
+
+allocs: A sampling of all past memory allocations
+block: Stack traces that led to blocking on synchronization primitives
+cmdline: The command line invocation of the current program
+goroutine: Stack traces of all current goroutines
+heap: A sampling of memory allocations of live objects. You can specify the gc GET parameter to run GC before taking the heap sample.
+mutex: Stack traces of holders of contended mutexes
+profile: CPU profile. You can specify the duration in the seconds GET parameter. After you get the profile file, use the go tool pprof command to investigate the profile.
+threadcreate: Stack traces that led to the creation of new OS threads
+trace: A trace of execution of the current program. You can specify the duration in the seconds GET parameter. After you get the trace file, use the go tool trace command to investigate the trace.
+```

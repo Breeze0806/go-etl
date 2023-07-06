@@ -2,37 +2,15 @@
 
 go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
 
-## 1 从源码进行编译
+## 1 从哪里下载
 
-### 1.1 linux
-
-#### 1.1.1 依赖
-
-1. golang 1.16以及以上
-
-#### 1.1.2 构建
-```bash
-make dependencies
-make release
-```
-
-### 1.2 windows
-
-#### 1.2.1 依赖
-1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
-2. golang 1.16以及以上
-3. 最小编译环境为win7 
-
-#### 1.2.2 构建
-```bash
-release.bat
-```
+可以在[最新发布版本](https://github.com/Breeze0806/go-etl/releases)下载到windows或者linux操作系统的64位版本二进制程序。
 
 ## 2 如何开始
 
-下载对应操作系统的datax，在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib，否则无法运行
+从下载包中获得datax二进制程序，在linux下如Makefile所示export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli下载，否则无法运行。
 
-可以使用[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/)以及[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
+另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
 ### 2.1 单任务数据同步
 调用datax十分简单，只要直接调用它即可
@@ -485,33 +463,3 @@ datax -http :8443 -c examples/limit/config.json
 - totalRecord 总共数据同步的记录数
 - byte 在通道里数据同步的字节数
 - record 在通道里数据同步的记录数
-
-##### 2.3.3.2 获取当前调试数据
-使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
-```
-/debug/pprof/
-
-Types of profiles available:
-Count	Profile
-19	allocs
-0	block
-0	cmdline
-18	goroutine
-19	heap
-0	mutex
-0	profile
-10	threadcreate
-0	trace
-full goroutine stack dump
-Profile Descriptions:
-
-allocs: A sampling of all past memory allocations
-block: Stack traces that led to blocking on synchronization primitives
-cmdline: The command line invocation of the current program
-goroutine: Stack traces of all current goroutines
-heap: A sampling of memory allocations of live objects. You can specify the gc GET parameter to run GC before taking the heap sample.
-mutex: Stack traces of holders of contended mutexes
-profile: CPU profile. You can specify the duration in the seconds GET parameter. After you get the profile file, use the go tool pprof command to investigate the profile.
-threadcreate: Stack traces that led to the creation of new OS threads
-trace: A trace of execution of the current program. You can specify the duration in the seconds GET parameter. After you get the trace file, use the go tool trace command to investigate the trace.
-```

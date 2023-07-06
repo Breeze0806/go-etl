@@ -8,7 +8,7 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 
-go-etl是一个集数据源抽取，转化，加载，同步校验的工具集，提供强大的数据同步，数据转化甚至数据校验的功能。
+go-etl是一个集数据源抽取，转化，加载的工具集，提供强大的数据同步能力。
 
 go-etl将提供的etl能力如下：
 
@@ -43,20 +43,36 @@ go-etl将提供的etl能力如下：
 ## 模块简介
 ### datax
 
-本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go的etl框架，目前主要实现了job框架内的数据同步能力.
+本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go语言的离线数据同步框架框架，
+
+```
+readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)  
+```
+
+采用Framework + plugin架构构建。将数据源读取和写入抽象成为Reader/Writer插件，纳入到整个同步框架中。
+
++ Reader：Reader为数据采集模块，负责采集数据源的数据，将数据发送给Framework。 
++ Writer：Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
++ Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
+
+具体可以参考[go-etl数据同步开发者文档](datax/README.md)。
+
+### element
+
+目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[element包说明](element\README.md)。
+
 ### storage
 
 #### database
 
-目前已经实现了数据库的基础集成，已有mysql和postgresql的实现，如何实现可以查看godoc文档，利用它能非常方便地实现datax数据库间的同步，欢迎大家来提交新的数据同步方式，可以在下面选择新的数据库来同步
+目前已经实现了数据库的基础集成，抽象了数据库方言(Dialect)接口，具体实现可以参考[数据库存储开发者指南](storage/database/README.md)。
 
 #### stream
 
-主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等
+主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等。
 
-#### file
-主要用于文件的解析，如cvs，excel等
-
+##### file
+主要用于文件的解析，如cvs，excel等，抽象了输入流（InputStream）和输出流（OutputStream）接口，具体实现可以参考[类二维表文件存储开发者指南](storage/stream/file/README.md)。
 ### tools
 
 工具集用于编译，新增许可证等
