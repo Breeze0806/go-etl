@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # go-etl数据同步开发者指南
 
 ## 1 同步框架简介
@@ -456,9 +460,9 @@ go run tools/license/main.go
 golang静态编译的方式决定了go-etl框架不能用运行时动态加载插件的方式去获取插件，为此这里只能使用注册代码的方式，以下命令会生成将由开发者开发的reader和writer插件注册到程序中的代码。
 
 ```bash
-go generate ./...
+go run tools/datax/build/main.go
 ```
-主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现。
+主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现,另外通过-i命令可以忽略编译数据源来源，可以忽略db2， 由于db2会使用odbc去访问数据库，并且需要在linux中被依赖，如果不需要用这个直接忽略。
 
 ## 6. 插件数据传输
 
@@ -498,7 +502,7 @@ go generate ./...
 
 ### 8.1 linux
 
-#### 8.1.1 依赖
+#### 8.1.1 编译依赖
 
 1. golang 1.16以及以上版本
 
@@ -508,9 +512,19 @@ make dependencies
 make release
 ```
 
+#### 8.1.3 去掉db2依赖
+
+在编译前需要export IGNORE_PACKAGES=db2 
+
+```bash
+export IGNORE_PACKAGES=db2
+make dependencies
+make release
+```
+
 ### 8.2 windows
 
-####  8.2.1 依赖
+####  8.2.1 编译依赖
 1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
 2. golang 1.16以及以上
 3. 最小编译环境为win7 
@@ -519,6 +533,16 @@ make release
 ```bash
 release.bat
 ```
+
+#### 8.1.3 去掉db2依赖
+
+在编译前需要set IGNORE_PACKAGES=db2
+
+```bash
+set IGNORE_PACKAGES=db2
+release.bat
+```
+
 
 ### 8.3 编译产物
 

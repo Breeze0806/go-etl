@@ -10,6 +10,7 @@ datax/plugin/reader/**/plugin.go
 datax/plugin/writer/**/plugin.go
 datax/plugin_test.go
 datax/plugin.go
+release
 *.txt
 *.out
 *.exe

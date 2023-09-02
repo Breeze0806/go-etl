@@ -8,7 +8,7 @@ go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQ
 
 ## 2 如何开始
 
-从下载包中获得datax二进制程序，在linux下如Makefile所示export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli下载，否则无法运行。
+从下载包中获得datax二进制程序，在linux下如Makefile所示export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
 
 另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 

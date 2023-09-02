@@ -40,6 +40,78 @@ go-etl将提供的etl能力如下：
 
 参考[go-etl数据同步开发者文档](datax/README.md)来帮助开发
 
+### 数据同步工具编译
+
+#### linux
+
+##### 编译依赖
+
+1. golang 1.16以及以上版本
+
+##### 构建
+
+```bash
+make dependencies
+make release
+```
+
+##### 去掉db2依赖
+
+在编译前需要export IGNORE_PACKAGES=db2 
+
+```bash
+export IGNORE_PACKAGES=db2
+make dependencies
+make release
+```
+
+#### windows
+
+##### 编译依赖
+
+1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
+2. golang 1.16以及以上
+3. 最小编译环境为win7 
+
+##### 构建
+
+```bash
+release.bat
+```
+
+##### 去掉db2依赖
+
+在编译前需要set IGNORE_PACKAGES=db2
+
+```bash
+set IGNORE_PACKAGES=db2
+release.bat
+```
+
+
+#### 编译产物
+
+```
+    +---datax---|---plugin---+---reader--mysql---|--README.md
+    |                        | .......
+    |                        |
+    |                        |---writer--mysql---|--README.md
+    |                        | .......
+    |
+    +---bin----datax
+    +---exampales---+---csvpostgres----config.json
+    |               |---db2------------config.json
+    |               | .......
+    |
+    +---README_USER.md
+
+```
+
++ datax/plugin下是各插件的文档
++ bin下的是数据同步程序datax
++ exampales下是各场景的数据同步的配置文档
++ README_USER.md是用户使用手册
+
 ## 模块简介
 ### datax
 
@@ -59,7 +131,7 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 
 ### element
 
-目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[element包说明](element\README.md)。
+目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[go-etl数据类型说明](element\README.md)。
 
 ### storage
 
@@ -82,7 +154,7 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 ##### build
 
 ```bash
-go generate ./...
+go run tools/datax/build/main.go
 ```
 发布命令，用于将由开发者开发的reader和writer插件注册到程序中的代码
 
