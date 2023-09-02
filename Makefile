@@ -58,7 +58,12 @@ cover:
 
 .PHONY: release
 release:
-	@go run tools/datax/build/main.go -i ${IGNORE_PACKAGES} && cd cmd/datax && go build && cd ../..
+ifdef IGNORE_PACKAGES
+	@go run tools/datax/build/main.go -i ${IGNORE_PACKAGES} 
+else
+	@go run tools/datax/build/main.go
+endif
+	@cd cmd/datax && go build && cd ../..
 	@go run tools/datax/release/main.go
 .PHONY: doc
 doc:
