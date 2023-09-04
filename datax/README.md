@@ -460,7 +460,7 @@ go run tools/license/main.go
 golang静态编译的方式决定了go-etl框架不能用运行时动态加载插件的方式去获取插件，为此这里只能使用注册代码的方式，以下命令会生成将由开发者开发的reader和writer插件注册到程序中的代码。
 
 ```bash
-go run tools/datax/build/main.go
+go generate ./...
 ```
 主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现,另外通过-i命令可以忽略编译数据源来源，可以忽略db2， 由于db2会使用odbc去访问数据库，并且需要在linux中被依赖，如果不需要用这个直接忽略。
 
