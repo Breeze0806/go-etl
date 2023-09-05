@@ -1,6 +1,6 @@
 set GO111MODULE=on
 go mod download
-go mod vendor
+go mod vendor   
 go generate ./...
 cd cmd\datax
 go build 
