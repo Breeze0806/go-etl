@@ -154,7 +154,7 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 ##### build
 
 ```bash
-go run tools/datax/build/main.go
+go generate ./...
 ```
 发布命令，用于将由开发者开发的reader和writer插件注册到程序中的代码
 

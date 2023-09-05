@@ -18,7 +18,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -29,6 +28,7 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
+//go:generate go run main.go
 var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "[datax]")
 
 const (
@@ -116,18 +116,16 @@ func init() {
 	}
 }
 `
-	sourcePath  = "datax/"
-	programPath = "cmd/datax/version.go"
+	sourcePath  = "../../../datax/"
+	programPath = "../../../cmd/datax/version.go"
 )
 
 func main() {
-	ignore := flag.String("i", "", "ignore packages, use dot to split, like db2,oracle, it will ignore db2 and oracle data source")
-
-	flag.Parse()
+	ignore := os.Getenv("IGNORE_PACKAGES")
 
 	ignoreMap := make(map[string]struct{})
-	if *ignore != "" {
-		packages := strings.Split(*ignore, ",")
+	if ignore != "" {
+		packages := strings.Split(ignore, ",")
 		for _, v := range packages {
 			ignoreMap[v] = struct{}{}
 		}
