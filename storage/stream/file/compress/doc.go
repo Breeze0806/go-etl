@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//Package compress 主要实现了压缩方法
+// Package compress 主要实现了压缩方法
 package compress

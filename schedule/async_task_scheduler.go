@@ -32,7 +32,7 @@ type asyncTaskResult struct {
 	result chan error
 }
 
-//AsyncTaskScheduler 异步任务调度器
+// AsyncTaskScheduler 异步任务调度器
 type AsyncTaskScheduler struct {
 	tasks   chan *asyncTaskWrapper
 	results chan *asyncTaskResult
@@ -44,8 +44,8 @@ type AsyncTaskScheduler struct {
 	closed  int32
 }
 
-//NewAsyncTaskScheduler 通过上下文ctx, 并行任务数numWorker,
-//任务数大小chanSize创建异步任务调度器
+// NewAsyncTaskScheduler 通过上下文ctx, 并行任务数numWorker,
+// 任务数大小chanSize创建异步任务调度器
 func NewAsyncTaskScheduler(ctx context.Context,
 	numWorker, chanSize int) *AsyncTaskScheduler {
 	a := &AsyncTaskScheduler{
@@ -76,7 +76,7 @@ func NewAsyncTaskScheduler(ctx context.Context,
 	return a
 }
 
-//Push 异步执行任务task
+// Push 异步执行任务task
 func (a *AsyncTaskScheduler) Push(task AsyncTask) (err error) {
 	if goatomic.CompareAndSwapInt32(&a.closed, 1, 1) {
 		return ErrClosed
@@ -109,17 +109,17 @@ func (a *AsyncTaskScheduler) Push(task AsyncTask) (err error) {
 	return nil
 }
 
-//Size 正在异步任务调度器中的任务
+// Size 正在异步任务调度器中的任务
 func (a *AsyncTaskScheduler) Size() int32 {
 	return a.size.Load()
 }
 
-//Errors 错误监听器
+// Errors 错误监听器
 func (a *AsyncTaskScheduler) Errors() <-chan error {
 	return a.errors
 }
 
-//Close 关闭
+// Close 关闭
 func (a *AsyncTaskScheduler) Close() error {
 	if !goatomic.CompareAndSwapInt32(&a.closed, 0, 1) {
 		return ErrClosed

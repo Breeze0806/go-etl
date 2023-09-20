@@ -14,7 +14,7 @@
 
 package core
 
-//datax 配置文件路径
+// datax 配置文件路径
 var (
 	//datax全局配置路劲
 	DataxCoreContainerTaskgroupChannel                = "core.container.taskGroup.channel"

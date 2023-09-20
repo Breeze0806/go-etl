@@ -21,6 +21,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sync"
 
@@ -94,13 +95,17 @@ func main() {
 				if err = addLicenseHeader(filename); err != nil {
 					log.Errorf("addLicenseHeader %v fail. err : %v", filename, err)
 				}
+
+				if _, err = formatCode(filename); err != nil {
+					log.Errorf("formatCode %v fail. err : %v", filename, err)
+				}
 			}
 		}(v)
 	}
 	wg.Wait()
 }
 
-//添加许可证
+// 添加许可证
 func readPackages(path string) (packages []string, err error) {
 	var list []os.FileInfo
 	list, err = ioutil.ReadDir(path)
@@ -120,7 +125,7 @@ func readPackages(path string) (packages []string, err error) {
 	return
 }
 
-//检查许可证
+// 检查许可证
 func addLicenseHeader(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -149,6 +154,7 @@ func addLicenseHeader(filename string) error {
 	return nil
 }
 
+// 检查许可证
 func checkLicenseHeader(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -160,4 +166,21 @@ func checkLicenseHeader(filename string) error {
 		return nil
 	}
 	return fmt.Errorf("has no license header")
+}
+
+// 格式化代码
+func formatCode(filename string) (output string, err error) {
+	return cmdOutput("gofmt", "-s", "-w", filename)
+}
+
+func cmdOutput(cmd string, arg ...string) (output string, err error) {
+	c := exec.Command(cmd, arg...)
+	var stdout, stderr bytes.Buffer
+	c.Stdout = &stdout
+	c.Stderr = &stderr
+	if err = c.Run(); err != nil {
+		err = fmt.Errorf("%v(%s)", err, stderr.String())
+		return
+	}
+	return stdout.String(), nil
 }

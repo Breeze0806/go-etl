@@ -24,20 +24,20 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file/csv"
 )
 
-//SingleConfig csv单个输入设置
+// SingleConfig csv单个输入设置
 type SingleConfig struct {
 	csv.OutConfig
 	file.BaseConfig
 }
 
-//Config  csv输入配置
+// Config  csv输入配置
 type Config struct {
 	SingleConfig
 
 	Path []string `json:"path"`
 }
 
-//NewConfig 通过json配置conf获取csv输入配置
+// NewConfig 通过json配置conf获取csv输入配置
 func NewConfig(conf *config.JSON) (*Config, error) {
 	c := &Config{}
 	if err := json.Unmarshal([]byte(conf.String()), c); err != nil {

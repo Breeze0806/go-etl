@@ -19,7 +19,7 @@ import (
 	"sync"
 )
 
-//Dialect 数据库方言
+// Dialect 数据库方言
 type Dialect interface {
 	Source(*BaseSource) (Source, error) //数据源
 }
@@ -28,14 +28,14 @@ var dialects = &dialectMap{
 	dialects: make(map[string]Dialect),
 }
 
-//RegisterDialect 注册数据库方言，当注册名称相同或者dialect为空时会panic
+// RegisterDialect 注册数据库方言，当注册名称相同或者dialect为空时会panic
 func RegisterDialect(name string, dialect Dialect) {
 	if err := dialects.register(name, dialect); err != nil {
 		panic(err)
 	}
 }
 
-//UnregisterAllDialects 注销所有的数据库方言
+// UnregisterAllDialects 注销所有的数据库方言
 func UnregisterAllDialects() {
 	dialects.unregisterAll()
 }

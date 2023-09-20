@@ -19,7 +19,7 @@ import (
 	"sync"
 )
 
-//RecordChan 记录通道 修复内存溢出
+// RecordChan 记录通道 修复内存溢出
 type RecordChan struct {
 	lock   sync.Mutex
 	ch     chan Record
@@ -29,12 +29,12 @@ type RecordChan struct {
 
 const defaultRequestChanBuffer = 1024
 
-//NewRecordChan 创建记录通道
+// NewRecordChan 创建记录通道
 func NewRecordChan(ctx context.Context) *RecordChan {
 	return NewRecordChanBuffer(ctx, 0)
 }
 
-//NewRecordChanBuffer 创建容量n的记录通道
+// NewRecordChanBuffer 创建容量n的记录通道
 func NewRecordChanBuffer(ctx context.Context, n int) *RecordChan {
 	if n <= 0 {
 		n = defaultRequestChanBuffer
@@ -46,7 +46,7 @@ func NewRecordChanBuffer(ctx context.Context, n int) *RecordChan {
 	return ch
 }
 
-//Close 关闭
+// Close 关闭
 func (c *RecordChan) Close() {
 	c.lock.Lock()
 	if !c.closed {
@@ -56,12 +56,12 @@ func (c *RecordChan) Close() {
 	c.lock.Unlock()
 }
 
-//Buffered 记录通道内的元素数量
+// Buffered 记录通道内的元素数量
 func (c *RecordChan) Buffered() int {
 	return len(c.ch)
 }
 
-//PushBack 在尾部追加记录r，并且返回队列大小
+// PushBack 在尾部追加记录r，并且返回队列大小
 func (c *RecordChan) PushBack(r Record) int {
 	select {
 	case c.ch <- r:
@@ -70,7 +70,7 @@ func (c *RecordChan) PushBack(r Record) int {
 	return c.Buffered()
 }
 
-//PopFront 在头部弹出记录r，并且返回是否还有值
+// PopFront 在头部弹出记录r，并且返回是否还有值
 func (c *RecordChan) PopFront() (r Record, ok bool) {
 	select {
 	case r, ok = <-c.ch:
@@ -80,7 +80,7 @@ func (c *RecordChan) PopFront() (r Record, ok bool) {
 	return r, ok
 }
 
-//PushBackAll 通过函数fetchRecord获取多个记录，在尾部追加
+// PushBackAll 通过函数fetchRecord获取多个记录，在尾部追加
 func (c *RecordChan) PushBackAll(fetchRecord func() (Record, error)) error {
 	for {
 		r, err := fetchRecord()
@@ -91,7 +91,7 @@ func (c *RecordChan) PushBackAll(fetchRecord func() (Record, error)) error {
 	}
 }
 
-//PopFrontAll 通过函数onRecord从头部弹出所有记录
+// PopFrontAll 通过函数onRecord从头部弹出所有记录
 func (c *RecordChan) PopFrontAll(onRecord func(Record) error) error {
 	for {
 		r, ok := c.PopFront()

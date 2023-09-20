@@ -20,7 +20,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//Task 任务接口
+// Task 任务接口
 type Task interface {
 	Plugin
 
@@ -47,7 +47,7 @@ type Task interface {
 	Format(format string) string
 }
 
-//BaseTask 基础任务，用于辅助和简化任务接口的实现
+// BaseTask 基础任务，用于辅助和简化任务接口的实现
 type BaseTask struct {
 	*BasePlugin
 
@@ -57,59 +57,59 @@ type BaseTask struct {
 	collector   TaskCollector
 }
 
-//NewBaseTask 创建基础任务
+// NewBaseTask 创建基础任务
 func NewBaseTask() *BaseTask {
 	return &BaseTask{
 		BasePlugin: NewBasePlugin(),
 	}
 }
 
-//TaskCollector 任务信息收集器
+// TaskCollector 任务信息收集器
 func (b *BaseTask) TaskCollector() TaskCollector {
 	return b.collector
 }
 
-//SetTaskCollector 设置任务信息收集器
+// SetTaskCollector 设置任务信息收集器
 func (b *BaseTask) SetTaskCollector(collector TaskCollector) {
 	b.collector = collector
 }
 
-//TaskID 任务ID
+// TaskID 任务ID
 func (b *BaseTask) TaskID() int64 {
 	return b.taskID
 }
 
-//SetTaskID 设置任务ID
+// SetTaskID 设置任务ID
 func (b *BaseTask) SetTaskID(taskID int64) {
 	b.taskID = taskID
 }
 
-//TaskGroupID 任务组ID
+// TaskGroupID 任务组ID
 func (b *BaseTask) TaskGroupID() int64 {
 	return b.taskGroupID
 }
 
-//SetTaskGroupID 设置任务组ID
+// SetTaskGroupID 设置任务组ID
 func (b *BaseTask) SetTaskGroupID(taskGroupID int64) {
 	b.taskGroupID = taskGroupID
 }
 
-//JobID 工作ID
+// JobID 工作ID
 func (b *BaseTask) JobID() int64 {
 	return b.jobID
 }
 
-//SetJobID 设置工作ID
+// SetJobID 设置工作ID
 func (b *BaseTask) SetJobID(jobID int64) {
 	b.jobID = jobID
 }
 
-//Wrapf 包裹错误
+// Wrapf 包裹错误
 func (b *BaseTask) Wrapf(err error, format string, args ...interface{}) error {
 	return errors.Wrapf(err, b.Format(format), args...)
 }
 
-//Format 日志格式
+// Format 日志格式
 func (b *BaseTask) Format(format string) string {
 	return fmt.Sprintf("jobId : %v taskgroupId: %v taskId: %v %v", b.jobID, b.taskGroupID, b.taskID, format)
 }

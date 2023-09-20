@@ -48,7 +48,7 @@ func RegisterCreator(name string, creator Creator) {
 	}
 }
 
-//UnregisterAllCreater 注销所有文件打开器
+// UnregisterAllCreater 注销所有文件打开器
 func UnregisterAllCreater() {
 	creators.unregisterAll()
 }

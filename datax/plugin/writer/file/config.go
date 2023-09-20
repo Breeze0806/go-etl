@@ -27,19 +27,19 @@ var (
 	defalutBatchTimeout = 1 * time.Second
 )
 
-//Config 文件流输出配置
+// Config 文件流输出配置
 type Config interface {
 	GetBatchSize() int              //单次批量写入数
 	GetBatchTimeout() time.Duration //单次批量写入超时时间
 }
 
-//BaseConfig 基础文件流输出配置
+// BaseConfig 基础文件流输出配置
 type BaseConfig struct {
 	BatchSize    int            `json:"batchSize"`    //单次批量写入数
 	BatchTimeout time2.Duration `json:"batchTimeout"` //单次批量写入超时时间
 }
 
-//NewBaseConfig 通过json配置获取基础文件流输出配置
+// NewBaseConfig 通过json配置获取基础文件流输出配置
 func NewBaseConfig(conf *config.JSON) (*BaseConfig, error) {
 	c := &BaseConfig{}
 	if err := json.Unmarshal([]byte(conf.String()), c); err != nil {
@@ -48,7 +48,7 @@ func NewBaseConfig(conf *config.JSON) (*BaseConfig, error) {
 	return c, nil
 }
 
-//GetBatchTimeout 单次批量写入超时时间
+// GetBatchTimeout 单次批量写入超时时间
 func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	if b.BatchTimeout.Duration == 0 {
 		return defalutBatchTimeout
@@ -56,7 +56,7 @@ func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	return b.BatchTimeout.Duration
 }
 
-//GetBatchSize 单次批量写入数
+// GetBatchSize 单次批量写入数
 func (b *BaseConfig) GetBatchSize() int {
 	if b.BatchSize == 0 {
 		return defalutBatchSize

@@ -21,7 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/spi/writer"
 )
 
-//Writer 写入运行器
+// Writer 写入运行器
 type Writer struct {
 	*baseRunner
 	receiver plugin.RecordReceiver
@@ -29,7 +29,7 @@ type Writer struct {
 	describe string
 }
 
-//NewWriter 通过读取任务task、记录接受器receiver以及任务关键字taskKey创建写入运行器
+// NewWriter 通过读取任务task、记录接受器receiver以及任务关键字taskKey创建写入运行器
 func NewWriter(task writer.Task, receiver plugin.RecordReceiver, taskKey string) *Writer {
 	return &Writer{
 		baseRunner: &baseRunner{},
@@ -39,12 +39,12 @@ func NewWriter(task writer.Task, receiver plugin.RecordReceiver, taskKey string)
 	}
 }
 
-//Plugin 插件任务
+// Plugin 插件任务
 func (w *Writer) Plugin() plugin.Task {
 	return w.task
 }
 
-//Run 运行，运行顺序：Init->Prepare->StartWrite->Post->Destroy
+// Run 运行，运行顺序：Init->Prepare->StartWrite->Post->Destroy
 func (w *Writer) Run(ctx context.Context) (err error) {
 	defer func() {
 		log.Debugf("datax writer runner %v starts to destroy", w.describe)

@@ -24,12 +24,12 @@ import (
 	_ "github.com/Breeze0806/go-etl/storage/database/oracle"
 )
 
-//Task 任务
+// Task 任务
 type Task struct {
 	*dbms.Task
 }
 
-//StartRead 开始读
+// StartRead 开始读
 func (t *Task) StartRead(ctx context.Context, sender plugin.RecordSender) (err error) {
 	return dbms.StartRead(ctx, dbms.NewBaseBatchReader(t.Task, "", nil), sender)
 }

@@ -346,7 +346,7 @@ func TestTask_Init(t *testing.T) {
 			args: args{
 				ctx: context.TODO(),
 			},
-			conf:    testJSONFromString(`{"creater":"mock"}`),
+			conf:    testJSONFromString(`{"creator1":"mock"}`),
 			jobConf: testJSONFromString(`{"path":"file1","content":{}}`),
 			wantErr: true,
 		},

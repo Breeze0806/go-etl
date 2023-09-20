@@ -33,31 +33,31 @@ func init() {
 	file.RegisterCreator("xlsx", &creator)
 }
 
-//Opener xlsx输入流打开器
+// Opener xlsx输入流打开器
 type Opener struct {
 }
 
-//Open 打开一个名为filename的xlsx输入流
+// Open 打开一个名为filename的xlsx输入流
 func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
-//Creator xlsx输出流创建器
+// Creator xlsx输出流创建器
 type Creator struct {
 }
 
-//Create 创建一个名为filename的xlsx输出流
+// Create 创建一个名为filename的xlsx输出流
 func (c *Creator) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 
-//Stream xlsx文件流
+// Stream xlsx文件流
 type Stream struct {
 	file     *excelize.File
 	filename string
 }
 
-//NewInStream 创建一个名为filename的xlsx输入流
+// NewInStream 创建一个名为filename的xlsx输入流
 func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
@@ -68,7 +68,7 @@ func NewInStream(filename string) (file.InStream, error) {
 	return stream, nil
 }
 
-//NewOutStream 创建一个名为filename的xlsx输出流
+// NewOutStream 创建一个名为filename的xlsx输出流
 func NewOutStream(filename string) (file.OutStream, error) {
 	stream := &Stream{
 		filename: filename,
@@ -77,17 +77,17 @@ func NewOutStream(filename string) (file.OutStream, error) {
 	return stream, nil
 }
 
-//Rows 新建一个配置未conf的csv行读取器
+// Rows 新建一个配置未conf的csv行读取器
 func (s *Stream) Rows(conf *config.JSON) (file.Rows, error) {
 	return NewRows(s.file, conf)
 }
 
-//Writer 新建一个配置未conf的xlsx流写入器
+// Writer 新建一个配置未conf的xlsx流写入器
 func (s *Stream) Writer(conf *config.JSON) (file.StreamWriter, error) {
 	return NewWriter(s.file, conf)
 }
 
-//Close 关闭文件流
+// Close 关闭文件流
 func (s *Stream) Close() (err error) {
 	if s.filename != "" {
 		err = s.file.SaveAs(s.filename)
@@ -96,7 +96,7 @@ func (s *Stream) Close() (err error) {
 	return s.file.Close()
 }
 
-//Rows 行读取器
+// Rows 行读取器
 type Rows struct {
 	*excelize.Rows
 
@@ -105,7 +105,7 @@ type Rows struct {
 	config  *InConfig
 }
 
-//NewRows 通过文件句柄f，和配置文件c 创建行读取器
+// NewRows 通过文件句柄f，和配置文件c 创建行读取器
 func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 	var conf *InConfig
 	if conf, err = NewInConfig(c); err != nil {
@@ -170,7 +170,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), byteSize), nil
 }
 
-//Writer xlsx流写入器
+// Writer xlsx流写入器
 type Writer struct {
 	file       *excelize.File
 	writer     *excelize.StreamWriter
@@ -180,7 +180,7 @@ type Writer struct {
 	columns    map[int]Column
 }
 
-//NewWriter 通过文件句柄f，和配置文件c 创建xlsx流写入器
+// NewWriter 通过文件句柄f，和配置文件c 创建xlsx流写入器
 func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 	w := &Writer{
 		file:    f,
@@ -200,7 +200,7 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 	return w, nil
 }
 
-//Write 将记录record 写入xlsx文件
+// Write 将记录record 写入xlsx文件
 func (w *Writer) Write(record element.Record) (err error) {
 	w.row++
 	if w.row > w.conf.sheetRow() {
@@ -251,12 +251,12 @@ func (w *Writer) Write(record element.Record) (err error) {
 	return w.writer.SetRow(axis, records)
 }
 
-//Flush 不刷新
+// Flush 不刷新
 func (w *Writer) Flush() (err error) {
 	return
 }
 
-//Close w.writer有可能为空，刷新文件内存到临时文件
+// Close w.writer有可能为空，刷新文件内存到临时文件
 func (w *Writer) Close() (err error) {
 	if w.writer != nil {
 		err = w.writer.Flush()

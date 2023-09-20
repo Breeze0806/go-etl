@@ -21,14 +21,14 @@ import (
 	"os"
 )
 
-//ZipReader zip的读取器
+// ZipReader zip的读取器
 type ZipReader struct {
 	reader    *zip.Reader
 	now       int
 	nowReader io.ReadCloser
 }
 
-//NewZipReader 通过文件f创建zip读取器
+// NewZipReader 通过文件f创建zip读取器
 func NewZipReader(f *os.File) (zr *ZipReader, err error) {
 	var fi fs.FileInfo
 	fi, err = f.Stat()
@@ -43,7 +43,7 @@ func NewZipReader(f *os.File) (zr *ZipReader, err error) {
 	return zr, nil
 }
 
-//Read 传入p读取
+// Read 传入p读取
 func (z *ZipReader) Read(p []byte) (n int, err error) {
 	if z.now == 0 {
 		if err = z.getNowReader(); err != nil {

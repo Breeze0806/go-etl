@@ -29,56 +29,56 @@ var (
 	datetimeLayout = element.DefaultTimeFormat[:26]
 )
 
-//Field 字段
+// Field 字段
 type Field struct {
 	*database.BaseField
 }
 
-//NewField 通过基本列属性生成字段
+// NewField 通过基本列属性生成字段
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-//Quoted 引用，用于SQL语句
+// Quoted 引用，用于SQL语句
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-//BindVar SQL占位符，用于SQL语句
+// BindVar SQL占位符，用于SQL语句
 func (f *Field) BindVar(i int) string {
 	return fmt.Sprintf("@p%d", i)
 }
 
-//Select 查询时字段，用于SQL查询语句
+// Select 查询时字段，用于SQL查询语句
 func (f *Field) Select() string {
 	return f.Quoted()
 }
 
-//Type 字段类型
+// Type 字段类型
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-//Scanner 扫描器，用于读取数据
+// Scanner 扫描器，用于读取数据
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-//Valuer 赋值器，采用GoValuer处理数据
+// Valuer 赋值器，采用GoValuer处理数据
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return NewValuer(f, c)
 }
 
-//FieldType 字段类型
+// FieldType 字段类型
 type FieldType struct {
 	*database.BaseFieldType
 
 	goType database.GoType
 }
 
-//NewFieldType 创建新的字段类型
+// NewFieldType 创建新的字段类型
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
@@ -101,30 +101,30 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-//IsSupportted 是否支持解析
+// IsSupportted 是否支持解析
 func (f *FieldType) IsSupportted() bool {
 	return f.GoType() != database.GoTypeUnknown
 }
 
-//GoType 返回处理数值时的Golang类型
+// GoType 返回处理数值时的Golang类型
 func (f *FieldType) GoType() database.GoType {
 	return f.goType
 }
 
-//Scanner 扫描器
+// Scanner 扫描器
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-//NewScanner 根据列类型生成扫描器
+// NewScanner 根据列类型生成扫描器
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-//Scan 根据列类型读取数据
+// Scan 根据列类型读取数据
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
@@ -205,13 +205,13 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 	return
 }
 
-//Valuer 赋值器
+// Valuer 赋值器
 type Valuer struct {
 	f *Field
 	c element.Column
 }
 
-//NewValuer 创建新赋值器
+// NewValuer 创建新赋值器
 func NewValuer(f *Field, c element.Column) *Valuer {
 	return &Valuer{
 		f: f,
@@ -219,7 +219,7 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 	}
 }
 
-//Value 赋值
+// Value 赋值
 func (v *Valuer) Value() (driver.Value, error) {
 	//不能直接nil，golang的[]byte(nil)的类型是[]byte，但是值是nil，会导致以下错误:
 	//mssql: Implicit conversion from data type nvarchar to binary is not allowed.

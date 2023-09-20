@@ -34,7 +34,7 @@ var (
 	defalutBatchTimeout = 1 * time.Second
 )
 
-//Config 关系数据库写入器配置
+// Config 关系数据库写入器配置
 type Config interface {
 	GetUsername() string                                                     //获取用户名
 	GetPassword() string                                                     //获取密码
@@ -50,7 +50,7 @@ type Config interface {
 	GetPostSQL() []string                                                    //获取结束的SQL语句
 }
 
-//BaseConfig 用于实现基本的关系数据库配置，如无特殊情况采用该配置，帮助快速实现writer
+// BaseConfig 用于实现基本的关系数据库配置，如无特殊情况采用该配置，帮助快速实现writer
 type BaseConfig struct {
 	Username            string                `json:"username"`     //用户名
 	Password            string                `json:"password"`     //密码
@@ -65,7 +65,7 @@ type BaseConfig struct {
 	newRetryStrategy    func(j schedule.RetryJudger) (schedule.RetryStrategy, error)
 }
 
-//NewBaseConfig 从conf解析出关系数据库配置
+// NewBaseConfig 从conf解析出关系数据库配置
 func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	c = &BaseConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -93,22 +93,22 @@ func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	return
 }
 
-//GetUsername 获取用户名
+// GetUsername 获取用户名
 func (b *BaseConfig) GetUsername() string {
 	return b.Username
 }
 
-//GetPassword 获取密码
+// GetPassword 获取密码
 func (b *BaseConfig) GetPassword() string {
 	return b.Password
 }
 
-//GetURL 获取连接url
+// GetURL 获取连接url
 func (b *BaseConfig) GetURL() string {
 	return b.Connection.URL
 }
 
-//GetColumns 获取列信息
+// GetColumns 获取列信息
 func (b *BaseConfig) GetColumns() (columns []dbmsreader.Column) {
 	for _, v := range b.Column {
 		columns = append(columns, &dbmsreader.BaseColumn{
@@ -118,18 +118,18 @@ func (b *BaseConfig) GetColumns() (columns []dbmsreader.Column) {
 	return
 }
 
-//GetBaseTable 获取表信息
+// GetBaseTable 获取表信息
 func (b *BaseConfig) GetBaseTable() *database.BaseTable {
 	return database.NewBaseTable(b.Connection.Table.Db, b.Connection.Table.Schema,
 		b.Connection.Table.Name)
 }
 
-//GetWriteMode 获取写入模式
+// GetWriteMode 获取写入模式
 func (b *BaseConfig) GetWriteMode() string {
 	return b.WriteMode
 }
 
-//GetBatchTimeout 单次批量超时时间
+// GetBatchTimeout 单次批量超时时间
 func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	if b.BatchTimeout.Duration == 0 {
 		return defalutBatchTimeout
@@ -137,7 +137,7 @@ func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	return b.BatchTimeout.Duration
 }
 
-//GetBatchSize 单次批量写入数
+// GetBatchSize 单次批量写入数
 func (b *BaseConfig) GetBatchSize() int {
 	if b.BatchSize == 0 {
 		return defalutBatchSize
@@ -146,22 +146,22 @@ func (b *BaseConfig) GetBatchSize() int {
 	return b.BatchSize
 }
 
-//GetPreSQL 获取准备的SQL语句
+// GetPreSQL 获取准备的SQL语句
 func (b *BaseConfig) GetPreSQL() []string {
 	return getSQlsWithoutEmpty(b.PreSQL)
 }
 
-//GetPostSQL 获取结束的SQL语句
+// GetPostSQL 获取结束的SQL语句
 func (b *BaseConfig) GetPostSQL() []string {
 	return getSQlsWithoutEmpty(b.PostSQL)
 }
 
-//IgnoreOneByOneError 忽略一个个重试的错误
+// IgnoreOneByOneError 忽略一个个重试的错误
 func (b *BaseConfig) IgnoreOneByOneError() bool {
 	return b.ignoreOneByOneError
 }
 
-//GetRetryStrategy 获取重试策略
+// GetRetryStrategy 获取重试策略
 func (b *BaseConfig) GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy,
 	error) {
 	return b.newRetryStrategy(j)

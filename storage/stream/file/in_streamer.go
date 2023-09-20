@@ -49,24 +49,24 @@ type Rows interface {
 	Close() error                                //关闭行读取器
 }
 
-//RegisterOpener 通过打开器名称name注册输入流打开器opener
+// RegisterOpener 通过打开器名称name注册输入流打开器opener
 func RegisterOpener(name string, opener Opener) {
 	if err := openers.register(name, opener); err != nil {
 		panic(err)
 	}
 }
 
-//UnregisterAllOpener 注销所有文件打开器
+// UnregisterAllOpener 注销所有文件打开器
 func UnregisterAllOpener() {
 	openers.unregisterAll()
 }
 
-//InStreamer 输入流包装
+// InStreamer 输入流包装
 type InStreamer struct {
 	stream InStream
 }
 
-//NewInStreamer 通过opener名称name的输入流打开器，并打开名为filename的输入流
+// NewInStreamer 通过opener名称name的输入流打开器，并打开名为filename的输入流
 func NewInStreamer(name string, filename string) (streamer *InStreamer, err error) {
 	opener, ok := openers.opener(name)
 	if !ok {

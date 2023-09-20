@@ -28,13 +28,13 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 )
 
-//Wizard 配置向导工具
+// Wizard 配置向导工具
 type Wizard struct {
 	dataSourceFile string
 	csvFile        string
 }
 
-//NewWizard 根据数据源文件dataSourceFile，源目的文件csvFile生成配置向导工具
+// NewWizard 根据数据源文件dataSourceFile，源目的文件csvFile生成配置向导工具
 func NewWizard(dataSourceFile, csvFile string) (w *Wizard) {
 	w = &Wizard{
 		dataSourceFile: dataSourceFile,
@@ -43,7 +43,7 @@ func NewWizard(dataSourceFile, csvFile string) (w *Wizard) {
 	return
 }
 
-//GenerateConfigsAndScripts 生成配置文件集和执行脚本
+// GenerateConfigsAndScripts 生成配置文件集和执行脚本
 func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 	var dataSource *config.JSON
 	if dataSource, err = config.NewJSONFromFile(w.dataSourceFile); err != nil {

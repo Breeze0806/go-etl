@@ -50,9 +50,9 @@ type taskExecer struct {
 	attemptCount *atomic.Int32      //执行次数
 }
 
-//newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
-//执行次数attemptCount生成任务执行器，当taskID不存在，工作器名字配置以及
-//对应写入器和读取器不存在时会报错
+// newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
+// 执行次数attemptCount生成任务执行器，当taskID不存在，工作器名字配置以及
+// 对应写入器和读取器不存在时会报错
 func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	jobID, taskGroupID int64, attemptCount int) (t *taskExecer, err error) {
 	t = &taskExecer{
@@ -118,7 +118,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	return
 }
 
-//Start 读取运行器和写入运行器分别在携程中执行
+// Start 读取运行器和写入运行器分别在携程中执行
 func (t *taskExecer) Start() {
 	var ctx context.Context
 	t.cancalMutex.Lock()
@@ -158,12 +158,12 @@ func (t *taskExecer) Start() {
 	readerWg.Wait()
 }
 
-//AttemptCount 执行次数
+// AttemptCount 执行次数
 func (t *taskExecer) AttemptCount() int32 {
 	return t.attemptCount.Load()
 }
 
-//Do 执行函数
+// Do 执行函数
 func (t *taskExecer) Do() (err error) {
 	log.Debugf("taskExecer %v start to do", t.key)
 	defer func() {
@@ -189,12 +189,12 @@ func (t *taskExecer) Do() (err error) {
 	}
 }
 
-//Key 关键字
+// Key 关键字
 func (t *taskExecer) Key() string {
 	return t.key
 }
 
-//WriterSuportFailOverport 写入器是否支持错误重试
+// WriterSuportFailOverport 写入器是否支持错误重试
 func (t *taskExecer) WriterSuportFailOverport() bool {
 	task, ok := t.writerRunner.Plugin().(writer.Task)
 	if !ok {
@@ -203,7 +203,7 @@ func (t *taskExecer) WriterSuportFailOverport() bool {
 	return task.SupportFailOver()
 }
 
-//Shutdown 通过cancel停止写入器，关闭reader和writer
+// Shutdown 通过cancel停止写入器，关闭reader和writer
 func (t *taskExecer) Shutdown() {
 	log.Debugf("taskExecer %v starts to shutdown", t.key)
 	defer log.Debugf("taskExecer %v ends to shutdown", t.key)
@@ -245,13 +245,13 @@ Loop:
 	t.writerRunner.Shutdown()
 }
 
-//Stats 统计信息
+// Stats 统计信息
 type Stats struct {
 	TaskID  int64             `json:"taskID"`
 	Channel channel.StatsJSON `json:"channel"`
 }
 
-//Stats 获取统计信息
+// Stats 获取统计信息
 func (t *taskExecer) Stats() Stats {
 	return Stats{
 		TaskID:  t.taskID,

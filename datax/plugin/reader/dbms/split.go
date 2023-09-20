@@ -35,7 +35,7 @@ type splitRangeFetcher interface {
 	fetchMin(ctx context.Context, splitTable database.Table) (element.Column, error)
 }
 
-//SplitConfig 切分配置
+// SplitConfig 切分配置
 type SplitConfig struct {
 	Key string `json:"key"` //切分键
 	//day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
@@ -109,7 +109,7 @@ func (s SplitConfig) checkType(splitTable database.Table) (err error) {
 	return nil
 }
 
-//SplitRange 切分范围配置
+// SplitRange 切分范围配置
 type SplitRange struct {
 	Type   string `json:"type"`   //类型 bigint, string, time
 	Layout string `json:"layout"` //时间格式

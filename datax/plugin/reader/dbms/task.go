@@ -26,7 +26,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-//Task 任务
+// Task 任务
 type Task struct {
 	*plugin.BaseTask
 
@@ -36,7 +36,7 @@ type Task struct {
 	Table   database.Table
 }
 
-//NewTask 通过数据库句柄handler获取任务
+// NewTask 通过数据库句柄handler获取任务
 func NewTask(handler DbHandler) *Task {
 	return &Task{
 		BaseTask: plugin.NewBaseTask(),
@@ -45,7 +45,7 @@ func NewTask(handler DbHandler) *Task {
 	}
 }
 
-//Init 初始化
+// Init 初始化
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
@@ -87,7 +87,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-//Destroy 销毁
+// Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.Querier != nil {
 		err = t.Querier.Close()
@@ -95,7 +95,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return t.Wrapf(err, "Close fail")
 }
 
-//BatchReader 批量读入器
+// BatchReader 批量读入器
 type BatchReader interface {
 	JobID() int64       //工作编号
 	TaskGroupID() int64 //任务组编号
@@ -105,14 +105,14 @@ type BatchReader interface {
 	Parameter() database.Parameter //查询参数
 }
 
-//BaseBatchReader 基础批量读入器
+// BaseBatchReader 基础批量读入器
 type BaseBatchReader struct {
 	task *Task
 	mode string
 	opts *sql.TxOptions
 }
 
-//NewBaseBatchReader 通过任务task，查询模式mode和事务选项opts获取基础批量读入器
+// NewBaseBatchReader 通过任务task，查询模式mode和事务选项opts获取基础批量读入器
 func NewBaseBatchReader(task *Task, mode string, opts *sql.TxOptions) *BaseBatchReader {
 	return &BaseBatchReader{
 		task: task,
@@ -121,27 +121,27 @@ func NewBaseBatchReader(task *Task, mode string, opts *sql.TxOptions) *BaseBatch
 	}
 }
 
-//JobID 工作编号
+// JobID 工作编号
 func (b *BaseBatchReader) JobID() int64 {
 	return b.task.JobID()
 }
 
-//TaskID 任务编号
+// TaskID 任务编号
 func (b *BaseBatchReader) TaskID() int64 {
 	return b.task.TaskID()
 }
 
-//TaskGroupID 任务组编号
+// TaskGroupID 任务组编号
 func (b *BaseBatchReader) TaskGroupID() int64 {
 	return b.task.TaskGroupID()
 }
 
-//Parameter 查询参数
+// Parameter 查询参数
 func (b *BaseBatchReader) Parameter() database.Parameter {
 	return NewQueryParam(b.task.Config, b.task.Table, b.opts)
 }
 
-//通过上下文ctx，查询阐述和数据库句柄handler查询
+// 通过上下文ctx，查询阐述和数据库句柄handler查询
 func (b *BaseBatchReader) Read(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error) {
 	if b.mode == "Tx" {
 		return b.task.Querier.FetchRecordWithTx(ctx, param, handler)
@@ -149,7 +149,7 @@ func (b *BaseBatchReader) Read(ctx context.Context, param database.Parameter, ha
 	return b.task.Querier.FetchRecord(ctx, param, handler)
 }
 
-//StartRead 开始读
+// StartRead 开始读
 func StartRead(ctx context.Context, reader BatchReader, sender plugin.RecordSender) (err error) {
 	handler := database.NewBaseFetchHandler(func() (element.Record, error) {
 		return sender.CreateRecord()

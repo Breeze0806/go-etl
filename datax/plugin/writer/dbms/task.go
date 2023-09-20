@@ -24,7 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-//Task 任务
+// Task 任务
 type Task struct {
 	*writer.BaseTask
 
@@ -34,7 +34,7 @@ type Task struct {
 	Table   database.Table
 }
 
-//NewTask 通过数据库句柄handler创建任务
+// NewTask 通过数据库句柄handler创建任务
 func NewTask(handler DbHandler) *Task {
 	return &Task{
 		BaseTask: writer.NewBaseTask(),
@@ -42,7 +42,7 @@ func NewTask(handler DbHandler) *Task {
 	}
 }
 
-//Init 初始化
+// Init 初始化
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
@@ -83,7 +83,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-//Destroy 销毁
+// Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.Execer != nil {
 		err = t.Execer.Close()

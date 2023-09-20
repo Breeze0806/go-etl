@@ -76,35 +76,35 @@ func (m *mockOpener) Open(filename string) (stream file.InStream, err error) {
 	return &mockInStream{err: m.err}, nil
 }
 
-//MockSender 模拟发送器
+// MockSender 模拟发送器
 type MockSender struct {
 	record    element.Record
 	CreateErr error
 	SendErr   error
 }
 
-//CreateRecord 创建记录
+// CreateRecord 创建记录
 func (m *MockSender) CreateRecord() (element.Record, error) {
 	return element.NewDefaultRecord(), m.CreateErr
 }
 
-//SendWriter 发往写入器
+// SendWriter 发往写入器
 func (m *MockSender) SendWriter(record element.Record) error {
 	m.record = record
 	return m.SendErr
 }
 
-//Flush 刷新至写入器
+// Flush 刷新至写入器
 func (m *MockSender) Flush() error {
 	return nil
 }
 
-//Terminate 终止发送数据
+// Terminate 终止发送数据
 func (m *MockSender) Terminate() error {
 	return nil
 }
 
-//Shutdown 关闭
+// Shutdown 关闭
 func (m *MockSender) Shutdown() error {
 	return nil
 }

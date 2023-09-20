@@ -35,30 +35,30 @@ func init() {
 	file.RegisterCreator("csv", &creator)
 }
 
-//Opener csv输入流打开器
+// Opener csv输入流打开器
 type Opener struct {
 }
 
-//Open 打开一个名为filename的csv输入流
+// Open 打开一个名为filename的csv输入流
 func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
-//Creator csv输出流创建器
+// Creator csv输出流创建器
 type Creator struct {
 }
 
-//Create 创建一个名为filename的csv输出流
+// Create 创建一个名为filename的csv输出流
 func (c *Creator) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 
-//Stream csv文件流
+// Stream csv文件流
 type Stream struct {
 	file *os.File
 }
 
-//NewInStream 创建一个名为filename的csv输入流
+// NewInStream 创建一个名为filename的csv输入流
 func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
@@ -69,7 +69,7 @@ func NewInStream(filename string) (file.InStream, error) {
 	return stream, nil
 }
 
-//NewOutStream 创建一个名为filename的csv输出流
+// NewOutStream 创建一个名为filename的csv输出流
 func NewOutStream(filename string) (file.OutStream, error) {
 	stream := &Stream{}
 	var err error
@@ -80,22 +80,22 @@ func NewOutStream(filename string) (file.OutStream, error) {
 	return stream, nil
 }
 
-//Writer 新建一个配置未conf的csv流写入器
+// Writer 新建一个配置未conf的csv流写入器
 func (s *Stream) Writer(conf *config.JSON) (file.StreamWriter, error) {
 	return NewWriter(s.file, conf)
 }
 
-//Rows 新建一个配置未conf的csv行读取器
+// Rows 新建一个配置未conf的csv行读取器
 func (s *Stream) Rows(conf *config.JSON) (rows file.Rows, err error) {
 	return NewRows(s.file, conf)
 }
 
-//Close 关闭文件流
+// Close 关闭文件流
 func (s *Stream) Close() (err error) {
 	return s.file.Close()
 }
 
-//Rows 行读取器
+// Rows 行读取器
 type Rows struct {
 	columns map[int]Column
 	rc      io.ReadCloser
@@ -106,7 +106,7 @@ type Rows struct {
 	err     error
 }
 
-//NewRows 通过文件句柄f，和配置文件c 创建行读取器
+// NewRows 通过文件句柄f，和配置文件c 创建行读取器
 func NewRows(f *os.File, c *config.JSON) (file.Rows, error) {
 	var conf *InConfig
 	var err error
@@ -198,7 +198,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), byteSize), nil
 }
 
-//Writer csv流写入器
+// Writer csv流写入器
 type Writer struct {
 	writer  *csv.Writer
 	wc      io.WriteCloser
@@ -206,7 +206,7 @@ type Writer struct {
 	conf    *OutConfig
 }
 
-//NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
+// NewWriter 通过文件句柄f，和配置文件c 创建csv流写入器
 func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 	var conf *OutConfig
 	var err error
@@ -230,19 +230,19 @@ func NewWriter(f *os.File, c *config.JSON) (file.StreamWriter, error) {
 	return w, nil
 }
 
-//Flush 刷新至磁盘
+// Flush 刷新至磁盘
 func (w *Writer) Flush() (err error) {
 	w.writer.Flush()
 	return
 }
 
-//Close 关闭
+// Close 关闭
 func (w *Writer) Close() (err error) {
 	w.writer.Flush()
 	return w.wc.Close()
 }
 
-//Write 将记录record 写入csv文件
+// Write 将记录record 写入csv文件
 func (w *Writer) Write(record element.Record) (err error) {
 	if w.conf.HasHeader {
 		if len(w.conf.Header) == 0 {

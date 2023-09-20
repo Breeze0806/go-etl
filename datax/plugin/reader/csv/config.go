@@ -22,14 +22,14 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file/csv"
 )
 
-//Config csv读入配置
+// Config csv读入配置
 type Config struct {
 	csv.InConfig
 
 	Path []string `json:"path"`
 }
 
-//NewConfig 读取json配置conf获取csv读入配置
+// NewConfig 读取json配置conf获取csv读入配置
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {
