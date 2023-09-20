@@ -447,7 +447,7 @@ GetConfig中要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b
 
 ### 5.1 新增许可证（license）
 
-当你开发完一个功能后在提交前，请运行如下命令用于自动加入许可证
+当你开发完一个功能后在提交前，请运行如下命令用于自动加入许可证并使用gofmt -s -w格式化代码
 
 ```bash
 go run tools/license/main.go

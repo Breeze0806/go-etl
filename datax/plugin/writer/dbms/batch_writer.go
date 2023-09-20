@@ -28,7 +28,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//执行模式
+// 执行模式
 const (
 	ExecModeNormal = "Normal" //无事务执行
 	ExecModeStmt   = "Stmt"   //prepare/exec无事务执行
@@ -36,7 +36,7 @@ const (
 	ExecModeStmtTx = "StmtTx" //prepare/exec事务执行
 )
 
-//BatchWriter 批量写入器
+// BatchWriter 批量写入器
 type BatchWriter interface {
 	JobID() int64                                                   //工作编号
 	TaskGroupID() int64                                             //任务组编号
@@ -46,7 +46,7 @@ type BatchWriter interface {
 	BatchWrite(ctx context.Context, records []element.Record) error //批量写入
 }
 
-//BaseBatchWriter 批量写入器
+// BaseBatchWriter 批量写入器
 type BaseBatchWriter struct {
 	Task     *Task
 	execMode string
@@ -55,7 +55,7 @@ type BaseBatchWriter struct {
 	opts     *database.ParameterOptions
 }
 
-//NewBaseBatchWriter 获取任务task，执行模式execMode，事务选项opts创建批量写入器
+// NewBaseBatchWriter 获取任务task，执行模式execMode，事务选项opts创建批量写入器
 func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseBatchWriter {
 	w := &BaseBatchWriter{
 		Task:     task,
@@ -84,32 +84,32 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 	return w
 }
 
-//JobID 工作编号
+// JobID 工作编号
 func (b *BaseBatchWriter) JobID() int64 {
 	return b.Task.JobID()
 }
 
-//TaskGroupID 任务组编号
+// TaskGroupID 任务组编号
 func (b *BaseBatchWriter) TaskGroupID() int64 {
 	return b.Task.TaskGroupID()
 }
 
-//TaskID 任务组任务编号
+// TaskID 任务组任务编号
 func (b *BaseBatchWriter) TaskID() int64 {
 	return b.Task.TaskID()
 }
 
-//BatchSize 单批次插入数据
+// BatchSize 单批次插入数据
 func (b *BaseBatchWriter) BatchSize() int {
 	return b.Task.Config.GetBatchSize()
 }
 
-//BatchTimeout 单批次插入超时时间
+// BatchTimeout 单批次插入超时时间
 func (b *BaseBatchWriter) BatchTimeout() time.Duration {
 	return b.Task.Config.GetBatchTimeout()
 }
 
-//BatchWrite 批次写入
+// BatchWrite 批次写入
 func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) (err error) {
 	if b.strategy != nil {
 		retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
@@ -164,7 +164,7 @@ func (t *writeTask) Do() error {
 	return t.do()
 }
 
-//StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库
+// StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库
 func StartWrite(ctx context.Context, w BatchWriter,
 	receiver plugin.RecordReceiver) (err error) {
 	recordChan := make(chan element.Record)

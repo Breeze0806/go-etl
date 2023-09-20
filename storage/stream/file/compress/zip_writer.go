@@ -23,13 +23,13 @@ import (
 	"github.com/google/uuid"
 )
 
-//ZipWriter zip压缩写入器
+// ZipWriter zip压缩写入器
 type ZipWriter struct {
 	writer    *zip.Writer
 	nowWriter io.Writer
 }
 
-//NewZipWriter 创建zip压缩写入器
+// NewZipWriter 创建zip压缩写入器
 func NewZipWriter(f *os.File) (zw *ZipWriter, err error) {
 	var fi fs.FileInfo
 
@@ -47,13 +47,13 @@ func NewZipWriter(f *os.File) (zw *ZipWriter, err error) {
 	return
 }
 
-//Write 写入p
+// Write 写入p
 func (z *ZipWriter) Write(p []byte) (n int, err error) {
 	defer z.writer.Flush()
 	return z.nowWriter.Write(p)
 }
 
-//Close 关闭
+// Close 关闭
 func (z *ZipWriter) Close() error {
 	return z.writer.Close()
 }

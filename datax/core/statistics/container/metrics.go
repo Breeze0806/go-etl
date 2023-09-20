@@ -20,14 +20,14 @@ import (
 	"github.com/Breeze0806/go/encoding"
 )
 
-//Metrics json格式指标
+// Metrics json格式指标
 type Metrics struct {
 	sync.RWMutex
 
 	metricJSON *encoding.JSON
 }
 
-//NewMetrics json格式指标
+// NewMetrics json格式指标
 func NewMetrics() *Metrics {
 	j, _ := encoding.NewJSONFromString("{}")
 	return &Metrics{
@@ -35,21 +35,21 @@ func NewMetrics() *Metrics {
 	}
 }
 
-//JSON json格式指标
+// JSON json格式指标
 func (m *Metrics) JSON() *encoding.JSON {
 	m.RLock()
 	defer m.RUnlock()
 	return m.metricJSON
 }
 
-//Set 设置path的value
+// Set 设置path的value
 func (m *Metrics) Set(path string, value interface{}) error {
 	m.Lock()
 	defer m.Unlock()
 	return m.metricJSON.Set(path, value)
 }
 
-//Get 获得path的value
+// Get 获得path的value
 func (m *Metrics) Get(key string) *encoding.JSON {
 	m.RLock()
 	defer m.RUnlock()

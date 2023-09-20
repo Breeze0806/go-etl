@@ -24,15 +24,15 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-//GoType golang的类型
+// GoType golang的类型
 type GoType uint8
 
-//字段错误相关
+// 字段错误相关
 var (
 	ErrNotValuerGoType = errors.New("field type is not ValuerGoType") //接口不是ValuerGoType的错误
 )
 
-//golang的类型枚举
+// golang的类型枚举
 const (
 	GoTypeUnknown GoType = iota //未知类型
 	GoTypeBool                  //布尔类型
@@ -43,7 +43,7 @@ const (
 	GoTypeTime                  //时间类型
 )
 
-//golang的类型枚举字符串
+// golang的类型枚举字符串
 var goTypeMap = map[GoType]string{
 	GoTypeUnknown: "unknow",
 	GoTypeBool:    "bool",
@@ -54,7 +54,7 @@ var goTypeMap = map[GoType]string{
 	GoTypeTime:    "time",
 }
 
-//String golang的类型枚举字符串描述
+// String golang的类型枚举字符串描述
 func (t GoType) String() string {
 	if s, ok := goTypeMap[t]; ok {
 		return s
@@ -62,7 +62,7 @@ func (t GoType) String() string {
 	return "unknow"
 }
 
-//Field 数据库字段
+// Field 数据库字段
 type Field interface {
 	fmt.Stringer
 
@@ -76,19 +76,19 @@ type Field interface {
 	Valuer(element.Column) Valuer //赋值器
 }
 
-//Scanner 列数据扫描器 数据库驱动的值扫描成列数据
+// Scanner 列数据扫描器 数据库驱动的值扫描成列数据
 type Scanner interface {
 	sql.Scanner
 
 	Column() element.Column //获取列数据
 }
 
-//Valuer 赋值器 将对应数据转化成数据库驱动的值
+// Valuer 赋值器 将对应数据转化成数据库驱动的值
 type Valuer interface {
 	driver.Valuer
 }
 
-//ColumnType 列类型,抽象 sql.ColumnType，也方便自行实现对应函数
+// ColumnType 列类型,抽象 sql.ColumnType，也方便自行实现对应函数
 type ColumnType interface {
 	Name() string                                   //列名
 	ScanType() reflect.Type                         //扫描类型
@@ -98,28 +98,28 @@ type ColumnType interface {
 	DatabaseTypeName() string                       //列数据库类型名
 }
 
-//FieldType 字段类型
+// FieldType 字段类型
 type FieldType interface {
 	ColumnType
 
 	IsSupportted() bool //是否支持
 }
 
-//ValuerGoType 用于赋值器的golang类型判定,是Field的可选功能，
-//就是对对应驱动的值返回相应的值，方便GoValuer进行判定
+// ValuerGoType 用于赋值器的golang类型判定,是Field的可选功能，
+// 就是对对应驱动的值返回相应的值，方便GoValuer进行判定
 type ValuerGoType interface {
 	GoType() GoType
 }
 
-//BaseField 基础字段，主要存储列名name和列类型fieldType
+// BaseField 基础字段，主要存储列名name和列类型fieldType
 type BaseField struct {
 	index     int
 	name      string
 	fieldType FieldType
 }
 
-//NewBaseField 根据列名name和列类型fieldType获取基础字段
-//用于嵌入其他Field，方便实现各个数据库的Field
+// NewBaseField 根据列名name和列类型fieldType获取基础字段
+// 用于嵌入其他Field，方便实现各个数据库的Field
 func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	return &BaseField{
 		index:     index,
@@ -128,66 +128,66 @@ func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	}
 }
 
-//Index 返回字段名
+// Index 返回字段名
 func (b *BaseField) Index() int {
 	return b.index
 }
 
-//Name 返回字段名
+// Name 返回字段名
 func (b *BaseField) Name() string {
 	return b.name
 }
 
-//FieldType 返回字段类型
+// FieldType 返回字段类型
 func (b *BaseField) FieldType() FieldType {
 	return b.fieldType
 }
 
-//String 打印时显示字符串
+// String 打印时显示字符串
 func (b *BaseField) String() string {
 	return b.name
 }
 
-//BaseFieldType 基础字段类型，嵌入其他各种数据库字段类型实现
+// BaseFieldType 基础字段类型，嵌入其他各种数据库字段类型实现
 type BaseFieldType struct {
 	ColumnType
 }
 
-//NewBaseFieldType 获取字段类型
+// NewBaseFieldType 获取字段类型
 func NewBaseFieldType(typ ColumnType) *BaseFieldType {
 	return &BaseFieldType{
 		ColumnType: typ,
 	}
 }
 
-//IsSupportted 是否支持被解析
+// IsSupportted 是否支持被解析
 func (*BaseFieldType) IsSupportted() bool {
 	return true
 }
 
-//BaseScanner 基础扫描器，嵌入其他各种数据库扫描器实现
+// BaseScanner 基础扫描器，嵌入其他各种数据库扫描器实现
 type BaseScanner struct {
 	c element.Column
 }
 
-//SetColumn 设置列值，用于数据库方言的列数据设置
+// SetColumn 设置列值，用于数据库方言的列数据设置
 func (b *BaseScanner) SetColumn(c element.Column) {
 	b.c = c
 }
 
-//Column 取得列值，方便统一取得列值
+// Column 取得列值，方便统一取得列值
 func (b *BaseScanner) Column() element.Column {
 	return b.c
 }
 
-//GoValuer 使用GoType类型生成赋值器，主要通过字段f和传入参数列值c来
-//完成使用GoType类型生成赋值器,方便实现GoValuer
+// GoValuer 使用GoType类型生成赋值器，主要通过字段f和传入参数列值c来
+// 完成使用GoType类型生成赋值器,方便实现GoValuer
 type GoValuer struct {
 	f Field
 	c element.Column
 }
 
-//NewGoValuer 主要通过字段f和传入参数列值c来完成使用GoType类型生成赋值器的生成
+// NewGoValuer 主要通过字段f和传入参数列值c来完成使用GoType类型生成赋值器的生成
 func NewGoValuer(f Field, c element.Column) *GoValuer {
 	return &GoValuer{
 		f: f,
@@ -195,7 +195,7 @@ func NewGoValuer(f Field, c element.Column) *GoValuer {
 	}
 }
 
-//Value 根据ValuerGoType生成对应的驱动接受的值
+// Value 根据ValuerGoType生成对应的驱动接受的值
 func (g *GoValuer) Value() (driver.Value, error) {
 	typ, ok := g.f.Type().(ValuerGoType)
 	if !ok {

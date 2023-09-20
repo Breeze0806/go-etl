@@ -29,7 +29,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//Container 任务组容器环境
+// Container 任务组容器环境
 type Container struct {
 	*core.BaseCotainer
 
@@ -47,8 +47,8 @@ type Container struct {
 	retryMaxCount  int32
 }
 
-//NewContainer 根据JSON配置conf创建任务组容器
-//当jobID 和 taskGroupID非法就会报错
+// NewContainer 根据JSON配置conf创建任务组容器
+// 当jobID 和 taskGroupID非法就会报错
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
@@ -78,22 +78,22 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	return
 }
 
-//JobID 工作编号
+// JobID 工作编号
 func (c *Container) JobID() int64 {
 	return c.jobID
 }
 
-//TaskGroupID 任务组编号
+// TaskGroupID 任务组编号
 func (c *Container) TaskGroupID() int64 {
 	return c.taskGroupID
 }
 
-//Do 执行
+// Do 执行
 func (c *Container) Do() error {
 	return c.Start()
 }
 
-//Start 开始运行，使用任务调度器执行这些JSON配置
+// Start 开始运行，使用任务调度器执行这些JSON配置
 func (c *Container) Start() (err error) {
 	log.Infof("datax job(%v) taskgruop(%v)  start", c.jobID, c.taskGroupID)
 	defer log.Infof("datax job(%v) taskgruop(%v)  end", c.jobID, c.taskGroupID)
@@ -183,7 +183,7 @@ QueueLoop:
 	return nil
 }
 
-//startTaskExecer 开始任务
+// startTaskExecer 开始任务
 func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 	log.Debugf("datax job(%v) taskgruop(%v) task(%v) push", c.jobID, c.taskGroupID, te.Key())
 	c.wg.Add(1)

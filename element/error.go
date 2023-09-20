@@ -19,7 +19,7 @@ import (
 	"fmt"
 )
 
-//错误
+// 错误
 var (
 	ErrColumnExist              = errors.New("column exist")                  //列存在错误
 	ErrColumnNotExist           = errors.New("column does not exist")         //列不存在错误
@@ -32,13 +32,13 @@ var (
 	ErrColumnNameNotEqual       = errors.New("column name is not equal")      //列名不同
 )
 
-//TransformError 转化错误
+// TransformError 转化错误
 type TransformError struct {
 	err error
 	msg string
 }
 
-//NewTransformError 根据消息msg和错误err生成转化错误
+// NewTransformError 根据消息msg和错误err生成转化错误
 func NewTransformError(msg string, err error) *TransformError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr
@@ -49,12 +49,12 @@ func NewTransformError(msg string, err error) *TransformError {
 	}
 }
 
-//NewTransformErrorFormColumnTypes 从one类型到other类型转化错误err生成转化错误
+// NewTransformErrorFormColumnTypes 从one类型到other类型转化错误err生成转化错误
 func NewTransformErrorFormColumnTypes(one, other ColumnType, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
 
-//NewTransformErrorFormString 从one到other转化错误err生成转化错误
+// NewTransformErrorFormString 从one到other转化错误err生成转化错误
 func NewTransformErrorFormString(one, other string, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
@@ -70,13 +70,13 @@ func (e *TransformError) Unwrap() error {
 	return e.err
 }
 
-//SetError 设置错误
+// SetError 设置错误
 type SetError struct {
 	err error
 	msg string
 }
 
-//NewSetError 通过值i设置成累心other类型的错误err生成设置错误
+// NewSetError 通过值i设置成累心other类型的错误err生成设置错误
 func NewSetError(i interface{}, other ColumnType, err error) *SetError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr

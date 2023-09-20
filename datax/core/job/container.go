@@ -38,7 +38,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//Container 工作容器环境，所有的工作都在本容器环境中执行
+// Container 工作容器环境，所有的工作都在本容器环境中执行
 type Container struct {
 	ctx context.Context
 	*core.BaseCotainer
@@ -61,8 +61,8 @@ type Container struct {
 	wg           sync.WaitGroup
 }
 
-//NewContainer 通过上下文ctx和JSON配置conf生成工作容器环境
-//当container job id小于0时，会报错
+// NewContainer 通过上下文ctx和JSON配置conf生成工作容器环境
+// 当container job id小于0时，会报错
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
@@ -79,7 +79,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	return
 }
 
-//Start 工作容器开始工作
+// Start 工作容器开始工作
 func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobID)
 	defer c.destroy()
@@ -125,8 +125,8 @@ func (c *Container) Start() (err error) {
 	return nil
 }
 
-//destroy 销毁，在jobReader不为空时进行销毁
-//在jobWriter不为空时进行销毁
+// destroy 销毁，在jobReader不为空时进行销毁
+// 在jobWriter不为空时进行销毁
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
 		if rerr := c.jobReader.Destroy(c.ctx); rerr != nil {
@@ -146,9 +146,9 @@ func (c *Container) destroy() (err error) {
 	return
 }
 
-//init 检查并初始化读取器和写入器工作
-//当配置文件读取器和写入器的名字和参数不存在的情况下会报错
-//另外，读取器和写入器工作初始化失败也会导致报错
+// init 检查并初始化读取器和写入器工作
+// 当配置文件读取器和写入器的名字和参数不存在的情况下会报错
+// 另外，读取器和写入器工作初始化失败也会导致报错
 func (c *Container) init() (err error) {
 	c.readerPluginName, err = c.Config().GetString(coreconst.DataxJobContentReaderName)
 	if err != nil {
@@ -196,8 +196,8 @@ func (c *Container) init() (err error) {
 	return
 }
 
-//prepare 准备读取器和写入器工作
-//如果读取器和写入器工作准备失败就会报错
+// prepare 准备读取器和写入器工作
+// 如果读取器和写入器工作准备失败就会报错
 func (c *Container) prepare() (err error) {
 	if err = c.prepareReaderJob(); err != nil {
 		return err
@@ -210,20 +210,20 @@ func (c *Container) prepare() (err error) {
 	return
 }
 
-//prepareReaderJob 准备读取工作
+// prepareReaderJob 准备读取工作
 func (c *Container) prepareReaderJob() error {
 	return c.jobReader.Prepare(c.ctx)
 }
 
-//prepareReaderJob 准备写入工作
+// prepareReaderJob 准备写入工作
 func (c *Container) prepareWriterJob() error {
 	return c.jobWriter.Prepare(c.ctx)
 }
 
-//split 切分读取器和写入器工作
-//先进行读取工作切分成多个任务，再根据读取工作切分的结果进行写入工作切分多个任务
-//然后逐个将单个读取任务、单个写入任务和转化器组合成完整任务组，由于reader，writer，channel模型
-//切分时读取器和写入器的比例为1:1，所以这里可以将reader和writer的配置整合到一起
+// split 切分读取器和写入器工作
+// 先进行读取工作切分成多个任务，再根据读取工作切分的结果进行写入工作切分多个任务
+// 然后逐个将单个读取任务、单个写入任务和转化器组合成完整任务组，由于reader，writer，channel模型
+// 切分时读取器和写入器的比例为1:1，所以这里可以将reader和writer的配置整合到一起
 func (c *Container) split() (err error) {
 	if err = c.adjustChannelNumber(); err != nil {
 		return
@@ -267,7 +267,7 @@ func (c *Container) split() (err error) {
 	return nil
 }
 
-//schedule 使用调度器将任务组进行调度，进入执行队列中
+// schedule 使用调度器将任务组进行调度，进入执行队列中
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
@@ -336,7 +336,7 @@ func (c *Container) setStats(taskGroup *taskgroup.Container, i int) {
 	c.Metrics().Set("metrics."+strconv.Itoa(i), stats)
 }
 
-//post 后置通知
+// post 后置通知
 func (c *Container) post() (err error) {
 	if err = c.jobReader.Post(c.ctx); err != nil {
 		return err
@@ -349,7 +349,7 @@ func (c *Container) post() (err error) {
 	return
 }
 
-//mergeTaskConfigs 逐个将单个读取任务、单个写入任务和转化器组合成完整任务组
+// mergeTaskConfigs 逐个将单个读取任务、单个写入任务和转化器组合成完整任务组
 func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
 		err = errors.New("the number of reader tasks are not equal to the number of writer tasks")
@@ -391,8 +391,8 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	return
 }
 
-//distributeTaskIntoTaskGroup 公平的分配 task 到对应的 taskGroup 中。
-//公平体现在：会考虑 task 中对资源负载作的 load 标识进行更均衡的作业分配操作。
+// distributeTaskIntoTaskGroup 公平的分配 task 到对应的 taskGroup 中。
+// 公平体现在：会考虑 task 中对资源负载作的 load 标识进行更均衡的作业分配操作。
 func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
@@ -434,8 +434,8 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	return
 }
 
-//adjustChannelNumber 自适应化通道数量
-//依次根据字节流大小，记录数大小以及通道数大小生成通道数量
+// adjustChannelNumber 自适应化通道数量
+// 依次根据字节流大小，记录数大小以及通道数大小生成通道数量
 func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
@@ -497,8 +497,8 @@ func (c *Container) adjustChannelNumber() error {
 	return errors.New("job speed should be setted")
 }
 
-//initReaderJob 初始化读取工作
-//当读取插件名找不到读取工作或者初始化失败就会报错
+// initReaderJob 初始化读取工作
+// 当读取插件名找不到读取工作或者初始化失败就会报错
 func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job reader.Job, err error) {
 	ok := false
 	job, ok = loader.LoadReaderJob(c.readerPluginName)
@@ -518,8 +518,8 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-//initReaderJob 初始化写入工作
-//当写入插件名找不到写入工作或者初始化失败就会报错
+// initReaderJob 初始化写入工作
+// 当写入插件名找不到写入工作或者初始化失败就会报错
 func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job writer.Job, err error) {
 	ok := false
 	job, ok = loader.LoadWriterJob(c.writerPluginName)
@@ -539,7 +539,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-//preHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PreHandle
+// preHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PreHandle
 func (c *Container) preHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPreHandlerPluginType) {
 		return
@@ -570,7 +570,7 @@ func (c *Container) preHandle() (err error) {
 	return
 }
 
-//postHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PostHandle
+// postHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PostHandle
 func (c *Container) postHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPostHandlerPluginType) {
 		return
@@ -607,12 +607,12 @@ func (c *Container) postHandle() (err error) {
 //   a 库上有表：3, 4
 //   c 库上有表：5, 6, 7
 
-//   如果有 4个 taskGroup
-//   则 assign 后的结果为：
-//   taskGroup-0: 0,  4,
-//   taskGroup-1: 3,  6,
-//   taskGroup-2: 5,  2,
-//   taskGroup-3: 1,  7
+// 如果有 4个 taskGroup
+// 则 assign 后的结果为：
+// taskGroup-0: 0,  4,
+// taskGroup-1: 3,  6,
+// taskGroup-2: 5,  2,
+// taskGroup-3: 1,  7
 func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	taskGroups := make([][]int, taskGroupNumber)
 	var taskMasks []string
@@ -640,8 +640,8 @@ func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	return taskGroups
 }
 
-//parseAndGetResourceMarkAndTaskIDMap 根据task 配置，获取到：
-//资源名称 --> taskId(List) 的 map 映射关系(对资源负载作的 load 标识: 任务编号)
+// parseAndGetResourceMarkAndTaskIDMap 根据task 配置，获取到：
+// 资源名称 --> taskId(List) 的 map 映射关系(对资源负载作的 load 标识: 任务编号)
 func parseAndGetResourceMarkAndTaskIDMap(tasksConfigs []*config.JSON) map[string][]int {
 	writerMap := make(map[string][]int)
 	readerMap := make(map[string][]int)

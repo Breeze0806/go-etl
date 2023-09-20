@@ -32,24 +32,24 @@ var (
 	datetimeLayout = element.DefaultTimeFormat[:26]
 )
 
-//Field 字段
+// Field 字段
 type Field struct {
 	*database.BaseField
 }
 
-//NewField 通过基本列属性生成字段
+// NewField 通过基本列属性生成字段
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-//Quoted 引用，用于SQL语句
+// Quoted 引用，用于SQL语句
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-//BindVar SQL占位符，用于SQL语句
+// BindVar SQL占位符，用于SQL语句
 func (f *Field) BindVar(i int) string {
 	//解决时间格式错误ORA-01861: literal does not match format string
 	switch f.FieldType().DatabaseTypeName() {
@@ -62,40 +62,40 @@ func (f *Field) BindVar(i int) string {
 	return ":" + strconv.Itoa(i)
 }
 
-//Select 查询时字段，用于SQL查询语句
+// Select 查询时字段，用于SQL查询语句
 func (f *Field) Select() string {
 	return Quoted(f.Name())
 }
 
-//Type 字段类型
+// Type 字段类型
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-//Scanner 扫描器，用于读取数据
+// Scanner 扫描器，用于读取数据
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-//Valuer 赋值器，采用GoValuer处理数据
+// Valuer 赋值器，采用GoValuer处理数据
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return NewValuer(f, c)
 }
 
-//FieldType 字段类型
+// FieldType 字段类型
 type FieldType struct {
 	*database.BaseFieldType
 
 	supportted bool
 }
 
-//NewFieldType 创建新的字段类型
+// NewFieldType 创建新的字段类型
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
 	switch f.DatabaseTypeName() {
-	//由于oracle特殊的转化机制导致所有的数据需要转化为string类型进行插入
+
 	case "BOOLEAN",
 		"BINARY_INTEGER",
 		"NUMBER", "FLOAT", "DOUBLE",
@@ -107,25 +107,25 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-//IsSupportted 是否支持解析
+// IsSupportted 是否支持解析
 func (f *FieldType) IsSupportted() bool {
 	return f.supportted
 }
 
-//Scanner 扫描器
+// Scanner 扫描器
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-//NewScanner 根据列类型生成扫描器
+// NewScanner 根据列类型生成扫描器
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-//Scan 根据列类型读取数据
+// Scan 根据列类型读取数据
 // "BOOLEAN" 做为bool类型处理
 // "BINARY_INTEGER" 做为bigint类型处理
 // "NUMBER", "FLOAT", "DOUBLE" 做为decimal类型处理
@@ -158,7 +158,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
 	//todo test BFILE
-	case "BLOB", "LONG", "RAW", "LONG RAW":
+	case //"BFILE",
+		"BLOB", "LONG", "RAW", "LONG RAW":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()
@@ -232,13 +233,13 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 	return
 }
 
-//Valuer 赋值器
+// Valuer 赋值器
 type Valuer struct {
 	f *Field
 	c element.Column
 }
 
-//NewValuer 创建新赋值器
+// NewValuer 创建新赋值器
 func NewValuer(f *Field, c element.Column) *Valuer {
 	return &Valuer{
 		f: f,
@@ -246,11 +247,11 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 	}
 }
 
-//Value 赋值
+// Value 赋值
 func (v *Valuer) Value() (value driver.Value, err error) {
-
 	switch v.f.Type().DatabaseTypeName() {
 	case "BOOLEAN":
+		//在oracle中插入空字符居然是nil对应NULL
 		if v.c.IsNil() {
 			return "", nil
 		}
@@ -262,15 +263,19 @@ func (v *Valuer) Value() (value driver.Value, err error) {
 			return "1", nil
 		}
 		return "0", nil
-	case "BFILE", "BLOB", "LONG", "RAW", "LONG RAW":
+		//todo test BFILE
+	case //"BFILE",
+		"BLOB", "LONG", "RAW", "LONG RAW":
+		//竞优这些类型插入的nil对应NULL
 		if v.c.IsNil() {
 			return nil, nil
 		}
 		return v.c.AsBytes()
 	}
-
+	//在oracle中插入空字符居然是nil对应NULL
 	if v.c.IsNil() {
 		return "", nil
 	}
+	//由于oracle特殊的转化机制导致所有的数据需要转化为string类型进行插入
 	return v.c.AsString()
 }

@@ -20,10 +20,10 @@ import (
 	"unsafe"
 )
 
-//ColumnType 列类型
+// ColumnType 列类型
 type ColumnType string
 
-//列类型枚举
+// 列类型枚举
 const (
 	TypeUnknown ColumnType = "unknown" //未知类型
 	TypeBool    ColumnType = "bool"    //布尔类型
@@ -34,12 +34,12 @@ const (
 	TypeTime    ColumnType = "time"    //时间类型
 )
 
-//String 打印显示
+// String 打印显示
 func (c ColumnType) String() string {
 	return string(c)
 }
 
-//ColumnValue 列值
+// ColumnValue 列值
 type ColumnValue interface {
 	fmt.Stringer
 
@@ -53,18 +53,18 @@ type ColumnValue interface {
 	AsTime() (time.Time, error)        // 转化为时间
 }
 
-//ColumnValueClonable 可克隆列值
+// ColumnValueClonable 可克隆列值
 type ColumnValueClonable interface {
 	Clone() ColumnValue //克隆
 }
 
-//ColumnValueComparabale 可比较列值
+// ColumnValueComparabale 可比较列值
 type ColumnValueComparabale interface {
 	//比较 1代表大于， 0代表相等， -1代表小于
 	Cmp(ColumnValue) (int, error)
 }
 
-//Column 列
+// Column 列
 type Column interface {
 	ColumnValue
 	AsInt64() (int64, error)     //转化为64位整数
@@ -78,59 +78,59 @@ type Column interface {
 
 type notNilColumnValue struct{}
 
-//IsNil  是否为空
+// IsNil  是否为空
 func (n *notNilColumnValue) IsNil() bool {
 	return false
 }
 
 type nilColumnValue struct{}
 
-//Type  列类型
+// Type  列类型
 func (n *nilColumnValue) Type() ColumnType {
 	return TypeUnknown
 }
 
-//IsNil  是否为空
+// IsNil  是否为空
 func (n *nilColumnValue) IsNil() bool {
 	return true
 }
 
-//AsBool 无法转化布尔值
+// AsBool 无法转化布尔值
 func (n *nilColumnValue) AsBool() (bool, error) {
 	return false, ErrNilValue
 }
 
-//AsBigInt 无法转化整数
+// AsBigInt 无法转化整数
 func (n *nilColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, ErrNilValue
 }
 
-//AsDecimal 无法转化高精度实数
+// AsDecimal 无法转化高精度实数
 func (n *nilColumnValue) AsDecimal() (DecimalNumber, error) {
 	return nil, ErrNilValue
 }
 
-//AsString 无法转化字符串
+// AsString 无法转化字符串
 func (n *nilColumnValue) AsString() (string, error) {
 	return "", ErrNilValue
 }
 
-//AsBytes 无法转化字节流
+// AsBytes 无法转化字节流
 func (n *nilColumnValue) AsBytes() ([]byte, error) {
 	return nil, ErrNilValue
 }
 
-//AsTime 无法转化时间
+// AsTime 无法转化时间
 func (n *nilColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, ErrNilValue
 }
 
-//String 打印显示
+// String 打印显示
 func (n *nilColumnValue) String() string {
 	return "<nil>"
 }
 
-//DefaultColumn 默认值
+// DefaultColumn 默认值
 type DefaultColumn struct {
 	ColumnValue // 列值
 
@@ -138,7 +138,7 @@ type DefaultColumn struct {
 	byteSize int
 }
 
-//NewDefaultColumn 根据列值v,列名name,字节流大小byteSize，生成默认列
+// NewDefaultColumn 根据列值v,列名name,字节流大小byteSize，生成默认列
 func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	return &DefaultColumn{
 		ColumnValue: v,
@@ -147,12 +147,12 @@ func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	}
 }
 
-//Name 列名
+// Name 列名
 func (d *DefaultColumn) Name() string {
 	return d.name
 }
 
-//Cmp 比较列，如果不是可比较列值，就会报错
+// Cmp 比较列，如果不是可比较列值，就会报错
 func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	if d.Name() != c.Name() {
 		return 0, ErrColumnNameNotEqual
@@ -164,7 +164,7 @@ func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	return comparabale.Cmp(c)
 }
 
-//Clone 克隆列，如果不是可克隆列值，就会报错
+// Clone 克隆列，如果不是可克隆列值，就会报错
 func (d *DefaultColumn) Clone() (Column, error) {
 	colnable, ok := d.ColumnValue.(ColumnValueClonable)
 	if !ok {
@@ -178,17 +178,17 @@ func (d *DefaultColumn) Clone() (Column, error) {
 	}, nil
 }
 
-//ByteSize 字节流大小
+// ByteSize 字节流大小
 func (d *DefaultColumn) ByteSize() int64 {
 	return int64(d.byteSize)
 }
 
-//MemorySize 内存大小
+// MemorySize 内存大小
 func (d *DefaultColumn) MemorySize() int64 {
 	return int64(d.byteSize + len(d.name) + 4)
 }
 
-//AsInt64 转化为64位整数
+// AsInt64 转化为64位整数
 func (d *DefaultColumn) AsInt64() (int64, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -197,7 +197,7 @@ func (d *DefaultColumn) AsInt64() (int64, error) {
 	return bi.Int64()
 }
 
-//AsFloat64 转化为64位实数
+// AsFloat64 转化为64位实数
 func (d *DefaultColumn) AsFloat64() (float64, error) {
 	dec, err := d.AsDecimal()
 	if err != nil {
@@ -206,7 +206,7 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 	return dec.Float64()
 }
 
-//ByteSize 字节大小
+// ByteSize 字节大小
 func ByteSize(src interface{}) int {
 	switch data := src.(type) {
 	case nil:

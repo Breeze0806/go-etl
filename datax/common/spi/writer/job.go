@@ -21,7 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 )
 
-//Job 工作
+// Job 工作
 type Job interface {
 	plugin.Job
 

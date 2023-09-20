@@ -24,24 +24,24 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//写入数据库模式
+// 写入数据库模式
 const (
 	WriteModeInsert = "insert"
 )
 
-//FetchHandler 获取记录句柄
+// FetchHandler 获取记录句柄
 type FetchHandler interface {
 	OnRecord(element.Record) error
 	CreateRecord() (element.Record, error)
 }
 
-//BaseFetchHandler 基础获取记录句柄
+// BaseFetchHandler 基础获取记录句柄
 type BaseFetchHandler struct {
 	onRecord     func(element.Record) error
 	createRecord func() (element.Record, error)
 }
 
-//NewBaseFetchHandler 创建基础获取记录句柄
+// NewBaseFetchHandler 创建基础获取记录句柄
 func NewBaseFetchHandler(createRecord func() (element.Record, error),
 	onRecord func(element.Record) error) *BaseFetchHandler {
 	return &BaseFetchHandler{
@@ -50,24 +50,24 @@ func NewBaseFetchHandler(createRecord func() (element.Record, error),
 	}
 }
 
-//OnRecord 处理记录r
+// OnRecord 处理记录r
 func (b *BaseFetchHandler) OnRecord(r element.Record) error {
 	return b.onRecord(r)
 }
 
-//CreateRecord 创建记录
+// CreateRecord 创建记录
 func (b *BaseFetchHandler) CreateRecord() (element.Record, error) {
 	return b.createRecord()
 }
 
-//DB 用户维护数据库连接池
+// DB 用户维护数据库连接池
 type DB struct {
 	Source
 
 	db *sql.DB
 }
 
-//NewDB 从数据源source中获取数据库连接池
+// NewDB 从数据源source中获取数据库连接池
 func NewDB(source Source) (d *DB, err error) {
 	var c *Config
 	c, err = NewConfig(source.Config())
@@ -104,12 +104,12 @@ func NewDB(source Source) (d *DB, err error) {
 	return
 }
 
-//FetchTable 通过上下文ctx和基础表数据t，获取对应的表并会返回错误
+// FetchTable 通过上下文ctx和基础表数据t，获取对应的表并会返回错误
 func (d *DB) FetchTable(ctx context.Context, t *BaseTable) (Table, error) {
 	return d.FetchTableWithParam(ctx, NewTableQueryParam(d.Table(t)))
 }
 
-//FetchTableWithParam 通过上下文ctx和sql参数param，获取对应的表并会返回错误
+// FetchTableWithParam 通过上下文ctx和sql参数param，获取对应的表并会返回错误
 func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, error) {
 	table := param.Table()
 	if fetcher, ok := table.(FieldsFetcher); ok {
@@ -131,8 +131,8 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 	return fetchTableByRows(rows, table)
 }
 
-//FetchRecord 通过上下文ctx，sql参数param以及记录处理函数onRecord
-//获取多行记录返回错误
+// FetchRecord 通过上下文ctx，sql参数param以及记录处理函数onRecord
+// 获取多行记录返回错误
 func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
 	var agrs []interface{}
@@ -158,8 +158,8 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHand
 	return readRowsToRecord(rows, param, handler)
 }
 
-//FetchRecordWithTx 通过上下文ctx，sql参数param以及记录处理函数onRecord
-//使用事务获取多行记录并返回错误
+// FetchRecordWithTx 通过上下文ctx，sql参数param以及记录处理函数onRecord
+// 使用事务获取多行记录并返回错误
 func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
 	var agrs []interface{}
@@ -198,7 +198,7 @@ func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler Fet
 	return readRowsToRecord(rows, param, handler)
 }
 
-//BatchExec 批量执行sql并处理多行记录
+// BatchExec 批量执行sql并处理多行记录
 func (d *DB) BatchExec(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
 	if param, err = execParam(opts); err != nil {
@@ -207,7 +207,7 @@ func (d *DB) BatchExec(ctx context.Context, opts *ParameterOptions) (err error) 
 	return d.batchExec(ctx, param, opts.Records)
 }
 
-//BatchExecStmt 批量prepare/exec执行sql并处理多行记录
+// BatchExecStmt 批量prepare/exec执行sql并处理多行记录
 func (d *DB) BatchExecStmt(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
 	if param, err = execParam(opts); err != nil {
@@ -216,7 +216,7 @@ func (d *DB) BatchExecStmt(ctx context.Context, opts *ParameterOptions) (err err
 	return d.batchExecStmt(ctx, param, opts.Records)
 }
 
-//BatchExecWithTx 批量事务执行sql并处理多行记录
+// BatchExecWithTx 批量事务执行sql并处理多行记录
 func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
 	if param, err = execParam(opts); err != nil {
@@ -225,7 +225,7 @@ func (d *DB) BatchExecWithTx(ctx context.Context, opts *ParameterOptions) (err e
 	return d.batchExecWithTx(ctx, param, opts.Records)
 }
 
-//BatchExecStmtWithTx 批量事务prepare/exec执行sql并处理多行记录
+// BatchExecStmtWithTx 批量事务prepare/exec执行sql并处理多行记录
 func (d *DB) BatchExecStmtWithTx(ctx context.Context, opts *ParameterOptions) (err error) {
 	var param Parameter
 	if param, err = execParam(opts); err != nil {
@@ -234,27 +234,27 @@ func (d *DB) BatchExecStmtWithTx(ctx context.Context, opts *ParameterOptions) (e
 	return d.batchExecStmtWithTx(ctx, param, opts.Records)
 }
 
-//BeginTx 获取事务
+// BeginTx 获取事务
 func (d *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error) {
 	return d.db.BeginTx(ctx, opts)
 }
 
-//PingContext 通过query查询多行数据
+// PingContext 通过query查询多行数据
 func (d *DB) PingContext(ctx context.Context) error {
 	return d.db.PingContext(ctx)
 }
 
-//QueryContext 通过query查询多行数据
+// QueryContext 通过query查询多行数据
 func (d *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	return d.db.QueryContext(ctx, query, args...)
 }
 
-//ExecContext 执行query并获取结果
+// ExecContext 执行query并获取结果
 func (d *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	return d.db.ExecContext(ctx, query, args...)
 }
 
-//Close 关闭数据连接池
+// Close 关闭数据连接池
 func (d *DB) Close() (err error) {
 	if d.db != nil {
 		return d.db.Close()

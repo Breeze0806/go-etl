@@ -37,7 +37,7 @@ type BaseDbHandler struct {
 	opts       *sql.TxOptions
 }
 
-//NewBaseDbHandler 通过获取查询器函数newQuerier和事务选项opts获取基础数据库句柄
+// NewBaseDbHandler 通过获取查询器函数newQuerier和事务选项opts获取基础数据库句柄
 func NewBaseDbHandler(newQuerier func(name string, conf *config.JSON) (Querier, error), opts *sql.TxOptions) *BaseDbHandler {
 	return &BaseDbHandler{
 		newQuerier: newQuerier,
@@ -45,32 +45,32 @@ func NewBaseDbHandler(newQuerier func(name string, conf *config.JSON) (Querier, 
 	}
 }
 
-//Querier 通过数据库名name和json配置conf获取查询器
+// Querier 通过数据库名name和json配置conf获取查询器
 func (d *BaseDbHandler) Querier(name string, conf *config.JSON) (Querier, error) {
 	return d.newQuerier(name, conf)
 }
 
-//Config 通过json配置conf获取关系型数据库输入配置
+// Config 通过json配置conf获取关系型数据库输入配置
 func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 	return NewBaseConfig(conf)
 }
 
-//TableParam 通过关系型数据库输入配置config和查询器querier获取表参数
+// TableParam 通过关系型数据库输入配置config和查询器querier获取表参数
 func (d *BaseDbHandler) TableParam(config Config, querier Querier) database.Parameter {
 	return NewTableParam(config, querier, d.opts)
 }
 
-//SplitParam 通过关系型数据库输入配置config和表Table获取切分最小值参数
+// SplitParam 通过关系型数据库输入配置config和表Table获取切分最小值参数
 func (d *BaseDbHandler) SplitParam(config Config, querier Querier) database.Parameter {
 	return NewSplitParam(config, querier, d.opts)
 }
 
-//MinParam 通过关系型数据库输入配置config和查询器querier获取切分表参数
+// MinParam 通过关系型数据库输入配置config和查询器querier获取切分表参数
 func (d *BaseDbHandler) MinParam(config Config, table database.Table) database.Parameter {
 	return NewMinParam(config, table, d.opts)
 }
 
-//MaxParam 通过关系型数据库输入配置config和表询器Table获取切分最大值参数
+// MaxParam 通过关系型数据库输入配置config和表询器Table获取切分最大值参数
 func (d *BaseDbHandler) MaxParam(config Config, table database.Table) database.Parameter {
 	return NewMaxParam(config, table, d.opts)
 }

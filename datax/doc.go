@@ -13,12 +13,14 @@
 // limitations under the License.
 
 // Package datax 主要离线数据同步框架，框架如下
-//        Database->readerPlugin（reader）->Framework(Exchanger+Transformer) ->writerPlugin（writer）->Database
+//
+//	Database->readerPlugin（reader）->Framework(Exchanger+Transformer) ->writerPlugin（writer）->Database
 //
 // 采用Framework + plugin架构构建。将数据源读取和写入抽象成为Reader/Writer插件，纳入到整个同步框架中。
 // Reader：Reader为数据采集模块，负责采集数据源的数据，将数据发送给Framework。
 // Writer： Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
 // Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
+//
 //	JOB--split--+-- task1--+           +--taskGroup1-------+______________________________________________
 //	            |-- task2--|           |--taskGroup2       |   Reader1->Exchanger1(Transformer)->Writer1  |
 //	            |-- task3--|-schedule--|--taskGroup3       |   Reader2->Exchanger2(Transformer)->Writer2  |
@@ -26,7 +28,6 @@
 //	            |-- taskN--|           |--taskGroupM       |          ......                              |
 //	                                                       |   ReaderN->ExchangerN(Transformer)->WriterN  |
 //	                                                       |______________________________________________|
-//
 //
 // 核心模块介绍:
 //

@@ -27,7 +27,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file"
 )
 
-//Task 任务
+// Task 任务
 type Task struct {
 	*writer.BaseTask
 
@@ -37,7 +37,7 @@ type Task struct {
 	content   *config.JSON
 }
 
-//NewTask 通过获取配置newConfig创建任务
+// NewTask 通过获取配置newConfig创建任务
 func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	return &Task{
 		BaseTask:  writer.NewBaseTask(),
@@ -45,7 +45,7 @@ func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	}
 }
 
-//Init 初始化
+// Init 初始化
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("creator"); err != nil {
@@ -71,7 +71,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-//Destroy 销毁
+// Destroy 销毁
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.streamer != nil {
 		err = t.streamer.Close()
@@ -79,7 +79,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return t.Wrapf(err, "Close fail")
 }
 
-//StartWrite 开始写
+// StartWrite 开始写
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	var sw file.StreamWriter
 	if sw, err = t.streamer.Writer(t.content); err != nil {

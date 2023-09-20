@@ -21,17 +21,17 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-//Writer 写入器
+// Writer 写入器
 type Writer struct {
 	pluginConf *config.JSON
 }
 
-//ResourcesConfig 插件资源配置
+// ResourcesConfig 插件资源配置
 func (w *Writer) ResourcesConfig() *config.JSON {
 	return w.pluginConf
 }
 
-//Job 工作
+// Job 工作
 func (w *Writer) Job() spiwriter.Job {
 	job := &Job{
 		Job: dbms.NewJob(dbms.NewBaseDbHandler(
@@ -46,7 +46,7 @@ func (w *Writer) Job() spiwriter.Job {
 	return job
 }
 
-//Task 任务
+// Task 任务
 func (w *Writer) Task() spiwriter.Task {
 	task := &Task{
 		Task: dbms.NewTask(dbms.NewBaseDbHandler(

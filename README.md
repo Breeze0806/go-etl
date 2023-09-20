@@ -170,7 +170,7 @@ go generate ./...
 
 #### license
 
-用于自动新增go代码文件中许可证
+用于自动新增go代码文件中许可证并使用gofmt -s -w格式化代码
 
 ```bash
 go run tools/license/main.go

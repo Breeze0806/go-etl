@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//Package schedule 提供资源映射以及任务调度器
+// Package schedule 提供资源映射以及任务调度器
 package schedule

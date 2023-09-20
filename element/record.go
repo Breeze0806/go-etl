@@ -19,7 +19,7 @@ import (
 	"strings"
 )
 
-//Record 记录
+// Record 记录
 type Record interface {
 	fmt.Stringer
 
@@ -35,60 +35,60 @@ type Record interface {
 
 var singleTerminateRecord = &TerminateRecord{}
 
-//GetTerminateRecord 获取终止记录
+// GetTerminateRecord 获取终止记录
 func GetTerminateRecord() Record {
 	return singleTerminateRecord
 }
 
-//TerminateRecord 终止记录
+// TerminateRecord 终止记录
 type TerminateRecord struct{}
 
-//Add 空方法
+// Add 空方法
 func (t *TerminateRecord) Add(Column) error {
 	return nil
 }
 
-//GetByIndex 空方法
+// GetByIndex 空方法
 func (t *TerminateRecord) GetByIndex(i int) (Column, error) {
 	return nil, nil
 }
 
-//GetByName 空方法
+// GetByName 空方法
 func (t *TerminateRecord) GetByName(name string) (Column, error) {
 	return nil, nil
 }
 
-//Set 空方法
+// Set 空方法
 func (t *TerminateRecord) Set(i int, c Column) error {
 	return nil
 }
 
-//Put 空方法
+// Put 空方法
 func (t *TerminateRecord) Put(c Column) error {
 	return nil
 }
 
-//ColumnNumber 空方法
+// ColumnNumber 空方法
 func (t *TerminateRecord) ColumnNumber() int {
 	return 0
 }
 
-//ByteSize 空方法
+// ByteSize 空方法
 func (t *TerminateRecord) ByteSize() int64 {
 	return 0
 }
 
-//MemorySize 空方法
+// MemorySize 空方法
 func (t *TerminateRecord) MemorySize() int64 {
 	return 0
 }
 
-//String 空方法
+// String 空方法
 func (t *TerminateRecord) String() string {
 	return "terminate"
 }
 
-//DefaultRecord 默认记录
+// DefaultRecord 默认记录
 type DefaultRecord struct {
 	names      []string          //列名数组
 	columns    map[string]Column //列映射
@@ -96,14 +96,14 @@ type DefaultRecord struct {
 	memorySize int64             //内存大小
 }
 
-//NewDefaultRecord 创建默认记录
+// NewDefaultRecord 创建默认记录
 func NewDefaultRecord() *DefaultRecord {
 	return &DefaultRecord{
 		columns: make(map[string]Column),
 	}
 }
 
-//Add 新增列c,若列c已经存在，就会报错
+// Add 新增列c,若列c已经存在，就会报错
 func (r *DefaultRecord) Add(c Column) error {
 	if _, ok := r.columns[c.Name()]; ok {
 		return ErrColumnExist
@@ -114,7 +114,7 @@ func (r *DefaultRecord) Add(c Column) error {
 	return nil
 }
 
-//GetByIndex 获取第i列,若索引i超出范围或者不存在，就会报错
+// GetByIndex 获取第i列,若索引i超出范围或者不存在，就会报错
 func (r *DefaultRecord) GetByIndex(i int) (Column, error) {
 	if i >= len(r.names) || i < 0 {
 		return nil, ErrIndexOutOfRange
@@ -125,7 +125,7 @@ func (r *DefaultRecord) GetByIndex(i int) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-//GetByName 获取列名为name的列,若列名为name的列不存在，就会报错
+// GetByName 获取列名为name的列,若列名为name的列不存在，就会报错
 func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	if v, ok := r.columns[name]; ok {
 		return v, nil
@@ -133,7 +133,7 @@ func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-//Set 设置第i列,若索引i超出范围，就会报错
+// Set 设置第i列,若索引i超出范围，就会报错
 func (r *DefaultRecord) Set(i int, c Column) error {
 	if i >= len(r.names) || i < 0 {
 		return ErrIndexOutOfRange
@@ -148,24 +148,24 @@ func (r *DefaultRecord) Set(i int, c Column) error {
 	return nil
 }
 
-//Put 设置列,若列名不存在，就会报错
+// Put 设置列,若列名不存在，就会报错
 func (r *DefaultRecord) Put(c Column) error {
 	r.columns[c.Name()] = c
 	r.incSize(c)
 	return nil
 }
 
-//ColumnNumber 列数量
+// ColumnNumber 列数量
 func (r *DefaultRecord) ColumnNumber() int {
 	return len(r.columns)
 }
 
-//ByteSize 字节流大小
+// ByteSize 字节流大小
 func (r *DefaultRecord) ByteSize() int64 {
 	return r.byteSize
 }
 
-//MemorySize 内存大小
+// MemorySize 内存大小
 func (r *DefaultRecord) MemorySize() int64 {
 	return r.memorySize
 }
@@ -180,7 +180,7 @@ func (r *DefaultRecord) decSize(c Column) {
 	r.memorySize -= c.MemorySize()
 }
 
-//String 空方法
+// String 空方法
 func (r *DefaultRecord) String() string {
 	b := &strings.Builder{}
 	for i, v := range r.names {

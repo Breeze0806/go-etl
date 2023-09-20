@@ -21,7 +21,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//Writer 写入器
+// Writer 写入器
 type Writer interface {
 	spi.Writer
 
@@ -29,14 +29,14 @@ type Writer interface {
 	ResourcesConfig() *config.JSON
 }
 
-//Maker 写入生成器
+// Maker 写入生成器
 type Maker interface {
 	Default() (Writer, error)
 }
 
-//RegisterWriter 注册创建函数new写入器,返回的是资源插件配置文件地州，出错时会返回error
-//目前未在代码中实际使用，而是通过tools/datax/build的tools/datax/build命令自动将resources/plugin.json
-//中的内容放入到新生成的代码文件中，用以注册Writer
+// RegisterWriter 注册创建函数new写入器,返回的是资源插件配置文件地州，出错时会返回error
+// 目前未在代码中实际使用，而是通过tools/datax/build的tools/datax/build命令自动将resources/plugin.json
+// 中的内容放入到新生成的代码文件中，用以注册Writer
 func RegisterWriter(maker Maker) (err error) {
 	var writer Writer
 

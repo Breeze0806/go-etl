@@ -25,7 +25,7 @@ import (
 	"github.com/Breeze0806/jodaTime"
 )
 
-//InConfig csv配置
+// InConfig csv配置
 type InConfig struct {
 	Columns    []Column `json:"column"`     // 列信息
 	Encoding   string   `json:"encoding"`   // 编码
@@ -36,7 +36,7 @@ type InConfig struct {
 	Compress   string   `json:"compress"`   // 压缩
 }
 
-//NewInConfig 通过conf获取csv配置
+// NewInConfig 通过conf获取csv配置
 func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	c = &InConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -104,7 +104,7 @@ func (c *InConfig) comment() rune {
 	return rune(0)
 }
 
-//OutConfig csv配置
+// OutConfig csv配置
 type OutConfig struct {
 	Columns    []Column `json:"column"`     // 列信息
 	Encoding   string   `json:"encoding"`   // 编码
@@ -115,7 +115,7 @@ type OutConfig struct {
 	Compress   string   `json:"compress"`   // 压缩
 }
 
-//NewOutConfig 通过conf获取csv配置
+// NewOutConfig 通过conf获取csv配置
 func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 	c = &OutConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -160,7 +160,7 @@ func (c *OutConfig) comma() rune {
 	return []rune(c.Delimiter)[0]
 }
 
-//Column 列信息
+// Column 列信息
 type Column struct {
 	Index    string `json:"index"`  // 索引 从1开始，代表第几列
 	Type     string `json:"type"`   // 类型 bool bigInt decimal string time
@@ -169,7 +169,7 @@ type Column struct {
 	goLayout string
 }
 
-//validate 校验
+// validate 校验
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
@@ -192,7 +192,7 @@ func (c *Column) validate() (err error) {
 	return
 }
 
-//index 列索引
+// index 列索引
 func (c *Column) index() (i int) {
 	if c.indexNum > 0 {
 		return c.indexNum - 1
@@ -201,7 +201,7 @@ func (c *Column) index() (i int) {
 	return c.indexNum - 1
 }
 
-//layout 变为golang 时间格式
+// layout 变为golang 时间格式
 func (c *Column) layout() string {
 	if c.goLayout != "" {
 		return c.goLayout

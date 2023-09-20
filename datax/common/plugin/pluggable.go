@@ -20,7 +20,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-//Pluggable  可插件化接口
+// Pluggable  可插件化接口
 type Pluggable interface {
 	//插件开发者,一般写入插件配置中
 	Developer() (string, error)
@@ -56,8 +56,8 @@ type Pluggable interface {
 	Destroy(ctx context.Context) error
 }
 
-//BasePluggable 基础可插件化
-//用于辅助各类可插件化接口实现，简化其实现
+// BasePluggable 基础可插件化
+// 用于辅助各类可插件化接口实现，简化其实现
 type BasePluggable struct {
 	pluginConf        *config.JSON
 	pluginJobConf     *config.JSON
@@ -65,62 +65,62 @@ type BasePluggable struct {
 	peerPluginJobConf *config.JSON
 }
 
-//NewBasePluggable 创建可插件化插件
+// NewBasePluggable 创建可插件化插件
 func NewBasePluggable() *BasePluggable {
 	return &BasePluggable{}
 }
 
-//SetPluginConf 设置插件配置
+// SetPluginConf 设置插件配置
 func (b *BasePluggable) SetPluginConf(conf *config.JSON) {
 	b.pluginConf = conf
 }
 
-//SetPluginJobConf 设置插件工作配置
+// SetPluginJobConf 设置插件工作配置
 func (b *BasePluggable) SetPluginJobConf(conf *config.JSON) {
 	b.pluginJobConf = conf
 }
 
-//SetPeerPluginName 设置对应工作名
+// SetPeerPluginName 设置对应工作名
 func (b *BasePluggable) SetPeerPluginName(name string) {
 	b.peerPluginName = name
 }
 
-//SetPeerPluginJobConf 设置对应工作配置
+// SetPeerPluginJobConf 设置对应工作配置
 func (b *BasePluggable) SetPeerPluginJobConf(conf *config.JSON) {
 	b.peerPluginJobConf = conf
 }
 
-//Developer 插件开发者,当developer不存在或者不是字符串时会返回错误
+// Developer 插件开发者,当developer不存在或者不是字符串时会返回错误
 func (b *BasePluggable) Developer() (string, error) {
 	return b.pluginConf.GetString("developer")
 }
 
-//Description 插件描述,当description不存在或者不是字符串时会返回错误
+// Description 插件描述,当description不存在或者不是字符串时会返回错误
 func (b *BasePluggable) Description() (string, error) {
 	return b.pluginConf.GetString("description")
 }
 
-//PluginName 插件名称,当name不存在或者不是字符串时会返回错误
+// PluginName 插件名称,当name不存在或者不是字符串时会返回错误
 func (b *BasePluggable) PluginName() (string, error) {
 	return b.pluginConf.GetString("name")
 }
 
-//PluginConf 插件配置
+// PluginConf 插件配置
 func (b *BasePluggable) PluginConf() *config.JSON {
 	return b.pluginConf
 }
 
-//PluginJobConf 工作配置
+// PluginJobConf 工作配置
 func (b *BasePluggable) PluginJobConf() *config.JSON {
 	return b.pluginJobConf
 }
 
-//PeerPluginName 对应插件名称
+// PeerPluginName 对应插件名称
 func (b *BasePluggable) PeerPluginName() string {
 	return b.peerPluginName
 }
 
-//PeerPluginJobConf 设置个性化配置
+// PeerPluginJobConf 设置个性化配置
 func (b *BasePluggable) PeerPluginJobConf() *config.JSON {
 	return b.peerPluginJobConf
 }

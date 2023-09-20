@@ -21,7 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-//Config 关系型数据读入器配置
+// Config 关系型数据读入器配置
 type Config interface {
 	GetUsername() string               //获取用户名
 	GetPassword() string               //获取密码
@@ -33,22 +33,22 @@ type Config interface {
 	GetQuerySQL() []string             //获取查询sql
 }
 
-//Column 列信息
+// Column 列信息
 type Column interface {
 	GetName() string //获取表名
 }
 
-//BaseColumn 基础列信息
+// BaseColumn 基础列信息
 type BaseColumn struct {
 	Name string
 }
 
-//GetName 获取列名
+// GetName 获取列名
 func (b *BaseColumn) GetName() string {
 	return b.Name
 }
 
-//BaseConfig 基础关系型数据读入器配置
+// BaseConfig 基础关系型数据读入器配置
 type BaseConfig struct {
 	Username   string      `json:"username"`   //用户名
 	Password   string      `json:"password"`   //密码
@@ -59,7 +59,7 @@ type BaseConfig struct {
 	QuerySQL   []string    `json:"querySql"`   //查询sql
 }
 
-//NewBaseConfig 通过json配置conf获取基础关系型数据读入器配置
+// NewBaseConfig 通过json配置conf获取基础关系型数据读入器配置
 func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	c = &BaseConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -69,22 +69,22 @@ func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	return
 }
 
-//GetUsername 获取用户名
+// GetUsername 获取用户名
 func (b *BaseConfig) GetUsername() string {
 	return b.Username
 }
 
-//GetPassword 获取密码
+// GetPassword 获取密码
 func (b *BaseConfig) GetPassword() string {
 	return b.Password
 }
 
-//GetURL 获取关系型数据库连接url
+// GetURL 获取关系型数据库连接url
 func (b *BaseConfig) GetURL() string {
 	return b.Connection.URL
 }
 
-//GetColumns 获取列信息
+// GetColumns 获取列信息
 func (b *BaseConfig) GetColumns() (columns []Column) {
 	for _, v := range b.Column {
 		columns = append(columns, &BaseColumn{
@@ -94,33 +94,33 @@ func (b *BaseConfig) GetColumns() (columns []Column) {
 	return
 }
 
-//GetBaseTable 获取表信息
+// GetBaseTable 获取表信息
 func (b *BaseConfig) GetBaseTable() *database.BaseTable {
 	return database.NewBaseTable(b.Connection.Table.Db, b.Connection.Table.Schema, b.Connection.Table.Name)
 }
 
-//GetWhere 获取查询条件
+// GetWhere 获取查询条件
 func (b *BaseConfig) GetWhere() string {
 	return b.Where
 }
 
-//GetSplitConfig 获取切分配置
+// GetSplitConfig 获取切分配置
 func (b *BaseConfig) GetSplitConfig() SplitConfig {
 	return b.Split
 }
 
-//GetQuerySQL 获取查询sql
+// GetQuerySQL 获取查询sql
 func (b *BaseConfig) GetQuerySQL() []string {
 	return b.QuerySQL
 }
 
-//ConnConfig 连接配置
+// ConnConfig 连接配置
 type ConnConfig struct {
 	URL   string      `json:"url"`   //连接数据库
 	Table TableConfig `json:"table"` //表配置
 }
 
-//TableConfig 表配置
+// TableConfig 表配置
 type TableConfig struct {
 	Db     string `json:"db"`     //库
 	Schema string `json:"schema"` //模式

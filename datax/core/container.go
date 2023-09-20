@@ -19,39 +19,39 @@ import (
 	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 )
 
-//Container 容器
+// Container 容器
 type Container interface {
 	Start() error
 	Metrics() *container.Metrics
 }
 
-//BaseCotainer 基础容器
+// BaseCotainer 基础容器
 type BaseCotainer struct {
 	conf    *config.JSON
 	metrics *container.Metrics
 }
 
-//NewBaseCotainer 创建基础容器
+// NewBaseCotainer 创建基础容器
 func NewBaseCotainer() *BaseCotainer {
 	return &BaseCotainer{}
 }
 
-//SetMetrics 设置指标
+// SetMetrics 设置指标
 func (b *BaseCotainer) SetMetrics(metrics *container.Metrics) {
 	b.metrics = metrics
 }
 
-//Metrics 指标
+// Metrics 指标
 func (b *BaseCotainer) Metrics() *container.Metrics {
 	return b.metrics
 }
 
-//SetConfig 设置JSON配置
+// SetConfig 设置JSON配置
 func (b *BaseCotainer) SetConfig(conf *config.JSON) {
 	b.conf = conf
 }
 
-//Config JSON配置
+// Config JSON配置
 func (b *BaseCotainer) Config() *config.JSON {
 	return b.conf
 }

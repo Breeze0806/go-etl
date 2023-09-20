@@ -21,14 +21,14 @@ import (
 	"github.com/denisenkom/go-mssqldb/msdsn"
 )
 
-//Config mssql配置
+// Config mssql配置
 type Config struct {
 	URL      string `json:"url"`      //数据库url，包含数据库地址，数据库其他参数
 	Username string `json:"username"` //用户名
 	Password string `json:"password"` //密码
 }
 
-//NewConfig 创建mssql配置，如果格式不符合要求，就会报错
+// NewConfig 创建mssql配置，如果格式不符合要求，就会报错
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -48,7 +48,7 @@ func (c *Config) fetchMssqlConfig() (conf msdsn.Config, err error) {
 	return
 }
 
-//FormatDSN 获取数据库连接信息
+// FormatDSN 获取数据库连接信息
 func (c *Config) FormatDSN() (dsn string, err error) {
 	var conf msdsn.Config
 	conf, err = c.fetchMssqlConfig()

@@ -28,24 +28,24 @@ import (
 	"github.com/pingcap/errors"
 )
 
-//WriteModeCopyIn copy in写入方式
+// WriteModeCopyIn copy in写入方式
 const WriteModeCopyIn = "copyIn"
 
-//Table mssql表
+// Table mssql表
 type Table struct {
 	*database.BaseTable
 
 	conf *config.JSON
 }
 
-//NewTable 创建mssql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
+// NewTable 创建mssql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,
 	}
 }
 
-//Quoted 表引用全名
+// Quoted 表引用全名
 func (t *Table) Quoted() string {
 	return Quoted(t.Instance()) + "." + Quoted(t.Schema()) + "." + Quoted(t.Name())
 }
@@ -54,17 +54,17 @@ func (t *Table) String() string {
 	return t.Quoted()
 }
 
-//AddField 新增列
+// AddField 新增列
 func (t *Table) AddField(baseField *database.BaseField) {
 	t.AppendField(NewField(baseField))
 }
 
-//SetConfig 设置配置
+// SetConfig 设置配置
 func (t *Table) SetConfig(conf *config.JSON) {
 	t.conf = conf
 }
 
-//ExecParam 获取执行参数，其中replace into的参数方式以及被注册
+// ExecParam 获取执行参数，其中replace into的参数方式以及被注册
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	switch mode {
 	case WriteModeCopyIn:
@@ -73,7 +73,7 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 	return nil, false
 }
 
-//ShouldRetry 重试
+// ShouldRetry 重试
 func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
 	case net.Error:
@@ -83,25 +83,25 @@ func (t *Table) ShouldRetry(err error) bool {
 	}
 }
 
-//ShouldOneByOne 单个重试
+// ShouldOneByOne 单个重试
 func (t *Table) ShouldOneByOne(err error) bool {
 	_, ok := errors.Cause(err).(*mssql.Error)
 	return ok
 }
 
-//CopyInParam copy in 参数
+// CopyInParam copy in 参数
 type CopyInParam struct {
 	*database.BaseParam
 }
 
-//NewCopyInParam  通过表table和事务参数txOpts插入参数
+// NewCopyInParam  通过表table和事务参数txOpts插入参数
 func NewCopyInParam(t database.Table, txOpts *sql.TxOptions) *CopyInParam {
 	return &CopyInParam{
 		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 
-//Query 批量copy in插入sql语句
+// Query 批量copy in插入sql语句
 func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 	var conf *config.JSON
 	conf, err = ci.Table().(*Table).conf.GetConfig("bulkOption")
@@ -124,7 +124,7 @@ func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 		columns...), nil
 }
 
-//Agrs 通过多条记录 records生成批量copy in参数
+// Agrs 通过多条记录 records生成批量copy in参数
 func (ci *CopyInParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for _, r := range records {
 		for fi, f := range ci.Table().Fields() {
