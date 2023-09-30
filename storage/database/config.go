@@ -15,7 +15,9 @@
 package database
 
 import (
+	"bytes"
 	"encoding/json"
+	"strings"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go/time2"
@@ -60,4 +62,47 @@ func (c *PoolConfig) GetMaxIdleConns() int {
 		return DefaultMaxIdleConns
 	}
 	return c.MaxIdleConns
+}
+
+// ConfigSetter Table的补充方法，用于设置json配置文件
+type ConfigSetter interface {
+	SetConfig(conf *config.JSON)
+}
+
+// BaseConfigSetter 基础表配置设置
+type BaseConfigSetter struct {
+	conf *config.JSON
+}
+
+// SetConfig 设置表配置
+func (b *BaseConfigSetter) SetConfig(conf *config.JSON) {
+	b.conf = conf
+}
+
+// Config 获取表配置
+func (b *BaseConfigSetter) Config() *config.JSON {
+	return b.conf
+}
+
+func (b *BaseConfigSetter) trimChar() bool {
+	if b.Config() == nil {
+		return false
+	}
+	return b.Config().GetBoolOrDefaullt("trimChar", false)
+}
+
+// TrimStringChar 消除字符串 char 前后的空格
+func (b *BaseConfigSetter) TrimStringChar(char string) string {
+	if b.trimChar() {
+		return strings.TrimSpace(char)
+	}
+	return char
+}
+
+// TrimByteChar 消除字节数组的 char 前后的空格
+func (b *BaseConfigSetter) TrimByteChar(char []byte) []byte {
+	if b.trimChar() {
+		return bytes.TrimSpace(char)
+	}
+	return char
 }

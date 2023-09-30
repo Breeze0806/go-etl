@@ -33,9 +33,8 @@ const WriteModeCopyIn = "copyIn"
 
 // Table mssql表
 type Table struct {
+	database.BaseConfigSetter
 	*database.BaseTable
-
-	conf *config.JSON
 }
 
 // NewTable 创建mssql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
@@ -56,12 +55,9 @@ func (t *Table) String() string {
 
 // AddField 新增列
 func (t *Table) AddField(baseField *database.BaseField) {
-	t.AppendField(NewField(baseField))
-}
-
-// SetConfig 设置配置
-func (t *Table) SetConfig(conf *config.JSON) {
-	t.conf = conf
+	f := NewField(baseField)
+	f.SetConfig(t.Config())
+	t.AppendField(f)
 }
 
 // ExecParam 获取执行参数，其中replace into的参数方式以及被注册
@@ -104,7 +100,7 @@ func NewCopyInParam(t database.Table, txOpts *sql.TxOptions) *CopyInParam {
 // Query 批量copy in插入sql语句
 func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 	var conf *config.JSON
-	conf, err = ci.Table().(*Table).conf.GetConfig("bulkOption")
+	conf, err = ci.Table().(*Table).Config().GetConfig("bulkOption")
 	if err != nil {
 		err = nil
 		conf, _ = config.NewJSONFromString("{}")

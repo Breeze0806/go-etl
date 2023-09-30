@@ -31,6 +31,8 @@ var (
 
 // Field 字段
 type Field struct {
+	database.BaseConfigSetter
+
 	*database.BaseField
 }
 
@@ -167,6 +169,10 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilStringColumnValue()
 		case string:
+			switch s.f.Type().DatabaseTypeName() {
+			case "CHAR", "NCHAR":
+				data = s.f.TrimStringChar(data)
+			}
 			cv = element.NewStringColumnValue(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeString)

@@ -137,9 +137,15 @@ OracleReader通过使用dbmsreader中定义的查询流程调用go-etl自定义�
 #### querySql
 
 - 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
-当用户配置querySql时，MysqlReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
+当用户配置querySql时，OracleReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
 - 必选：否
 - 默认值：无
+
+#### trimChar
+
+- 描述：对于oracle的char，nchar类型是否去掉其前后的空格
+- 必选：否
+- 默认值：false
 
 ### 类型转换
 

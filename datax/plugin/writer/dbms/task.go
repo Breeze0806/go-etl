@@ -73,13 +73,13 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	}
 
 	param := t.Handler.TableParam(t.Config, t.Execer)
+	if setter, ok := param.Table().(database.ConfigSetter); ok {
+		setter.SetConfig(t.PluginJobConf())
+	}
 	if t.Table, err = t.Execer.FetchTableWithParam(ctx, param); err != nil {
 		return t.Wrapf(err, "FetchTableWithParam fail")
 	}
 
-	if setter, ok := t.Table.(database.TableConfigSetter); ok {
-		setter.SetConfig(t.PluginJobConf())
-	}
 	return
 }
 

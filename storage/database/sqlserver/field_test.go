@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/shopspring/decimal"
@@ -385,6 +386,7 @@ func TestScanner_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *Scanner
+		conf    *config.JSON
 		args    args
 		wantErr bool
 		want    element.Column
@@ -500,6 +502,25 @@ func TestScanner_Scan(t *testing.T) {
 				element.ByteSize("中文1234abc")),
 		},
 		{
+			name: "CHAR",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockFieldType("CHAR")))),
+			args: args{
+				"   中文1234abc   ",
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("   中文1234abc   "), "f1",
+				element.ByteSize("   中文1234abc   ")),
+		},
+		{
+			name: "NCHAR",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockFieldType("NCHAR")))),
+			conf: testJSONFromString(`{"trimChar":true}`),
+			args: args{
+				"   中文1234abc   ",
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("中文1234abc"), "f1",
+				element.ByteSize("   中文1234abc   ")),
+		},
+		{
 			name: "NVARCHARNull",
 			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockFieldType("NVARCHAR")))),
 			args: args{
@@ -611,11 +632,14 @@ func TestScanner_Scan(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.conf != nil {
+				tt.s.f.SetConfig(tt.conf)
+			}
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !reflect.DeepEqual(tt.s.Column(), tt.want) {
-				t.Errorf("Column() = %v, want %v", tt.s.Column(), tt.want)
+				t.Errorf("Column() = %v, want %v config %v", tt.s.Column(), tt.want, tt.s.f.Config())
 			}
 		})
 	}

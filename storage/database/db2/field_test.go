@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
@@ -413,6 +414,7 @@ func TestScanner_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *Scanner
+		conf    *config.JSON
 		args    args
 		wantErr bool
 		want    element.Column
@@ -658,6 +660,15 @@ func TestScanner_Scan(t *testing.T) {
 			want: element.NewDefaultColumn(element.NewStringColumnValue("abc"), "test", element.ByteSize([]byte("abc"))),
 		},
 		{
+			name: "CHARTrim",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CHAR")))),
+			conf: testJSONFromString(`{"trimChar":true}`),
+			args: args{
+				src: []byte("    abc   "),
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("abc"), "test", element.ByteSize([]byte("    abc   "))),
+		},
+		{
 			name: "CHAR nil",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CHAR")))),
 			args: args{
@@ -687,6 +698,9 @@ func TestScanner_Scan(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.conf != nil {
+				tt.s.f.SetConfig(tt.conf)
+			}
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
 				return
