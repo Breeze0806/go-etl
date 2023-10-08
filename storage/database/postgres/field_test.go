@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/lib/pq/oid"
@@ -349,6 +350,7 @@ func TestScanner_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *Scanner
+		conf    *config.JSON
 		args    args
 		want    element.Column
 		wantErr bool
@@ -418,7 +420,16 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中国")), "f1", element.ByteSize([]byte("中国"))),
 		},
-
+		{
+			name: "8Char",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_bpchar]))))),
+			conf: testJSONFromString(`{"trimChar":true}`),
+			args: args{
+				src: []byte("  中国  "),
+			},
+			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("中国")), "f1", element.ByteSize([]byte("  中国  "))),
+		},
 		{
 			name: "8nil",
 			s: NewScanner(NewField(database.NewBaseField(0,
@@ -428,6 +439,7 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewNilBytesColumnValue(), "f1", 0),
 		},
+
 		{
 			name: "9",
 			s: NewScanner(NewField(database.NewBaseField(0,
@@ -589,6 +601,10 @@ func TestScanner_Scan(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.conf != nil {
+				tt.s.f.SetConfig(tt.conf)
+			}
+
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -21,7 +21,6 @@ import (
 	"database/sql/driver"
 	"fmt"
 
-	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/schedule"
 )
@@ -62,11 +61,6 @@ type FieldsFetcher interface {
 // FieldAdder Table的补充方法，用于新增表的列
 type FieldAdder interface {
 	AddField(*BaseField) //新增具体列
-}
-
-// TableConfigSetter Table的补充方法，用于设置json配置文件
-type TableConfigSetter interface {
-	SetConfig(conf *config.JSON)
 }
 
 // ExecParameter Table的补充方法，用于写模式获取生成sql语句的方法

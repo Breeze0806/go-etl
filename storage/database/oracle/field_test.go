@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/godror/godror"
@@ -263,6 +264,7 @@ func TestScanner_Scan(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *Scanner
+		conf    *config.JSON
 		args    args
 		want    element.Column
 		wantErr bool
@@ -427,6 +429,25 @@ func TestScanner_Scan(t *testing.T) {
 			want: element.NewDefaultColumn(element.NewNilStringColumnValue(), "f1", 0),
 		},
 		{
+			name: "CHARTrim",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("CHAR")))),
+			args: args{
+				src: " 中文abc-123     ",
+			},
+			conf: testJSONFromString(`{"trimChar":true}`),
+			want: element.NewDefaultColumn(element.NewStringColumnValue("中文abc-123"), "f1",
+				element.ByteSize(" 中文abc-123     ")),
+		},
+		{
+			name: "CHAR",
+			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("CHAR")))),
+			args: args{
+				src: " 中文abc-123     ",
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue(" 中文abc-123     "), "f1",
+				element.ByteSize(" 中文abc-123     ")),
+		},
+		{
 			name: "VARCHAR2 err",
 			s:    NewScanner(NewField(database.NewBaseField(0, "f1", newMockColumnType("VARCHAR2")))),
 			args: args{
@@ -523,6 +544,10 @@ func TestScanner_Scan(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.conf != nil {
+				tt.s.f.SetConfig(tt.conf)
+			}
+
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
 				return

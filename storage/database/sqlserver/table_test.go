@@ -169,68 +169,6 @@ func TestTable_AddField(t *testing.T) {
 	}
 }
 
-func TestTable_SetConfig(t *testing.T) {
-	type args struct {
-		conf *config.JSON
-	}
-	tests := []struct {
-		name string
-		tr   *Table
-		args args
-		want *config.JSON
-	}{
-		{
-			name: "1",
-			tr:   &Table{},
-			args: args{
-				conf: testJSONFromString(`{
-					"username": "",
-					"password": "",
-					"writeMode": "",
-					"column": [],
-					"preSql": [],
-					"connection": {
-						"url": "",
-						"table": {
-							"schema":"",
-							"name":""
-						}
-					},
-					"batchTimeout": "1s",
-					"batchSize":1000,
-					"bulkOption":{}
-				}`),
-			},
-			want: testJSONFromString(`{
-					"username": "",
-					"password": "",
-					"writeMode": "",
-					"column": [],
-					"preSql": [],
-					"connection": {
-						"url": "",
-						"table": {
-							"schema":"",
-							"name":""
-						}
-					},
-					"batchTimeout": "1s",
-					"batchSize":1000,
-					"bulkOption":{}
-				}`),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.tr.SetConfig(tt.args.conf)
-			if !reflect.DeepEqual(tt.tr.conf, tt.want) {
-				t.Errorf("got: %v want: %v", tt.tr.conf, tt.want)
-				return
-			}
-		})
-	}
-}
-
 func TestCopyInParam_Query(t *testing.T) {
 	type args struct {
 		in0 []element.Record

@@ -141,6 +141,12 @@ MysqlReader通过使用dbmsreader中定义的查询流程调用go-etl自定义�
 - 必选：否
 - 默认值：无
 
+#### trimChar
+
+- 描述：对于db2的char类型是否去掉其前后的空格
+- 必选：否
+- 默认值：false
+
 ### 类型转换
 
 目前MysqlReader支持大部分Mysql类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。

@@ -35,6 +35,7 @@ var (
 // Field 字段
 type Field struct {
 	*database.BaseField
+	database.BaseConfigSetter
 }
 
 // NewField 通过基本列属性生成字段
@@ -192,6 +193,10 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 			if data == "" {
 				cv = element.NewNilStringColumnValue()
 			} else {
+				switch s.f.Type().DatabaseTypeName() {
+				case "CHAR", "NCHAR":
+					data = s.f.TrimStringChar(data)
+				}
 				cv = element.NewStringColumnValue(data)
 			}
 		default:

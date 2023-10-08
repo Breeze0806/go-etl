@@ -32,6 +32,7 @@ const WriteModeCopyIn = "copyIn"
 // Table postgres表
 type Table struct {
 	*database.BaseTable
+	database.BaseConfigSetter
 }
 
 // NewTable 创建postgres表，注意此时BaseTable中的schema参数为架构名，instance为数据库名，而name是表明
@@ -52,7 +53,9 @@ func (t *Table) String() string {
 
 // AddField 新增列
 func (t *Table) AddField(baseField *database.BaseField) {
-	t.AppendField(NewField(baseField))
+	f := NewField(baseField)
+	f.SetConfig(t.Config())
+	t.AppendField(f)
 }
 
 // ExecParam 获取执行参数，其中copy in的参数方式以及被注册
