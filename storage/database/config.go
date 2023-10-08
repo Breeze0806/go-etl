@@ -69,14 +69,23 @@ type ConfigSetter interface {
 	SetConfig(conf *config.JSON)
 }
 
+type BaseConfig struct {
+	TrimChar bool `json:"trimChar"`
+}
+
 // BaseConfigSetter 基础表配置设置
 type BaseConfigSetter struct {
+	BaseConfig
+
 	conf *config.JSON
 }
 
 // SetConfig 设置表配置
 func (b *BaseConfigSetter) SetConfig(conf *config.JSON) {
 	b.conf = conf
+	if b.conf != nil {
+		json.Unmarshal([]byte(b.conf.String()), &b.BaseConfig)
+	}
 }
 
 // Config 获取表配置
@@ -84,16 +93,9 @@ func (b *BaseConfigSetter) Config() *config.JSON {
 	return b.conf
 }
 
-func (b *BaseConfigSetter) trimChar() bool {
-	if b.Config() == nil {
-		return false
-	}
-	return b.Config().GetBoolOrDefaullt("trimChar", false)
-}
-
 // TrimStringChar 消除字符串 char 前后的空格
 func (b *BaseConfigSetter) TrimStringChar(char string) string {
-	if b.trimChar() {
+	if b.TrimChar {
 		return strings.TrimSpace(char)
 	}
 	return char
@@ -101,7 +103,7 @@ func (b *BaseConfigSetter) TrimStringChar(char string) string {
 
 // TrimByteChar 消除字节数组的 char 前后的空格
 func (b *BaseConfigSetter) TrimByteChar(char []byte) []byte {
-	if b.trimChar() {
+	if b.TrimChar {
 		return bytes.TrimSpace(char)
 	}
 	return char

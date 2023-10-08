@@ -222,13 +222,13 @@ func TestBaseConfigSetter_TrimStringChar(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		b    *BaseConfigSetter
+		conf *config.JSON
 		args args
 		want string
 	}{
 		{
 			name: "1",
-			b:    &BaseConfigSetter{testJSONFromString(`{"trimChar":true}`)},
+			conf: testJSONFromString(`{"trimChar":true}`),
 			args: args{
 				char: "  char    ",
 			},
@@ -236,7 +236,7 @@ func TestBaseConfigSetter_TrimStringChar(t *testing.T) {
 		},
 		{
 			name: "2",
-			b:    &BaseConfigSetter{testJSONFromString(`{"trimChar":false}`)},
+			conf: testJSONFromString(`{"trimChar":false}`),
 			args: args{
 				char: "  char  ",
 			},
@@ -244,7 +244,7 @@ func TestBaseConfigSetter_TrimStringChar(t *testing.T) {
 		},
 		{
 			name: "3",
-			b:    &BaseConfigSetter{testJSONFromString(`{}`)},
+			conf: testJSONFromString(`{}`),
 			args: args{
 				char: "  char  ",
 			},
@@ -252,7 +252,7 @@ func TestBaseConfigSetter_TrimStringChar(t *testing.T) {
 		},
 		{
 			name: "4",
-			b:    &BaseConfigSetter{nil},
+			conf: nil,
 			args: args{
 				char: "  char  ",
 			},
@@ -261,7 +261,9 @@ func TestBaseConfigSetter_TrimStringChar(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.b.TrimStringChar(tt.args.char); got != tt.want {
+			b := &BaseConfigSetter{}
+			b.SetConfig(tt.conf)
+			if got := b.TrimStringChar(tt.args.char); got != tt.want {
 				t.Errorf("BaseConfigSetter.TrimStringChar() = %v, want %v", got, tt.want)
 			}
 		})
@@ -274,13 +276,13 @@ func TestBaseConfigSetter_TrimByteChar(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		b    *BaseConfigSetter
+		conf *config.JSON
 		args args
 		want []byte
 	}{
 		{
 			name: "1",
-			b:    &BaseConfigSetter{testJSONFromString(`{"trimChar":true}`)},
+			conf: testJSONFromString(`{"trimChar":true}`),
 			args: args{
 				char: []byte("  char    "),
 			},
@@ -288,7 +290,7 @@ func TestBaseConfigSetter_TrimByteChar(t *testing.T) {
 		},
 		{
 			name: "2",
-			b:    &BaseConfigSetter{testJSONFromString(`{"trimChar":false}`)},
+			conf: testJSONFromString(`{"trimChar":false}`),
 			args: args{
 				char: []byte("  char  "),
 			},
@@ -296,7 +298,7 @@ func TestBaseConfigSetter_TrimByteChar(t *testing.T) {
 		},
 		{
 			name: "3",
-			b:    &BaseConfigSetter{testJSONFromString(`{}`)},
+			conf: testJSONFromString(`{}`),
 			args: args{
 				char: []byte("  char  "),
 			},
@@ -304,7 +306,7 @@ func TestBaseConfigSetter_TrimByteChar(t *testing.T) {
 		},
 		{
 			name: "4",
-			b:    &BaseConfigSetter{nil},
+			conf: nil,
 			args: args{
 				char: []byte("  char  "),
 			},
@@ -313,7 +315,9 @@ func TestBaseConfigSetter_TrimByteChar(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.b.TrimByteChar(tt.args.char); !reflect.DeepEqual(got, tt.want) {
+			b := &BaseConfigSetter{}
+			b.SetConfig(tt.conf)
+			if got := b.TrimByteChar(tt.args.char); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("BaseConfigSetter.TrimByteChar() = %v, want %v", got, tt.want)
 			}
 		})

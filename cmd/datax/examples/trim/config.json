@@ -1,0 +1,44 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "db2reader",
+                    "parameter": {
+                        "connection":  {
+                            "url": "HOSTNAME=192.168.15.130;PORT=50000;DATABASE=testdb",
+                            "table": {
+                                "schema":"TEST",
+                                "name":"SOURCE"
+                            }
+                        },
+                        "username": "db2inst1",
+                        "password": "12345678",
+                        "column": ["*"],
+                        "where": "",
+                        "trimChar":true
+                    }
+                },
+                "writer":{
+                    "name": "csvwriter",
+                    "parameter": {
+                        "path":["b.txt"],
+                        "encoding":"utf-8",
+                        "delimiter":",",
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ]
+    }
+}
