@@ -1,178 +1,177 @@
-# 数据库存储开发者指南
+# Guide for Developers of Database Storage
 
-数据库存储是数据库查询和执行SQL的框架，用于数据库的抽象,其底层是借助golang标准库的database/sql的接口来实现的。
+Database storage is a framework for database queries and SQL execution, serving as an abstraction for databases. Its underlying implementation relies on the `database/sql` interface of the Golang standard library.
 
-## 数据库存储简介
+## Introduction to Database Storage
 
-数据库存储通过封装golang标准库的database/sql的DB结构体用于查询和执行数据库SQL，在db.go封装了较为丰富的方法，不仅提供database/sql的DB原有的方法BeginTx，PingContext，QueryContext和ExecContext，而且还提供了FetchTable和FetchTableWithParam用于获取表结构，FetchRecord和FetchRecordWithTx用于获取表中的记录，BatchExec，BatchExecWithTx和BatchExecStmtWithTx用于执行写入记录语句。
+Database storage facilitates the querying and execution of SQL through the encapsulation of the `database/sql` DB struct from the Golang standard library. The `db.go` file provides a rich set of methods, including not only the original methods of the `database/sql` DB such as `BeginTx`, `PingContext`, `QueryContext`, and `ExecContext` but also `FetchTable` and `FetchTableWithParam` for retrieving table structures, `FetchRecord` and `FetchRecordWithTx` for fetching records from a table, and `BatchExec`, `BatchExecWithTx`, and `BatchExecStmtWithTx` for executing write operations.
 
-但是对于不同的数据库使用数据库存储可以实现不同的数据库方言dialect，本文档会介绍如何实现数据库方言dialect接口。
+However, for different databases, the implementation of database storage can vary based on the specific database dialect. This document will introduce how to implement the database dialect interface.
 
-## 数据库方言dialect接口介绍
+## Introduction to the Database Dialect Interface
 
-实现dialect接口的前提是**数据库对应的驱动库可以实现golang标准库的database/sql的接口**。
+The prerequisite for implementing the dialect interface is that **the corresponding database driver can implement the `database/sql` interface of the Golang standard library**.
 
-具体实现时，可以参考以下目录去实现，这里以mysql为例
+When implementing specifically, you can refer to the following directory structure. Here, MySQL is used as an example:
 
 ```go
 storage--database--mysql----+--config.go        
                             |--doc.go
-							|--field.go
+                            |--field.go
                             |--source.go
                             |--table.go
-
 ```
 
-通过这种方式，目前已经实现了mysql，postgres，db2
+Using this approach, we have currently implemented support for MySQL, PostgreSQL, and DB2.
 
-### 数据源接口
+### Data Source Interface
 
 ```golang
-//Dialect 数据库方言
+// Dialect represents a database dialect.
 type Dialect interface {
-	Source(*BaseSource) (Source, error) //数据源
+ Source(*BaseSource) (Source, error) // Data source
 }
 
-//Source 数据源,包含驱动信息，包信息，配置文件以及连接信息
+// Source represents a data source, including driver information, package information, configuration files, and connection information.
 type Source interface {
-	Config() *config.JSON   //配置信息
-	Key() string            //一般是连接信息
-	DriverName() string     //驱动名，用于sql.Open的第1个参数
-	ConnectName() string    //连接信息，用于sql.Open的第2个参数
-	Table(*BaseTable) Table //获取具体表
+ Config() *config.JSON   // Configuration information
+ Key() string            // Generally, the connection information
+ DriverName() string     // Driver name, used as the 1st parameter for sql.Open
+ ConnectName() string    // Connection information, used as the 2nd parameter for sql.Open
+ Table(*BaseTable) Table // Get the specific table structure interface
 }
 ```
 
-具体实现Source接口时，可以组合BaseSource以简化具体实现Source接口的实现Table方法可以返回具体的表结构接口。可以看mysql包source.go的实现。
+When implementing the `Source` interface, you can combine `BaseSource` to simplify the implementation. The `Table` method should return the specific table structure interface. Refer to the implementation in `source.go` of the MySQL package.
 
-另外，连接信息依赖Config的依赖。目前Config需要用下面的方式定义，否则无法使用dbms包来实现datax的插件，可以看mysql包config.go的实现。
+Additionally, the connection information relies on the configuration provided by `Config`. Currently, `Config` needs to be defined as follows to be compatible with the `dbms` package for implementing DataX plugins. Refer to the implementation in `config.go` of the MySQL package.
 
 ```go
 type Config struct {
-	URL      string `json:"url"`      //数据库url，包含数据库地址，数据库其他参数
-	Username string `json:"username"` //用户名
-	Password string `json:"password"` //密码
+ URL      string `json:"url"`      // Database URL, including database address and other parameters
+ Username string `json:"username"` // Username
+ Password string `json:"password"` // Password
 }
 ```
 
-此外，需要使用init函数将具体Dialect注册
+Furthermore, you need to use the `init` function to register the specific dialect:
 
 ```go
 func init() {
-	var d Dialect
-	database.RegisterDialect(d.Name(), d)
+ var d Dialect
+ database.RegisterDialect(d.Name(), d)
 }
 ```
 
-### 表结构接口
+### Table Structure Interface
 
 ```go
-//Table 表结构
+// Table represents a table structure.
 type Table interface {
-	fmt.Stringer
+ fmt.Stringer
 
-	Quoted() string   //引用的表名全称
-	Instance() string //实例名，例如对于mysql就是数据库
-	Schema() string   //模式名，例如对于oracle就是用户名（模式名）
-	Name() string     //表名，例如对于mysql就是表
-	Fields() []Field  //显示所有列
+ Quoted() string   // Fully qualified quoted table name
+ Instance() string // Instance name, e.g., database for MySQL
+ Schema() string   // Schema name, e.g., username (schema name) for Oracle
+ Name() string     // Table name, e.g., table for MySQL
+ Fields() []Field  // Displays all columns
 }
 
-//FieldsFetcher Table的补充方法，用于特殊获取表的所有列
+// FieldsFetcher is a supplementary interface for Table, used to specifically fetch all columns.
 type FieldsFetcher interface {
-	FetchFields(ctx context.Context, db *DB) error //获取具体列
+ FetchFields(ctx context.Context, db *DB) error // Retrieves the specific columns
 }
 
-//FieldAdder Table的补充方法，用于新增表的列
+// FieldAdder is a supplementary interface for Table, used to add new columns to the table.
 type FieldAdder interface {
-	AddField(*BaseField) //新增具体列
+ AddField(*BaseField) // Adds a specific column
 }
 
-//ExecParameter Table的补充方法，用于写模式获取生成sql语句的方法
+// ExecParameter is a supplementary interface for Table, used to generate SQL statements for write operations.
 type ExecParameter interface {
-	ExecParam(string, *sql.TxOptions) (Parameter, bool)
+ ExecParam(string, *sql.TxOptions) (Parameter, bool)
 }
 ```
 
-具体实现Table接口时，可以组合BaseTable以简化具体Table接口的实现，其中Fields方法必须返回相应数据库的具体字段接口集合。具体可以看mysql包table.go的实现。
+When implementing the `Table` interface, you can combine `BaseTable` to simplify the implementation. The `Fields` method must return a collection of specific field interfaces for the corresponding database. Refer to the implementation in `table.go` of the MySQL package.
 
-FetchFields和FieldAdder只可以实现一个，一般选择FieldAdder接口。ExecParameter可以用于实现批量入表的SQL语句，如对于mysql，可以实现replace into的方法插入，目前默认实现了普遍适用的insert方法，但是对于如实现oracle使用gora驱动的话，insert方法不适用于这种情况。
+You can choose to implement either `FetchFields` or `FieldAdder`, but generally, `FieldAdder` is preferred. `ExecParameter` can be used to implement SQL statements for bulk inserts. For example, for MySQL, you can implement the `replace into` method for insertion. Currently, a universally applicable `insert` method is implemented by default, but for cases like using the `gora` driver for Oracle, the `insert` method may not be suitable.
 
 ```go
-//Parameter 带有表，事务模式，sql语句的执行参数
+// Parameter represents an execution parameter with a table, transaction mode, and SQL statement.
 type Parameter interface {
-	Table() Table                                 //表或者视图
-	TxOptions() *sql.TxOptions                    //事务模式
-	Query([]element.Record) (string, error)       //sql prepare语句
-	Agrs([]element.Record) ([]interface{}, error) //prepare参数
+ Table() Table                                 // Table or view
+ TxOptions() *sql.TxOptions                    // Transaction mode
+ Query([]element.Record) (string, error)       // SQL prepare statement
+ Agrs([]element.Record) ([]interface{}, error) // Prepare parameters
 }
 ```
 
-如上对于实现replace into的方法插入需要实现Parameter，可以组合BaseParam简化具体实现Parameter接口的实现，可以参考mysql包table.go的实现。
+To implement the `replace into` method for insertion, you need to implement the `Parameter` interface. You can combine `BaseParam` to simplify the implementation. Refer to the implementation in `table.go` of the MySQL package.
 
-### 字段接口
+### Field Interface
 
 ```go
-//Field 数据库字段
+// Field represents a database column.
 type Field interface {
-	fmt.Stringer
+ fmt.Stringer
 
-	Index() int                   //索引
-	Name() string                 //字段名
-	Quoted() string               //引用字段名
-	BindVar(int) string           //占位符号
-	Select() string               //select字段名
-	Type() FieldType              //字段类型
-	Scanner() Scanner             //扫描器,用于将数据库对应数据转化成列
-	Valuer(element.Column) Valuer //赋值器,用于将列转化成数据库对应数据
+ Index() int                   // Index
+ Name() string                 // Column name
+ Quoted() string               // Quoted column name
+ BindVar(int) string           // Placeholder symbol
+ Select() string               // Select column name
+ Type() FieldType              // Column type
+ Scanner() Scanner             // Scanner, used to convert database data into a column
+ Valuer(element.Column) Valuer // Valuer, used to convert a column into database data
 }
 ```
 
-具体实现Field接口时，可以组合BaseField以简化具体实现Field接口的实现，Type()方法必须返回相应数据库的列类型，Scanner必须返回相应数据库的扫描器，Valuer须返回相应数据库的扫描器。具体可以看mysql包中field.go的实现。
+When implementing the `Field` interface, you can combine `BaseField` to simplify the implementation. The `Type()` method must return the specific column type for the corresponding database. The `Scanner` must return the scanner for the corresponding database, and the `Valuer` must return the valuer for the corresponding database. Refer to the implementation in `field.go` of the MySQL package.
 
 ```go
-//ColumnType 列类型,抽象 sql.ColumnType，也方便自行实现对应函数
+// ColumnType represents a column type, abstracting `sql.ColumnType` and facilitating the implementation of corresponding functions.
 type ColumnType interface {
-	Name() string                                   //列名
-	ScanType() reflect.Type                         //扫描类型
-	Length() (length int64, ok bool)                //长度
-	DecimalSize() (precision, scale int64, ok bool) //精度
-	Nullable() (nullable, ok bool)                  //是否为空
-	DatabaseTypeName() string                       //列数据库类型名
+ Name() string                                   // Column name
+ ScanType() reflect.Type                         // Scan type
+ Length() (length int64, ok bool)                // Length
+ DecimalSize() (precision, scale int64, ok bool) // Precision
+ Nullable() (nullable, ok bool)                  // Nullability
+ DatabaseTypeName() string                       // Database type name
 }
 
-//FieldType 字段类型
+// FieldType represents a field type.
 type FieldType interface {
-	ColumnType
+ ColumnType
 
-	IsSupportted() bool //是否支持该类型
+ IsSupportted() bool // Checks if the type is supported
 }
 ```
 
-具体实现FieldType接口时，可以组合BaseFieldType以简化具体实现FieldFieldType接口的实现，ColumnType在事实上是sql.ColumnType的抽象。具体可以看mysql包field.go的实现。
+When implementing the `FieldType` interface, you can combine `BaseFieldType` to simplify the implementation. `ColumnType` is essentially an abstraction of `sql.ColumnType`. Refer to the implementation in `field.go` of the MySQL package.
 
 ```go
-//Scanner 列数据扫描器 数据库驱动的值扫描成列数据
+// Scanner represents a column data scanner that converts database driver values into column data.
 type Scanner interface {
-	sql.Scanner
+ sql.Scanner
 
-	Column() element.Column //获取列数据
+ Column() element.Column // Gets the column data
 }
 ```
 
-具体实现Scanner的接口时,可以组合BaseFieldType以简化具体实现FieldType接口的实现,Scanner的作用将数据库驱动读取到的数据转化为单列的数据。具体可以看mysql包field.go的实现。
+When implementing the `Scanner` interface, you can combine `BaseFieldType` to simplify the implementation. The role of the scanner is to convert the data read by the database driver into a single column of data. Refer to the implementation in `field.go` of the MySQL package.
 
 ```go
-//Valuer 赋值器 将对应数据转化成数据库驱动的值
+// Valuer represents a valuer that converts corresponding data into a value for the database driver.
 type Valuer interface {
-	driver.Valuer
+ driver.Valuer
 }
 
-//ValuerGoType 用于赋值器的golang类型判定,是Field的可选功能，
-//就是对对应驱动的值返回相应的值，方便GoValuer进行判定
+// ValuerGoType is an optional functionality for the Field, used to determine the Go type for the corresponding driver value.
+// It returns the corresponding value for the driver's value, facilitating the determination by GoValuer.
 type ValuerGoType interface {
-	GoType() GoType
+ GoType() GoType
 }
 ```
 
-具体实现Valuer的接口时,可以组合GoValuer以简化具体实现Valuer接口的实现，使用GoValuer需要在数据库层Field实现ValuerGoType接口，Valuer的作用将单列的数据转化为数据库驱动写入的数据类型。具体可以看mysql包field.go的实现。
+When implementing the `Valuer` interface, you can combine `GoValuer` to simplify the implementation. To use `GoValuer`, you need to implement the `ValuerGoType` interface at the database layer's Field level. The role of the valuer is to convert a single column of data into the data type used for writing by the database driver. Refer to the implementation in `field.go` of the MySQL package.

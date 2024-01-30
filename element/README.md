@@ -1,135 +1,138 @@
-# go-etl数据类型说明
+# go-etl Data Type Descriptions
 
-这个包主要定义了go-etl中的数据类型
+This package primarily defines the data types used in go-etl.
 
-## 记录
+## Record
 
-```
-//Record 记录
+```go
+// Record represents a data record.
 type Record interface {
-	fmt.Stringer
+ fmt.Stringer
 
-	Add(Column) error                      //新增列
-	GetByIndex(i int) (Column, error)      //获取第i个列
-	GetByName(name string) (Column, error) //获取列名为name的列
-	Set(i int, c Column) error             //设置第i列
-	ColumnNumber() int                     //获取列数
-	ByteSize() int64                       //字节流大小
-	MemorySize() int64                     //内存大小
+ Add(Column) error                      // Adds a new column.
+ GetByIndex(i int) (Column, error)      // Retrieves the column at the specified index.
+ GetByName(name string) (Column, error) // Retrieves the column with the specified name.
+ Set(i int, c Column) error             // Sets the column at the specified index.
+ ColumnNumber() int                     // Returns the number of columns.
+ ByteSize() int64                       // Returns the size of the record in bytes.
+ MemorySize() int64                     // Returns the memory usage of the record.
 }
 ```
 
-## 数据类型转化
+## Data Type Conversions
 
-go-etl支持六种内部数据类型：
+go-etl supports six internal data types:
 
-- `bigInt`：定点数(int64、int32、int16、int8、BigInt等)。
-- `decimal`：浮点数(float32、float63、BigDecimal(无限精度)等)。
-- `string`：字符串类型，底层不限长，使用通用字符集(Unicode)。
-- `time`：日期类型。
-- `bool`：布尔值。
-- `bytes`：二进制，可以存放诸如MP3等非结构化数据。
+- `bigInt`: Fixed-point numbers (int64, int32, int16, int8, BigInt, etc.).
+- `decimal`: Floating-point numbers (float32, float64, BigDecimal (unlimited precision), etc.).
+- `string`: String type, with unlimited length and using a universal character set (Unicode).
+- `time`: Date and time type.
+- `bool`: Boolean value.
+- `bytes`: Binary data, which can store unstructured data such as MP3 files.
 
-对应地，有`TimeColumnValue`、`BigIntColumnValue`、`DecimalColumnValue`、`BytesColumnValue`、`StringColumnValue`和`BoolColumnValue`六种`ColumnValue`的实现。
+Correspondingly, there are six implementations of `ColumnValue`: `TimeColumnValue`, `BigIntColumnValue`, `DecimalColumnValue`, `BytesColumnValue`, `StringColumnValue`, and `BoolColumnValue`.
 
-这些`ColumnValue`提供一系列以`as`开头的数据类型转换转换方法。
+These `ColumnValue` interfaces provide a series of data type conversion methods that start with `as`.
 
 ```go
-//ColumnValue 列值
+// ColumnValue represents a value in a column.
 type ColumnValue interface {
-	fmt.Stringer
+ fmt.Stringer
 
-	Type() ColumnType                    //列类型
-	IsNil() bool                         //是否为空
-	AsBool() (bool, error)               //转化为布尔值
-	AsBigInt() (*big.Int, error)         //转化为整数
-	AsDecimal() (decimal.Decimal, error) //转化为高精度实数
-	AsString() (string, error)           //转化为字符串
-	AsBytes() ([]byte, error)            //转化为字节流
-	AsTime() (time.Time, error)          // 转化为时间
+ Type() ColumnType                    // Returns the column type.
+ IsNil() bool                         // Checks if the value is nil.
+ AsBool() (bool, error)               // Converts the value to a boolean.
+ AsBigInt() (*big.Int, error)         // Converts the value to a big integer.
+ AsDecimal() (decimal.Decimal, error) // Converts the value to a decimal with unlimited precision.
+ AsString() (string, error)           // Converts the value to a string.
+ AsBytes() ([]byte, error)            // Converts the value to a byte array.
+ AsTime() (time.Time, error)          // Converts the value to a time.
 }
 ```
 
-在ColumnValue的基础上实现了下列方法
+Based on the `ColumnValue` interface, the following methods are implemented:
 
 ```go
-//Column 列
+// Column represents a data column.
 type Column interface {
-	ColumnValue
-	AsInt64() (int64, error)     //转化为64位整数
-	AsFloat64() (float64, error) //转化为64位实数
-	Clone() (Column, error)      //克隆
-	Cmp(Column) (int, error)     //比较, 1代表大于， 0代表相等， -1代表小于
-	Name() string                //列名
-	ByteSize() int64             //字节流大小
-	MemorySize() int64           //内存大小
+ ColumnValue
+ AsInt64() (int64, error)     // Converts the value to a 64-bit integer.
+ AsFloat64() (float64, error) // Converts the value to a 64-bit floating point number.
+ Clone() (Column, error)      // Clones the column.
+ Cmp(Column) (int, error)     // Compares the column with another column. Returns 1 if greater, 0 if equal, -1 if less.
+ Name() string                // Returns the name of the column.
+ ByteSize() int64             // Returns the size of the column in bytes.
+ MemorySize() int64           // Returns the memory usage of the column.
 }
 ```
 
-DataX的内部类型在实现上会选用不同的golang类型：
-现在有两种实现方式，但是老方式在处理大树时存在性能上的问题，目前新实现方式还是beta版,未有较好实践验证。
+The internal types of DataX are implemented using different Golang types:
+Currently, there are two implementation approaches, but the older approach has performance issues when dealing with large datasets. The new implementation is still in beta and has not been thoroughly validated through practical use.
 
-+ 老的实现方式
++ Older Implementation Approach
 
-| 内部类型 | 实现类型        | 备注                              |
-| -------- | --------------- | --------------------------------- |
-| time     | time.Time       |                                   |
-| bigInt   | big.Int         | 使用无限精度的大整数，保证不失真  |
-| decimal  | decimal.Decimal | 用decimal.Decimal表示，保证不失真 |
-| bytes    | []byte          |                                   |
-| string   | string          |                                   |
-| bool     | bool            |                                   |
+| Internal Type | Implementation Type | Notes                                                        |
+| ------------- | ------------------- | ------------------------------------------------------------ |
+| time          | time.Time           |                                                              |
+| bigInt        | big.Int             | Uses arbitrary-precision integers to ensure no loss of precision. |
+| decimal       | decimal.Decimal     | Represented using decimal.Decimal to ensure no loss of precision. |
+| bytes         | []byte              |                                                              |
+| string        | string              |                                                              |
+| bool          | bool                |                                                              |
+
++ Current Implementation Approach
+
+| Internal Type | Implementation Type | Notes                                                        |
+| ------------- | ------------------- | ------------------------------------------------------------ |
+| time          | time.Time           |                                                              |
+| bigInt        | BigIntNumber        | Uses a hybrid approach of storing values as Int64 and BigIntStr to ensure no loss of precision. |
+| decimal       | DecimalNumber       | Uses a hybrid approach of storing values as Float64, Int64, BigIntStr, DecimalStr, and Decimal to ensure no loss of precision. |
+| bytes         | []byte              |                                                              |
+| string        | string              |                                                              |
+| bool          | bool                |                                                              |
+
+The gap between these two implementation methods mainly lies in numerical adjustments, which are integrated through the following interfaces:
 
 
-+ 目前的实现方式
-
-| 内部类型 | 实现类型        | 备注                              |
-| -------- | --------------- | --------------------------------- |
-| time     | time.Time       |                                   |
-| bigInt   | BigIntNumber    | 使用Int64和BigIntStr交叉保存的方式，保证不失真  |
-| decimal  | DecimalNumber   | 使用Float64, Int64，BigIntStr，DecimalStr和Decimal交叉保存的方式，保证不失真 |
-| bytes    | []byte          |                                   |
-| string   | string          |                                   |
-| bool     | bool            |                                   |
-
-这两种实现方式之间的差距主要在数值方面做出了调整，通过以下接口进行了整合：
 ```golang
-//NumberConverter 数字转化器
+// NumberConverter: Digital Converter
 type NumberConverter interface {
-	ConvertBigIntFromInt(i int64) (num BigIntNumber)
-	ConvertDecimalFromFloat(f float64) (num DecimalNumber)
-	ConvertBigInt(s string) (num BigIntNumber, err error)
-	ConvertDecimal(s string) (num DecimalNumber, err error)
+ ConvertBigIntFromInt(i int64) (num BigIntNumber)
+ ConvertDecimalFromFloat(f float64) (num DecimalNumber)
+ ConvertBigInt(s string) (num BigIntNumber, err error)
+ ConvertDecimal(s string) (num DecimalNumber, err error)
 }
 
-//Number 数字
+// Number: Represents a numeric value
 type Number interface {
-	Bool() (bool, error)
-	String() string
+ Bool() (bool, error)
+ String() string
 }
 
-//BigIntNumber 高精度整数
+// BigIntNumber: Represents a high-precision integer
 type BigIntNumber interface {
-	Number
+ Number
 
-	Int64() (int64, error)
-	Decimal() DecimalNumber
-	CloneBigInt() BigIntNumber
-	AsBigInt() *big.Int
+ Int64() (int64, error)
+ Decimal() DecimalNumber
+ CloneBigInt() BigIntNumber
+ AsBigInt() *big.Int
 }
 
-//DecimalNumber 高精度实数
+// DecimalNumber: Represents a high-precision decimal number
 type DecimalNumber interface {
-	Number
+ Number
 
-	Float64() (float64, error)
-	BigInt() BigIntNumber
-	CloneDecimal() DecimalNumber
-	AsDecimal() decimal.Decimal
+ Float64() (float64, error)
+ BigInt() BigIntNumber
+ CloneDecimal() DecimalNumber
+ AsDecimal() decimal.Decimal
 }
 ```
-主要实现了NumberConverter的Converter(目前的实现方式)和OldConverter(老的实现方式)，Converter比OldConverter性能更好, 通过number_bench_test.go的测试结果如下：
-```
+The main implementations are Converter (the current implementation method) and OldConverter (the previous implementation method). Converter outperforms OldConverter in terms of performance. The test results from `number_bench_test.go` are as follows:
+
+
+```plaintext
 BenchmarkConverter_ConvertFromBigInt-4                	34292768	        40.13 ns/op	       8 B/op	       0 allocs/op
 BenchmarkOldConverter_ConvertFromBigInt-4             	19314712	        58.69 ns/op	      16 B/op	       1 allocs/op
 BenchmarkConverter_ConvertDecimalFromloat-4           	100000000	        15.74 ns/op	       8 B/op	       0 allocs/op
@@ -155,17 +158,19 @@ BenchmarkDecimal_Int64_String-4                       	13537401	        89.62 ns
 BenchmarkDecimal_BigInt_String-4                      	 4664106	       247.4 ns/op	      56 B/op	       3 allocs/op
 BenchmarkDecimal_BigIntStr_String-4                   	1000000000	         0.6873 ns/op	       0 B/op	       0 allocs/op
 ```
-另外，如果遇到问题可以通过修改number.go中_DefaultNumberConverter的取值回到老的实现方式
+Additionally, if any issues arise, you can revert to the old implementation by modifying the `_DefaultNumberConverter` value in `number.go`.
 
-类型之间相互转换的关系如下：
+The relationship between the types and their conversions is as follows:
 
-| from\to | time                                             | bigInt                               | decimal                       | bytes                                          | string                                         | bool                                                         |
-| ------- | ------------------------------------------------ | ------------------------------------ | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------ |
-| time    | -                                                | 不支持                               | 不支持                        | 支持指定时间格式的转化（一般支持默认时间格式） | 支持指定时间格式的转化（一般支持默认时间格式） | 不支持                                                       |
-| bigInt  | 不支持                                           | -                                    | 支持                          | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             |
-| decimal | 不支持                                           | 取整，直接截取整数部分               | -                             | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             |
-| bytes   | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | -                                              | 支持                                           | 支持"1"," t", "T", "TRUE", "true", "True"转化为true，"0", "f"," F", "FALSE", "false", "False"转化为false |
-| string  | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | 支持                                           | -                                              | 支持"1", "t", "T", "TRUE", "true", "True"转化为"true"，"0", "f", "F", "FALSE", "false", "False"转化为false |
-| bool    | 不支持                                           | ture转化为1，false转化为0            | ture转化为1.0，false转化为0.0 | true转化为"true"，false转化为"false"           | true转化为"true"，false转化为"false"           | -                                                            |
+| from\to | time                                                   | bigInt                                   | decimal                           | bytes                                                      | string                                                     | bool                                                                |
+| --- | -------------------------------------------------- | ------------------------------------ | ------------------------------- | -------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| time    | -                                                    | Not supported                        | Not supported                   | Supports conversion of specified time formats (generally supports default time format) | Supports conversion of specified time formats (generally supports default time format) | Not supported                                                   |
+| bigInt  | Not supported                                      | -                                    | Supported                       | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               |
+| decimal | Not supported                                      | Rounds to the nearest integer, truncating the decimal part | -                                 | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               |
+| bytes   | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | -                                                      | Supported                                                  | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to true, and "0", "f", "F", "FALSE", "false", "False" to false |
+| string  | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | Supported                                                  | -                                                        | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to "true", and "0", "f", "F", "FALSE", "false", "False" to false |
+| bool    | Not supported                                      | true converts to 1, false converts to 0                 | true converts to 1.0, false converts to 0.0 | true converts to "true", false converts to "false" | true converts to "true", false converts to "false" | -                                                           |
 
-**注：默认时间格式为2006-01-02 15:04:05.999999999Z07:00**
+**Note: The default time format is 2006-01-02 15:04:05.999999999Z07:00**
+
+This table provides an overview of data type conversions between different formats, including time, bigInt, decimal, bytes, string, and bool. It specifies which conversions are supported and which are not, as well as any specific behavior or limitations associated with each conversion.

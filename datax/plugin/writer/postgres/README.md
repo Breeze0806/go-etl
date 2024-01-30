@@ -1,28 +1,28 @@
-# PostgresWriter插件文档
+# PostgresWriter Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-PostgresWriter插件实现了向Postgres/Greenplum数据库写入数据。在底层实现上，PostgresWriter通过github.com/lib/pq以及database/sql连接远程Postgres/Greenplum数据库，并执行相应的sql语句将数据写入Postgres/Greenplum数据库。
+The PostgresWriter plugin enables writing data to Postgres/Greenplum databases. Under the hood, PostgresWriter connects to remote Postgres/Greenplum databases using github.com/lib/pq and database/sql, executing corresponding SQL statements to write data into the Postgres/Greenplum database.
 
-## 实现原理
+## Implementation Principles
 
-PostgresWriter通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程Postgres/Greenplum数据库执行。
+PostgresWriter connects to remote Postgres/Greenplum databases via github.com/lib/pq. It generates SQL statements for writing based on user-provided configuration information and go-etl's custom data types from the Reader. These statements are then sent to the remote Postgres/Greenplum database for execution.
 
-Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Postgres/Greenplum采取了storage/database/postgres实现的Dialect。
+Postgres/Greenplum implements specific queries by utilizing the query process defined in dbmswriter, calling go-etl's custom storage/database DBWrapper. DBWrapper encapsulates numerous interfaces from database/sql and abstracts the database dialect, Dialect. For Postgres/Greenplum, it adopts the Dialect implemented in storage/database/postgres.
 
-根据你配置的 `writeMode` 生成
+Based on your configured `writeMode`, it generates either:
 
-- `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
+- `insert into...` (which may fail to insert conflicting rows in case of primary key/unique index conflicts)
 
-**或者**
+**or**
 
-- `copy in ...` 与 insert into 行为一致，速度比insert into方式迅速。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
+- `copy in ...` which behaves similarly to insert into but offers faster performance. For optimal performance, data is buffered in memory and written only when the memory reaches a predefined threshold.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个向Postgres/Greenplum数据库同步写入数据的作业:
+Configuring a job to synchronously write data to a Postgres/Greenplum database:
 
 ```json
 {
@@ -57,108 +57,110 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 }
 ```
 
-### 参数说明
+### Parameter Description
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：postgres://ip:port/db，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，和[pq](https://pkg.go.dev/github.com/lib/pq)的连接配置信息基本相同，只是将用户名和密码从连接配置信息提出，方便之后对这些信息加密。与[pq](https://pkg.go.dev/github.com/lib/pq)不同的是，可以使用readTimeout/writeTimeout配置读/写超时,格式与batchTimeout相同。
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the connection information for the remote end. The basic format is: postgres://ip:port/db, where ip:port represents the IP address and port of the Postgres database, and db indicates the default database to connect to. It is similar to the connection configuration information of [pq](https://pkg.go.dev/github.com/lib/pq), except that the username and password are extracted from the connection configuration for easier encryption in the future. Unlike [pq](https://pkg.go.dev/github.com/lib/pq), read/write timeouts can be configured using readTimeout/writeTimeout in the same format as batchTimeout.
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置postgres数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the username for the Postgres database.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置postgres数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the password for the Postgres database.
+- Required: Yes
+- Default: None
 
 #### name
 
-描述postgres表信息
+Describes the Postgres table information.
 
 ##### schema
 
-- 描述 主要用于配置postgres表的模式名
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the schema name of the Postgres table.
+- Required: Yes
+- Default: None
 
 ##### table
 
-- 描述 主要用于配置postgres表的表名
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the table name of the Postgres table.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
+- Description: A set of column names from the configured table that need to be synchronized, described using a JSON array. Users can use * to indicate that all columns should be used by default, for example, ["*"].
 
-  支持列裁剪，即列可以挑选部分列进行导出。
+  Supports column pruning, allowing only selected columns to be exported.
 
-  支持列换序，即列可以不按照表schema信息进行导出。
+  Supports column reordering, meaning columns can be exported in an order different from the table schema.
 
-  支持常量配置，用户需要按照PostgreSQL语法格式: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
+  Supports constant configuration. Users need to follow the PostgreSQL syntax format: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] where id is a regular column name, 'hello'::varchar is a string constant, true is a boolean value, 2.5 is a floating-point number, and power(2,3) is a function.
 
-- 必选：是
-
-- 默认值: 无
+- Required: Yes
+- Default: None
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据，copyIn代表copy in方式写入数据。
-- 必选：否
-- 默认值: insert
+- Description: Write mode. "insert" represents writing data using the insert into method, while "copyIn" represents writing data using the copy in method.
+- Required: No
+- Default: insert
 
 #### batchTimeout
 
-- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：否
-- 默认值: 1s
+- Description: Primarily used to configure the timeout interval for each batch write operation. The format is: number + unit, where the unit can be s for seconds, ms for milliseconds, or us for microseconds. If the specified time interval is exceeded, the data will be written directly. This parameter, along with batchSize, can be adjusted for optimal write performance.
+- Required: No
+- Default: 1s
 
 #### batchSize
 
-- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：否
-- 默认值: 1000
+- Description: Primarily used to configure the size of each batch write operation. If the specified size is exceeded, the data will be written directly. This parameter, along with batchTimeout, can be adjusted for optimal write performance.
+- Required: No
+- Default: 1000
 
 #### preSql
 
-- 描述 主要用于在写入数据前的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Primarily used for SQL statement groups executed before writing data. Do not use select statements as they will result in an error.
+- Required: No
+- Default: None
 
 #### postSql
 
-- 描述 主要用于在写入数据后的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Primarily used for SQL statement groups executed after writing data. Do not use select statements as they will result in an error.
+- Required: No
+- Default: None
 
-### 类型转换
+### Type Conversion
 
-目前PostgresWriter支持大部分Postgres类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
+Currently, PostgresWriter supports most Postgres types, but there may be some individual types that are not supported. Please check your types accordingly.
 
-下面列出PostgresWriter针对Postgres类型转换列表:
+Below is a conversion table for PostgresWriter with regards to Postgres types:
 
-| go-etl的类型 | Postgres数据类型                                         |
-| ------------ | -------------------------------------------------------- |
-| bool         | boolen                                                   |
-| bigInt       | bigint, bigserial, integer, smallint, serial,smallserial |
-| decimal      | double precision, decimal, numeric, real                 |
-| string       | varchar, text                                            |
-| time         | date, time, timestamp                                    |
-| bytes        | char                                                     |
+| go-etl Type | Postgres Data Type |
+| --- | --- |
+| bool | boolean |
+| bigInt | bigint, bigserial, integer, smallint, serial, smallserial |
+| decimal | double precision, decimal, numeric, real |
+| string | varchar, text |
+| time | date, time, timestamp |
+| bytes | char |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Constraints and Limitations
 
-### 数据库编码问题
-目前仅支持utf8字符集
+### Database Encoding Issues
+
+Currently, only the utf8 character set is supported.
 
 ## FAQ
+
+(Frequently Asked Questions section to be added if applicable.)

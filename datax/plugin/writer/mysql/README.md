@@ -1,28 +1,22 @@
-# MysqlWriter插件文档
+# MysqlWriter Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-MysqlWriter插件实现了向Postgres/Greenplum数据库写入数据。在底层实现上，MysqlWriter通过github.com/go-sql-driver/mysql以及database/sql连接远程Mysql数据库，并执行相应的sql语句将数据写入mysql库。
+The MysqlWriter plugin enables writing data to Postgres/Greenplum databases. Under the hood, MysqlWriter connects to remote Mysql databases using github.com/go-sql-driver/mysql and database/sql, executing corresponding SQL statements to write data into the Mysql database.
 
-## 实现原理
+## Implementation Principles
 
-MysqlWriter通过github.com/go-sql-driver/mysql连接远程Mysql数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程Mysql数据库执行。
+MysqlWriter connects to remote Mysql databases using github.com/go-sql-driver/mysql and generates SQL write statements based on user-configured information and go-etl's custom data types from the Reader. These statements are then sent to the remote Mysql database for execution.
 
-MysqlWriter通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Mysql采取了storage/database/mysql实现的Dialect。
+MysqlWriter implements specific queries by invoking go-etl's custom DBWrapper from storage/database, using the query process defined in dbmswriter. DBWrapper encapsulates many interfaces from database/sql and abstracts the database dialect, Dialect. For Mysql, the Dialect implemented by storage/database/mysql is used.
 
-根据你配置的 `writeMode` 生成
+Based on the configured `writeMode`, MysqlWriter generates either an `insert into...` statement (which will not insert conflicting rows in case of primary key/unique index conflicts) or a `replace into...` statement (which behaves like `insert into` when no conflicts occur, but replaces the entire row with new values when conflicts arise). Data is buffered in memory and written in batches to optimize performance.
 
-- `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
+## Functionality Description
 
-**或者**
+### Configuration Example
 
-- `replace into...`(没有遇到主键/唯一性索引冲突时，与 insert into 行为一致，冲突时会用新行替换原有行所有字段) 的语句写入数据到 Mysql。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
-
-## 功能说明
-
-### 配置样例
-
-配置一个从内存写入Mysql数据库数据的作业:
+Configuring a job to write data from memory to a Mysql database:
 
 ```json
 {
@@ -55,107 +49,100 @@ MysqlWriter通过使用dbmswriter中定义的查询流程调用go-etl自定义�
 }
 ```
 
-### 参数说明
+### Parameter Explanation
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：tcp(ip:port)/db，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，和[mysql](https://github.com/go-sql-driver/mysql)的连接配置信息基本相同，只是将用户名和密码从连接配置信息提出，方便之后对这些信息加密。
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the connection information for the remote end. The basic format is: tcp(ip:port)/db, where ip:port represents the IP address and port of the Mysql database, and db indicates the default database to connect to. This is similar to the connection configuration for [mysql](https://github.com/go-sql-driver/mysql), except that the username and password are extracted for easier encryption.
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置mysql数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the username for the Mysql database.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置mysql数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the password for the Mysql database.
+- Required: Yes
+- Default: None
 
 #### table
 
-描述mysql表信息
+Describes the Mysql table information.
 
 ##### db
 
-- 描述 主要用于配置mysql表的数据库名
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the database name for the Mysql table.
+- Required: Yes
+- Default: None
 
 ##### name
 
-- 描述 主要用于配置mysql表的表名
-- 必选：是
-- 默认值: 无
+- Description: Used to configure the table name for the Mysql table.
+- Required: Yes
+- Default: None
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据，replace代表replace into方式写入数据。
-- 必选：否
-- 默认值: insert
+- Description: Specifies the write mode. "insert" represents writing data using the "insert into" method, while "replace" represents writing data using the "replace into" method.
+- Required: No
+- Default: insert
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
-
-  支持列裁剪，即列可以挑选部分列进行插入。
-
-  支持列换序，即列可以不按照表schema信息进行插入。
-
-- 必选：是
-
-- 默认值: 无
+- Description: Specifies the set of column names that need to be synchronized in the configured table. JSON array format is used to describe the column information. Using "*" represents including all columns by default, e.g., ["*"]. Column pruning is supported, meaning only selected columns can be inserted. Column reordering is also supported, meaning columns can be inserted in any order, not necessarily following the table schema.
+- Required: Yes
+- Default: None
 
 #### batchTimeout
 
-- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：否
-- 默认值: 1s
+- Description: Configures the timeout interval for each batch write operation. The format is: number + unit, where the unit can be s for seconds, ms for milliseconds, or us for microseconds. If the specified time interval is exceeded, the data will be written immediately. This parameter, along with batchSize, can be adjusted to optimize write performance.
+- Required: No
+- Default: 1s
 
 #### batchSize
 
-- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：否
-- 默认值: 1000
+- Description: Configures the size of each batch write operation. If the specified size is exceeded, the data will be written immediately. This parameter, along with batchTimeout, can be adjusted to optimize write performance.
+- Required: No
+- Default: 1000
 
 #### preSql
 
-- 描述 主要用于在写入数据前的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Specifies a set of SQL statements to be executed before writing data. Do not use select statements as they will cause errors.
+- Required: No
+- Default: None
 
 #### postSql
 
-- 描述 主要用于在写入数据后的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Specifies a set of SQL statements to be executed after writing data. Do not use select statements as they will cause errors.
+- Required: No
+- Default: None
 
-### 类型转换
+### Type Conversion
 
-目前MysqlWriter支持大部分Mysql类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
+Currently, MysqlWriter supports most Mysql data types, but there may be some unsupported types. Please check your data types carefully.
 
-下面列出MysqlWriter针对Mysql类型转换列表:
+Below is a conversion table for MysqlWriter and Mysql data types:
 
-| go-etl的类型 | mysql数据类型                                       |
-| ------------ | --------------------------------------------------- |
-| bigInt       | int, tinyint, smallint, mediumint,bigint,year       |
-| decimal      | float, double, decimal                              |
-| string       | varchar, char, tinytext, text, mediumtext, longtext |
-| time         | date, datetime, timestamp, time                     |
-| bytes        | tinyblob, mediumblob, blob, longblob, varbinary,bit |
+| go-etl Type | Mysql Data Type                                        |
+| ----------  | --------------------------------------------------- |
+| bigInt      | int, tinyint, smallint, mediumint, bigint, year        |
+| decimal     | float, double, decimal                                 |
+| string      | varchar, char, tinytext, text, mediumtext, longtext   |
+| time        | date, datetime, timestamp, time                        |
+| bytes       | tinyblob, mediumblob, blob, longblob, varbinary, bit  |
 
-## 性能报告
+## Performance Report
 
-待测试
+To be tested.
 
+## Constraints and Limitations
 
-## 约束限制
+### Database Encoding Issues
 
-
-### 数据库编码问题
-目前仅支持utf8字符集
+Currently, only the utf8 character set is supported.
 
 ## FAQ

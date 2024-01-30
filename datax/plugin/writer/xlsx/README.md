@@ -1,20 +1,20 @@
-# XlsxWriter插件文档
+# XlsxWriter Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-XlsxWriter插件实现了向xlsx文件写入数据。在底层实现上，XlsxWriter通过github.com/xuri/excelize/v2的流式写入方式写入文件。同时，需要注意的是一个sheet允许保存的数据不应超过1048576，需要计算好导出的sheet数，否则会报错，导致导出失败。此外，对于文件数目的大小要和reader的切分数一致，否则会导致任务无法开始。
+The XlsxWriter plugin enables writing data to xlsx files. Under the hood, XlsxWriter utilizes the streaming write method of github.com/xuri/excelize/v2 for file writing. It's important to note that the maximum amount of data allowed per sheet is 1,048,576. Therefore, the number of sheets to export must be calculated appropriately to avoid errors and export failures. Additionally, the number of files must align with the number of splits in the reader, or else the task cannot commence.
 
-## 实现原理
+## Implementation Principles
 
-XlsxWriter将reader传来的每一个记录，通过github.com/xuri/excelize/v2的流式写入方式写入文件，这种流式写入方式具有写入速度快，占用内存少的优点。
+XlsxWriter takes each record passed from the reader and writes it to the file using the streaming write method of github.com/xuri/excelize/v2. This streaming write approach offers the advantages of fast write speeds and low memory usage.
 
-XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
+XlsxWriter achieves specific reads by utilizing the writing process defined in file.Task, which calls the file.OutStreamer of go-etl's custom storage/stream/file.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个向xlsx文件同步写入数据的作业:
+Configuring a job to synchronously write data to an xlsx file:
 
 ```json
 {
@@ -47,104 +47,105 @@ XlsxWriter通过使用file.Task中定义的写入流程调用go-etl自定义的s
 }
 ```
 
-### 参数说明
+### Parameter Description
 
 #### column
 
-- 描述 主要用于配置xlsx文件的列信息数组，如不配置对应信息，则认为对应为string类型
-- 必选：是
-- 默认值: 无
+- Description: Configures the column information array for the xlsx file. If corresponding information is not configured, it is assumed to be of type string.
+- Required: Yes
+- Default: None
 
 ##### index
 
-- 描述 主要用于配置xlsx文件的列编号，从A开始
-- 必选：是
-- 默认值: 无
+- Description: Configures the column index for the xlsx file, starting from A.
+- Required: Yes
+- Default: None
 
 ##### type
 
-- 描述 主要用于配置xlsx文件的列类型，主要有boolen,bigInt,decimal,string,time等类型，目前对time仅能使用string类型读取
-- 必选：是
-- 默认值: 无
+- Description: Configures the column type for the xlsx file, including types such as boolean, bigInt, decimal, string, and time. Currently, only the string type can be used for time.
+- Required: Yes
+- Default: None
 
 ##### format
 
-- 描述 主要用于配置xlsx文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
-- 必选：是
-- 默认值: 无
+- Description: Configures the format for the column type in the xlsx file, primarily used for configuring the format of the time type using Java's joda time format, e.g., yyyy-MM-dd.
+- Required: Yes
+- Default: None
 
 #### xlsxs
 
-- 描述 主要用于配置xlsx文件的信息，可以配置多个文件
-- 必选：是
-- 默认值: 无
+- Description: Configures information about the xlsx file(s), allowing for the configuration of multiple files.
+- Required: Yes
+- Default: None
 
 ##### path
 
-- 描述 主要用于配置xlsx文件的绝对路径
-- 必选：是
-- 默认值: 无
+- Description: Configures the absolute path of the xlsx file.
+- Required: Yes
+- Default: None
 
 ###### sheets
 
-- 描述 主要用于配置xlsx文件的sheet名数组
-- 必选：是
-- 默认值: 无
+- Description: Configures an array of sheet names for the xlsx file.
+- Required: Yes
+- Default: None
 
 #### nullFormat
 
-- 描述：文本文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
-- 必选：否
-- 默认值：空字符串
+- Description: Standard strings cannot define null (null pointers) in text files. DataX provides nullFormat to define which strings can represent null. For example, if the user configures: nullFormat="\N", then DataX treats "\N" as a null field if it appears in the source data.
+- Required: No
+- Default: Empty string
 
 #### hasHeader
 
-- 描述：是否写入csv文件的列头，当存在header，写入header，而不存在时，写入列名。
-- 必选：否
-- 默认值：false
+- Description: Determines whether to write the column headers to the csv file. When headers exist, they are written; otherwise, column names are written.
+- Required: No
+- Default: false
 
 #### header
 
-- 描述：写入csv文件的列头数组，仅hasHeader有效。
-- 必选：否
-- 默认值：无
+- Description: Writes an array of column headers to the csv file, effective only when hasHeader is true.
+- Required: No
+- Default: None
 
 #### sheetRow
-- 描述：sheet最大的列数,最大为1048576。
-- 必选：否
-- 默认值：1048576
+
+- Description: Specifies the maximum number of rows per sheet, with a maximum of 1,048,576.
+- Required: No
+- Default: 1048576
 
 #### batchTimeout
 
-- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：否
-- 默认值: 1s
+- Description: Configures the timeout interval for each batch write operation. Format: number + unit, where the unit can be s for seconds, ms for milliseconds, or us for microseconds. If the specified time interval is exceeded, the data is written directly. This parameter, along with batchSize, helps regulate write performance.
+- Required: No
+- Default: 1s
 
 #### batchSize
 
-- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：否
-- 默认值: 1000
+- Description: Configures the size of each batch write operation. If the specified size is exceeded, the data is written directly. This parameter, along with batchTimeout, helps regulate write performance.
+- Required: No
+- Default: 1000
 
-### 类型转换
+### Type Conversion
 
-目前XlsxWriter支持的xlsx数据类型需要在column配置中配置，目前xlsx仅支持文本格式的单元格，请注意检查你的类型。
+Currently, the xlsx data types supported by XlsxWriter need to be configured in the column settings. Only text-formatted cells are supported in xlsx files, so please check your types accordingly.
 
-下面列出XlsxWriter针对xlsx类型转换列表:
+Below is a list of type conversions supported by XlsxWriter for xlsx data types:
 
-| go-etl的类型 | xlsx数据类型 |
-| ------------ | ----------- |
-| bigInt       | bigInt      |
-| decimal      | decimal     |
-| string       | string      |
-| time         | time        |
-| bool         | bool        |
+| go-etl Type | xlsx Data Type |
+| --- | --- |
+| bigInt | bigInt |
+| decimal | decimal |
+| string | string |
+| time | time |
+| bool | bool |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Constraints and Limitations
 
 
 ## FAQ

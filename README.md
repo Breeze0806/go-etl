@@ -8,56 +8,58 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 
-go-etl是一个集数据源抽取，转化，加载的工具集，提供强大的数据同步能力。
+go-etl is a toolset for extracting, transforming, and loading data sources, providing powerful data synchronization capabilities.
 
-go-etl将提供的etl能力如下：
+go-etl will provide the following ETL capabilities:
 
-1. 主流数据库的数据抽取以及数据加载的能力，在storage包中实现
-2. 类二维表的数据流的数据抽取以及数据加载的能力，在stream包中实现
-3. 类似datax的数据同步能力，在datax包中实现
+The ability to extract and load data from mainstream databases is implemented in the storage package
+The ability to extract and load data from data streams in a two-dimensional table-like format is implemented in the stream package
+Similar data synchronization capabilities to datax, implemented in the datax package
 
-鉴于本人实在精力有限，欢迎大家来提交issue或者***加QQ群185188648***来讨论go-etl，让我们一起进步!
+Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
 
-## 数据同步工具
+## Data Synchronization Tool
 
-本数据数据同步工具以下数据源的同步能力
+This data synchronization tool has the synchronization capability for the following data sources.
 
-| 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
+| Type         | Data Source             | Reader | Writer| Document                                                        |
 | ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README.md)、[写](datax/plugin/writer/mysql/README.md) |
-|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README.md)、[写](datax/plugin/writer/postgres/README.md) |
-|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README.md)、[写](datax/plugin/writer/db2/README.md) |
-|              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README.md)、[写](datax/plugin/writer/sqlserver/README.md) |
-|              | Oracle            | √            | √          | [读](datax/plugin/reader/oracle/README.md)、[写](datax/plugin/writer/oracle/README.md) |
-| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README.md)、[写](datax/plugin/writer/csv/README.md) |
-|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README.md)、[写](datax/plugin/writer/xlsx/README.md) |
+| Relational Database | MySQL/Mariadb/Tidb | √            | √          | [Read](datax/plugin/reader/mysql/README.md)、[Write](datax/plugin/writer/mysql/README.md) |
+|              | Postgres/Greenplum | √            | √          | [Read](datax/plugin/reader/postgres/README.md)、[Write](datax/plugin/writer/postgres/README.md) |
+|              | DB2 LUW            | √            | √          | [Read](datax/plugin/reader/db2/README.md)、[Write](datax/plugin/writer/db2/README.md) |
+|              | SQL Server            | √            | √          | [Read](datax/plugin/reader/sqlserver/README.md)、[Write](datax/plugin/writer/sqlserver/README.md) |
+|              | Oracle            | √            | √          | [Read](datax/plugin/reader/oracle/README.md)、[Write](datax/plugin/writer/oracle/README.md) |
+| Unstructured Data Stream    | CSV                | √            | √          | [Read](datax/plugin/reader/csv/README.md)、[Write](datax/plugin/writer/csv/README.md) |
+|              | XLSX（excel）      | √            | √          | [Read](datax/plugin/reader/xlsx/README.md)、[Write](datax/plugin/writer/xlsx/README.md) |
 
-### 数据同步用户手册
+### Getting Started
 
-使用[go-etl数据同步用户手册](README_USER.md)开始数据同步
+Start data synchronization with the [go-etl Data Synchronization User Manual](README_USER.md)
 
-### 数据同步开发宝典
+### Data Synchronization Development Handbook
 
-参考[go-etl数据同步开发者文档](datax/README.md)来帮助开发
+Refer to the [go-etlData Synchronization Developer Documentation](datax/README.md) to assist with your development.
 
-### 数据同步工具编译
 
-#### linux
+### Compile
 
-##### 编译依赖
+#### Linux
 
-1. golang 1.16以及以上版本
+##### Compilation dependencies
 
-##### 构建
+1. golang 1.16 and later versions
+2. gcc 4.8 and later versions
+
+##### build
 
 ```bash
 make dependencies
 make release
 ```
 
-##### 去掉db2依赖
+##### Removing DB2 dependency
 
-在编译前需要export IGNORE_PACKAGES=db2 
+Before compilation, it is necessary to use `export IGNORE_PACKAGES=db2`
 
 ```bash
 export IGNORE_PACKAGES=db2
@@ -67,21 +69,21 @@ make release
 
 #### windows
 
-##### 编译依赖
+##### Compilation Dependencies:
 
-1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
-2. golang 1.16以及以上
-3. 最小编译环境为win7 
+1. Mingw-w64 with gcc 7.2.0 or higher is required for compilation.
+2. Golang version 1.16 or above is necessary.
+3. The minimum compilation environment is Windows 7.
 
-##### 构建
+##### build
 
 ```bash
 release.bat
 ```
 
-##### 去掉db2依赖
+##### Removing DB2 dependency
 
-在编译前需要set IGNORE_PACKAGES=db2
+Before compilation, it is necessary to use `set IGNORE_PACKAGES=db2`
 
 ```bash
 set IGNORE_PACKAGES=db2
@@ -89,7 +91,7 @@ release.bat
 ```
 
 
-#### 编译产物
+#### Compilation output
 
 ```
     +---datax---|---plugin---+---reader--mysql---|--README.md
@@ -107,70 +109,70 @@ release.bat
 
 ```
 
-+ datax/plugin下是各插件的文档
-+ bin下的是数据同步程序datax
-+ exampales下是各场景的数据同步的配置文档
-+ README_USER.md是用户使用手册
++ The datax/plugin directory contains the documentation for various plugins.
++ The bin directory houses the data synchronization program, named datax.
++ The examples directory includes configuration files for data synchronization in different scenarios.
++ README_USER.md is the user manual or guide.
 
-## 模块简介
+## Module Introduction
 ### datax
 
-本包将提供类似于阿里巴巴[DataX](https://github.com/alibaba/DataX)的接口去实现go语言的离线数据同步框架框架，
+This package will provide an interface similar to Alibaba's [DataX](https://github.com/alibaba/DataX) to implement an offline data synchronization framework in the Go programming language. The framework will enable users to perform data synchronization tasks efficiently and reliably, leveraging the power and flexibility of the Go language. It may include features such as pluggable data sources and destinations, support for various data formats, and robust error handling mechanisms.
 
 ```
 readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)  
 ```
 
-采用Framework + plugin架构构建。将数据源读取和写入抽象成为Reader/Writer插件，纳入到整个同步框架中。
+The system is built using a Framework + plugin architecture. In this design, the reading and writing of data sources are abstracted into Reader/Writer plugins, which are integrated into the overall synchronization framework.
 
-+ Reader：Reader为数据采集模块，负责采集数据源的数据，将数据发送给Framework。 
-+ Writer：Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
-+ Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
++ Reader: The Reader module is responsible for data acquisition. It collects data from the source and sends it to the Framework.
++ Writer: The Writer module handles data writing. It continuously retrieves data from the Framework and writes it to the destination.
++ Framework: The Framework serves as the connection between the Reader and Writer. It functions as a data transmission channel, handling core technical aspects such as buffering, flow control, concurrency, and data transformation.
+This architecture allows for flexibility and scalability, as new data sources and destinations can be easily added by developing new Reader and Writer plugins, respectively.
 
-具体可以参考[go-etl数据同步开发者文档](datax/README.md)。
+For detailed information, please refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md). This documentation provides guidance on how to use the go-etl framework for data synchronization, including information on its architecture, plugin system, and how to develop custom Reader and Writer plugins.
 
 ### element
-
-目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[go-etl数据类型说明](element\README.md)。
+Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions]((element\README.md)). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
 
 ### storage
 
 #### database
 
-目前已经实现了数据库的基础集成，抽象了数据库方言(Dialect)接口，具体实现可以参考[数据库存储开发者指南](storage/database/README.md)。
+We have now implemented basic integration for databases, abstracting the database dialect (Dialect) interface. For specific implementation details, please refer to the [Database Storage Developer Guide](storage/database/README.md). This guide provides information on how to work with different database dialects within the framework, allowing for flexible and extensible database support.
 
-#### stream
+#### Stream
 
-主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等。
+Primarily used for parsing byte streams, such as files, message queues, Elasticsearch, etc. The byte stream format can be CSV, JSON, XML, etc.
 
-##### file
-主要用于文件的解析，如cvs，excel等，抽象了输入流（InputStream）和输出流（OutputStream）接口，具体实现可以参考[类二维表文件存储开发者指南](storage/stream/file/README.md)。
-### tools
+##### File
 
-工具集用于编译，新增许可证等
+Focused on file parsing, including CSV, Excel, etc. It abstracts the InputStream and OutputStream interfaces. For specific implementation details, refer to the [Developer Guide for Tabular File Storage](storage/stream/file/README.md).
 
-#### datax
+### Tools
 
-##### build
+A collection of utilities for compilation, adding licenses, etc.
+
+#### DataX
+
+##### Build
 
 ```bash
 go generate ./...
 ```
-发布命令，用于将由开发者开发的reader和writer插件注册到程序中的代码
+This is the build command used to register developer-created reader and writer plugins into the program's code. Additionally, this command inserts compilation information, such as software version, Git version, Go compiler version, and compilation time, into the command line tool.
 
-另外，该命令也会把编译信息如软件版本，git版本，go编译版本和编译时间写入命令行中
+##### Plugin
 
-##### plugin
+A plugin template creation tool for data sources. It's used to create a new reader or writer template, in conjunction with the build command, to reduce the developer's workload.
 
-数据源插件模板新增工具，用于新增一个reader或writer模板，配合发布命令使用，减少开发者负担
+##### Release
 
-##### release
+A packaging tool for the data synchronization program and user documentation.
 
-数据同步程序和用户使用文档打包工具
+#### License
 
-#### license
-
-用于自动新增go代码文件中许可证并使用gofmt -s -w格式化代码
+Automatically adds a license to Go code files and formats the code using `gofmt -s -w`.
 
 ```bash
 go run tools/license/main.go
