@@ -29,58 +29,58 @@ var (
 	datetimeLayout = element.DefaultTimeFormat[:26]
 )
 
-// Field 字段
+// Field - Represents a field in a database table.
 type Field struct {
 	database.BaseConfigSetter
 
 	*database.BaseField
 }
 
-// NewField 通过基本列属性生成字段
+// NewField - Generates a field based on basic column attributes.
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-// Quoted 引用，用于SQL语句
+// Quoted - Used for quoting in SQL statements.
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-// BindVar SQL占位符，用于SQL语句
+// BindVar - SQL placeholder used in SQL statements.
 func (f *Field) BindVar(i int) string {
 	return fmt.Sprintf("@p%d", i)
 }
 
-// Select 查询时字段，用于SQL查询语句
+// Select - Represents a field for querying purposes in SQL query statements.
 func (f *Field) Select() string {
 	return f.Quoted()
 }
 
-// Type 字段类型
+// Type - Represents the type of the field.
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-// Scanner 扫描器，用于读取数据
+// Scanner - Used for reading data from a field.
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-// Valuer 赋值器，采用GoValuer处理数据
+// Valuer - Handles data processing using GoValuer.
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return NewValuer(f, c)
 }
 
-// FieldType 字段类型
+// FieldType - Represents the type of a field.
 type FieldType struct {
 	*database.BaseFieldType
 
 	goType database.GoType
 }
 
-// NewFieldType 创建新的字段类型
+// NewFieldType - Creates a new field type.
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
@@ -103,30 +103,30 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-// IsSupportted 是否支持解析
-func (f *FieldType) IsSupportted() bool {
+// IsSupported - Indicates whether parsing is supported for a specific type.
+func (f *FieldType) IsSupported() bool {
 	return f.GoType() != database.GoTypeUnknown
 }
 
-// GoType 返回处理数值时的Golang类型
+// GoType - Returns the Golang type used when processing numerical values.
 func (f *FieldType) GoType() database.GoType {
 	return f.goType
 }
 
-// Scanner 扫描器
+// Scanner - A scanner used for reading data based on the column type.
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-// NewScanner 根据列类型生成扫描器
+// NewScanner - Generates a scanner based on the column type.
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-// Scan 根据列类型读取数据
+// Scan - Reads data from a column based on its type.
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
@@ -211,13 +211,13 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 	return
 }
 
-// Valuer 赋值器
+// Valuer - Assigns values to a field.
 type Valuer struct {
 	f *Field
 	c element.Column
 }
 
-// NewValuer 创建新赋值器
+// NewValuer - Creates a new valuer.
 func NewValuer(f *Field, c element.Column) *Valuer {
 	return &Valuer{
 		f: f,
@@ -225,12 +225,12 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 	}
 }
 
-// Value 赋值
+// Value - Represents the value assigned to a field.
 func (v *Valuer) Value() (driver.Value, error) {
-	//不能直接nil，golang的[]byte(nil)的类型是[]byte，但是值是nil，会导致以下错误:
-	//mssql: Implicit conversion from data type nvarchar to binary is not allowed.
-	//Use the CONVERT function to run this query.
-	//原因是传入nil，在mssql.go的makeParam时TypeId是typeNull，导致makeDecl返回"nvarchar(1)"
+	// Cannot directly use nil. In Golang, []byte(nil) has a type of []byte but a value of nil, which can cause the following error:
+	// mssql: Implicit conversion from data type nvarchar to binary is not allowed.
+	// Use the CONVERT function to run this query.
+	// The reason is that passing nil results in a TypeId of typeNull in mssql.go's makeParam, which leads to makeDecl returning nvarchar(1).
 	if v.c.IsNil() {
 		switch v.f.Type().(*FieldType).GoType() {
 		case database.GoTypeBytes:

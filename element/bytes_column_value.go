@@ -20,56 +20,56 @@ import (
 	"time"
 )
 
-// NilBytesColumnValue 空值字节流列值
+// NilBytesColumnValue - Null byte stream column value
 type NilBytesColumnValue struct {
 	*nilColumnValue
 }
 
-// NewNilBytesColumnValue 创建空值字节流列值
+// NewNilBytesColumnValue - Create a null byte stream column value
 func NewNilBytesColumnValue() ColumnValue {
 	return &NilBytesColumnValue{
 		nilColumnValue: &nilColumnValue{},
 	}
 }
 
-// Type 返回列类型
+// Type - Return the column type
 func (n *NilBytesColumnValue) Type() ColumnType {
 	return TypeBytes
 }
 
-// Clone 克隆空值字节流列值
+// Clone - Clone the null byte stream column value
 func (n *NilBytesColumnValue) Clone() ColumnValue {
 	return NewNilBytesColumnValue()
 }
 
-// BytesColumnValue 字节流列值
+// BytesColumnValue - Byte stream column value
 type BytesColumnValue struct {
 	notNilColumnValue
-	TimeEncoder //时间编码器
+	TimeEncoder // Time Encoder
 
-	val []byte //字节流值
+	val []byte // Byte Stream Value
 }
 
-// NewBytesColumnValue 从字节流v 生成字节流列值,做拷贝
+// NewBytesColumnValue - Generate a byte stream column value from byte stream v, making a copy
 func NewBytesColumnValue(v []byte) ColumnValue {
 	new := make([]byte, len(v))
 	copy(new, v)
 	return NewBytesColumnValueNoCopy(new)
 }
 
-// NewBytesColumnValueNoCopy 从字节流v 生成字节流列值,不做拷贝
+// NewBytesColumnValueNoCopy - Generate a byte stream column value from byte stream v, without making a copy
 func NewBytesColumnValueNoCopy(v []byte) ColumnValue {
 	return NewBytesColumnValueWithEncoderNoCopy(v, NewStringTimeEncoder(DefaultTimeFormat))
 }
 
-// NewBytesColumnValueWithEncoder 从字节流v 和时间编码器e 生成字节流列值,做拷贝
+// NewBytesColumnValueWithEncoder - Generate a byte stream column value from byte stream v and time encoder e, making a copy
 func NewBytesColumnValueWithEncoder(v []byte, e TimeEncoder) ColumnValue {
 	new := make([]byte, len(v))
 	copy(new, v)
 	return NewBytesColumnValueWithEncoderNoCopy(new, NewStringTimeEncoder(DefaultTimeFormat))
 }
 
-// NewBytesColumnValueWithEncoderNoCopy 从字节流v 和时间编码器e,不做拷贝
+// NewBytesColumnValueWithEncoderNoCopy - Generate a byte stream column value from byte stream v and time encoder e, without making a copy
 func NewBytesColumnValueWithEncoderNoCopy(v []byte, e TimeEncoder) ColumnValue {
 	return &BytesColumnValue{
 		val:         v,
@@ -77,13 +77,13 @@ func NewBytesColumnValueWithEncoderNoCopy(v []byte, e TimeEncoder) ColumnValue {
 	}
 }
 
-// Type 返回列类型
+// Type - Return the column type
 func (b *BytesColumnValue) Type() ColumnType {
 	return TypeBytes
 }
 
-// AsBool 1, t, T, TRUE, true, True转化为true
-// 0, f, F, FALSE, false, False转化为false，如果不是上述情况会报错
+// AsBool - Convert 1, t, T, TRUE, true, True to true
+// Convert 0, f, F, FALSE, false, False to false. If none of the above, an error is reported.
 func (b *BytesColumnValue) AsBool() (bool, error) {
 	v, err := strconv.ParseBool(b.String())
 	if err != nil {
@@ -92,8 +92,8 @@ func (b *BytesColumnValue) AsBool() (bool, error) {
 	return v, nil
 }
 
-// AsBigInt 转化为整数，实数型以及科学性计数法字符串会被取整，不是数值型的会报错
-// 如123.67转化为123 123.12转化为123
+// AsBigInt - Convert to an integer. Real numbers and scientific notation strings will be rounded. Non-numeric values will report an error.
+// E.g., 123.67 is converted to 123, and 123.12 is converted to 123.
 func (b *BytesColumnValue) AsBigInt() (BigIntNumber, error) {
 	v, err := NewDecimalColumnValueFromString(b.String())
 	if err != nil {
@@ -102,7 +102,7 @@ func (b *BytesColumnValue) AsBigInt() (BigIntNumber, error) {
 	return v.AsBigInt()
 }
 
-// AsDecimal 转化为高精度师叔，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
+// AsDecimal - Convert to a high-precision decimal. Real numbers and scientific notation strings can be converted. Non-numeric values will report an error.
 func (b *BytesColumnValue) AsDecimal() (DecimalNumber, error) {
 	v, err := NewDecimalColumnValueFromString(b.String())
 	if err != nil {
@@ -111,19 +111,19 @@ func (b *BytesColumnValue) AsDecimal() (DecimalNumber, error) {
 	return v.AsDecimal()
 }
 
-// AsString 转化为字符串
+// AsString - Convert to a string
 func (b *BytesColumnValue) AsString() (string, error) {
 	return b.String(), nil
 }
 
-// AsBytes 转化成字节流
+// AsBytes - Convert to a byte stream
 func (b *BytesColumnValue) AsBytes() ([]byte, error) {
 	v := make([]byte, len(b.val))
 	copy(v, b.val)
 	return v, nil
 }
 
-// AsTime 根据时间编码器转化成时间，不符合时间编码器格式会报错
+// AsTime - Convert to time based on the time encoder. If it does not match the time encoder format, an error is reported.
 func (b *BytesColumnValue) AsTime() (t time.Time, err error) {
 	t, err = b.TimeEncode(b.String())
 	if err != nil {
@@ -136,14 +136,14 @@ func (b *BytesColumnValue) String() string {
 	return string(b.val)
 }
 
-// Clone 克隆字节流列值
+// Clone - Clone the byte stream column value
 func (b *BytesColumnValue) Clone() ColumnValue {
 	v := make([]byte, len(b.val))
 	copy(v, b.val)
 	return NewBytesColumnValue(v)
 }
 
-// Cmp  返回1代表大于， 0代表相等， -1代表小于
+// Cmp - Return 1 for greater than, 0 for equal, and -1 for less than
 func (b *BytesColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsBytes()
 	if err != nil {

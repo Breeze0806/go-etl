@@ -21,10 +21,10 @@ import (
 	"os"
 )
 
-// Type 压缩类型
+// Type represents the compression type
 type Type string
 
-// 压缩类型枚举
+// CompressionTypeEnum enumerates the compression types
 const (
 	TypeNone    Type = ""
 	TypeTarGzip Type = "targz"
@@ -33,7 +33,7 @@ const (
 	TypeGzip    Type = "gz"
 )
 
-// ReadCloser 获取读取关闭器
+// ReadCloser retrieves a read closer
 func (c Type) ReadCloser(f *os.File) (r io.ReadCloser, err error) {
 	switch c {
 	case TypeNone:
@@ -50,7 +50,7 @@ func (c Type) ReadCloser(f *os.File) (r io.ReadCloser, err error) {
 	return
 }
 
-// WriteCloser 获取写入关闭器
+// WriteCloser retrieves a write closer
 func (c Type) WriteCloser(f *os.File) (w io.WriteCloser, err error) {
 	switch c {
 	case TypeNone:
@@ -67,29 +67,29 @@ func (c Type) WriteCloser(f *os.File) (w io.WriteCloser, err error) {
 	return
 }
 
-// ReadCloser 读取关闭器
+// ReadCloser is a read closer
 type ReadCloser struct {
 	io.Reader
 }
 
-// Read 读取p
+// Read reads 'p'
 func (r *ReadCloser) Read(p []byte) (n int, err error) {
 	return r.Reader.Read(p)
 }
 
-// Close 关闭
+// Close closes the connection
 func (r *ReadCloser) Close() error {
 	return nil
 }
 
-// NewNoneReadCloser 获取无压缩读取关闭器
+// NewNoneReadCloser retrieves a non-compression read closer
 func NewNoneReadCloser(f *os.File) *ReadCloser {
 	return &ReadCloser{
 		Reader: f,
 	}
 }
 
-// NewZipReadCloser 获取zip压缩读取关闭器
+// NewZipReadCloser retrieves a zip compression read closer
 func NewZipReadCloser(f *os.File) (r *ReadCloser, err error) {
 	r = &ReadCloser{}
 	if r.Reader, err = NewZipReader(f); err != nil {
@@ -98,7 +98,7 @@ func NewZipReadCloser(f *os.File) (r *ReadCloser, err error) {
 	return
 }
 
-// NewGzipReadCloser 获取gzip压缩读取关闭器
+// NewGzipReadCloser retrieves a gzip compression read closer
 func NewGzipReadCloser(f *os.File) (r *ReadCloser, err error) {
 	r = &ReadCloser{}
 
@@ -108,47 +108,47 @@ func NewGzipReadCloser(f *os.File) (r *ReadCloser, err error) {
 	return
 }
 
-// NoneWriter 无压缩写入器
+// NoneWriter is a non-compression writer
 type NoneWriter struct {
 	file *os.File
 }
 
-// NewNoneWriter 创建无压缩写入器
+// NewNoneWriter creates a non-compression writer
 func NewNoneWriter(f *os.File) (nw *NoneWriter) {
 	return &NoneWriter{
 		file: f,
 	}
 }
 
-// Write 写入p
+// Write writes 'p'
 func (nw *NoneWriter) Write(p []byte) (n int, err error) {
 	return nw.file.Write(p)
 }
 
-// Close 关闭
+// Close closes the writer
 func (nw *NoneWriter) Close() error {
 	return nil
 }
 
-// GzipWriter Gzip压缩写入器
+// GzipWriter is a gzip compression writer
 type GzipWriter struct {
 	writer *gzip.Writer
 }
 
-// NewGzipWriter 创建gzip压缩写入器
+// NewGzipWriter creates a gzip compression writer
 func NewGzipWriter(f *os.File) (gw *GzipWriter) {
 	return &GzipWriter{
 		writer: gzip.NewWriter(f),
 	}
 }
 
-// Write 写入p
+// Write writes 'p'
 func (g *GzipWriter) Write(p []byte) (n int, err error) {
 	defer g.writer.Flush()
 	return g.writer.Write(p)
 }
 
-// Close 关闭
+// Close closes the writer
 func (g *GzipWriter) Close() error {
 	return g.writer.Close()
 }

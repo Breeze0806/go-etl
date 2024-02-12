@@ -24,27 +24,27 @@ func init() {
 	database.RegisterDialect(d.Name(), d)
 }
 
-// Dialect oracle数据库方言
+// Dialect represents the database dialect for Oracle
 type Dialect struct{}
 
-// Source 生成oracle数据源
+// Source generates an Oracle data source
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
 
-// Name 数据库方言的注册名
+// Name is the registered name of the database dialect
 func (d Dialect) Name() string {
 	return "oracle"
 }
 
-// Source oracle数据源
+// Source oracle refers to the Oracle data source
 type Source struct {
-	*database.BaseSource //基础数据源
+	*database.BaseSource // Basic data source
 
 	dsn string
 }
 
-// NewSource 生成oracle数据源，在配置文件错误时会报错
+// NewSource generates an Oracle data source and will report an error if there's an issue with the configuration file
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,
@@ -61,27 +61,27 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	return source, nil
 }
 
-// DriverName github.com/godror/godror的驱动名
+// DriverName is the driver name for github.com/godror/godror
 func (s *Source) DriverName() string {
 	return "godror"
 }
 
-// ConnectName github.com/godror/godror的数据源连接信息
+// ConnectName is the connection information for the Oracle data source using github.com/godror/godror
 func (s *Source) ConnectName() string {
 	return s.dsn
 }
 
-// Key 数据源的关键字，用于DBWrapper的复用
+// Key is a keyword for the data source, used for reuse by DBWrapper
 func (s *Source) Key() string {
 	return s.dsn
 }
 
-// Table 生成oracle的表
+// Table generates a table for Oracle
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-// Quoted db2引用函数
+// Quoted is the quoting function for Oracle
 func Quoted(s string) string {
 	return `"` + s + `"`
 }

@@ -19,42 +19,42 @@ import (
 	"time"
 )
 
-// NilTimeColumnValue 空值时间列值
+// NilTimeColumnValue represents an empty time column value
 type NilTimeColumnValue struct {
 	*nilColumnValue
 }
 
-// NewNilTimeColumnValue 创建空值时间列值
+// NewNilTimeColumnValue creates an empty time column value
 func NewNilTimeColumnValue() ColumnValue {
 	return &NilTimeColumnValue{
 		nilColumnValue: &nilColumnValue{},
 	}
 }
 
-// Type 列类型
+// Type returns the type of the column
 func (n *NilTimeColumnValue) Type() ColumnType {
 	return TypeTime
 }
 
-// Clone 克隆空值时间列值
+// Clone clones an empty time column value
 func (n *NilTimeColumnValue) Clone() ColumnValue {
 	return NewNilTimeColumnValue()
 }
 
-// TimeColumnValue 时间列值
+// TimeColumnValue represents a time column value
 type TimeColumnValue struct {
 	notNilColumnValue
-	TimeDecoder //时间解码器
+	TimeDecoder // Time decoder
 
 	val time.Time
 }
 
-// NewTimeColumnValue 根据时间t获得时间列值
+// NewTimeColumnValue creates a time column value from the time t
 func NewTimeColumnValue(t time.Time) ColumnValue {
 	return NewTimeColumnValueWithDecoder(t, NewStringTimeDecoder(DefaultTimeFormat))
 }
 
-// NewTimeColumnValueWithDecoder 根据时间t和时间解码器t获得时间列值
+// NewTimeColumnValueWithDecoder creates a time column value from the time t and the time decoder
 func NewTimeColumnValueWithDecoder(t time.Time, d TimeDecoder) ColumnValue {
 	return &TimeColumnValue{
 		TimeDecoder: d,
@@ -62,27 +62,27 @@ func NewTimeColumnValueWithDecoder(t time.Time, d TimeDecoder) ColumnValue {
 	}
 }
 
-// Type 列类型
+// Type returns the type of the column
 func (t *TimeColumnValue) Type() ColumnType {
 	return TypeTime
 }
 
-// AsBool 无法转化布尔值
+// AsBool: Cannot convert to a boolean value
 func (t *TimeColumnValue) AsBool() (bool, error) {
 	return false, NewTransformErrorFormColumnTypes(t.Type(), TypeBool, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsBigInt 无法转化整数
+// AsBigInt: Cannot convert to a big integer
 func (t *TimeColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeBigInt, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsDecimal 无法转化高精度实数
+// AsDecimal: Cannot convert to a high-precision decimal number
 func (t *TimeColumnValue) AsDecimal() (DecimalNumber, error) {
 	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeDecimal, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsString 变为字符串
+// AsString: Converts to a string
 func (t *TimeColumnValue) AsString() (s string, err error) {
 	var i interface{}
 	i, err = t.TimeDecode(t.val)
@@ -92,7 +92,7 @@ func (t *TimeColumnValue) AsString() (s string, err error) {
 	return i.(string), nil
 }
 
-// AsBytes 变为字节流
+// AsBytes: Converts to a byte stream
 func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
 	var i interface{}
 	i, err = t.TimeDecode(t.val)
@@ -102,7 +102,7 @@ func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
 	return []byte(i.(string)), nil
 }
 
-// AsTime 变为时间
+// AsTime: Converts to a time value
 func (t *TimeColumnValue) AsTime() (time.Time, error) {
 	return t.val, nil
 }
@@ -111,14 +111,14 @@ func (t *TimeColumnValue) String() string {
 	return t.val.Format(DefaultTimeFormat)
 }
 
-// Clone 克隆时间列值
+// Clone clones a time column value
 func (t *TimeColumnValue) Clone() ColumnValue {
 	return &TimeColumnValue{
 		val: t.val,
 	}
 }
 
-// Cmp  返回1代表大于， 0代表相等， -1代表小于
+// Cmp: Returns 1 for greater than, 0 for equal, and -1 for less than
 func (t *TimeColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsTime()
 	if err != nil {

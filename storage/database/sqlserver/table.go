@@ -28,23 +28,23 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// WriteModeCopyIn copy in写入方式
+// WriteModeCopyIn represents the copy in write mode.
 const WriteModeCopyIn = "copyIn"
 
-// Table mssql表
+// Table represents an MSSQL table.
 type Table struct {
 	database.BaseConfigSetter
 	*database.BaseTable
 }
 
-// NewTable 创建mssql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
+// NewTable creates a new MSSQL table. Note that at this point, the schema parameter in BaseTable is empty, instance is the database name, and name is the table name.
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,
 	}
 }
 
-// Quoted 表引用全名
+// Quoted refers to the fully qualified name of the table.
 func (t *Table) Quoted() string {
 	return Quoted(t.Instance()) + "." + Quoted(t.Schema()) + "." + Quoted(t.Name())
 }
@@ -53,14 +53,14 @@ func (t *Table) String() string {
 	return t.Quoted()
 }
 
-// AddField 新增列
+// AddField adds a new column to the table.
 func (t *Table) AddField(baseField *database.BaseField) {
 	f := NewField(baseField)
 	f.SetConfig(t.Config())
 	t.AppendField(f)
 }
 
-// ExecParam 获取执行参数，其中replace into的参数方式以及被注册
+// ExecParam retrieves execution parameters, where the replace into parameter mode has been registered.
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	switch mode {
 	case WriteModeCopyIn:
@@ -69,7 +69,7 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 	return nil, false
 }
 
-// ShouldRetry 重试
+// ShouldRetry determines whether a retry is necessary.
 func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
 	case net.Error:
@@ -79,25 +79,25 @@ func (t *Table) ShouldRetry(err error) bool {
 	}
 }
 
-// ShouldOneByOne 单个重试
+// ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
 	_, ok := errors.Cause(err).(*mssql.Error)
 	return ok
 }
 
-// CopyInParam copy in 参数
+// CopyInParam represents the parameters for the copy in operation.
 type CopyInParam struct {
 	*database.BaseParam
 }
 
-// NewCopyInParam  通过表table和事务参数txOpts插入参数
+// NewCopyInParam creates copy-in parameters based on the table and transaction options (txOpts).
 func NewCopyInParam(t database.Table, txOpts *sql.TxOptions) *CopyInParam {
 	return &CopyInParam{
 		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 
-// Query 批量copy in插入sql语句
+// Query generates a batch of copy in SQL statements for insertion.
 func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 	var conf *config.JSON
 	conf, err = ci.Table().(*Table).Config().GetConfig("bulkOption")
@@ -120,7 +120,7 @@ func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 		columns...), nil
 }
 
-// Agrs 通过多条记录 records生成批量copy in参数
+// Agrs generates a batch of copy in parameters based on multiple records.
 func (ci *CopyInParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for _, r := range records {
 		for fi, f := range ci.Table().Fields() {

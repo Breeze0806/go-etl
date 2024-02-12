@@ -18,7 +18,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/lib/pq"
 
-	//postgres driver 可以指定网络访问的超时时间
+	// The postgres driver allows specifying a timeout for network access
 	_ "github.com/Breeze0806/go/database/pqto"
 )
 
@@ -27,27 +27,27 @@ func init() {
 	database.RegisterDialect(d.Name(), d)
 }
 
-// Dialect postgres数据库方言
+// Dialect represents the database dialect for PostgreSQL
 type Dialect struct{}
 
-// Source 生成postgres数据源
+// Source generates a PostgreSQL data source
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
 
-// Name 数据库方言的注册名
+// Name is the registered name of the database dialect
 func (d Dialect) Name() string {
 	return "postgres"
 }
 
-// Source postgres数据源
+// Source postgres refers to the PostgreSQL data source
 type Source struct {
-	*database.BaseSource //基础数据源
+	*database.BaseSource // Basic data source
 
 	dsn string
 }
 
-// NewSource 生成postgres数据源，在配置文件错误时会报错
+// NewSource generates a PostgreSQL data source and will report an error if there's an issue with the configuration file
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,
@@ -63,27 +63,27 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	return source, nil
 }
 
-// DriverName github.com/Breeze0806/go/database/pqto的驱动名
+// DriverName is the driver name for github.com/Breeze0806/go/database/pqto
 func (s *Source) DriverName() string {
 	return "pgTimeout"
 }
 
-// ConnectName github.com/Breeze0806/go/database/pqto的数据源连接信息
+// ConnectName is the connection information for the PostgreSQL data source using github.com/Breeze0806/go/database/pqto
 func (s *Source) ConnectName() string {
 	return s.dsn
 }
 
-// Key 数据源的关键字，用于DBWrapper的复用
+// Key is a keyword for the data source, used for reuse by DBWrapper
 func (s *Source) Key() string {
 	return s.dsn
 }
 
-// Table 生成mysql的表
+// Table generates a table for MySQL (Note: This line seems inconsistent with the context, as it mentions MySQL while the surrounding text is about PostgreSQL. It might be a mistake or needs clarification.)
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-// Quoted postgres引用函数
+// Quoted is the quoting function for PostgreSQL
 func Quoted(s string) string {
 	return pq.QuoteIdentifier(s)
 }

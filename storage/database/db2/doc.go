@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package db2 实现了db2的数据库方言Dialect，支持db2 10.x+ 对应数据库
+// Package db2 implements the Dialect of db2 database, supporting the corresponding database of db2 9.x+
 package db2

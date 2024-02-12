@@ -300,7 +300,7 @@ func TestBaseFieldType_IsSupportted(t *testing.T) {
 			b := &BaseFieldType{
 				ColumnType: tt.fields.ColumnType,
 			}
-			if got := b.IsSupportted(); got != tt.want {
+			if got := b.IsSupported(); got != tt.want {
 				t.Errorf("BaseFieldType.IsSupportted() = %v, want %v", got, tt.want)
 			}
 		})

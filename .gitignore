@@ -17,3 +17,5 @@ release
 release/*
 *.zip
 *.tar.gz
+*.chn
+*.en

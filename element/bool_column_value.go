@@ -22,53 +22,53 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// NilBoolColumnValue 空值布尔列值
+// NilBoolColumnValue represents an empty Boolean column value
 type NilBoolColumnValue struct {
 	*nilColumnValue
 }
 
-// NewNilBoolColumnValue 生成空值布尔列值
+// NewNilBoolColumnValue creates an empty Boolean column value
 func NewNilBoolColumnValue() ColumnValue {
 	return &NilBoolColumnValue{
 		nilColumnValue: &nilColumnValue{},
 	}
 }
 
-// Type 返回列类型
+// Type returns the type of the column
 func (n *NilBoolColumnValue) Type() ColumnType {
 	return TypeBool
 }
 
-// Clone 克隆空值布尔列值
+// Clone clones an empty Boolean column value
 func (n *NilBoolColumnValue) Clone() ColumnValue {
 	return NewNilBoolColumnValue()
 }
 
-// BoolColumnValue 布尔列值
+// BoolColumnValue represents a Boolean column value
 type BoolColumnValue struct {
 	notNilColumnValue
 
-	val bool //布尔值
+	val bool // Boolean Value
 }
 
-// NewBoolColumnValue 从布尔值v生成布尔列值
+// NewBoolColumnValue creates a Boolean column value from the boolean value v
 func NewBoolColumnValue(v bool) ColumnValue {
 	return &BoolColumnValue{
 		val: v,
 	}
 }
 
-// Type 返回列类型
+// Type returns the type of the column
 func (b *BoolColumnValue) Type() ColumnType {
 	return TypeBool
 }
 
-// AsBool 转化成布尔值
+// AsBool converts it to a boolean value
 func (b *BoolColumnValue) AsBool() (bool, error) {
 	return b.val, nil
 }
 
-// AsBigInt 转化成整数，true转化为1，false转化为0
+// AsBigInt converts it to a big integer, where true becomes 1 and false becomes 0
 func (b *BoolColumnValue) AsBigInt() (BigIntNumber, error) {
 	if b.val {
 		return NewBigIntColumnValue(big.NewInt(1)).AsBigInt()
@@ -76,7 +76,7 @@ func (b *BoolColumnValue) AsBigInt() (BigIntNumber, error) {
 	return NewBigIntColumnValue(big.NewInt(0)).AsBigInt()
 }
 
-// AsDecimal 转化成高精度实数，true转化为1.0，false转化为0.0
+// AsDecimal converts it to a high-precision decimal number, where true becomes 1.0 and false becomes 0.0
 func (b *BoolColumnValue) AsDecimal() (DecimalNumber, error) {
 	if b.val {
 		return NewDecimalColumnValue(decimal.New(1, 0)).AsDecimal()
@@ -84,7 +84,7 @@ func (b *BoolColumnValue) AsDecimal() (DecimalNumber, error) {
 	return NewDecimalColumnValue(decimal.New(0, 1)).AsDecimal()
 }
 
-// AsString 转化成字符串，true转化为"true"，false转化为"false"
+// AsString converts it to a string, where true becomes true and false becomes false
 func (b *BoolColumnValue) AsString() (string, error) {
 	if b.val {
 		return b.String(), nil
@@ -92,7 +92,7 @@ func (b *BoolColumnValue) AsString() (string, error) {
 	return b.String(), nil
 }
 
-// AsBytes 转化成字节流，true转化为"true"，false转化为"false"
+// AsBytes converts it to a byte stream, where true becomes true and false becomes false
 func (b *BoolColumnValue) AsBytes() ([]byte, error) {
 	if b.val {
 		return []byte(b.String()), nil
@@ -100,7 +100,7 @@ func (b *BoolColumnValue) AsBytes() ([]byte, error) {
 	return []byte(b.String()), nil
 }
 
-// AsTime 目前布尔无法转化成时间
+// AsTime: Currently, a Boolean cannot be converted to a time value
 func (b *BoolColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
@@ -112,12 +112,12 @@ func (b *BoolColumnValue) String() string {
 	return "false"
 }
 
-// Clone 克隆布尔列值
+// Clone clones a Boolean column value
 func (b *BoolColumnValue) Clone() ColumnValue {
 	return NewBoolColumnValue(b.val)
 }
 
-// Cmp  返回1代表大于， 0代表相等， -1代表小于
+// Cmp: Returns 1 for greater than, 0 for equal, and -1 for less than
 func (b *BoolColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsBool()
 	if err != nil {

@@ -14,14 +14,14 @@
 
 package schedule
 
-// Resource 资源
+// Resource: Resource
 type Resource interface {
-	Close() error //关闭释放资源
+	Close() error // Close and release resources
 }
 
-// MappedResource 可映射资源
+// MappedResource: Mappable resource
 type MappedResource interface {
 	Resource
 
-	Key() string //关键字
+	Key() string // Keyword
 }

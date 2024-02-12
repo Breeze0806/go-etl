@@ -24,49 +24,49 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// FetchHandler 获取记录句柄
+// FetchHandler - Acquires the record handler
 type FetchHandler interface {
-	OnRecord(element.Record) error         //处理记录
-	CreateRecord() (element.Record, error) //创建空记录
+	OnRecord(element.Record) error         // Process Record - Handles the record
+	CreateRecord() (element.Record, error) // Create Empty Record - Creates an empty record
 }
 
-// Opener 用于打开一个输入流的打开器
+// Opener - An opener used to open an input stream
 type Opener interface {
-	Open(filename string) (stream InStream, err error) //打开文件名filename的输入流
+	Open(filename string) (stream InStream, err error) // Open Input Stream - Opens an input stream for the file named 'filename'
 }
 
-// InStream 输入流
+// InStream - Input stream
 type InStream interface {
-	Rows(conf *config.JSON) (rows Rows, err error) //获取行读取器
-	Close() (err error)                            //关闭输入流
+	Rows(conf *config.JSON) (rows Rows, err error) // Get Line Reader - Acquires a line reader
+	Close() (err error)                            // Close Input Stream - Closes the input stream
 }
 
-// Rows 行读取器
+// Rows - Line reader
 type Rows interface {
-	Next() bool                                  //获取下一行，如果没有返回false，有返回true
-	Scan() (columns []element.Column, err error) //扫描出每一行的列
-	Error() error                                //获取下一行的错误
-	Close() error                                //关闭行读取器
+	Next() bool                                  // Get Next Line - Returns true if there is a next line, false otherwise
+	Scan() (columns []element.Column, err error) // Scan Columns - Scans the columns of each line
+	Error() error                                // Get Error of Next Line - Gets the error of the next line
+	Close() error                                // Close Line Reader - Closes the line reader
 }
 
-// RegisterOpener 通过打开器名称name注册输入流打开器opener
+// RegisterOpener - Registers an input stream opener with the given name 'name'
 func RegisterOpener(name string, opener Opener) {
 	if err := openers.register(name, opener); err != nil {
 		panic(err)
 	}
 }
 
-// UnregisterAllOpener 注销所有文件打开器
+// UnregisterAllOpener - Unregisters all file openers
 func UnregisterAllOpener() {
 	openers.unregisterAll()
 }
 
-// InStreamer 输入流包装
+// InStreamer - Input stream wrapper
 type InStreamer struct {
 	stream InStream
 }
 
-// NewInStreamer 通过opener名称name的输入流打开器，并打开名为filename的输入流
+// NewInStreamer - Opens an input stream named 'filename' using the input stream opener with the given 'name'
 func NewInStreamer(name string, filename string) (streamer *InStreamer, err error) {
 	opener, ok := openers.opener(name)
 	if !ok {
@@ -80,7 +80,7 @@ func NewInStreamer(name string, filename string) (streamer *InStreamer, err erro
 	return
 }
 
-// Read 使用获取记录句柄handler，传入上下文ctx和配置文件conf获取对应数据
+// Read - Reads data using the record handler 'handler', context 'ctx', and configuration file 'conf'
 func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchHandler) (err error) {
 	var rows Rows
 	rows, err = s.stream.Rows(conf)
@@ -121,7 +121,7 @@ func (s *InStreamer) Read(ctx context.Context, conf *config.JSON, handler FetchH
 	return
 }
 
-// Close 关闭输入流
+// Close - Closes the input stream
 func (s *InStreamer) Close() error {
 	return s.stream.Close()
 }

@@ -20,43 +20,43 @@ import (
 	"time"
 )
 
-// NilBigIntColumnValue 空值整数列值
+// NilBigIntColumnValue - Null value for a big integer column
 type NilBigIntColumnValue struct {
 	*nilColumnValue
 }
 
-// NewNilBigIntColumnValue 创建空值整数列值
+// NewNilBigIntColumnValue - Create a null value for a big integer column
 func NewNilBigIntColumnValue() ColumnValue {
 	return &NilBigIntColumnValue{
 		nilColumnValue: &nilColumnValue{},
 	}
 }
 
-// Type 返回列类型
+// Type - Return the type of the column
 func (n *NilBigIntColumnValue) Type() ColumnType {
 	return TypeBigInt
 }
 
-// Clone 克隆空值整数列值
+// Clone - Clone the null value for a big integer column
 func (n *NilBigIntColumnValue) Clone() ColumnValue {
 	return NewNilBigIntColumnValue()
 }
 
-// BigIntColumnValue 整数列值
+// BigIntColumnValue - Value for a big integer column
 type BigIntColumnValue struct {
 	notNilColumnValue
 
 	val BigIntNumber
 }
 
-// NewBigIntColumnValueFromInt64 从int64 v中获取整数列值
+// NewBigIntColumnValueFromInt64 - Create a big integer column value from an int64 v
 func NewBigIntColumnValueFromInt64(v int64) ColumnValue {
 	return &BigIntColumnValue{
 		val: _DefaultNumberConverter.ConvertBigIntFromInt(v),
 	}
 }
 
-// NewBigIntColumnValue 从big.Int v中获取整数列值
+// NewBigIntColumnValue - Create a big integer column value from a big.Int v
 func NewBigIntColumnValue(v *big.Int) ColumnValue {
 	return &BigIntColumnValue{
 		val: &BigInt{
@@ -65,8 +65,8 @@ func NewBigIntColumnValue(v *big.Int) ColumnValue {
 	}
 }
 
-// NewBigIntColumnValueFromString 从string v中获取整数列值
-// 当string v不是整数时,返回错误
+// NewBigIntColumnValueFromString - Create a big integer column value from a string v
+// If the string v is not an integer, an error is returned
 func NewBigIntColumnValueFromString(v string) (ColumnValue, error) {
 	num, err := _DefaultNumberConverter.ConvertBigInt(v)
 	if err != nil {
@@ -77,37 +77,37 @@ func NewBigIntColumnValueFromString(v string) (ColumnValue, error) {
 	}, nil
 }
 
-// Type 返回列类型
+// Type - Return the type of the column
 func (b *BigIntColumnValue) Type() ColumnType {
 	return TypeBigInt
 }
 
-// AsBool 转化成布尔值，不是0的转化为true,是0的转化成false
+// AsBool - Convert to a boolean value, where non-zero becomes true and zero becomes false
 func (b *BigIntColumnValue) AsBool() (bool, error) {
 	return b.val.Bool()
 }
 
-// AsBigInt 转化成整数
+// AsBigInt - Convert to a big integer
 func (b *BigIntColumnValue) AsBigInt() (BigIntNumber, error) {
 	return b.val, nil
 }
 
-// AsDecimal 转化成高精度实数
+// AsDecimal - Convert to a high-precision decimal number
 func (b *BigIntColumnValue) AsDecimal() (DecimalNumber, error) {
 	return b.val.Decimal(), nil
 }
 
-// AsString 转化成字符串，如1234556790转化为1234556790
+// AsString - Convert to a string, e.g., 1234556790 becomes 1234556790
 func (b *BigIntColumnValue) AsString() (string, error) {
 	return b.val.String(), nil
 }
 
-// AsBytes 转化成字节流，如1234556790转化为1234556790
+// AsBytes - Convert to a byte stream, e.g., 1234556790 becomes [49, 50, 51, 52, 53, 54, 55, 56, 57, 48]
 func (b *BigIntColumnValue) AsBytes() ([]byte, error) {
 	return []byte(b.val.String()), nil
 }
 
-// AsTime 目前整数无法转化成时间
+// AsTime - Currently, integers cannot be converted to time
 func (b *BigIntColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
@@ -116,14 +116,14 @@ func (b *BigIntColumnValue) String() string {
 	return b.val.String()
 }
 
-// Clone 克隆整数列属性
+// Clone - Clone the big integer column value
 func (b *BigIntColumnValue) Clone() ColumnValue {
 	return &BigIntColumnValue{
 		val: b.val.CloneBigInt(),
 	}
 }
 
-// Cmp  返回1代表大于， 0代表相等， -1代表小于
+// Cmp - Return 1 for greater than, 0 for equal, and -1 for less than
 func (b *BigIntColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsBigInt()
 	if err != nil {

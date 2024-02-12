@@ -19,26 +19,26 @@ import (
 	"fmt"
 )
 
-// 错误
+// Error
 var (
-	ErrColumnExist              = errors.New("column exist")                  //列存在错误
-	ErrColumnNotExist           = errors.New("column does not exist")         //列不存在错误
-	ErrNilValue                 = errors.New("column value is nil")           //空值错误
-	ErrIndexOutOfRange          = errors.New("column index is out of range")  //索引值超出范围
-	ErrValueNotInt64            = errors.New("value is not int64")            //不是int64错误
-	ErrValueInfinity            = errors.New("value is infinity")             //无穷大实数错误
-	ErrNotColumnValueClonable   = errors.New("columnValue is not clonable")   //不是可克隆列值
-	ErrNotColumnValueComparable = errors.New("columnValue is not comparable") //不是可比较列值
-	ErrColumnNameNotEqual       = errors.New("column name is not equal")      //列名不同
+	ErrColumnExist              = errors.New("column exist")                  // Column exists error
+	ErrColumnNotExist           = errors.New("column does not exist")         // Column does not exist error
+	ErrNilValue                 = errors.New("column value is nil")           // Null value error
+	ErrIndexOutOfRange          = errors.New("column index is out of range")  // Index value out of range
+	ErrValueNotInt64            = errors.New("value is not int64")            // Not an int64 error
+	ErrValueInfinity            = errors.New("value is infinity")             // Infinite real number error
+	ErrNotColumnValueClonable   = errors.New("columnValue is not clonable")   // Not a clonable column value
+	ErrNotColumnValueComparable = errors.New("columnValue is not comparable") // Not a comparable column value
+	ErrColumnNameNotEqual       = errors.New("column name is not equal")      // Column names differ
 )
 
-// TransformError 转化错误
+// TransformError: Conversion error
 type TransformError struct {
 	err error
 	msg string
 }
 
-// NewTransformError 根据消息msg和错误err生成转化错误
+// NewTransformError: Creates a conversion error based on the message msg and error err
 func NewTransformError(msg string, err error) *TransformError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr
@@ -49,12 +49,12 @@ func NewTransformError(msg string, err error) *TransformError {
 	}
 }
 
-// NewTransformErrorFormColumnTypes 从one类型到other类型转化错误err生成转化错误
+// NewTransformErrorFromColumnTypes: Generates a conversion error from the error err when converting from type one to type other
 func NewTransformErrorFormColumnTypes(one, other ColumnType, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
 
-// NewTransformErrorFormString 从one到other转化错误err生成转化错误
+// NewTransformErrorFromString: Generates a conversion error from the error err when converting from one to other
 func NewTransformErrorFormString(one, other string, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
@@ -70,13 +70,13 @@ func (e *TransformError) Unwrap() error {
 	return e.err
 }
 
-// SetError 设置错误
+// SetError: Sets an error
 type SetError struct {
 	err error
 	msg string
 }
 
-// NewSetError 通过值i设置成累心other类型的错误err生成设置错误
+// NewSetError: Generates a setting error by setting the value i to the specified other type with the error err
 func NewSetError(i interface{}, other ColumnType, err error) *SetError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr

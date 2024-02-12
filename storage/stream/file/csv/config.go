@@ -25,18 +25,18 @@ import (
 	"github.com/Breeze0806/jodaTime"
 )
 
-// InConfig csv配置
+// InConfig represents the CSV configuration
 type InConfig struct {
-	Columns    []Column `json:"column"`     // 列信息
-	Encoding   string   `json:"encoding"`   // 编码
-	Delimiter  string   `json:"delimiter"`  // 分割符
-	NullFormat string   `json:"nullFormat"` // null文本
-	StartRow   int      `json:"startRow"`   // 读取开始行数，从1开始
-	Comment    string   `json:"comment"`    // 注释
-	Compress   string   `json:"compress"`   // 压缩
+	Columns    []Column `json:"column"`     // Column information
+	Encoding   string   `json:"encoding"`   // Encoding
+	Delimiter  string   `json:"delimiter"`  // Delimiter
+	NullFormat string   `json:"nullFormat"` // Null text
+	StartRow   int      `json:"startRow"`   // Starting row for reading, starting from 1
+	Comment    string   `json:"comment"`    // Comments
+	Compress   string   `json:"compress"`   // Compression
 }
 
-// NewInConfig 通过conf获取csv配置
+// NewInConfig retrieves the CSV configuration from the given conf
 func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	c = &InConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -104,18 +104,18 @@ func (c *InConfig) comment() rune {
 	return rune(0)
 }
 
-// OutConfig csv配置
+// OutConfig represents the CSV configuration
 type OutConfig struct {
-	Columns    []Column `json:"column"`     // 列信息
-	Encoding   string   `json:"encoding"`   // 编码
-	Delimiter  string   `json:"delimiter"`  // 分割符
-	NullFormat string   `json:"nullFormat"` // null文本
-	HasHeader  bool     `json:"hasHeader"`  // 是否有列头
-	Header     []string `json:"header"`     // 列头
-	Compress   string   `json:"compress"`   // 压缩
+	Columns    []Column `json:"column"`     // Column information
+	Encoding   string   `json:"encoding"`   // Encoding
+	Delimiter  string   `json:"delimiter"`  // Delimiter
+	NullFormat string   `json:"nullFormat"` // Null text
+	HasHeader  bool     `json:"hasHeader"`  // Whether there is a column header
+	Header     []string `json:"header"`     // Column header
+	Compress   string   `json:"compress"`   // Compression
 }
 
-// NewOutConfig 通过conf获取csv配置
+// NewOutConfig retrieves the CSV configuration from the given conf
 func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 	c = &OutConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -160,16 +160,16 @@ func (c *OutConfig) comma() rune {
 	return []rune(c.Delimiter)[0]
 }
 
-// Column 列信息
+// Column represents column information
 type Column struct {
-	Index    string `json:"index"`  // 索引 从1开始，代表第几列
-	Type     string `json:"type"`   // 类型 bool bigInt decimal string time
-	Format   string `json:"format"` // joda时间格式
+	Index    string `json:"index"`  // Index starts from 1 and represents the column number
+	Type     string `json:"type"`   // Type (bool, bigInt, decimal, string, time)
+	Format   string `json:"format"` // Joda time format
 	indexNum int
 	goLayout string
 }
 
-// validate 校验
+// Validate performs validation
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
@@ -192,7 +192,7 @@ func (c *Column) validate() (err error) {
 	return
 }
 
-// index 列索引
+// index represents the column index
 func (c *Column) index() (i int) {
 	if c.indexNum > 0 {
 		return c.indexNum - 1
@@ -201,7 +201,7 @@ func (c *Column) index() (i int) {
 	return c.indexNum - 1
 }
 
-// layout 变为golang 时间格式
+// layout converts to the Golang time format
 func (c *Column) layout() string {
 	if c.goLayout != "" {
 		return c.goLayout

@@ -25,7 +25,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// NewRetryStrategy 根据配置文件生成重试策略
+// NewRetryStrategy: Generate a retry strategy based on the configuration file
 func NewRetryStrategy(j RetryJudger, conf *config.JSON) (s RetryStrategy, err error) {
 	var retry *config.JSON
 	if ok := conf.Exists("retry"); !ok {
@@ -83,54 +83,54 @@ func NewRetryStrategy(j RetryJudger, conf *config.JSON) (s RetryStrategy, err er
 	return
 }
 
-// NTimesRetryConfig n次数重复重试策略
+// NTimesRetryConfig: Retry strategy with a fixed number of attempts
 type NTimesRetryConfig struct {
 	N    int            `json:"n"`
 	Wait time2.Duration `json:"wait"`
 }
 
-// ForeverRetryConfig 永久重复重试策略
+// ForeverRetryConfig: Permanent retry strategy
 type ForeverRetryConfig struct {
 	Wait time2.Duration `json:"wait"`
 }
 
-// ExponentialRetryConfig 幂重复重试策略
+// ExponentialRetryConfig: Exponential backoff retry strategy
 type ExponentialRetryConfig struct {
 	Init time2.Duration `json:"init"`
 	Max  time2.Duration `json:"max"`
 }
 
-// RetryStrategy 重试策略
+// RetryStrategy: Retry strategy interface or base class
 type RetryStrategy interface {
 	Next(err error, n int) (retry bool, wait time.Duration)
 }
 
-// RetryJudger 重试判断器
+// RetryJudger: Retry decision-maker
 type RetryJudger interface {
 	ShouldRetry(err error) bool
 }
 
-// NoneRetryStrategy 无重试策略
+// NoneRetryStrategy: No retry strategy
 type NoneRetryStrategy struct{}
 
-// NewNoneRetryStrategy 创建无重试策略
+// NewNoneRetryStrategy: Create a strategy with no retries
 func NewNoneRetryStrategy() RetryStrategy {
 	return &NoneRetryStrategy{}
 }
 
-// Next 下一次是否retry需要重试，wait等待时间
+// Next: Whether to retry the next attempt and the waiting time for the next attempt
 func (r *NoneRetryStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	return
 }
 
-// NTimesRetryStrategy n次数重复重试策略
+// NTimesRetryStrategy: Retry strategy with a fixed number of attempts
 type NTimesRetryStrategy struct {
 	j    RetryJudger
 	n    int
 	wait time.Duration
 }
 
-// NewNTimesRetryStrategy 通过重试判定器j,最大次数n以及重试间隔wait创建n次数重复重试策略
+// NewNTimesRetryStrategy: Create a retry strategy with a fixed number of attempts
 func NewNTimesRetryStrategy(j RetryJudger, n int, wait time.Duration) RetryStrategy {
 	return &NTimesRetryStrategy{
 		j:    j,
@@ -139,7 +139,7 @@ func NewNTimesRetryStrategy(j RetryJudger, n int, wait time.Duration) RetryStrat
 	}
 }
 
-// Next 通过错误err以及当前次数n获取下次是否重试retry以及下次时间间隔wait
+// Next: Determine whether to retry the next attempt and the waiting time for the next attempt
 func (r *NTimesRetryStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0
@@ -151,13 +151,13 @@ func (r *NTimesRetryStrategy) Next(err error, n int) (retry bool, wait time.Dura
 	return true, r.wait
 }
 
-// ForeverRetryStrategy 永久重试策略
+// ForeverRetryStrategy: Permanent retry strategy with no maximum attempt limit
 type ForeverRetryStrategy struct {
 	j    RetryJudger
 	wait time.Duration
 }
 
-// NewForeverRetryStrategy 通过重试判定器j以及重试间隔wait创建永久重试策略
+// NewForeverRetryStrategy: Create a permanent retry strategy based on a retry judge and retry interval
 func NewForeverRetryStrategy(j RetryJudger, wait time.Duration) RetryStrategy {
 	return &ForeverRetryStrategy{
 		j:    j,
@@ -165,7 +165,7 @@ func NewForeverRetryStrategy(j RetryJudger, wait time.Duration) RetryStrategy {
 	}
 }
 
-// Next 通过错误err,获取下次是否重试retry以及下次时间间隔wait,在永久重试策略没有最大重试次数，当前次数n没有作用
+// Next: Determine whether to retry the next attempt and the waiting time for the next attempt. In a permanent retry strategy
 func (r *ForeverRetryStrategy) Next(err error, _ int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0
@@ -174,7 +174,7 @@ func (r *ForeverRetryStrategy) Next(err error, _ int) (retry bool, wait time.Dur
 	return true, r.wait
 }
 
-// ExponentialStrategy 幂重试策略
+// ExponentialStrategy: Exponential backoff retry strategy
 type ExponentialStrategy struct {
 	j    RetryJudger
 	f    float64
@@ -182,7 +182,7 @@ type ExponentialStrategy struct {
 	max  float64
 }
 
-// NewExponentialRetryStrategy 通过重试判定器j,开始时间间隔init以及最大时间间隔max创建幂重试策略
+// NewExponentialRetryStrategy: Create an exponential backoff retry strategy based on a retry judge
 func NewExponentialRetryStrategy(j RetryJudger, init, max time.Duration) RetryStrategy {
 	rand.Seed(time.Now().UnixNano())
 	return &ExponentialStrategy{
@@ -193,12 +193,12 @@ func NewExponentialRetryStrategy(j RetryJudger, init, max time.Duration) RetrySt
 	}
 }
 
-// Next 通过错误err,获取下次是否重试retry以及下次时间间隔wait,在幂重试策略最大时间间隔
+// Next: Determine whether to retry the next attempt and the waiting time for the next attempt
 func (r *ExponentialStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0
 	}
-	x := 1.0 + rand.Float64() // random number in [1..2]
+	x := 1.0 + rand.Float64() // random number in the range of [1..2]
 	m := math.Min(x*r.init*math.Pow(r.f, float64(n)), r.max)
 	if m >= r.max {
 		return false, 0

@@ -49,7 +49,7 @@ func init() {
 
 var pluginConfig = %v
 
-//NewReaderFromString 创建读取器
+//NewReaderFromString create reader
 func NewReaderFromString(plugin string) (rd reader.Reader, err error) {
 	r := &Reader{}
 	if r.pluginConf, err = config.NewJSONFromString(plugin); err != nil {
@@ -82,7 +82,7 @@ func init() {
 
 var pluginConfig = %v
 
-//NewWriterFromString 创建写入器
+//NewWriterFromString create writer
 func NewWriterFromString(plugin string) (wr writer.Writer, err error) {
 	w := &Writer{}
 	if w.pluginConf, err = config.NewJSONFromString(plugin); err != nil {
@@ -173,7 +173,7 @@ func main() {
 	return
 }
 
-// 生成plugin的reader/writer插件文件
+// generate the reader/writer plugin files for the plugin
 type pluginParser struct {
 	infos []pluginInfo
 }
@@ -271,8 +271,8 @@ func writeVersionCode() (err error) {
 	return
 }
 
-// 通过git获取git版本号 `tag“ (git commit: `git version`) complied by gp version `go version`
-// 例如 v0.1.2 (git commit: c26eb4e15751e41d32402cbf3c7f1ea8af4e3e47) complied by go version go1.16.14 windows/amd64
+// Get the git version number "tag" by git (git commit: "git version") compiled by gp version "go version"
+// For example, v0.1.2 (git commit: c26eb4e15751e41d32402cbf3c7f1ea8af4e3e47) compiled by go version go1.16.14 windows/amd64
 func getVersion() (version string, err error) {
 	output := ""
 	if output, err = cmdOutput("git", "describe", "--abbrev=0", "--tags"); err != nil {

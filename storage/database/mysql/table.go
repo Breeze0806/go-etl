@@ -27,23 +27,23 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// WriteModeReplace replace into 写入方式
+// WriteModeReplace represents the replace into write mode.
 const WriteModeReplace = "replace"
 
-// Table mysql表
+// Table represents a MySQL table.
 type Table struct {
 	*database.BaseTable
 	database.BaseConfigSetter
 }
 
-// NewTable 创建mysql表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
+// NewTable creates a new MySQL table. Note that at this point, the schema parameter in BaseTable is empty, instance is the database name, and name is the table name.
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,
 	}
 }
 
-// Quoted 表引用全名
+// Quoted refers to the fully qualified name of the table.
 func (t *Table) Quoted() string {
 	return Quoted(t.Instance()) + "." + Quoted(t.Name())
 }
@@ -52,14 +52,14 @@ func (t *Table) String() string {
 	return t.Quoted()
 }
 
-// AddField 新增列
+// AddField adds a new column to the table.
 func (t *Table) AddField(baseField *database.BaseField) {
 	f := NewField(baseField)
 	f.SetConfig(t.Config())
 	t.AppendField(f)
 }
 
-// ExecParam 获取执行参数，其中replace into的参数方式以及被注册
+// ExecParam retrieves execution parameters, where the replace into parameter mode has been registered.
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	switch mode {
 	case "replace":
@@ -68,7 +68,7 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 	return nil, false
 }
 
-// ShouldRetry 重试
+// ShouldRetry determines whether a retry is necessary.
 func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
 	case net.Error:
@@ -78,25 +78,25 @@ func (t *Table) ShouldRetry(err error) bool {
 	}
 }
 
-// ShouldOneByOne 单个重试
+// ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
 	_, ok := errors.Cause(err).(*mysql.MySQLError)
 	return ok
 }
 
-// ReplaceParam Replace into 参数
+// ReplaceParam represents the parameters for the replace into operation.
 type ReplaceParam struct {
 	*database.BaseParam
 }
 
-// NewReplaceParam  通过表table和事务参数txOpts插入参数
+// NewReplaceParam creates replace parameters based on the table and transaction options (txOpts).
 func NewReplaceParam(t database.Table, txOpts *sql.TxOptions) *ReplaceParam {
 	return &ReplaceParam{
 		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 
-// Query 通过多条记录 records生成批量Replace into插入sql语句
+// Query generates a batch of replace into SQL statements for insertion based on multiple records.
 func (rp *ReplaceParam) Query(records []element.Record) (query string, err error) {
 	buf := bytes.NewBufferString("replace into ")
 	buf.WriteString(rp.Table().Quoted())
@@ -126,7 +126,7 @@ func (rp *ReplaceParam) Query(records []element.Record) (query string, err error
 	return buf.String(), nil
 }
 
-// Agrs 通过多条记录 records生成批量Replace into参数
+// Agrs generates a batch of replace into parameters based on multiple records.
 func (rp *ReplaceParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for _, r := range records {
 		for fi, f := range rp.Table().Fields() {

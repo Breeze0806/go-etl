@@ -19,91 +19,91 @@ import (
 	"strings"
 )
 
-// Record 记录
+// Record represents a record in a dataset.
 type Record interface {
 	fmt.Stringer
 
-	Add(Column) error                      //新增列
-	GetByIndex(i int) (Column, error)      //获取第i个列
-	GetByName(name string) (Column, error) //获取列名为name的列
-	Set(i int, c Column) error             //设置第i列
-	Put(c Column) error                    //设置对应列
-	ColumnNumber() int                     //获取列数
-	ByteSize() int64                       //字节流大小
-	MemorySize() int64                     //内存大小
+	Add(Column) error                      // AddColumn adds a new column to the record.
+	GetByIndex(i int) (Column, error)      // GetColumnByIndex gets the column at index i.
+	GetByName(name string) (Column, error) // GetColumnByName gets the column with the specified name.
+	Set(i int, c Column) error             // SetColumnByIndex sets the value of the column at index i.
+	Put(c Column) error                    // SetColumn sets the value of the specified column.
+	ColumnNumber() int                     // GetColumnCount returns the number of columns in the record.
+	ByteSize() int64                       // ByteSize returns the size of the record in bytes.
+	MemorySize() int64                     // MemorySize returns the size of the record in memory.
 }
 
 var singleTerminateRecord = &TerminateRecord{}
 
-// GetTerminateRecord 获取终止记录
+// GetTerminateRecord gets the termination record.
 func GetTerminateRecord() Record {
 	return singleTerminateRecord
 }
 
-// TerminateRecord 终止记录
+// TerminateRecord represents a termination record.
 type TerminateRecord struct{}
 
-// Add 空方法
+// Add is an empty method placeholder.
 func (t *TerminateRecord) Add(Column) error {
 	return nil
 }
 
-// GetByIndex 空方法
+// GetByIndex is an empty method placeholder.
 func (t *TerminateRecord) GetByIndex(i int) (Column, error) {
 	return nil, nil
 }
 
-// GetByName 空方法
+// GetByName is an empty method placeholder.
 func (t *TerminateRecord) GetByName(name string) (Column, error) {
 	return nil, nil
 }
 
-// Set 空方法
+// Set is an empty method placeholder.
 func (t *TerminateRecord) Set(i int, c Column) error {
 	return nil
 }
 
-// Put 空方法
+// Put is an empty method placeholder.
 func (t *TerminateRecord) Put(c Column) error {
 	return nil
 }
 
-// ColumnNumber 空方法
+// ColumnNumber is an empty method placeholder.
 func (t *TerminateRecord) ColumnNumber() int {
 	return 0
 }
 
-// ByteSize 空方法
+// ByteSize is an empty method placeholder.
 func (t *TerminateRecord) ByteSize() int64 {
 	return 0
 }
 
-// MemorySize 空方法
+// MemorySize is an empty method placeholder.
 func (t *TerminateRecord) MemorySize() int64 {
 	return 0
 }
 
-// String 空方法
+// String is an empty method placeholder.
 func (t *TerminateRecord) String() string {
 	return "terminate"
 }
 
-// DefaultRecord 默认记录
+// DefaultRecord represents a default record.
 type DefaultRecord struct {
-	names      []string          //列名数组
-	columns    map[string]Column //列映射
-	byteSize   int64             //字节流大小
-	memorySize int64             //内存大小
+	names      []string          // ColumnNames represents an array of column names.
+	columns    map[string]Column // ColumnMapping represents a mapping of column names to their indices.
+	byteSize   int64             // ByteSize is an empty method placeholder for the size in bytes.
+	memorySize int64             // MemorySize is an empty method placeholder for the size in memory.
 }
 
-// NewDefaultRecord 创建默认记录
+// NewDefaultRecord creates a new default record.
 func NewDefaultRecord() *DefaultRecord {
 	return &DefaultRecord{
 		columns: make(map[string]Column),
 	}
 }
 
-// Add 新增列c,若列c已经存在，就会报错
+// AddColumn adds a new column c. If column c already exists, an error is reported.
 func (r *DefaultRecord) Add(c Column) error {
 	if _, ok := r.columns[c.Name()]; ok {
 		return ErrColumnExist
@@ -114,7 +114,7 @@ func (r *DefaultRecord) Add(c Column) error {
 	return nil
 }
 
-// GetByIndex 获取第i列,若索引i超出范围或者不存在，就会报错
+// GetByIndex gets the column at index i. If the index is out of range or doesn't exist, an error is reported.
 func (r *DefaultRecord) GetByIndex(i int) (Column, error) {
 	if i >= len(r.names) || i < 0 {
 		return nil, ErrIndexOutOfRange
@@ -125,7 +125,7 @@ func (r *DefaultRecord) GetByIndex(i int) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-// GetByName 获取列名为name的列,若列名为name的列不存在，就会报错
+// GetByName gets the column with the specified name. If the column doesn't exist, an error is reported.
 func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	if v, ok := r.columns[name]; ok {
 		return v, nil
@@ -133,7 +133,7 @@ func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-// Set 设置第i列,若索引i超出范围，就会报错
+// SetColumnByIndex sets the value of the column at index i. If the index is out of range, an error is reported.
 func (r *DefaultRecord) Set(i int, c Column) error {
 	if i >= len(r.names) || i < 0 {
 		return ErrIndexOutOfRange
@@ -148,24 +148,24 @@ func (r *DefaultRecord) Set(i int, c Column) error {
 	return nil
 }
 
-// Put 设置列,若列名不存在，就会报错
+// PutColumn sets the value of the column with the specified name. If the column name doesn't exist, an error is reported.
 func (r *DefaultRecord) Put(c Column) error {
 	r.columns[c.Name()] = c
 	r.incSize(c)
 	return nil
 }
 
-// ColumnNumber 列数量
+// ColumnNumber represents the number of columns in the record.
 func (r *DefaultRecord) ColumnNumber() int {
 	return len(r.columns)
 }
 
-// ByteSize 字节流大小
+// ByteSize represents the size of the record in bytes.
 func (r *DefaultRecord) ByteSize() int64 {
 	return r.byteSize
 }
 
-// MemorySize 内存大小
+// MemorySize represents the size of the record in memory.
 func (r *DefaultRecord) MemorySize() int64 {
 	return r.memorySize
 }
@@ -180,7 +180,7 @@ func (r *DefaultRecord) decSize(c Column) {
 	r.memorySize -= c.MemorySize()
 }
 
-// String 空方法
+// String is an empty method placeholder.
 func (r *DefaultRecord) String() string {
 	b := &strings.Builder{}
 	for i, v := range r.names {

@@ -14,7 +14,7 @@
 
 package db2
 
-// db2的char和varchar类型在linux下中文字符集是utf-8
+// The char and varchar types of db2 use the utf-8 Chinese character set under Linux.
 func decodeChinese(data []byte) ([]byte, error) {
 	return data, nil
 }

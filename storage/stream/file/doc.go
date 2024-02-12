@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package file 实现了文件输入流和输出流的框架,可以用于所有类二维表文件输入输出
+// Package file implements a framework for file input and output streams, which can be used for all types of two-dimensional table file input and output
 package file

@@ -105,7 +105,7 @@ func main() {
 	wg.Wait()
 }
 
-// 添加许可证
+// Read packages exclude vendor,.vscode,.git
 func readPackages(path string) (packages []string, err error) {
 	var list []os.FileInfo
 	list, err = ioutil.ReadDir(path)
@@ -125,7 +125,7 @@ func readPackages(path string) (packages []string, err error) {
 	return
 }
 
-// 检查许可证
+// Check License
 func addLicenseHeader(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -154,7 +154,7 @@ func addLicenseHeader(filename string) error {
 	return nil
 }
 
-// 检查许可证
+// Check License
 func checkLicenseHeader(filename string) error {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -168,7 +168,7 @@ func checkLicenseHeader(filename string) error {
 	return fmt.Errorf("has no license header")
 }
 
-// 格式化代码
+// Format Code
 func formatCode(filename string) (output string, err error) {
 	return cmdOutput("gofmt", "-s", "-w", filename)
 }

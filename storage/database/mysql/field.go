@@ -28,65 +28,65 @@ var (
 	datetimeLayout = element.DefaultTimeFormat[:26]
 )
 
-// Field 字段
+// Field Field
 type Field struct {
 	*database.BaseField
 	database.BaseConfigSetter
 }
 
-// NewField 通过基本列属性生成字段
+// NewField Generate a field based on basic column attributes
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-// Quoted 引用，用于SQL语句
+// Quoted Quotation, used in SQL statements
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-// BindVar SQL占位符，用于SQL语句
+// BindVar SQL placeholder, used in SQL statements
 func (f *Field) BindVar(_ int) string {
 	return "?"
 }
 
-// Select 查询时字段，用于SQL查询语句
+// Select Field for querying, used in SQL query statements
 func (f *Field) Select() string {
 	return Quoted(f.Name())
 }
 
-// Type 字段类型
+// Type Field type
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-// Scanner 扫描器，用于读取数据
+// Scanner Scanner, used for reading data
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-// Valuer 赋值器，采用GoValuer处理数据
+// Valuer Valuer, using GoValuer to process data
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return database.NewGoValuer(f, c)
 }
 
-// FieldType 字段类型
+// FieldType Field type
 type FieldType struct {
 	*database.BaseFieldType
 
 	goType database.GoType
 }
 
-// NewFieldType 创建新的字段类型
+// NewFieldType Create a new field type
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
 	switch f.DatabaseTypeName() {
-	//由于存在非负整数，如果直接变为对应的int类型，则会导致转化错误
-	//TIME存在负数无法正常转化，YEAR就是TINYINT
-	//todo: test YEAR
+	// Due to the existence of non-negative integers, directly converting them to the corresponding int type would result in conversion errors.
+	// TIME has negative values and cannot be converted normally, while YEAR is TINYINT.
+	// todo: test YEAR
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT",
 		"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR",
 		"TIME", "YEAR",
@@ -102,41 +102,41 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-// IsSupportted 是否支持解析
-func (f *FieldType) IsSupportted() bool {
+// IsSupported Whether it supports parsing
+func (f *FieldType) IsSupported() bool {
 	return f.GoType() != database.GoTypeUnknown
 }
 
-// GoType 返回处理数值时的Golang类型
+// GoType Returns the Golang type when processing numeric values
 func (f *FieldType) GoType() database.GoType {
 	return f.goType
 }
 
-// Scanner 扫描器
+// Scanner Scanner
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-// NewScanner 根据列类型生成扫描器
+// NewScanner Generate a scanner based on the column type
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-// Scan 根据列类型读取数据
-// "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR"作为整形处理
-// "DOUBLE", "FLOAT", "DECIMAL"作为高精度实数处理
-// "DATE", "DATETIME", "TIMESTAMP" 作为时间处理
-// "TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR", "TIME"作为字符串处理
-// "BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"作为字节流处理
+// Scan Read data based on the column type
+// MEDIUMINT, INT, BIGINT, SMALLINT, TINYINT, YEAR are treated as integers.
+// DOUBLE, FLOAT, DECIMAL are treated as high-precision real numbers.
+// DATE, DATETIME, TIMESTAMP are treated as time.
+// TEXT, LONGTEXT, MEDIUMTEXT, TINYTEXT, CHAR, VARCHAR, TIME are treated as strings.
+// BLOB, LONGBLOB, MEDIUMBLOB, BINARY, TINYBLOB, VARBINARY are treated as byte streams.
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
 
 	switch s.f.Type().DatabaseTypeName() {
-	//todo: test year
+	// todo: test year
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR":
 		switch data := src.(type) {
 		case nil:

@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package csv 主要实现了stream/file的接口
+// Package csv mainly implements the stream/file interface.
 package csv
