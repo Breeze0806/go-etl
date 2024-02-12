@@ -22,12 +22,10 @@ import (
 	"github.com/pingcap/errors"
 )
 
-
 type Job struct {
 	*file.Job
 	conf *Config
 }
-
 
 func NewJob() *Job {
 	return &Job{
@@ -35,12 +33,10 @@ func NewJob() *Job {
 	}
 }
 
-
 func (j *Job) Init(ctx context.Context) (err error) {
 	j.conf, err = NewConfig(j.PluginJobConf())
 	return errors.Wrapf(err, "NewConfig fail. val: %v", j.PluginJobConf())
 }
-
 
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
 	for _, v := range j.conf.Path {

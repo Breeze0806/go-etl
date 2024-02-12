@@ -21,26 +21,24 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-
 type Execer interface {
-	
 	Table(*database.BaseTable) database.Table
 	// Obtain relational database configuration through configuration
 	PingContext(ctx context.Context) error
-	
+
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
 	// BaseDbHandler Basic Database Execution Handler Encapsulation
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	
+
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
-	
+
 	BatchExec(ctx context.Context, opts *database.ParameterOptions) (err error)
 	// NewBaseDbHandler Create a database execution handler encapsulation using the executor function newExecer and database transaction execution options opts
 	BatchExecStmt(ctx context.Context, opts *database.ParameterOptions) (err error)
-	
+
 	BatchExecWithTx(ctx context.Context, opts *database.ParameterOptions) (err error)
-	
+
 	BatchExecStmtWithTx(ctx context.Context, opts *database.ParameterOptions) (err error)
-	
+
 	Close() error
 }

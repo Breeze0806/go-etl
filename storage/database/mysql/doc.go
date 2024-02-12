@@ -21,7 +21,4 @@
 // The Scanner uses BaseScanner to simplify its implementation.
 // The Valuer uses the implementation approach of GoValuer.
 
-
-
-
 package mysql
