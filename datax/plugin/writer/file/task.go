@@ -27,7 +27,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file"
 )
 
-// Task 任务
+// Task
 type Task struct {
 	*writer.BaseTask
 
@@ -37,7 +37,7 @@ type Task struct {
 	content   *config.JSON
 }
 
-// NewTask 通过获取配置newConfig创建任务
+// NewTask Create a task by obtaining the configuration newConfig
 func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	return &Task{
 		BaseTask:  writer.NewBaseTask(),
@@ -45,7 +45,7 @@ func NewTask(newConfig func(conf *config.JSON) (Config, error)) *Task {
 	}
 }
 
-// Init 初始化
+// Init Initialization
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("creator"); err != nil {
@@ -71,7 +71,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-// Destroy 销毁
+// Destroy Destruction
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.streamer != nil {
 		err = t.streamer.Close()
@@ -79,7 +79,7 @@ func (t *Task) Destroy(ctx context.Context) (err error) {
 	return t.Wrapf(err, "Close fail")
 }
 
-// StartWrite 开始写
+// StartWrite Start writing
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	var sw file.StreamWriter
 	if sw, err = t.streamer.Writer(t.content); err != nil {
@@ -91,11 +91,11 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 	afterCtx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	wg.Add(1)
-	//通过该携程读取记录接受器receiver的记录放入recordChan
+	// Read records from the receiver and place them into the recordChan channel
 	go func() {
 		defer func() {
 			wg.Done()
-			//关闭recordChan
+			// Close the recordChan channel
 			close(recordChan)
 			log.Debugf(t.Format("get records end"))
 		}()
@@ -112,10 +112,10 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 				return
 			}
 
-			//当记录接受器receiver返回不为空错误，写入recordChan
+			// When the receiver returns a non-empty error, write it to the recordChan
 			if rerr != exchange.ErrEmpty {
 				select {
-				//防止在ctx关闭时不写入recordChan
+				// Prevent not writing to the recordChan when the context ctx is closed
 				case <-afterCtx.Done():
 					return
 				case recordChan <- record:
@@ -132,7 +132,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 		select {
 		case record, ok := <-recordChan:
 			if !ok {
-				//当写入结束时，将剩余的记录写入数据库
+				// When writing ends, write the remaining records to the database
 				if cnt > 0 {
 					if err = sw.Flush(); err != nil {
 						log.Errorf(t.Format("Flush error: %v"), err)
@@ -144,13 +144,13 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 				goto End
 			}
 
-			//写入文件
+			// Write to file
 			if err = sw.Write(record); err != nil {
 				log.Errorf(t.Format("Write error: %v"), err)
 				goto End
 			}
 			cnt++
-			//当数据量超过单次批量数时 写入文件
+			// When the data volume exceeds the single batch size, write to the file
 			if cnt >= t.conf.GetBatchSize() {
 				if err = sw.Flush(); err != nil {
 					log.Errorf(t.Format("Flush error: %v"), err)
@@ -158,7 +158,7 @@ func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (
 				}
 				cnt = 0
 			}
-		//当写入数据未达到单次批量数，超时也写入
+		// When the written data does not reach the single batch size, write even if the timeout occurs
 		case <-ticker.C:
 			if cnt > 0 {
 				if err = sw.Flush(); err != nil {
@@ -175,14 +175,14 @@ End:
 	}
 	cancel()
 	log.Debugf(t.Format("wait all goroutine"))
-	//等待携程结束
+	// Wait for the goroutine to finish
 	wg.Wait()
 	log.Debugf(t.Format(" wait all goroutine end"))
 	switch {
-	//当外部取消时，开始写入不是错误
+	// Starting to write is not an error when externally canceled
 	case ctx.Err() != nil:
 		return nil
-	//当错误是停止时，也不是错误
+	// When the error is a stop, it is also not an error
 	case err == exchange.ErrTerminate:
 		return nil
 	}

@@ -28,25 +28,25 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// 执行模式
+// Execution Mode
 const (
-	ExecModeNormal = "Normal" //无事务执行
-	ExecModeStmt   = "Stmt"   //prepare/exec无事务执行
-	ExecModeTx     = "Tx"     //事务执行
-	ExecModeStmtTx = "StmtTx" //prepare/exec事务执行
+	ExecModeNormal = "Normal" // Non-Transactional Execution
+	ExecModeStmt   = "Stmt"   // prepare/exec without Transaction
+	ExecModeTx     = "Tx"     // Transactional Execution
+	ExecModeStmtTx = "StmtTx" // prepare/exec with Transaction
 )
 
-// BatchWriter 批量写入器
+// BatchWriter - A tool or component used for writing data in batches.
 type BatchWriter interface {
-	JobID() int64                                                   //工作编号
-	TaskGroupID() int64                                             //任务组编号
-	TaskID() int64                                                  //任务编号
-	BatchSize() int                                                 //单次批量写入数
-	BatchTimeout() time.Duration                                    //单次批量写入超时时间
-	BatchWrite(ctx context.Context, records []element.Record) error //批量写入
+	JobID() int64                                                   // Job ID - A unique identifier for a job or task.
+	TaskGroupID() int64                                             // Task Group ID - A unique identifier for a group of tasks.
+	TaskID() int64                                                  // Task ID - A unique identifier for a specific task within a task group.
+	BatchSize() int                                                 // Batch Size - The number of records to be written in a single batch.
+	BatchTimeout() time.Duration                                    // Batch Timeout - The maximum time allowed for a single batch write operation.
+	BatchWrite(ctx context.Context, records []element.Record) error // Batch Write - The process of writing data in batches.
 }
 
-// BaseBatchWriter 批量写入器
+// BaseBatchWriter - A basic implementation of a batch writer, providing the fundamental functionality for writing data in batches.
 type BaseBatchWriter struct {
 	Task     *Task
 	execMode string
@@ -55,7 +55,7 @@ type BaseBatchWriter struct {
 	opts     *database.ParameterOptions
 }
 
-// NewBaseBatchWriter 获取任务task，执行模式execMode，事务选项opts创建批量写入器
+// NewBaseBatchWriter - Creates a new instance of the basic batch writer based on the task, execution mode, and transaction options.
 func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseBatchWriter {
 	w := &BaseBatchWriter{
 		Task:     task,
@@ -84,32 +84,32 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 	return w
 }
 
-// JobID 工作编号
+// JobID - The unique identifier for a job.
 func (b *BaseBatchWriter) JobID() int64 {
 	return b.Task.JobID()
 }
 
-// TaskGroupID 任务组编号
+// TaskGroupID - The unique identifier for a group of tasks.
 func (b *BaseBatchWriter) TaskGroupID() int64 {
 	return b.Task.TaskGroupID()
 }
 
-// TaskID 任务组任务编号
+// TaskID - The unique identifier for a specific task within a task group.
 func (b *BaseBatchWriter) TaskID() int64 {
 	return b.Task.TaskID()
 }
 
-// BatchSize 单批次插入数据
+// BatchSize - The number of records to be inserted in a single batch.
 func (b *BaseBatchWriter) BatchSize() int {
 	return b.Task.Config.GetBatchSize()
 }
 
-// BatchTimeout 单批次插入超时时间
+// BatchTimeout - The maximum time allowed for a single batch insertion.
 func (b *BaseBatchWriter) BatchTimeout() time.Duration {
 	return b.Task.Config.GetBatchTimeout()
 }
 
-// BatchWrite 批次写入
+// BatchWrite - The process of writing data in batches.
 func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) (err error) {
 	if b.strategy != nil {
 		retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
@@ -164,7 +164,7 @@ func (t *writeTask) Do() error {
 	return t.do()
 }
 
-// StartWrite 通过批量写入器writer和记录接受器receiver将记录写入数据库
+// StartWrite - Begins the process of writing records to the database using the batch writer and record receiver.
 func StartWrite(ctx context.Context, w BatchWriter,
 	receiver plugin.RecordReceiver) (err error) {
 	recordChan := make(chan element.Record)
@@ -172,11 +172,11 @@ func StartWrite(ctx context.Context, w BatchWriter,
 	afterCtx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	wg.Add(1)
-	//通过该携程读取记录接受器receiver的记录放入recordChan
+	// Reads records from the record receiver and places them into the recordChan channel.
 	go func() {
 		defer func() {
 			wg.Done()
-			//关闭recordChan
+			// Closes the recordChan channel.
 			close(recordChan)
 			log.Debugf("jobID: %v taskgroupID:%v taskID: %v get records end",
 				w.JobID(), w.TaskGroupID(), w.TaskID())
@@ -194,10 +194,10 @@ func StartWrite(ctx context.Context, w BatchWriter,
 			if rerr != nil && rerr != exchange.ErrEmpty {
 				return
 			}
-			//当记录接受器receiver返回不为空错误，写入recordChan
+			// When the record receiver returns a non-empty error, it is written to the recordChan.
 			if rerr != exchange.ErrEmpty {
 				select {
-				//防止在ctx关闭时不写入recordChan
+				// Prevents records from not being written to the recordChan when the context (ctx) is closed.
 				case <-afterCtx.Done():
 					return
 				case recordChan <- record:
@@ -214,7 +214,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 		select {
 		case record, ok := <-recordChan:
 			if !ok {
-				//当写入结束时，将剩余的记录写入数据库
+				// Writes the remaining records to the database when the writing process ends.
 				if len(records) > 0 {
 					if err = w.BatchWrite(ctx, records); err != nil {
 						log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %+v",
@@ -229,7 +229,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 			}
 			records = append(records, record)
 
-			//当数据量超过单次批量数时 写入数据库
+			// Writes records to the database when the number of records exceeds the single batch size.
 			if len(records) >= w.BatchSize() {
 				if err = w.BatchWrite(ctx, records); err != nil {
 					log.Errorf("jobID: %v taskgroupID:%v taskID: %v BatchWrite(%v) error: %+v",
@@ -238,7 +238,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 				}
 				records = nil
 			}
-		//当写入数据未达到单次批量数，超时也写入
+		// Writes records to the database when the timeout is reached even if the number of records does not reach the single batch size.
 		case <-ticker.C:
 			if len(records) > 0 {
 				if err = w.BatchWrite(ctx, records); err != nil {
@@ -254,15 +254,15 @@ End:
 	cancel()
 	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine",
 		w.JobID(), w.TaskGroupID(), w.TaskID())
-	//等待携程结束
+	// Waits for the goroutine to finish.
 	wg.Wait()
 	log.Debugf("jobID: %v taskgroupID:%v taskID: %v wait all goroutine end",
 		w.JobID(), w.TaskGroupID(), w.TaskID())
 	switch {
-	//当外部取消时，开始写入不是错误
+	// Starting a write is not considered an error when externally canceled.
 	case ctx.Err() != nil:
 		return nil
-	//当错误是停止时，也不是错误
+	// Stopping due to an error is also not considered an error.
 	case err == exchange.ErrTerminate:
 		return nil
 	}

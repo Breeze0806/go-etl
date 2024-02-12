@@ -25,33 +25,33 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Model 模式
+// Model Mode
 type Model string
 
-// 容器工作模式
+// Container Work Mode
 var (
-	ModelJob       Model = "job"       //以工作为单位工作
-	ModelTaskGroup Model = "taskGroup" //以任务组为单位工作
+	ModelJob       Model = "job"       // Work by Job
+	ModelTaskGroup Model = "taskGroup" // Work by Task Group
 )
 
-// IsJob 是否以工作为单位工作
+// IsJob: whether to work by job
 func (m Model) IsJob() bool {
 	return m == ModelJob
 }
 
-// IsTaskGroup 以任务组为单位工作
+// IsTaskGroup: whether to work by task group
 func (m Model) IsTaskGroup() bool {
 	return m == ModelTaskGroup
 }
 
-// Engine 执行引擎
+// Engine: execution engine
 type Engine struct {
 	core.Container
 	ctx  context.Context
 	conf *config.JSON
 }
 
-// NewEngine 通过上下文ctx以及JSON配置conf创建新执行引擎
+// NewEngine: create a new execution engine based on context ctx and JSON configuration conf
 func NewEngine(ctx context.Context, conf *config.JSON) *Engine {
 	return &Engine{
 		ctx:  ctx,
@@ -59,7 +59,7 @@ func NewEngine(ctx context.Context, conf *config.JSON) *Engine {
 	}
 }
 
-// Start 启动
+// Start: start
 func (e *Engine) Start() (err error) {
 	model := Model(e.conf.GetStringOrDefaullt(coreconst.DataxCoreContainerModel, string(ModelJob)))
 	switch {

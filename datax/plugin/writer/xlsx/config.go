@@ -22,26 +22,26 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
-// SingleConfig xlsx单个输入设置
+// SingleConfig - Single Input Settings for XLSX
 type SingleConfig struct {
 	file.BaseConfig
 	xlsx.OutConfig
 }
 
-// Config xlsx输出配置
+// Config - XLSX Output Configuration
 type Config struct {
 	SingleConfig
 
 	Xlsxs []Xlsx `json:"xlsxs"`
 }
 
-// Xlsx xlsx内容配置
+// Xlsx - Content Configuration for XLSX
 type Xlsx struct {
 	Path   string   `json:"path"`
 	Sheets []string `json:"sheets"`
 }
 
-// NewConfig 通过json配置conf创建xlsx输出配置
+// NewConfig - Create XLSX Output Configuration from JSON Configuration File
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {

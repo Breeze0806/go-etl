@@ -29,7 +29,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Container 任务组容器环境
+// Container represents the environment for a group of tasks.
 type Container struct {
 	*core.BaseCotainer
 
@@ -47,8 +47,8 @@ type Container struct {
 	retryMaxCount  int32
 }
 
-// NewContainer 根据JSON配置conf创建任务组容器
-// 当jobID 和 taskGroupID非法就会报错
+// NewContainer creates a task group container based on the JSON configuration conf.
+// If jobID or taskGroupID is invalid, an error will be reported.
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
@@ -78,22 +78,22 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	return
 }
 
-// JobID 工作编号
+// JobID refers to the unique identifier for a job.
 func (c *Container) JobID() int64 {
 	return c.jobID
 }
 
-// TaskGroupID 任务组编号
+// TaskGroupID refers to the unique identifier for a group of tasks.
 func (c *Container) TaskGroupID() int64 {
 	return c.taskGroupID
 }
 
-// Do 执行
+// Do represents the execution action.
 func (c *Container) Do() error {
 	return c.Start()
 }
 
-// Start 开始运行，使用任务调度器执行这些JSON配置
+// Start initiates the execution of tasks using the task scheduler based on the JSON configurations.
 func (c *Container) Start() (err error) {
 	log.Infof("datax job(%v) taskgruop(%v)  start", c.jobID, c.taskGroupID)
 	defer log.Infof("datax job(%v) taskgruop(%v)  end", c.jobID, c.taskGroupID)
@@ -112,19 +112,19 @@ func (c *Container) Start() (err error) {
 		if err != nil {
 			return err
 		}
-		//将任务执行器加入到待执行队列
+		// Add the task executor to the pending execution queue.
 		c.tasks.pushRemain(taskExecer)
 	}
 	log.Infof("datax job(%v) taskgruop(%v) start tasks", c.jobID, c.taskGroupID)
 	var tasks []*taskExecer
 	for i := 0; i < len(taskConfigs); i++ {
-		//从待执行队列加入运行队列
+		// Move tasks from the pending execution queue to the running queue.
 		te, ok := c.tasks.popRemainAndAddRun()
 		if !ok {
 			continue
 		}
 		tasks = append(tasks, te)
-		//开始运行
+		// Begin the execution of tasks.
 		if err = c.startTaskExecer(te); err != nil {
 			return
 		}
@@ -133,7 +133,7 @@ func (c *Container) Start() (err error) {
 	ticker := time.NewTicker(c.sleepInterval)
 	defer ticker.Stop()
 QueueLoop:
-	//任务队列不为空
+	// The task queue is not empty.
 	for !c.tasks.isRunsEmpty() {
 		for !c.tasks.isEmpty() {
 			select {
@@ -141,7 +141,7 @@ QueueLoop:
 				break QueueLoop
 			default:
 			}
-			//从待执行队列加入运行队列
+			// Move tasks from the pending execution queue to the running queue.
 			te, ok := c.tasks.popRemainAndAddRun()
 			if !ok {
 				select {
@@ -162,7 +162,7 @@ QueueLoop:
 		}
 	}
 	log.Infof("datax job(%v) taskgruop(%v) wait tasks end", c.jobID, c.taskGroupID)
-	// 等待所有任务携程结束
+	// Wait for all tasks to complete.
 	c.wg.Wait()
 	if c.ctx.Err() != nil {
 		return c.ctx.Err()
@@ -183,15 +183,15 @@ QueueLoop:
 	return nil
 }
 
-// startTaskExecer 开始任务
+// startTaskExecer initiates a task.
 func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 	log.Debugf("datax job(%v) taskgruop(%v) task(%v) push", c.jobID, c.taskGroupID, te.Key())
 	c.wg.Add(1)
 	var errChan <-chan error
-	//将任务加入到调度器
+	// Add the task to the scheduler.
 	errChan, err = c.scheduler.Push(te)
 	if err != nil {
-		//错误发生时，从运行队列移除任务
+		// Remove a task from the running queue when an error occurs.
 		c.tasks.removeRun(te)
 		c.wg.Done()
 		return err
@@ -207,11 +207,11 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 		for {
 			select {
 			case te.Err = <-errChan:
-				//当失败时，重试次数不超过最大重试次数，写入任务是否支持失败冲时，这些决定写入任务是否冲时
+				// If a task fails and the number of retries does not exceed the maximum retry limit, and the task supports failure retries, then decide whether to retry the task.
 				if te.Err != nil && te.WriterSuportFailOverport() && te.AttemptCount() <= c.retryMaxCount {
 					log.Debugf("datax job(%v) taskgruop(%v) task(%v) shutdown and retry. attemptCount: %v err: %v",
 						c.jobID, c.taskGroupID, te.Key(), te.AttemptCount(), te.Err)
-					//关闭任务
+					// Close a task.
 					te.Shutdown()
 					timer := time.NewTimer(c.retryInterval)
 					defer timer.Stop()
@@ -220,10 +220,10 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 					case <-c.ctx.Done():
 						return
 					}
-					//从运行队列移到待执行队列
+					// Move a task from the running queue back to the pending execution queue.
 					c.tasks.removeRunAndPushRemain(te)
 				} else {
-					//从任务调度器移除
+					// Remove a task from the task scheduler.
 					c.tasks.removeRun(te)
 					c.setStats(te)
 				}

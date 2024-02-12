@@ -21,10 +21,10 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 )
 
-// Job 工作
+// Job work
 type Job interface {
 	plugin.Job
 
-	//根据Job进行切分，将原有任务尽量切分成number个任务，主要以配置文件的形式传递给每个任务
+	// According to Job, the original task is divided into as many tasks as possible, which are mainly passed to each task in the form of configuration files.
 	Split(ctx context.Context, number int) ([]*config.JSON, error)
 }

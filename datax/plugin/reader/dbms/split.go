@@ -35,12 +35,12 @@ type splitRangeFetcher interface {
 	fetchMin(ctx context.Context, splitTable database.Table) (element.Column, error)
 }
 
-// SplitConfig 切分配置
+// SplitConfig - Splitting Configuration
 type SplitConfig struct {
-	Key string `json:"key"` //切分键
-	//day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
-	TimeAccuracy string     `json:"timeAccuracy"` //切分时间精度（默认为day）
-	Range        SplitRange `json:"range"`        //切分范围
+	Key string `json:"key"` // Splitting Key
+	// day (Day), min (Minute), s (Second), ms (Millisecond), us (Microsecond), ns (Nanosecond)
+	TimeAccuracy string     `json:"timeAccuracy"` // Splitting Time Precision (Default: day)
+	Range        SplitRange `json:"range"`        // Splitting Range
 }
 
 func (s *SplitConfig) fetchMin(ctx context.Context,
@@ -109,12 +109,12 @@ func (s SplitConfig) checkType(splitTable database.Table) (err error) {
 	return nil
 }
 
-// SplitRange 切分范围配置
+// SplitRange - Splitting Range Configuration
 type SplitRange struct {
-	Type   string `json:"type"`   //类型 bigint, string, time
-	Layout string `json:"layout"` //时间格式
-	Left   string `json:"left"`   //开始点
-	Right  string `json:"right"`  //结束点
+	Type   string `json:"type"`   // Type: bigint, string, time
+	Layout string `json:"layout"` // Time Format
+	Left   string `json:"left"`   // Start Point
+	Right  string `json:"right"`  // End Point
 	where  string
 }
 

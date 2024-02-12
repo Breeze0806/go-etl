@@ -14,18 +14,18 @@
 
 package plugin
 
-// Job 工作
+// Job: a unit of work
 type Job interface {
 	Plugin
-	//工作ID
+	// Job ID: a unique identifier for a job
 	JobID() int64
-	//设置工作ID
+	// Set Job ID: a function or method to set the ID of a job
 	SetJobID(jobID int64)
-	Collector() JobCollector   //todo 工作采集器目前未使用
-	SetCollector(JobCollector) //todo  设置工作采集器目前未使用
+	Collector() JobCollector   // todo: The job collector is currently not in use
+	SetCollector(JobCollector) // todo: The function or method to set the job collector is currently not in use
 }
 
-// BaseJob 基础工作，用于辅助和简化工作接口的实现
+// BaseJob: a fundamental job class that assists and simplifies the implementation of job interfaces
 type BaseJob struct {
 	*BasePlugin
 
@@ -33,29 +33,29 @@ type BaseJob struct {
 	collector JobCollector
 }
 
-// NewBaseJob 获取NewBaseJob
+// NewBaseJob: a function or method to acquire a new instance of BaseJob
 func NewBaseJob() *BaseJob {
 	return &BaseJob{
 		BasePlugin: NewBasePlugin(),
 	}
 }
 
-// JobID 工作ID
+// JobID: the identifier for a job
 func (b *BaseJob) JobID() int64 {
 	return b.id
 }
 
-// SetJobID 设置工作ID
+// SetJobID: a function or method to set the ID of a job
 func (b *BaseJob) SetJobID(jobID int64) {
 	b.id = jobID
 }
 
-// Collector 采集器
+// Collector: a component or system that collects data or information
 func (b *BaseJob) Collector() JobCollector {
 	return b.collector
 }
 
-// SetCollector 设置采集器
+// SetCollector: a function or method to set or configure a collector
 func (b *BaseJob) SetCollector(collector JobCollector) {
 	b.collector = collector
 }

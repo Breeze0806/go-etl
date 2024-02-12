@@ -20,19 +20,19 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 )
 
-// Job 工作
+// Job
 type Job struct {
 	*plugin.BaseJob
 }
 
-// NewJob 创建工作
+// NewJob - Creates a new instance of a Job.
 func NewJob() *Job {
 	return &Job{
 		plugin.NewBaseJob(),
 	}
 }
 
-// Destroy 销毁
+// Destroy - Terminates or dismantles the Job.
 func (j *Job) Destroy(ctx context.Context) (err error) {
 	return
 }

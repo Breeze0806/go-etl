@@ -28,44 +28,44 @@ import (
 	"github.com/Breeze0806/go/time2"
 )
 
-// 默认参数
+// Default Parameters
 var (
 	defalutBatchSize    = 1000
 	defalutBatchTimeout = 1 * time.Second
 )
 
-// Config 关系数据库写入器配置
+// Config - Relational Database Writer Configuration
 type Config interface {
-	GetUsername() string                                                     //获取用户名
-	GetPassword() string                                                     //获取密码
-	GetURL() string                                                          //获取连接url
-	GetColumns() []dbmsreader.Column                                         //获取列信息
-	GetBaseTable() *database.BaseTable                                       //获取表信息
-	GetWriteMode() string                                                    //获取写入模式
-	GetBatchSize() int                                                       //单次批量写入数
-	GetBatchTimeout() time.Duration                                          //单次批量写入超时时间
-	GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy, error) //获取重试策略
-	IgnoreOneByOneError() bool                                               //忽略一个个重试的错误
-	GetPreSQL() []string                                                     //获取准备的SQL语句
-	GetPostSQL() []string                                                    //获取结束的SQL语句
+	GetUsername() string                                                     // Get Username
+	GetPassword() string                                                     // Get Password
+	GetURL() string                                                          // Get Connection URL
+	GetColumns() []dbmsreader.Column                                         // Get Column Information
+	GetBaseTable() *database.BaseTable                                       // Get Table Information
+	GetWriteMode() string                                                    // Get Write Mode
+	GetBatchSize() int                                                       // Batch Size for Single Write
+	GetBatchTimeout() time.Duration                                          // Batch Timeout for Single Write
+	GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy, error) // Get Retry Strategy
+	IgnoreOneByOneError() bool                                               // Ignore Individual Retry Errors
+	GetPreSQL() []string                                                     // Get Prepared SQL Statement
+	GetPostSQL() []string                                                    // Get Ending SQL Statement
 }
 
-// BaseConfig 用于实现基本的关系数据库配置，如无特殊情况采用该配置，帮助快速实现writer
+// BaseConfig - Basic Relational Database Configuration for writers. Unless there are special requirements, this configuration can be used to quickly implement writers.
 type BaseConfig struct {
-	Username            string                `json:"username"`     //用户名
-	Password            string                `json:"password"`     //密码
-	Column              []string              `json:"column"`       //列信息
-	Connection          dbmsreader.ConnConfig `json:"connection"`   //连接信息
-	WriteMode           string                `json:"writeMode"`    //写入模式,如插入insert
-	BatchSize           int                   `json:"batchSize"`    //单次批量写入数
-	BatchTimeout        time2.Duration        `json:"batchTimeout"` //单次批量写入超时时间
-	PreSQL              []string              `json:"preSQL"`       //准备的SQL语句
-	PostSQL             []string              `json:"postSQL"`      //结束的SQL语句
-	ignoreOneByOneError bool                  //忽略一个个重试的错误
+	Username            string                `json:"username"`     // Username
+	Password            string                `json:"password"`     // Password
+	Column              []string              `json:"column"`       // Column Information
+	Connection          dbmsreader.ConnConfig `json:"connection"`   // Connection Information
+	WriteMode           string                `json:"writeMode"`    // Write Mode, e.g., Insert
+	BatchSize           int                   `json:"batchSize"`    // Batch Size for Single Write
+	BatchTimeout        time2.Duration        `json:"batchTimeout"` // Batch Timeout for Single Write
+	PreSQL              []string              `json:"preSQL"`       // Prepared SQL Statement
+	PostSQL             []string              `json:"postSQL"`      // Ending SQL Statement
+	ignoreOneByOneError bool                  // Ignore Individual Retry Errors
 	newRetryStrategy    func(j schedule.RetryJudger) (schedule.RetryStrategy, error)
 }
 
-// NewBaseConfig 从conf解析出关系数据库配置
+// NewBaseConfig - Extract relational database configuration from the configuration file.
 func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	c = &BaseConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -93,22 +93,22 @@ func NewBaseConfig(conf *config.JSON) (c *BaseConfig, err error) {
 	return
 }
 
-// GetUsername 获取用户名
+// GetUsername - Retrieve the username.
 func (b *BaseConfig) GetUsername() string {
 	return b.Username
 }
 
-// GetPassword 获取密码
+// GetPassword - Retrieve the password.
 func (b *BaseConfig) GetPassword() string {
 	return b.Password
 }
 
-// GetURL 获取连接url
+// GetURL - Retrieve the connection URL.
 func (b *BaseConfig) GetURL() string {
 	return b.Connection.URL
 }
 
-// GetColumns 获取列信息
+// GetColumns - Retrieve column information.
 func (b *BaseConfig) GetColumns() (columns []dbmsreader.Column) {
 	for _, v := range b.Column {
 		columns = append(columns, &dbmsreader.BaseColumn{
@@ -118,18 +118,18 @@ func (b *BaseConfig) GetColumns() (columns []dbmsreader.Column) {
 	return
 }
 
-// GetBaseTable 获取表信息
+// GetBaseTable - Retrieve table information.
 func (b *BaseConfig) GetBaseTable() *database.BaseTable {
 	return database.NewBaseTable(b.Connection.Table.Db, b.Connection.Table.Schema,
 		b.Connection.Table.Name)
 }
 
-// GetWriteMode 获取写入模式
+// GetWriteMode - Retrieve the write mode.
 func (b *BaseConfig) GetWriteMode() string {
 	return b.WriteMode
 }
 
-// GetBatchTimeout 单次批量超时时间
+// GetBatchTimeout - Retrieve the batch timeout for a single write.
 func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	if b.BatchTimeout.Duration == 0 {
 		return defalutBatchTimeout
@@ -137,7 +137,7 @@ func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	return b.BatchTimeout.Duration
 }
 
-// GetBatchSize 单次批量写入数
+// GetBatchSize - Retrieve the batch size for a single write.
 func (b *BaseConfig) GetBatchSize() int {
 	if b.BatchSize == 0 {
 		return defalutBatchSize
@@ -146,22 +146,22 @@ func (b *BaseConfig) GetBatchSize() int {
 	return b.BatchSize
 }
 
-// GetPreSQL 获取准备的SQL语句
+// GetPreSQL - Retrieve the prepared SQL statement.
 func (b *BaseConfig) GetPreSQL() []string {
 	return getSQlsWithoutEmpty(b.PreSQL)
 }
 
-// GetPostSQL 获取结束的SQL语句
+// GetPostSQL - Retrieve the ending SQL statement.
 func (b *BaseConfig) GetPostSQL() []string {
 	return getSQlsWithoutEmpty(b.PostSQL)
 }
 
-// IgnoreOneByOneError 忽略一个个重试的错误
+// IgnoreOneByOneError - Ignore individual retry errors.
 func (b *BaseConfig) IgnoreOneByOneError() bool {
 	return b.ignoreOneByOneError
 }
 
-// GetRetryStrategy 获取重试策略
+// GetRetryStrategy - Retrieve the retry strategy.
 func (b *BaseConfig) GetRetryStrategy(j schedule.RetryJudger) (schedule.RetryStrategy,
 	error) {
 	return b.newRetryStrategy(j)

@@ -21,22 +21,22 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Writer 写入器
+// Writer
 type Writer interface {
 	spi.Writer
 
-	//资源插件配置
+	// Resource Plugin Configuration
 	ResourcesConfig() *config.JSON
 }
 
-// Maker 写入生成器
+// Maker Writer Generator
 type Maker interface {
 	Default() (Writer, error)
 }
 
-// RegisterWriter 注册创建函数new写入器,返回的是资源插件配置文件地州，出错时会返回error
-// 目前未在代码中实际使用，而是通过tools/datax/build的tools/datax/build命令自动将resources/plugin.json
-// 中的内容放入到新生成的代码文件中，用以注册Writer
+// RegisterWriter Registers the creation function for a new writer, returning the path to the resource plugin configuration file. If an error occurs, an error is returned.
+// This is currently not used in the code directly, but the content of resources/plugin.json is automatically placed into the newly generated code file through the tools/datax/build command, for the purpose of registering the Writer.
+// The content in resources/plugin.json is used to register the Writer by being automatically placed into the newly generated code file through the tools/datax/build command, without being explicitly used in the code.
 func RegisterWriter(maker Maker) (err error) {
 	var writer Writer
 

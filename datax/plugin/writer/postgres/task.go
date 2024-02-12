@@ -35,12 +35,12 @@ func execMode(writeMode string) string {
 	return dbms.ExecModeNormal
 }
 
-// Task 任务
+// Task
 type Task struct {
 	*dbms.Task
 }
 
-// StartWrite 开始写
+// StartWrite
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	return dbms.StartWrite(ctx, dbms.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil), receiver)
 }

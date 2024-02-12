@@ -20,11 +20,11 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 )
 
-// Runner 运行器
+// Runner - A component responsible for executing tasks or jobs
 type Runner interface {
-	Plugin() plugin.Task           //插件任务
-	Shutdown() error               //关闭
-	Run(ctx context.Context) error //运行
+	Plugin() plugin.Task           // Plugin Task - A task associated with a plugin
+	Shutdown() error               // Close - Shuts down or terminates the operation of the runner
+	Run(ctx context.Context) error // Run - Initiates the execution of a task or job by the runner
 }
 
 type baseRunner struct {

@@ -20,15 +20,15 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-// Pluggable  可插件化接口
+// Pluggable - A pluggable interface
 type Pluggable interface {
-	//插件开发者,一般写入插件配置中
+	// Plugin Developer, generally written in the plugin configuration
 	Developer() (string, error)
-	//插件描述,一般写入插件配置中
+	// Plugin Description, generally written in the plugin configuration
 	Description() (string, error)
-	//插件名称,一般写入插件配置中
+	// Plugin Name, generally written in the plugin configuration
 	PluginName() (string, error)
-	/*插件配置，基础配置如下，其余可以根据个性化定制
+	/* Plugin Configuration, basic configuration is as follows, the rest can be customized according to individual needs
 	{
 		"name" : "mysqlreader",
 		"developer":"Breeze0806",
@@ -36,28 +36,28 @@ type Pluggable interface {
 	}
 	*/
 	PluginConf() *config.JSON
-	//插件工作配置
+	// Plugin Working Configuration
 	PluginJobConf() *config.JSON
-	//对应插件名（对于Writer来说就是Reader，对应Reader来说就是Wirter）
+	// Corresponding Plugin Name (for Writer, it's Reader; for Reader, it's Writer)
 	PeerPluginName() string
-	//对应插件配置（对于Writer来说就是Reader，对应Reader来说就是Wirter）
+	// Corresponding Plugin Configuration (for Writer, it's Reader; for Reader, it's Writer)
 	PeerPluginJobConf() *config.JSON
-	//设置工作插件
+	// Set Working Plugin
 	SetPluginJobConf(conf *config.JSON)
-	//设置对应插件配置（对于Writer来说就是Reader，对应Reader来说就是Wirter）
+	// Set Corresponding Plugin Configuration (for Writer, it's Reader; for Reader, it's Writer)
 	SetPeerPluginJobConf(conf *config.JSON)
-	//设置对应插件名（对于Writer来说就是Reader，对应Reader来说就是Wirter）
+	// Set Corresponding Plugin Name (for Writer, it's Reader; for Reader, it's Writer)
 	SetPeerPluginName(name string)
-	//设置插件配置
+	// Set Plugin Configuration
 	SetPluginConf(conf *config.JSON)
-	//初始化插件，需要实现者个性化实现
+	// Initialize Plugin, needs to be implemented by the implementer according to their needs
 	Init(ctx context.Context) error
-	//销毁插件，需要实现者个性化实现
+	// Destroy Plugin, needs to be implemented by the implementer according to their needs
 	Destroy(ctx context.Context) error
 }
 
-// BasePluggable 基础可插件化
-// 用于辅助各类可插件化接口实现，简化其实现
+// BasePluggable - A basic pluggable interface
+// Used to assist in the implementation of various pluggable interfaces, simplifying their implementation
 type BasePluggable struct {
 	pluginConf        *config.JSON
 	pluginJobConf     *config.JSON
@@ -65,62 +65,62 @@ type BasePluggable struct {
 	peerPluginJobConf *config.JSON
 }
 
-// NewBasePluggable 创建可插件化插件
+// NewBasePluggable - Creates a pluggable plugin
 func NewBasePluggable() *BasePluggable {
 	return &BasePluggable{}
 }
 
-// SetPluginConf 设置插件配置
+// SetPluginConf - Sets the plugin configuration
 func (b *BasePluggable) SetPluginConf(conf *config.JSON) {
 	b.pluginConf = conf
 }
 
-// SetPluginJobConf 设置插件工作配置
+// SetPluginJobConf - Sets the plugin's working configuration
 func (b *BasePluggable) SetPluginJobConf(conf *config.JSON) {
 	b.pluginJobConf = conf
 }
 
-// SetPeerPluginName 设置对应工作名
+// SetPeerPluginName - Sets the corresponding peer plugin name
 func (b *BasePluggable) SetPeerPluginName(name string) {
 	b.peerPluginName = name
 }
 
-// SetPeerPluginJobConf 设置对应工作配置
+// SetPeerPluginJobConf - Sets the corresponding peer plugin's working configuration
 func (b *BasePluggable) SetPeerPluginJobConf(conf *config.JSON) {
 	b.peerPluginJobConf = conf
 }
 
-// Developer 插件开发者,当developer不存在或者不是字符串时会返回错误
+// Developer - Plugin Developer, will return an error if developer is not present or not a string
 func (b *BasePluggable) Developer() (string, error) {
 	return b.pluginConf.GetString("developer")
 }
 
-// Description 插件描述,当description不存在或者不是字符串时会返回错误
+// Description - Plugin Description, will return an error if description is not present or not a string
 func (b *BasePluggable) Description() (string, error) {
 	return b.pluginConf.GetString("description")
 }
 
-// PluginName 插件名称,当name不存在或者不是字符串时会返回错误
+// PluginName - Plugin Name, will return an error if name is not present or not a string
 func (b *BasePluggable) PluginName() (string, error) {
 	return b.pluginConf.GetString("name")
 }
 
-// PluginConf 插件配置
+// PluginConf - Plugin Configuration
 func (b *BasePluggable) PluginConf() *config.JSON {
 	return b.pluginConf
 }
 
-// PluginJobConf 工作配置
+// PluginJobConf - Working Configuration
 func (b *BasePluggable) PluginJobConf() *config.JSON {
 	return b.pluginJobConf
 }
 
-// PeerPluginName 对应插件名称
+// PeerPluginName - Corresponding Plugin Name
 func (b *BasePluggable) PeerPluginName() string {
 	return b.peerPluginName
 }
 
-// PeerPluginJobConf 设置个性化配置
+// PeerPluginJobConf - Set personalized configuration
 func (b *BasePluggable) PeerPluginJobConf() *config.JSON {
 	return b.peerPluginJobConf
 }

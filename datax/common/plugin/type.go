@@ -14,18 +14,18 @@
 
 package plugin
 
-// Type 插件类型
+// Type: Plugin Type
 type Type string
 
-// 插件类型枚举
+// Plugin Type Enumeration
 var (
-	Reader      Type = "reader"      //读取器
-	Writer      Type = "writer"      //写入器
-	Transformer Type = "transformer" //转化器
-	Handler     Type = "handler"     //处理器
+	Reader      Type = "reader"      // Reader
+	Writer      Type = "writer"      // Writer
+	Transformer Type = "transformer" // Converter
+	Handler     Type = "handler"     // Processor
 )
 
-// NewType 新增类型
+// NewType: New Type
 func NewType(s string) Type {
 	return Type(s)
 }
@@ -34,7 +34,7 @@ func (t Type) String() string {
 	return string(t)
 }
 
-// IsValid 是否合法
+// IsValid: Is Valid
 func (t Type) IsValid() bool {
 	switch t {
 	case Reader, Writer, Transformer, Handler:

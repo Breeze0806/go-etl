@@ -20,34 +20,34 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Task 任务接口
+// Task - An interface for representing tasks
 type Task interface {
 	Plugin
 
-	//任务信息收集器，todo 未使用
+	// Task Information Collector, todo: not currently used
 	TaskCollector() TaskCollector
-	//设置任务信息收集器，todo 未使用
+	// Set Task Information Collector, todo: not currently used
 	SetTaskCollector(collector TaskCollector)
 
-	//工作ID
+	// Job ID
 	JobID() int64
-	//设置工作ID
+	// Set Job ID
 	SetJobID(jobID int64)
-	//任务组ID
+	// Task Group ID
 	TaskGroupID() int64
-	//设置任务组ID
+	// Set Task Group ID
 	SetTaskGroupID(taskGroupID int64)
-	//任务ID
+	// Task ID
 	TaskID() int64
-	//设置任务ID
+	// Set Task ID
 	SetTaskID(taskID int64)
-	//包裹错误
+	// Wrap Error
 	Wrapf(err error, format string, args ...interface{}) error
-	//Format 日志格式
+	// Format - Log format
 	Format(format string) string
 }
 
-// BaseTask 基础任务，用于辅助和简化任务接口的实现
+// BaseTask - A basic task that assists and simplifies the implementation of task interfaces
 type BaseTask struct {
 	*BasePlugin
 
@@ -57,59 +57,59 @@ type BaseTask struct {
 	collector   TaskCollector
 }
 
-// NewBaseTask 创建基础任务
+// NewBaseTask - Creates a new instance of a base task
 func NewBaseTask() *BaseTask {
 	return &BaseTask{
 		BasePlugin: NewBasePlugin(),
 	}
 }
 
-// TaskCollector 任务信息收集器
+// TaskCollector - Collects information related to tasks
 func (b *BaseTask) TaskCollector() TaskCollector {
 	return b.collector
 }
 
-// SetTaskCollector 设置任务信息收集器
+// SetTaskCollector - Sets the task information collector
 func (b *BaseTask) SetTaskCollector(collector TaskCollector) {
 	b.collector = collector
 }
 
-// TaskID 任务ID
+// TaskID - The unique identifier for a task
 func (b *BaseTask) TaskID() int64 {
 	return b.taskID
 }
 
-// SetTaskID 设置任务ID
+// SetTaskID - Sets the unique identifier for a task
 func (b *BaseTask) SetTaskID(taskID int64) {
 	b.taskID = taskID
 }
 
-// TaskGroupID 任务组ID
+// TaskGroupID - The unique identifier for a group of tasks
 func (b *BaseTask) TaskGroupID() int64 {
 	return b.taskGroupID
 }
 
-// SetTaskGroupID 设置任务组ID
+// SetTaskGroupID - Sets the unique identifier for a group of tasks
 func (b *BaseTask) SetTaskGroupID(taskGroupID int64) {
 	b.taskGroupID = taskGroupID
 }
 
-// JobID 工作ID
+// JobID - The unique identifier for a job
 func (b *BaseTask) JobID() int64 {
 	return b.jobID
 }
 
-// SetJobID 设置工作ID
+// SetJobID - Sets the unique identifier for a job
 func (b *BaseTask) SetJobID(jobID int64) {
 	b.jobID = jobID
 }
 
-// Wrapf 包裹错误
+// Wrapf - Wraps an error with additional context
 func (b *BaseTask) Wrapf(err error, format string, args ...interface{}) error {
 	return errors.Wrapf(err, b.Format(format), args...)
 }
 
-// Format 日志格式
+// Format - The format for logging messages
 func (b *BaseTask) Format(format string) string {
 	return fmt.Sprintf("jobId : %v taskgroupId: %v taskId: %v %v", b.jobID, b.taskGroupID, b.taskID, format)
 }

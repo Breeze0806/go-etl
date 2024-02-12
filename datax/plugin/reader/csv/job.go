@@ -22,27 +22,27 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Job 工作
+// Job - A unit of work to be performed
 type Job struct {
 	*file.Job
 
 	conf *Config
 }
 
-// NewJob 创建工作
+// NewJob - Creates a new instance of a Job
 func NewJob() *Job {
 	return &Job{
 		Job: file.NewJob(),
 	}
 }
 
-// Init 初始化
+// Init - Initializes the Job, setting up any required resources or states
 func (j *Job) Init(ctx context.Context) (err error) {
 	j.conf, err = NewConfig(j.PluginJobConf())
 	return errors.Wrapf(err, "NewConfig fail. val: %v", j.PluginConf())
 }
 
-// Split 切分
+// Split - Divides the Job into smaller sub-tasks or sub-jobs for parallel processing or distribution
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
 	for _, v := range j.conf.Path {
 		conf, _ := config.NewJSONFromString("{}")

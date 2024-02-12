@@ -18,8 +18,8 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-// RecordReceiver 记录接收器
+// RecordReceiver - A component that receives records
 type RecordReceiver interface {
-	GetFromReader() (element.Record, error) //从reader中读取记录
-	Shutdown() error                        // 关闭
+	GetFromReader() (element.Record, error) // Reads records from the reader
+	Shutdown() error                        // Closes the receiver
 }

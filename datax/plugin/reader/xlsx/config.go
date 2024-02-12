@@ -18,23 +18,23 @@ import (
 	"encoding/json"
 
 	"github.com/Breeze0806/go-etl/config"
-	//xlsx storage
+	// xlsx storage - Storage or handling of data in the XLSX format.
 	"github.com/Breeze0806/go-etl/storage/stream/file/xlsx"
 )
 
-// Config xlsx输入配置
+// Config xlsx input configuration - Configuration settings for reading or processing data from an XLSX file.
 type Config struct {
 	xlsx.InConfig
 	Xlsxs []Xlsx `json:"xlsxs"`
 }
 
-// Xlsx xlsx文件配置
+// Xlsx file configuration - Specifies the configuration details for an XLSX file, such as its location, format, or specific settings.
 type Xlsx struct {
 	Path   string   `json:"path"`
 	Sheets []string `json:"sheets"`
 }
 
-// NewConfig 读取json配置conf获取xlsx输入配置
+// NewConfig - A function or method that reads a JSON configuration file (conf) and retrieves the XLSX input configuration settings from it.
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {

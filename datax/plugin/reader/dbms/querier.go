@@ -21,20 +21,20 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// Querier  查询器
+// Querier - Query Executor
 type Querier interface {
-	//通过基础表信息获取具体表
+	// Obtain a specific table based on basic table information.
 	Table(*database.BaseTable) database.Table
-	//检测连通性
+	// Check connectivity.
 	PingContext(ctx context.Context) error
-	//通过query查询语句进行查询
+	// Perform a query using the specified query statement.
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-	//通过参数param获取具体表
+	// Obtain a specific table based on the provided parameters.
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
-	//通过参数param，处理句柄handler获取记录
+	// Retrieve records using the provided parameters and the handler.
 	FetchRecord(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error)
-	//通过参数param，处理句柄handler使用事务获取记录
+	// Retrieve records using the provided parameters, the handler, and within a transaction.
 	FetchRecordWithTx(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error)
-	//关闭资源
+	// Close resources.
 	Close() error
 }

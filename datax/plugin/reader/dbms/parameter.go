@@ -23,25 +23,25 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// TableParamConfig 表参数配置
+// TableParamConfig Table parameter configuration
 type TableParamConfig interface {
-	GetColumns() []Column              //获取列信息
-	GetBaseTable() *database.BaseTable //获取表信息
+	GetColumns() []Column              // Get column information
+	GetBaseTable() *database.BaseTable // Get table information
 }
 
-// TableParamTable 通过表参数获取对应数据库的表
+// TableParamTable Get the table of the corresponding database through table parameters
 type TableParamTable interface {
-	Table(*database.BaseTable) database.Table //通过表参数获取对应数据库的表
+	Table(*database.BaseTable) database.Table // Get the table of the corresponding database through table parameters
 }
 
-// TableParam 表参数
+// TableParam Table parameters
 type TableParam struct {
 	*database.BaseParam
 
 	Config TableParamConfig
 }
 
-// NewTableParam 获取表参数配置config，通过表参数获取对应数据库的表table和事务选项opts获取表参数
+// NewTableParam Get table parameter configuration config, get table parameters through table parameters of the corresponding database table and transaction options opts
 func NewTableParam(config TableParamConfig, table TableParamTable, opts *sql.TxOptions) *TableParam {
 	return &TableParam{
 		BaseParam: database.NewBaseParam(table.Table(config.GetBaseTable()), opts),
@@ -50,7 +50,7 @@ func NewTableParam(config TableParamConfig, table TableParamTable, opts *sql.TxO
 	}
 }
 
-// Query 获取查询语句
+// Query Get the query statement
 func (t *TableParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select ")
 	if len(t.Config.GetColumns()) == 0 {
@@ -68,19 +68,19 @@ func (t *TableParam) Query(_ []element.Record) (string, error) {
 	return buf.String(), nil
 }
 
-// Agrs 获取查询参数
+// Agrs Get query parameters
 func (t *TableParam) Agrs(_ []element.Record) ([]interface{}, error) {
 	return nil, nil
 }
 
-// QueryParam 查询参数
+// QueryParam Query parameters
 type QueryParam struct {
 	*database.BaseParam
 
 	Config Config
 }
 
-// NewQueryParam 通过关系型数据库输入配置config，对应数据库表table和事务选项opts获取查询参数
+// NewQueryParam Get query parameters through relational database input configuration config, corresponding database table table, and transaction options opts
 func NewQueryParam(config Config, table database.Table, opts *sql.TxOptions) *QueryParam {
 	return &QueryParam{
 		BaseParam: database.NewBaseParam(table, opts),
@@ -89,7 +89,7 @@ func NewQueryParam(config Config, table database.Table, opts *sql.TxOptions) *Qu
 	}
 }
 
-// Query 获取查询语句
+// Query Get the query statement
 func (q *QueryParam) Query(_ []element.Record) (string, error) {
 	if len(q.Config.GetQuerySQL()) > 1 {
 		return "", errors.NewNoStackError("too much querySQL")
@@ -118,7 +118,7 @@ func (q *QueryParam) Query(_ []element.Record) (string, error) {
 	return buf.String(), nil
 }
 
-// Agrs 获取查询参数
+// Agrs Get query parameters
 func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
 	if len(q.Config.GetQuerySQL()) > 0 {
 		return nil, nil
@@ -149,14 +149,14 @@ func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
 	return nil, nil
 }
 
-// SplitParam 切分参数
+// SplitParam Splitting parameters
 type SplitParam struct {
 	*database.BaseParam
 
 	Config Config
 }
 
-// NewSplitParam 获取表参数配置config，通过表参数获取对应数据库的表table和事务选项opts获取切分表参数
+// NewSplitParam Get table parameter configuration config, get split table parameters through table parameters of the corresponding database table and transaction options opts
 func NewSplitParam(config Config, table TableParamTable, opts *sql.TxOptions) *SplitParam {
 	return &SplitParam{
 		BaseParam: database.NewBaseParam(table.Table(config.GetBaseTable()), opts),
@@ -165,7 +165,7 @@ func NewSplitParam(config Config, table TableParamTable, opts *sql.TxOptions) *S
 	}
 }
 
-// Query 获取查询语句
+// Query Get the query statement
 func (s *SplitParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select ")
 
@@ -177,19 +177,19 @@ func (s *SplitParam) Query(_ []element.Record) (string, error) {
 	return buf.String(), nil
 }
 
-// Agrs 获取查询参数
+// Agrs Get query parameters
 func (s *SplitParam) Agrs(_ []element.Record) ([]interface{}, error) {
 	return nil, nil
 }
 
-// MinParam 最小值参数
+// MinParam Minimum value parameter
 type MinParam struct {
 	*database.BaseParam
 
 	Config Config
 }
 
-// NewMinParam 通过关系型数据库输入配置config，对应数据库表table和事务选项opts获取最小值参数
+// NewMinParam Get the minimum value parameter through relational database input configuration config, corresponding database table table, and transaction options opts
 func NewMinParam(config Config, table database.Table, opts *sql.TxOptions) *MinParam {
 	return &MinParam{
 		BaseParam: database.NewBaseParam(table, opts),
@@ -198,7 +198,7 @@ func NewMinParam(config Config, table database.Table, opts *sql.TxOptions) *MinP
 	}
 }
 
-// Query 获取查询语句
+// Query Get the query statement
 func (m *MinParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select min(")
 	buf.WriteString(m.Config.GetSplitConfig().Key)
@@ -212,19 +212,19 @@ func (m *MinParam) Query(_ []element.Record) (string, error) {
 	return buf.String(), nil
 }
 
-// Agrs 获取查询参数
+// Agrs Get query parameters
 func (m *MinParam) Agrs(_ []element.Record) ([]interface{}, error) {
 	return nil, nil
 }
 
-// MaxParam 最大值参数
+// MaxParam Maximum value parameter
 type MaxParam struct {
 	*database.BaseParam
 
 	Config Config
 }
 
-// NewMaxParam 通过关系型数据库输入配置config，对应数据库表table和事务选项opts获取查询参数
+// NewMaxParam Get query parameters through relational database input configuration config, corresponding database table table, and transaction options opts
 func NewMaxParam(config Config, table database.Table, opts *sql.TxOptions) *MaxParam {
 	return &MaxParam{
 		BaseParam: database.NewBaseParam(table, opts),
@@ -233,7 +233,7 @@ func NewMaxParam(config Config, table database.Table, opts *sql.TxOptions) *MaxP
 	}
 }
 
-// Query 获取查询语句
+// Query Get the query statement
 func (m *MaxParam) Query(_ []element.Record) (string, error) {
 	buf := bytes.NewBufferString("select max(")
 	buf.WriteString(m.Config.GetSplitConfig().Key)
@@ -247,7 +247,7 @@ func (m *MaxParam) Query(_ []element.Record) (string, error) {
 	return buf.String(), nil
 }
 
-// Agrs 获取查询参数
+// Agrs Get query parameters
 func (m *MaxParam) Agrs(_ []element.Record) ([]interface{}, error) {
 	return nil, nil
 }

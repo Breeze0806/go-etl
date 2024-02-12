@@ -20,21 +20,21 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 
-	//mysql storage
+	// mysql storage - MySQL database storage
 	_ "github.com/Breeze0806/go-etl/storage/database/mysql"
 )
 
-// Reader 读取器
+// Reader - A component or tool used for reading data from a source
 type Reader struct {
 	pluginConf *config.JSON
 }
 
-// ResourcesConfig 插件资源配置
+// ResourcesConfig - Configuration for the resources used by a plugin
 func (r *Reader) ResourcesConfig() *config.JSON {
 	return r.pluginConf
 }
 
-// Job 工作
+// Job - A unit of work or task to be performed
 func (r *Reader) Job() spireader.Job {
 	job := &Job{
 		Job: dbms.NewJob(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {
@@ -48,7 +48,7 @@ func (r *Reader) Job() spireader.Job {
 	return job
 }
 
-// Task 任务
+// Task - A specific piece of work or operation within a larger context, often part of a Job
 func (r *Reader) Task() spireader.Task {
 	task := &Task{
 		Task: dbms.NewTask(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {

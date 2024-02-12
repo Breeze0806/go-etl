@@ -18,18 +18,18 @@ import (
 	"encoding/json"
 
 	"github.com/Breeze0806/go-etl/config"
-	//csv storage
+	// csv storage
 	"github.com/Breeze0806/go-etl/storage/stream/file/csv"
 )
 
-// Config csv读入配置
+// Config represents the configuration for reading CSV files.
 type Config struct {
 	csv.InConfig
 
 	Path []string `json:"path"`
 }
 
-// NewConfig 读取json配置conf获取csv读入配置
+// NewConfig reads the JSON configuration conf to obtain the CSV reading configuration.
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {

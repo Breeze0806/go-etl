@@ -18,7 +18,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 )
 
-// Job 工作
+// Job refers to a task or a unit of work.
 type Job struct {
 	*dbms.Job
 }
