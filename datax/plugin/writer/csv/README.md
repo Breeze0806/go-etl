@@ -1,20 +1,20 @@
-# CsvWriter插件文档
+# CsvWriter Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-CsvWriter插件实现了向csv文件写入数据。在底层实现上，CsvWriter通过标准库os以及encoding/csv写入文件。此外，对于文件数目的大小要和reader的切分数一致，否则会导致任务无法开始。
+The CsvWriter plugin enables data writing to CSV files. Internally, it utilizes the standard libraries `os` and `encoding/csv` for file writing. Additionally, it's important to ensure that the number of files matches the number of splits defined by the reader, as any mismatch can prevent the task from starting.
 
-## 实现原理
+## Implementation Principles
 
-CsvWriter将reader传来的每一个记录，通过标准库os以及encoding/csv转换成字符串写入文件。
+The CsvWriter converts each record received from the reader into a string using the standard libraries `os` and `encoding/csv`, and then writes it to the file.
 
-CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的storage/stream/file的file.OutStreamer来实现具体的读取。
+CsvWriter leverages the write process defined in `file.Task` to invoke `file.OutStreamer` from go-etl's custom `storage/stream/file` for specific reading operations.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个向csv文件同步写入数据的作业:
+Configuring a job to synchronously write data to a CSV file:
 
 ```json
 {
@@ -44,108 +44,107 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 }
 ```
 
-### 参数说明
+### Parameter Description
 
 #### path
 
-- 描述 主要用于配置csv文件的绝对路径，可以配置多个文件
-- 必选：是
-- 默认值: 无
+- Description: Specifies the absolute path(s) of the CSV file(s). Multiple files can be configured.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述 主要用于配置csv文件的列信息数组，如不配置对应信息，则认为对应为string类型
-- 必选：是
-- 默认值: 无
+- Description: Configures the column information array for the CSV file. If not specified, the corresponding data is assumed to be of type string.
+- Required: Yes
+- Default: None
 
 ##### index
 
-- 描述 主要用于配置csv文件的列编号，从1开始
-- 必选：是
-- 默认值: 无
+- Description: Configures the column number in the CSV file, starting from 1.
+- Required: Yes
+- Default: None
 
 ##### type
 
-- 描述 主要用于配置csv文件的列类型，主要有boolen,bigInt,decimal,string,time等类型
-- 必选：是
-- 默认值: 无
+- Description: Configures the data type of the CSV column, including options like boolean, bigInt, decimal, string, time, etc.
+- Required: Yes
+- Default: None
 
 ##### format
 
-- 描述 主要用于配置csv文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
-- 必选：是
-- 默认值: 无
+- Description: Configures the format of the CSV column, primarily used for the time type. It follows the Java Joda time format, such as "yyyy-MM-dd".
+- Required: Yes, for time type
+- Default: None
 
 #### encoding
 
-- 描述 主要用于配置csv文件的编码类型，目前仅支持utf-8和gbk
-- 必选：否
-- 默认值: 无
+- Description: Configures the encoding type of the CSV file, currently supporting only UTF-8 and GBK.
+- Required: No
+- Default: None
 
 #### delimiter
 
-- 描述 主要用于配置csv文件的分隔符，目前仅支持空格和可见的符号，如逗号，分号等
-- 必选：否
-- 默认值: 无
+- Description: Configures the separator for the CSV file, currently supporting only visible symbols like spaces, commas, semicolons, etc.
+- Required: No
+- Default: None
 
 #### nullFormat
 
-- 描述：文本文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
-- 必选：否
-- 默认值：空字符串
+- Description: Standard strings cannot define null (empty pointers) in text files. DataX provides nullFormat to define which strings can represent null. For example, if the user configures nullFormat as "\N", DataX treats "\N" in the source data as a null field.
+- Required: No
+- Default: Empty string
 
 #### hasHeader
 
-- 描述：是否写入csv文件的列头，当存在header，写入header，而不存在时，写入列名。
-- 必选：否
-- 默认值：false
+- Description: Determines whether to write the header to the CSV file. If a header exists, it writes the header; otherwise, it writes the column names.
+- Required: No
+- Default: false
 
 #### header
 
-- 描述：写入csv文件的列头数组，仅hasHeader有效。
-- 必选：否
-- 默认值：无
-
+- Description: Specifies the header array to write to the CSV file. This is only valid when hasHeader is true.
+- Required: No
+- Default: None
 
 #### compress
 
-- 描述：csv文件压缩方式，目前支持gz和zip，gz代表gzip压缩，zip代表zip压缩
-- 必选：否
-- 默认值：无压缩
+- Description: Configures the compression method for the CSV file, currently supporting gz (gzip compression) and zip (zip compression).
+- Required: No
+- Default: No compression
 
 #### batchTimeout
 
-- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：否
-- 默认值: 1s
+- Description: Configures the timeout interval for each batch write operation. Format: number + unit, where the unit can be s (seconds), ms (milliseconds), or us (microseconds). If the specified time interval elapses, the data is written directly. This parameter, along with batchSize, helps regulate write performance.
+- Required: No
+- Default: 1s
 
 #### batchSize
 
-- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：否
-- 默认值: 1000
+- Description: Configures the size of each batch write operation. If the specified size is exceeded, the data is written directly. This parameter, along with batchTimeout, helps regulate write performance.
+- Required: No
+- Default: 1000
 
-### 类型转换
+### Type Conversion
 
-目前CsvWriter支持的csv数据类型需要在column配置中配置，请注意检查你的类型。
+Currently, the supported CSV data types in CsvWriter need to be configured in the column settings. Please check your data types accordingly.
 
-下面列出CsvWriter针对csv类型转换列表:
+Below is a list of type conversions supported by CsvWriter for CSV data:
 
-| go-etl的类型 | csv数据类型 |
-| ------------ | ----------- |
-| bigInt       | bigInt      |
-| decimal      | decimal     |
-| string       | string      |
-| time         | time        |
-| bool         | bool        |
+| go-etl Type | CSV Data Type |
+| --- | --- |
+| bigInt | bigInt |
+| decimal | decimal |
+| string | string |
+| time | time |
+| bool | bool |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Constraints and Limitations
 
-### 数据库编码问题
-目前仅支持utf8字符集
+### Database Encoding Issues
+Currently, only the UTF-8 character set is supported.
 
 ## FAQ

@@ -21,7 +21,7 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 
-	//db2 dialect
+	// db2 dialect - A specific syntax or language feature set used by the DB2 database system.
 	_ "github.com/Breeze0806/go-etl/storage/database/db2"
 )
 
@@ -36,12 +36,12 @@ func execMode(writeMode string) string {
 	return dbms.ExecModeNormal
 }
 
-// Task 任务
+// Task - A specific piece of work or operation to be performed within a larger context, often part of a larger job or process.
 type Task struct {
 	*dbms.Task
 }
 
-// StartWrite 开始写
+// StartWrite - Begins the process of writing data, typically to a destination or storage medium.
 func (t *Task) StartWrite(ctx context.Context, receiver plugin.RecordReceiver) (err error) {
 	return dbms.StartWrite(ctx, dbms.NewBaseBatchWriter(t.Task, execMode(t.Config.GetWriteMode()), nil), receiver)
 }

@@ -20,41 +20,41 @@ import (
 	"time"
 )
 
-// NilStringColumnValue 空值字符串列值
+// NilStringColumnValue - Null value for a string column
 type NilStringColumnValue struct {
 	*nilColumnValue
 }
 
-// NewNilStringColumnValue 创建空值字符串列值
+// NewNilStringColumnValue - Create a null value for a string column
 func NewNilStringColumnValue() ColumnValue {
 	return &NilStringColumnValue{
 		nilColumnValue: &nilColumnValue{},
 	}
 }
 
-// Type 列类型
+// Type - Column type
 func (n *NilStringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
-// Clone 克隆空值字符串
+// Clone - Clone the null string value
 func (n *NilStringColumnValue) Clone() ColumnValue {
 	return NewNilStringColumnValue()
 }
 
-// StringColumnValue 字符串列名 注意：Decimal 123.0（val:1230,exp:-1）和123（val:123,exp:0）不一致
+// StringColumnValue - Value for a string column. Note: Decimal 123.0 (val:1230, exp:-1) is not equivalent to 123 (val:123, exp:0)
 type StringColumnValue struct {
 	notNilColumnValue
 	TimeEncoder
 	val string
 }
 
-// NewStringColumnValue 根据字符串s 生成字符串列值
+// NewStringColumnValue - Create a string column value based on the string s
 func NewStringColumnValue(s string) ColumnValue {
 	return NewStringColumnValueWithEncoder(s, NewStringTimeEncoder(DefaultTimeFormat))
 }
 
-// NewStringColumnValueWithEncoder 根据字符串s 时间编码器e生成字符串列值
+// NewStringColumnValueWithEncoder - Create a string column value based on the string s and time encoder e
 func NewStringColumnValueWithEncoder(s string, e TimeEncoder) ColumnValue {
 	return &StringColumnValue{
 		TimeEncoder: e,
@@ -62,13 +62,13 @@ func NewStringColumnValueWithEncoder(s string, e TimeEncoder) ColumnValue {
 	}
 }
 
-// Type 列类型
+// Type - Column type
 func (s *StringColumnValue) Type() ColumnType {
 	return TypeString
 }
 
-// AsBool 1, t, T, TRUE, true, True转化为true
-// 0, f, F, FALSE, false, False转化为false，如果不是上述情况会报错
+// AsBool - Convert 1, t, T, TRUE, true, True to true
+// Convert 0, f, F, FALSE, false, False to false. If none of the above, an error is thrown.
 func (s *StringColumnValue) AsBool() (v bool, err error) {
 	v, err = strconv.ParseBool(s.val)
 	if err != nil {
@@ -77,8 +77,8 @@ func (s *StringColumnValue) AsBool() (v bool, err error) {
 	return
 }
 
-// AsBigInt 转化为整数，实数型以及科学性计数法字符串会被取整，不是数值型的会报错
-// 如123.67转化为123 123.12转化为123
+// AsBigInt - Convert to a big integer. Floating-point numbers and scientific notation strings will be rounded. Non-numeric values will throw an error.
+// E.g., 123.67 is converted to 123, and 123.12 is converted to 123.
 func (s *StringColumnValue) AsBigInt() (BigIntNumber, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *StringColumnValue) AsBigInt() (BigIntNumber, error) {
 	return v.AsBigInt()
 }
 
-// AsDecimal 转化为整数，实数型以及科学性计数法字符串能够转化，不是数值型的会报错
+// AsDecimal - Convert to a decimal. Floating-point numbers and scientific notation strings can be converted. Non-numeric values will throw an error.
 func (s *StringColumnValue) AsDecimal() (DecimalNumber, error) {
 	v, err := NewDecimalColumnValueFromString(s.val)
 	if err != nil {
@@ -97,17 +97,17 @@ func (s *StringColumnValue) AsDecimal() (DecimalNumber, error) {
 	return v.AsDecimal()
 }
 
-// AsString 转化为字符串
+// AsString - Convert to a string
 func (s *StringColumnValue) AsString() (string, error) {
 	return s.val, nil
 }
 
-// AsBytes 转化成字节流
+// AsBytes - Convert to a byte stream
 func (s *StringColumnValue) AsBytes() ([]byte, error) {
 	return []byte(s.val), nil
 }
 
-// AsTime 根据时间编码器转化成时间，不符合时间编码器格式会报错
+// AsTime - Convert to a time based on the time encoder. If the format does not match the time encoder, an error is thrown.
 func (s *StringColumnValue) AsTime() (t time.Time, err error) {
 	t, err = s.TimeEncode(s.val)
 	if err != nil {
@@ -120,12 +120,12 @@ func (s *StringColumnValue) String() string {
 	return s.val
 }
 
-// Clone 克隆字符串列值
+// Clone - Clone the string column value
 func (s *StringColumnValue) Clone() ColumnValue {
 	return NewStringColumnValue(s.val)
 }
 
-// Cmp  返回1代表大于， 0代表相等， -1代表小于
+// Cmp - Return 1 for greater than, 0 for equal, -1 for less than
 func (s *StringColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsString()
 	if err != nil {

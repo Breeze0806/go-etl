@@ -21,14 +21,14 @@ import (
 	"github.com/godror/godror"
 )
 
-// Config 配置
+// Config is the configuration
 type Config struct {
-	URL      string `json:"url"`      //数据库url，包含数据库地址，数据库其他参数
-	Username string `json:"username"` //用户名
-	Password string `json:"password"` //密码
+	URL      string `json:"url"`      // Database URL, including the database address and other database parameters
+	Username string `json:"username"` // Username
+	Password string `json:"password"` // Password
 }
 
-// NewConfig 创建oracle配置，如果格式不符合要求，就会报错
+// NewConfig creates an Oracle configuration and will report an error if the format does not meet the requirements
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -38,7 +38,7 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	return
 }
 
-// FetchConnectionParams 获取oracle连接参数，url有错会报错
+// FetchConnectionParams retrieves the Oracle connection parameters and will report an error if the URL is incorrect
 func (c *Config) FetchConnectionParams() (con godror.ConnectionParams, err error) {
 	if con, err = godror.ParseDSN(c.URL); err != nil {
 		return

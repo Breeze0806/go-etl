@@ -23,27 +23,27 @@ func init() {
 	database.RegisterDialect(d.Name(), d)
 }
 
-// Dialect db2数据库方言
+// Dialect is the dialect for the DB2 database
 type Dialect struct{}
 
-// Source 生成db2数据源
+// Source generates a DB2 data source
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
 
-// Name 数据库方言的注册名
+// Name is the registered name for the database dialect
 func (d Dialect) Name() string {
 	return "db2"
 }
 
-// Source db2数据源
+// Source is the DB2 data source
 type Source struct {
-	*database.BaseSource //基础数据源
+	*database.BaseSource // Basic data source
 
 	dsn string
 }
 
-// NewSource 生成db2数据源，在配置文件错误时会报错
+// NewSource generates a DB2 data source and will report an error if the configuration file is incorrect
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,
@@ -59,27 +59,27 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	return source, nil
 }
 
-// DriverName github.com/ibmdb/go_ibm_db的驱动名
+// DriverName is the driver name for github.com/ibmdb/go_ibm_db
 func (s *Source) DriverName() string {
 	return "go_ibm_db"
 }
 
-// ConnectName github.com/ibmdb/go_ibm_db的数据源连接信息
+// ConnectName is the connection information for the data source from github.com/ibmdb/go_ibm_db
 func (s *Source) ConnectName() string {
 	return s.dsn
 }
 
-// Key 数据源的关键字，用于DBWrapper的复用
+// Key is the keyword for the data source, used for reuse by DBWrapper
 func (s *Source) Key() string {
 	return s.dsn
 }
 
-// Table 生成db2的表
+// Table generates a DB2 table
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-// Quoted db2引用函数
+// Quoted is the quoting function for DB2
 func Quoted(s string) string {
 	return `"` + s + `"`
 }

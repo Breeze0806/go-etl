@@ -22,26 +22,26 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-// 错误枚举
+// Error Enumeration - An enumeration of possible errors
 var (
 	ErrTerminate = errors.New("reader is terminated")
 	ErrEmpty     = errors.New("chan is empty")
 	ErrShutdown  = errors.New("exchange is shutdowned")
 )
 
-// RecordExchanger 记录交换器
+// RecordExchanger - A component responsible for exchanging records
 type RecordExchanger struct {
 	tran       transform.Transformer
 	ch         *channel.Channel
 	isShutdown bool
 }
 
-// NewRecordExchangerWithoutTransformer 生成不带转化器的记录交换器
+// NewRecordExchangerWithoutTransformer - Creates a new instance of a RecordExchanger without a transformer
 func NewRecordExchangerWithoutTransformer(ch *channel.Channel) *RecordExchanger {
 	return NewRecordExchanger(ch, &transform.NilTransformer{})
 }
 
-// NewRecordExchanger 根据通道ch和转化器tran生成的记录交换器
+// NewRecordExchanger - Creates a new instance of a RecordExchanger based on a channel (ch) and a transformer (tran)
 func NewRecordExchanger(ch *channel.Channel, tran transform.Transformer) *RecordExchanger {
 	return &RecordExchanger{
 		tran: tran,
@@ -49,8 +49,8 @@ func NewRecordExchanger(ch *channel.Channel, tran transform.Transformer) *Record
 	}
 }
 
-// GetFromReader 从Reader中获取记录
-// 当交换器关闭，通道为空或者收到终止消息也会报错
+// GetFromReader - Retrieves records from the Reader
+// An error will be reported if the exchanger is closed, the channel is empty, or a termination message is received
 func (r *RecordExchanger) GetFromReader() (newRecord element.Record, err error) {
 	if r.isShutdown {
 		return nil, ErrShutdown
@@ -71,19 +71,19 @@ func (r *RecordExchanger) GetFromReader() (newRecord element.Record, err error) 
 	}
 }
 
-// Shutdown 关闭
+// Shutdown - Closes the exchanger
 func (r *RecordExchanger) Shutdown() error {
 	r.isShutdown = true
 	return nil
 }
 
-// CreateRecord 创建记录
+// CreateRecord - Creates a new record
 func (r *RecordExchanger) CreateRecord() (element.Record, error) {
 	return element.NewDefaultRecord(), nil
 }
 
-// SendWriter 向写入器写入记录recode,其中还会通过转化器的转化
-// 当转化失败或者通道已关闭时就会报错
+// SendWriter - Writes a record (recode) to the writer, potentially transforming it through a transformer
+// An error will be reported if the transformation fails or if the channel is closed
 func (r *RecordExchanger) SendWriter(record element.Record) (err error) {
 	if r.isShutdown {
 		return ErrShutdown
@@ -94,12 +94,12 @@ func (r *RecordExchanger) SendWriter(record element.Record) (err error) {
 	return
 }
 
-// Flush 刷新，空方法
+// Flush - Flushes any pending data, but is an empty method in this context
 func (r *RecordExchanger) Flush() error {
 	return nil
 }
 
-// Terminate 终止记录交换
+// Terminate - Terminates the record exchange process
 func (r *RecordExchanger) Terminate() error {
 	r.ch.PushTerminate()
 	return nil

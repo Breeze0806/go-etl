@@ -22,7 +22,7 @@ import (
 	"go.uber.org/atomic"
 )
 
-// 已关闭错误
+// ErrorClosed - Represents an error indicating that the operation is closed.
 var (
 	ErrClosed = errors.New("task schduler closed")
 )
@@ -32,16 +32,16 @@ type taskWrapper struct {
 	result chan error
 }
 
-// TaskSchduler 任务调度器
+// TaskScheduler - Represents a task scheduler.
 type TaskSchduler struct {
-	taskWrappers chan *taskWrapper //待执行任务队列
+	taskWrappers chan *taskWrapper // PendingTaskQueue - Queue of tasks waiting to be executed.
 	wg           sync.WaitGroup
-	stop         chan struct{} //停止信号
-	stopped      int32         //停止标识
-	size         *atomic.Int32 //待执行队列大小
+	stop         chan struct{} // StopSignal - Signal to stop the scheduler.
+	stopped      int32         // StopFlag - Flag indicating whether the scheduler should stop.
+	size         *atomic.Int32 // PendingQueueSize - Size of the pending task queue.
 }
 
-// NewTaskSchduler 根据执行者数workerNumer，待执行队列容量cao生成任务调度器
+// NewTaskScheduler - Creates a new task scheduler based on the number of workers (workerNumber) and the capacity of the pending task queue (capacity).
 func NewTaskSchduler(workerNumer, cap int) *TaskSchduler {
 	t := &TaskSchduler{
 		taskWrappers: make(chan *taskWrapper, cap),
@@ -61,7 +61,7 @@ func NewTaskSchduler(workerNumer, cap int) *TaskSchduler {
 	return t
 }
 
-// Push 将任务task加入队列，获得执行结果通知信道，在已关闭时报错
+// Push - Adds a task to the queue and receives a notification channel for the execution result. An error is reported if the queue is closed.
 func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
 	if goatomic.CompareAndSwapInt32(&t.stopped, 1, 1) {
 		return nil, ErrClosed
@@ -80,12 +80,12 @@ func (t *TaskSchduler) Push(task Task) (<-chan error, error) {
 	}
 }
 
-// Size 待执行队列大小
+// Size - Represents the size of the pending task queue.
 func (t *TaskSchduler) Size() int32 {
 	return t.size.Load()
 }
 
-// Stop 停止任务调度器
+// Stop - Stops the task scheduler.
 func (t *TaskSchduler) Stop() {
 	if !goatomic.CompareAndSwapInt32(&t.stopped, 0, 1) {
 		return

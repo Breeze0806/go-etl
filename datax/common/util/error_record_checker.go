@@ -14,6 +14,6 @@
 
 package util
 
-// ErrorRecordChecker 错误检查器 todo未使用
+// ErrorRecordChecker: an error checker component (todo: currently not in use)
 type ErrorRecordChecker struct {
 }

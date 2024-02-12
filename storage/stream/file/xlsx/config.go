@@ -24,15 +24,15 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// InConfig 输入xlsx配置
+// InConfig represents the input XLSX configuration
 type InConfig struct {
-	Columns    []Column `json:"column"`     //列信息数组
-	Sheet      string   `json:"sheet"`      //表格名
-	NullFormat string   `json:"nullFormat"` //null文本
-	StartRow   int      `json:"startRow"`   //开始读取行数，从第1行开始
+	Columns    []Column `json:"column"`     // Column information array
+	Sheet      string   `json:"sheet"`      // Sheet name
+	NullFormat string   `json:"nullFormat"` // Null text
+	StartRow   int      `json:"startRow"`   // Starting row for reading, starting from the 1st row
 }
 
-// NewInConfig 新建以json配置conf的输入xlsx配置
+// NewInConfig creates a new input XLSX configuration based on the JSON configuration conf
 func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
 	c = &InConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -59,17 +59,17 @@ func (c *InConfig) startRow() int {
 	return c.StartRow
 }
 
-// OutConfig 输出xlsx配置
+// OutConfig represents the output XLSX configuration
 type OutConfig struct {
-	Columns    []Column `json:"column"`     //列信息数组
-	Sheets     []string `json:"sheets"`     //表格名
-	NullFormat string   `json:"nullFormat"` //null文本
-	HasHeader  bool     `json:"hasHeader"`  // 是否有列头
-	Header     []string `json:"header"`     // 列头
-	SheetRow   int      `json:"sheetRow"`   // sheet最大的行数
+	Columns    []Column `json:"column"`     // Column information array
+	Sheets     []string `json:"sheets"`     // Sheet name
+	NullFormat string   `json:"nullFormat"` // Null text
+	HasHeader  bool     `json:"hasHeader"`  // Whether there is a column header
+	Header     []string `json:"header"`     // Column header
+	SheetRow   int      `json:"sheetRow"`   // Maximum number of rows in the sheet
 }
 
-// NewOutConfig 新建以json配置conf的输出xlsx配置
+// NewOutConfig creates a new output XLSX configuration based on the JSON configuration conf
 func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
 	c = &OutConfig{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -99,16 +99,16 @@ func (c *OutConfig) sheetRow() int {
 	return c.SheetRow
 }
 
-// Column 列信息
+// Column represents column information
 type Column struct {
-	Index    string `json:"index"`  //列索引，A,B,C....AA.....
-	Type     string `json:"type"`   //类型 类型 bool bigInt decimal string time
-	Format   string `json:"format"` //joda时间格式
+	Index    string `json:"index"`  // Column index, e.g., A, B, C, ..., AA, ...
+	Type     string `json:"type"`   // Type (bool, bigInt, decimal, string, time)
+	Format   string `json:"format"` // Joda time format
 	indexNum int
 	goLayout string
 }
 
-// validate 校验
+// Validate performs validation
 func (c *Column) validate() (err error) {
 	switch element.ColumnType(c.Type) {
 	case element.TypeBool, element.TypeBigInt,
@@ -127,7 +127,7 @@ func (c *Column) validate() (err error) {
 	return
 }
 
-// index 列索引
+// index represents the column index
 func (c *Column) index() (i int) {
 	if c.indexNum > 0 {
 		return c.indexNum - 1
@@ -136,7 +136,7 @@ func (c *Column) index() (i int) {
 	return c.indexNum - 1
 }
 
-// layout go时间格式
+// layout converts to the Go time format
 func (c *Column) layout() string {
 	if c.goLayout != "" {
 		return c.goLayout

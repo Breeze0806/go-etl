@@ -43,7 +43,7 @@ const (
 
 	}
 }`
-	readmeFile = `# %v%v插件文档
+	readmeFile = `# %v%v Plugin Documentation
 `
 
 	readerFile = `package %v
@@ -52,17 +52,17 @@ import (
 	spireader "github.com/Breeze0806/go-etl/datax/common/spi/reader"
 )
 
-//Reader 读取器
+//A reader is uesed to extract data from data source 
 type Reader struct {
 	pluginConf *config.JSON
 }
 
-//ResourcesConfig 插件资源配置
+//ResourcesConfig returns the configuration of the data source to initiate the reader.
 func (r *Reader) ResourcesConfig() *config.JSON {
 	return r.pluginConf
 }
 
-//Job 工作
+//Job returns a description of how the reader extracts data from the data source.
 func (r *Reader) Job() spireader.Job {
 	// todo like below
 	//job := NewJob()
@@ -70,7 +70,7 @@ func (r *Reader) Job() spireader.Job {
 	//return job
 }
 
-//Task 任务
+//Task returns the smallest execution unit obtained by maximizing the split of a Job
 func (r *Reader) Task() spireader.Task {
 	// todo like below
 	//task := fNewTask()
@@ -86,17 +86,17 @@ import (
 )
 	
 
-//Writer 写入器
+//A writer is uesed to load data into data source 
 type Writer struct {
 	pluginConf *config.JSON
 }
 
-//ResourcesConfig 插件资源配置
+//ResourcesConfig returns the configuration of the data source to initiate the writer.
 func (w *Writer) ResourcesConfig() *config.JSON {
 	return w.pluginConf
 }
 
-//Job 工作
+//Job returns a description of how the reader extracts data from the data source.
 func (w *Writer) Job() spiwriter.Job {
 	// todo like below
 	//job := NewJob()
@@ -104,7 +104,7 @@ func (w *Writer) Job() spiwriter.Job {
 	//return job
 }
 
-//Task 任务
+//Task returns the smallest execution unit obtained by maximizing the split of a Job
 func (w *Writer) Task() spiwriter.Task {
     // todo like below
 	//task := NewTask()
@@ -181,7 +181,7 @@ func main() {
 	})
 
 	switch *typ {
-	// datax/plugin/reader中自动生成一个如下mysql的reader模板来帮助开发
+	// To assist in development, a MySQL reader template is automatically generated in datax/plugin/reader
 	//     reader---mysql--+-----resources--+--plugin.json
 	//                     |--job.go        |--plugin_job_template.json
 	//                     |--reader.go
@@ -192,7 +192,7 @@ func main() {
 			filename: filepath.Join(packPath, "reader.go"),
 			content:  fmt.Sprintf(readerFile, p),
 		})
-	//  datax/plugin/writer中自动生成如下一个mysql的writer模板来帮助开发
+	// To assist in development,  a MySQL writer template is automatically generated in datax/plugin/writer
 	// 	writer--mysql---+-----resources--+--plugin.json
 	// 					|--job.go        |--plugin_job_template.json
 	// 					|--README.md

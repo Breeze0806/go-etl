@@ -1,20 +1,20 @@
-# PostgresReader插件文档
+# PostgresReader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-PostgresReader插件实现了从Postgres/Greenplum数据库读取数据。在底层实现上，PostgresReader通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并执行相应的sql语句将数据从数据库库中查询出来。
+The PostgresReader plugin enables data reading from Postgres/Greenplum databases. Under the hood, PostgresReader connects to remote Postgres/Greenplum databases using `github.com/lib/pq` and executes corresponding SQL statements to query data from the database.
 
-## 实现原理
+## Implementation Principles
 
-PostgresReader通过github.com/lib/pq连接远程Postgres/Greenplum数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程postgres/greenplum数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。和直接使用github.com/lib/pq连接数据库不同的是，这里采用了github.com/Breeze0806/go/database/pqto以便能设置读写超时。
+PostgresReader connects to remote Postgres/Greenplum databases using `github.com/lib/pq` and generates SQL queries based on user-provided configuration information. These queries are then sent to the remote Postgres/Greenplum database, and the returned results are assembled into an abstract dataset using go-etl's custom data types. This dataset is then passed to downstream Writer processing. Unlike directly using `github.com/lib/pq` to connect to the database, here we use `github.com/Breeze0806/go/database/pqto` to set read and write timeouts.
 
-PostgresReader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中postgres采取了storage/database/postgres实现的Dialect。
+PostgresReader implements specific queries by calling go-etl's custom `storage/database` DBWrapper, which is defined in the dbmsreader's query process. DBWrapper encapsulates many interfaces of `database/sql` and abstracts the database dialect, Dialect. For Postgres, the implementation of Dialect provided by `storage/database/postgres` is used.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个从Postgres/Greenplum数据库同步抽取数据到本地的作业:
+Configuring a job to synchronize data from a Postgres/Greenplum database to a local system:
 
 ```json
 {
@@ -47,128 +47,127 @@ PostgresReader通过使用dbmsreader中定义的查询流程调用go-etl自定�
 }
 ```
 
-### 参数说明
+### Parameter Explanation
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：postgres://ip:port/db，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，和[pq](https://pkg.go.dev/github.com/lib/pq)的连接配置信息基本相同，只是将用户名和密码从连接配置信息提出，方便之后对这些信息加密。与[pq](https://pkg.go.dev/github.com/lib/pq)不同的是，可以使用readTimeout/writeTimeout配置读/写超时,格式与batchTimeout相同。
-- 必选：是
-- 默认值: 无
+- Description: Mainly used to configure the connection information for the remote database. The basic configuration format is: `postgres://ip:port/db`, where `ip:port` represents the IP address and port of the Postgres database, and `db` represents the default database to connect to. It is basically the same as the connection configuration information of [pq](https://pkg.go.dev/github.com/lib/pq), except that the username and password are extracted from the connection configuration information to facilitate subsequent encryption of these information. Unlike [pq](https://pkg.go.dev/github.com/lib/pq), you can use `readTimeout/writeTimeout` to configure read/write timeouts, with the same format as `batchTimeout`.
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置postgres数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: Mainly used to configure the Postgres database username.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置postgres数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: Mainly used to configure the Postgres database password.
+- Required: Yes
+- Default: None
 
 #### table
 
-描述postgres表信息
+Describes the Postgres table information.
 
 ##### schema
 
-- 描述 主要用于配置postgres表的模式名
-- 必选：是
-- 默认值: 无
+- Description: Mainly used to configure the schema name of the Postgres table.
+- Required: Yes
+- Default: None
 
 ##### name
 
-- 描述 主要用于配置postgres表的表名
-- 必选：是
-- 默认值: 无
+- Description: Mainly used to configure the table name of the Postgres table.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
+- Description: The set of column names that need to be synchronized from the configured table. JSON array syntax is used to describe the column information. Using "*" represents that all columns are used by default, for example, `["*"]`.
 
-  支持列裁剪，即列可以挑选部分列进行导出。
+  Supports column pruning, which means users can select specific columns for export.
 
-  支持列换序，即列可以不按照表schema信息进行导出。
+  Supports column reordering, meaning the columns can be exported in an order different from the table schema.
 
-  支持常量配置，用户需要按照PostgreSQL语法格式: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
+  Supports constant configuration. Users need to follow the PostgreSQL syntax format: `["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"]`. Here, "id" is a regular column name, `'hello'::varchar` is a string constant, "true" is a boolean value, "2.5" is a floating-point number, and `power(2,3)` is a function.
 
-- 必选：是
-
-- 默认值: 无
+- Required: Yes
+- Default: None
 
 #### split
 
 ##### key
 
-- 描述 主要用于配置postgresql表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the splitting key for the Postgres table. The splitting key must be of type bigInt/string/time, assuming that the data is evenly distributed based on the splitting key.
+- Required: No
+- Default: None
 
 ##### timeAccuracy
 
-- 描述 主要用于配置postgresql表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the time splitting key for the Postgres table, mainly to describe the smallest unit of time, such as day (for dates), min (for minutes), s (for seconds), ms (for milliseconds), us (for microseconds), ns (for nanoseconds).
+- Required: No
+- Default: None
 
 ##### range
 
 ###### type
-- 描述 主要用于配置db2表的切分键默认值类型，值为bigInt/string/time，这里会检查表切分键中的类型，请务必确保类型正确。
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the default value type of the splitting key for the Postgres table, with values being bigInt/string/time. Here, it will check the type of the splitting key in the table, so please make sure the type is correct.
+- Required: No
+- Default: None
 
 ###### left
-- 描述 主要用于配置db2表的切分键默认最大值
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the default maximum value of the splitting key for the Postgres table.
+- Required: No
+- Default: None
 
 ###### right
-- 描述 主要用于配置db2表的切分键默认最小值
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the default minimum value of the splitting key for the Postgres table.
+- Required: No
+- Default: None
 
 #### where
 
-- 描述 主要用于配置select的where条件
-- 必选：否
-- 默认值: 无
+- Description: Mainly used to configure the where condition for the select statement.
+- Required: No
+- Default: None
 
 #### querySql
 
-- 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
-当用户配置querySql时，PostgresReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
-- 必选：否
-- 默认值：无
+- Description: In some business scenarios, the `where` configuration item is not sufficient to describe the filtering conditions, so users can use this configuration item to customize the filtering SQL. When users configure this item, the DataX system will ignore the `table`, `column`, and other configuration items, and directly use the content of this configuration item for data filtering. For example, if you need to perform a join operation on multiple tables before synchronizing the data, you can use `select a,b from table_a join table_b on table_a.id = table_b.id`.
+When the user configures `querySql`, PostgresReader directly ignores the configuration of `table`, `column`, and `where` conditions. The priority of `querySql` is higher than that of `table`, `column`, and `where` options.
+- Required: No
+- Default: None
 
 #### trimChar
 
-- 描述：对于postgres的char类型是否去掉其前后的空格
-- 必选：否
-- 默认值：false
+- Description: Whether to remove leading and trailing spaces for the char type in Postgres.
+- Required: No
+- Default: false
 
-### 类型转换
+### Type Conversion
 
-目前PostgresReader支持大部分Postgres类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
+Currently, PostgresReader supports most Postgres types, but there are still some individual types that are not supported. Please check your types carefully.
 
-下面列出PostgresReader针对Postgres类型转换列表:
+Below is a list of type conversions that PostgresReader performs for Postgres types:
 
-| go-etl的类型 | Postgres数据类型                                         |
-| ------------ | -------------------------------------------------------- |
-| bool         | boolen                                                   |
-| bigInt       | bigint, bigserial, integer, smallint, serial,smallserial |
-| decimal      | double precision, decimal, numeric, real                 |
-| string       | varchar, text                                            |
-| time         | date, time, timestamp                                    |
-| bytes        | char                                                     |
+| go-etl Type | Postgres Data Type                                         |
+| ----------- | -------------------------------------------------------- |
+| bool        | boolean                                                   |
+| bigInt      | bigint, bigserial, integer, smallint, serial, smallserial |
+| decimal     | double precision, decimal, numeric, real                 |
+| string      | varchar, text                                            |
+| time        | date, time, timestamp                                    |
+| bytes       | char                                                     |
 
-## 性能报告
+## Performance Report
 
-待测试
+To be tested.
 
-## 约束限制
+## Constraints and Limitations
 
-### 数据库编码问题
-目前仅支持utf8字符集
+### Database Encoding Issues
+Currently, only the utf8 character set is supported.
 
 ## FAQ

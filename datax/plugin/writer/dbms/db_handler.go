@@ -22,20 +22,20 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// DbHandler 数据库执行句柄封装
+// DbHandler Database Execution Handler Encapsulation
 type DbHandler interface {
-	Execer(name string, conf *config.JSON) (Execer, error)      //通过数据库名name和配置获取执行器
-	Config(conf *config.JSON) (Config, error)                   //通过配置获取关系型数据库配置
-	TableParam(config Config, execer Execer) database.Parameter //通过关系型数据库配置和执行器获取表参数
+	Execer(name string, conf *config.JSON) (Execer, error)      // Obtain an executor through the database name and configuration
+	Config(conf *config.JSON) (Config, error)                   // Obtain relational database configuration through configuration
+	TableParam(config Config, execer Execer) database.Parameter // Obtain table parameters through relational database configuration and executor
 }
 
-// BaseDbHandler 基础数据库执行句柄封装
+// BaseDbHandler Basic Database Execution Handler Encapsulation
 type BaseDbHandler struct {
 	newExecer func(name string, conf *config.JSON) (Execer, error)
 	opts      *sql.TxOptions
 }
 
-// NewBaseDbHandler 通过获取执行器函数newExecer和数据库事务执行选项opts创建数据库执行句柄封装
+// NewBaseDbHandler Create a database execution handler encapsulation using the executor function newExecer and database transaction execution options opts
 func NewBaseDbHandler(newExecer func(name string, conf *config.JSON) (Execer, error), opts *sql.TxOptions) *BaseDbHandler {
 	return &BaseDbHandler{
 		newExecer: newExecer,
@@ -43,17 +43,17 @@ func NewBaseDbHandler(newExecer func(name string, conf *config.JSON) (Execer, er
 	}
 }
 
-// Execer 通过数据库名name和配置获取执行器
+// Execer Obtain an executor through the database name and configuration
 func (d *BaseDbHandler) Execer(name string, conf *config.JSON) (Execer, error) {
 	return d.newExecer(name, conf)
 }
 
-// Config 通过配置获取关系型数据库配置
+// Config Obtain relational database configuration through configuration
 func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 	return NewBaseConfig(conf)
 }
 
-// TableParam 通过关系型数据库配置和执行器获取表参数
+// TableParam Obtain table parameters through relational database configuration and executor
 func (d *BaseDbHandler) TableParam(config Config, execer Execer) database.Parameter {
 	return dbmsreader.NewTableParam(config, execer, d.opts)
 }

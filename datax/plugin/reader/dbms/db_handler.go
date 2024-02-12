@@ -21,23 +21,23 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// DbHandler 数据库句柄
+// DbHandler - Database Handler
 type DbHandler interface {
-	Querier(name string, conf *config.JSON) (Querier, error)         //通过数据库名name和json配置conf获取查询器
-	Config(conf *config.JSON) (Config, error)                        //通过json配置conf获取关系型数据库输入配置
-	TableParam(config Config, querier Querier) database.Parameter    //通过关系型数据库输入配置config和查询器querier获取表参数
-	SplitParam(config Config, querier Querier) database.Parameter    //通过关系型数据库输入配置config和查询器querier获取切分表参数
-	MinParam(config Config, table database.Table) database.Parameter //通过关系型数据库输入配置config和表Table获取切分最小值参数
-	MaxParam(config Config, table database.Table) database.Parameter //通过关系型数据库输入配置config和表询器Table获取切分最大值参数
+	Querier(name string, conf *config.JSON) (Querier, error)         // Obtain a querier based on the database name (name) and JSON configuration (conf)
+	Config(conf *config.JSON) (Config, error)                        // Acquire the relational database input configuration using the JSON configuration (conf)
+	TableParam(config Config, querier Querier) database.Parameter    // Retrieve table parameters using the relational database input configuration (config) and querier
+	SplitParam(config Config, querier Querier) database.Parameter    // Obtain split table parameters using the relational database input configuration (config) and querier
+	MinParam(config Config, table database.Table) database.Parameter // Get the minimum split value parameter based on the relational database input configuration (config) and table (Table)
+	MaxParam(config Config, table database.Table) database.Parameter // Retrieve the maximum split value parameter using the relational database input configuration (config) and table querier (Table)
 }
 
-// BaseDbHandler 基础数据库句柄
+// BaseDbHandler - Basic Database Handler
 type BaseDbHandler struct {
 	newQuerier func(name string, conf *config.JSON) (Querier, error)
 	opts       *sql.TxOptions
 }
 
-// NewBaseDbHandler 通过获取查询器函数newQuerier和事务选项opts获取基础数据库句柄
+// Create a new instance of the BasicDbHandler using the function to obtain a querier (newQuerier) and transaction options (opts)
 func NewBaseDbHandler(newQuerier func(name string, conf *config.JSON) (Querier, error), opts *sql.TxOptions) *BaseDbHandler {
 	return &BaseDbHandler{
 		newQuerier: newQuerier,
@@ -45,32 +45,32 @@ func NewBaseDbHandler(newQuerier func(name string, conf *config.JSON) (Querier, 
 	}
 }
 
-// Querier 通过数据库名name和json配置conf获取查询器
+// Querier - Acquire a querier based on the database name (name) and JSON configuration (conf)
 func (d *BaseDbHandler) Querier(name string, conf *config.JSON) (Querier, error) {
 	return d.newQuerier(name, conf)
 }
 
-// Config 通过json配置conf获取关系型数据库输入配置
+// Config - Retrieve the relational database input configuration using the JSON configuration (conf)
 func (d *BaseDbHandler) Config(conf *config.JSON) (Config, error) {
 	return NewBaseConfig(conf)
 }
 
-// TableParam 通过关系型数据库输入配置config和查询器querier获取表参数
+// TableParam - Get table parameters using the relational database input configuration (config) and querier
 func (d *BaseDbHandler) TableParam(config Config, querier Querier) database.Parameter {
 	return NewTableParam(config, querier, d.opts)
 }
 
-// SplitParam 通过关系型数据库输入配置config和表Table获取切分最小值参数
+// SplitParam - Obtain the minimum split value parameter based on the relational database input configuration (config) and table (Table)
 func (d *BaseDbHandler) SplitParam(config Config, querier Querier) database.Parameter {
 	return NewSplitParam(config, querier, d.opts)
 }
 
-// MinParam 通过关系型数据库输入配置config和查询器querier获取切分表参数
+// MinParam - Retrieve split table parameters using the relational database input configuration (config) and querier
 func (d *BaseDbHandler) MinParam(config Config, table database.Table) database.Parameter {
 	return NewMinParam(config, table, d.opts)
 }
 
-// MaxParam 通过关系型数据库输入配置config和表询器Table获取切分最大值参数
+// MaxParam - Get the maximum split value parameter based on the relational database input configuration (config) and table querier (Table)
 func (d *BaseDbHandler) MaxParam(config Config, table database.Table) database.Parameter {
 	return NewMaxParam(config, table, d.opts)
 }

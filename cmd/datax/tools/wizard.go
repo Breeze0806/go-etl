@@ -28,13 +28,13 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 )
 
-// Wizard 配置向导工具
+// Wizard is a configuration wizard tool
 type Wizard struct {
 	dataSourceFile string
 	csvFile        string
 }
 
-// NewWizard 根据数据源文件dataSourceFile，源目的文件csvFile生成配置向导工具
+// NewWizard generates a configuration wizard tool based on the data source file dataSourceFile and the source-destination file csvFile
 func NewWizard(dataSourceFile, csvFile string) (w *Wizard) {
 	w = &Wizard{
 		dataSourceFile: dataSourceFile,
@@ -43,7 +43,7 @@ func NewWizard(dataSourceFile, csvFile string) (w *Wizard) {
 	return
 }
 
-// GenerateConfigsAndScripts 生成配置文件集和执行脚本
+// GenerateConfigsAndScripts generates a set of configuration files and execution scripts
 func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 	var dataSource *config.JSON
 	if dataSource, err = config.NewJSONFromFile(w.dataSourceFile); err != nil {
@@ -81,7 +81,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 			return err
 		}
 		if len(record) != 2 {
-			return fmt.Errorf("源目的文件的第%d行不是两列", line)
+			return fmt.Errorf("the source-destination file is not two columns on line %d", line)
 		}
 
 		var readerName, writerName string
@@ -115,7 +115,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 				return err
 			}
 		default:
-			return fmt.Errorf("reader name(%v) does not support", readerName)
+			return fmt.Errorf("reader name(%v) is not supported", readerName)
 		}
 
 		switch writerName {
@@ -136,7 +136,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 				return err
 			}
 		default:
-			return fmt.Errorf("writer name(%v) does not support", writerName)
+			return fmt.Errorf("writer name(%v) is not supported", writerName)
 		}
 
 		filename := dataSourcePrefix + "_" + strconv.Itoa(line) + dataSourceExt

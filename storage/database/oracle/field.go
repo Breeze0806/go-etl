@@ -32,27 +32,27 @@ var (
 	datetimeLayout = element.DefaultTimeFormat[:26]
 )
 
-// Field 字段
+// Field Field
 type Field struct {
 	*database.BaseField
 	database.BaseConfigSetter
 }
 
-// NewField 通过基本列属性生成字段
+// NewField Generate a field based on basic column attributes
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-// Quoted 引用，用于SQL语句
+// Quoted Quotation, used in SQL statements
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-// BindVar SQL占位符，用于SQL语句
+// BindVar SQL placeholder, used in SQL statements
 func (f *Field) BindVar(i int) string {
-	//解决时间格式错误ORA-01861: literal does not match format string
+	// Fix the time format error ORA-01861: literal does not match format string
 	switch f.FieldType().DatabaseTypeName() {
 	case "DATE":
 		return "to_date(:" + strconv.Itoa(i) + ",'yyyy-mm-dd hh24:mi:ss')"
@@ -63,34 +63,34 @@ func (f *Field) BindVar(i int) string {
 	return ":" + strconv.Itoa(i)
 }
 
-// Select 查询时字段，用于SQL查询语句
+// Select Field for querying, used in SQL query statements
 func (f *Field) Select() string {
 	return Quoted(f.Name())
 }
 
-// Type 字段类型
+// Type Field type
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-// Scanner 扫描器，用于读取数据
+// Scanner Scanner, used for reading data
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-// Valuer 赋值器，采用GoValuer处理数据
+// Valuer Valuer, using GoValuer to process data
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return NewValuer(f, c)
 }
 
-// FieldType 字段类型
+// FieldType Field type
 type FieldType struct {
 	*database.BaseFieldType
 
 	supportted bool
 }
 
-// NewFieldType 创建新的字段类型
+// NewFieldType Create a new field type
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
@@ -108,31 +108,31 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-// IsSupportted 是否支持解析
-func (f *FieldType) IsSupportted() bool {
+// IsSupported Whether it supports parsing
+func (f *FieldType) IsSupported() bool {
 	return f.supportted
 }
 
-// Scanner 扫描器
+// Scanner Scanner
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-// NewScanner 根据列类型生成扫描器
+// NewScanner Generate a scanner based on the column type
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-// Scan 根据列类型读取数据
-// "BOOLEAN" 做为bool类型处理
-// "BINARY_INTEGER" 做为bigint类型处理
-// "NUMBER", "FLOAT", "DOUBLE" 做为decimal类型处理
-// "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE", "DATE"做为time类型处理
-// "CLOB", "NCLOB", "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR"做为string类型处理
-// "BLOB", "RAW", "LONG RAW", "LONG" 做为bytes类型处理
+// Scan Read data based on the column type
+// BOOLEAN is treated as a bool type
+// BINARY_INTEGER is treated as a bigint type
+// NUMBER, FLOAT, DOUBLE are treated as decimal types
+// TIMESTAMP, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH LOCAL TIME ZONE, DATE are treated as time types
+// CLOB, NCLOB, VARCHAR2, NVARCHAR2, CHAR, NCHAR are treated as string types
+// BLOB, RAW, LONG RAW, LONG are treated as byte types
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
@@ -158,8 +158,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	//todo test BFILE
-	case //"BFILE",
+	// todo test BFILE
+	case // BFILE,
 		"BLOB", "LONG", "RAW", "LONG RAW":
 		switch data := src.(type) {
 		case nil:
@@ -238,13 +238,13 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 	return
 }
 
-// Valuer 赋值器
+// Valuer Valuer
 type Valuer struct {
 	f *Field
 	c element.Column
 }
 
-// NewValuer 创建新赋值器
+// NewValuer Create a new valuer
 func NewValuer(f *Field, c element.Column) *Valuer {
 	return &Valuer{
 		f: f,
@@ -252,11 +252,11 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 	}
 }
 
-// Value 赋值
+// Value Assignment
 func (v *Valuer) Value() (value driver.Value, err error) {
 	switch v.f.Type().DatabaseTypeName() {
 	case "BOOLEAN":
-		//在oracle中插入空字符居然是nil对应NULL
+		// In Oracle, inserting an empty string is actually treated as nil, corresponding to NULL
 		if v.c.IsNil() {
 			return "", nil
 		}
@@ -268,19 +268,19 @@ func (v *Valuer) Value() (value driver.Value, err error) {
 			return "1", nil
 		}
 		return "0", nil
-		//todo test BFILE
-	case //"BFILE",
+		// todo test BFILE
+	case // BFILE,
 		"BLOB", "LONG", "RAW", "LONG RAW":
-		//竞优这些类型插入的nil对应NULL
+		// For these types, inserting nil corresponds to NULL
 		if v.c.IsNil() {
 			return nil, nil
 		}
 		return v.c.AsBytes()
 	}
-	//在oracle中插入空字符居然是nil对应NULL
+	// In Oracle, inserting an empty string is actually treated as nil, corresponding to NULL
 	if v.c.IsNil() {
 		return "", nil
 	}
-	//由于oracle特殊的转化机制导致所有的数据需要转化为string类型进行插入
+	// Due to Oracle's special conversion mechanism, all data needs to be converted to string type for insertion
 	return v.c.AsString()
 }

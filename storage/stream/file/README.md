@@ -1,67 +1,66 @@
-# 类二维表文件存储开发者指南
+# Developer Guide for Class Two-Dimensional Table File Storage
 
-类二维表文件存储是一个对类二维表文件流进行抽象的框架，这个框架可以支持各类类二维表文件格式的读取和写入
+Class Two-Dimensional Table File Storage is a framework that abstracts the flow of class two-dimensional table files. This framework can support reading and writing various class two-dimensional table file formats.
 
-## 输入文件流
+## Input File Stream
 
 ```go
-// Opener 用于打开一个输入流的打开器
+// Opener is an interface for an opener that can open an input stream
 type Opener interface {
-	Open(filename string) (stream InStream, err error) //打开文件名filename的输入流
+ Open(filename string) (stream InStream, err error) // Open an input stream with the filename
 }
 
-// InStream 输入流
+// InStream is an interface for an input stream
 type InStream interface {
-	Rows(conf *config.JSON) (rows Rows, err error) //获取行读取器
-	Close() (err error)                            //关闭输入流
+ Rows(conf *config.JSON) (rows Rows, err error) // Get a row reader
+ Close() (err error)                            // Close the input stream
 }
 
-// Rows 行读取器
+// Rows is an interface for a row reader
 type Rows interface {
-	Next() bool                                  //获取下一行，如果没有返回false，有返回true
-	Scan() (columns []element.Column, err error) //扫描出每一行的列
-	Error() error                                //获取下一行的错误
-	Close() error                                //关闭行读取器
+ Next() bool                                  // Get the next row, return false if there is no next row, true if there is
+ Scan() (columns []element.Column, err error) // Scan each row's columns
+ Error() error                                // Get the error of the next row
+ Close() error                                // Close the row reader
 }
 ```
 
-InStream输入流可以通过传入json配置文件来获取行读取器Rows，在Rows把一个行数据转化成一条记录，可以参考csv包的实现。另外，需要通过把Opener注册。
+The InStream input stream can obtain a row reader Rows by passing in a JSON configuration file, which converts a row of data into a record in Rows. For implementation details, refer to the csv package. Additionally, it is necessary to register the Opener.
 
 ```go
 func init() {
-	var opener Opener
-	file.RegisterOpener("csv", &opener)
+ var opener Opener
+ file.RegisterOpener("csv", &opener)
 }
 ```
 
-## 输出文件流
+## Output File Stream
 
 ```go
-// Creator 创建输出流的创建器
+// Creator is an interface for a creator that can create an output stream
 type Creator interface {
-	Create(filename string) (stream OutStream, err error) //创建名为filename的输出流
+ Create(filename string) (stream OutStream, err error) // Create an output stream with the filename
 }
 
-// OutStream 输出流
+// OutStream is an interface for an output stream
 type OutStream interface {
-	Writer(conf *config.JSON) (writer StreamWriter, err error) //创建写入器
-	Close() (err error)                                        //关闭输出流
+ Writer(conf *config.JSON) (writer StreamWriter, err error) // Create a writer
+ Close() (err error)                                        // Close the output stream
 }
 
-// StreamWriter 输出流写入器
+// StreamWriter is an interface for an output stream writer
 type StreamWriter interface {
-	Write(record element.Record) (err error) //写入记录
-	Flush() (err error)                      //刷新至文件
-	Close() (err error)                      //关闭输出流写入器
+ Write(record element.Record) (err error) // Write a record
+ Flush() (err error)                      // Flush to the file
+ Close() (err error)                      // Close the output stream writer
 }
 ```
 
-OutStream输入流可以通过传入json配置文件来获取输出流写入器StreamWriter，在StreamWriter把成一条记录转化一个行数据,可以参考csv包的实现。另外，需要通过把Creator注册。
+The OutStream output stream can obtain an output stream writer StreamWriter by passing in a JSON configuration file, which converts a record into a row of data in StreamWriter. For implementation details, refer to the csv package. Additionally, it is necessary to register the Creator.
 
 ```go
 func init() {
-	var creator Creator
-	file.RegisterCreator("csv", &creator)
+ var creator Creator
+ file.RegisterCreator("csv", &creator)
 }
 ```
-

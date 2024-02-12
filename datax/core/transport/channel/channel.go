@@ -24,7 +24,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Channel 通道
+// Channel represents a communication path or data flow.
 type Channel struct {
 	limiter *rate.Limiter
 	records *element.RecordChan
@@ -32,13 +32,13 @@ type Channel struct {
 	stats   Stats
 }
 
-// Stats Channel的统计信息
+// Stats provides statistical information about the Channel.
 type Stats struct {
 	sync.RWMutex
 	StatsJSON
 }
 
-// StatsJSON Channel的JSON统计信息
+// StatsJSON represents the statistical information of the Channel in JSON format.
 type StatsJSON struct {
 	TotalByte   int64 `json:"totalByte"`
 	TotalRecord int64 `json:"totalRecord"`
@@ -62,14 +62,14 @@ func (s *Stats) reduce(b int64) {
 	s.Record--
 }
 
-// statsJSON 返回json的机构体
+// statsJSON is a struct that returns statistical data in JSON format.
 func (s *Stats) statsJSON() StatsJSON {
 	s.RLock()
 	defer s.RUnlock()
 	return s.StatsJSON
 }
 
-// NewChannel 创建通道
+// NewChannel creates a new instance of a Channel.
 func NewChannel(ctx context.Context, conf *config.JSON) *Channel {
 	r := -1
 	b := -1.0
@@ -91,17 +91,17 @@ func NewChannel(ctx context.Context, conf *config.JSON) *Channel {
 	}
 }
 
-// Size 通道记录大小
+// Size indicates the number of records present in the Channel.
 func (c *Channel) Size() int {
 	return c.records.Buffered()
 }
 
-// IsEmpty 通道是否为空
+// IsEmpty checks whether the Channel is empty, i.e., it has no records.
 func (c *Channel) IsEmpty() bool {
 	return c.Size() == 0
 }
 
-// Push 将记录r加入通道
+// Push adds a record, r, to the Channel.
 func (c *Channel) Push(r element.Record) (n int, err error) {
 	if c.limiter != nil {
 		if err = c.limiter.WaitN(c.ctx, int(r.ByteSize())); err != nil {
@@ -112,7 +112,7 @@ func (c *Channel) Push(r element.Record) (n int, err error) {
 	return c.records.PushBack(r), nil
 }
 
-// Pop 将记录弹出，当通道中不存在记录，就会返回false
+// Pop removes and returns a record from the Channel. If no records are present, it returns false.
 func (c *Channel) Pop() (r element.Record, ok bool) {
 	r, ok = c.records.PopFront()
 	if r != nil {
@@ -121,28 +121,28 @@ func (c *Channel) Pop() (r element.Record, ok bool) {
 	return
 }
 
-// PushAll 通过fetchRecord函数加入多条记录
+// PushAll adds multiple records to the Channel using the fetchRecord function.
 func (c *Channel) PushAll(fetchRecord func() (element.Record, error)) error {
 	return c.records.PushBackAll(fetchRecord)
 }
 
-// PopAll 通过onRecord函数弹出多条记录
+// PopAll removes and returns multiple records from the Channel using the onRecord function.
 func (c *Channel) PopAll(onRecord func(element.Record) error) error {
 	return c.records.PopFrontAll(onRecord)
 }
 
-// Close 关闭
+// Close terminates or shuts down the Channel.
 func (c *Channel) Close() {
 	c.records.Close()
 }
 
-// PushTerminate 加入终止记录
+// PushTerminate adds a termination record to the Channel.
 func (c *Channel) PushTerminate() (n int) {
 	n, _ = c.Push(element.GetTerminateRecord())
 	return
 }
 
-// StatsJSON 返回Channel的统计信息
+// StatsJSON returns the statistical information of the Channel in JSON format.
 func (c *Channel) StatsJSON() StatsJSON {
 	return c.stats.statsJSON()
 }

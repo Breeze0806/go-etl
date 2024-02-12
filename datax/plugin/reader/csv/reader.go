@@ -20,24 +20,24 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
 )
 
-// Reader 读取器
+// Reader reader
 type Reader struct {
 	pluginConf *config.JSON
 }
 
-// ResourcesConfig 插件资源配置
+// ResourcesConfig plugin resource configuration
 func (r *Reader) ResourcesConfig() *config.JSON {
 	return r.pluginConf
 }
 
-// Job 工作
+// Job job
 func (r *Reader) Job() spireader.Job {
 	job := NewJob()
 	job.SetPluginConf(r.pluginConf)
 	return job
 }
 
-// Task 任务
+// Task task
 func (r *Reader) Task() spireader.Task {
 	task := file.NewTask()
 	task.SetPluginConf(r.pluginConf)

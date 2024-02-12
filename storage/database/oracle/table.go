@@ -26,23 +26,23 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// WriteModeInsert intert into 写入方式
+// WriteModeInsert represents the insert into write mode.
 const WriteModeInsert = "insert"
 
-// Table oracle表
+// Table represents an Oracle table.
 type Table struct {
 	*database.BaseTable
 	database.BaseConfigSetter
 }
 
-// NewTable 创建oracle表，注意此时BaseTable中的schema参数为空，instance为数据库名，而name是表明
+// NewTable creates a new Oracle table. Note that at this point, the schema parameter in BaseTable is empty, instance is the database name, and name is the table name.
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,
 	}
 }
 
-// Quoted 表引用全名
+// Quoted refers to the fully qualified name of the table.
 func (t *Table) Quoted() string {
 	return Quoted(t.Schema()) + "." + Quoted(t.Name())
 }
@@ -51,14 +51,14 @@ func (t *Table) String() string {
 	return t.Quoted()
 }
 
-// AddField 新增列
+// AddField adds a new column to the table.
 func (t *Table) AddField(baseField *database.BaseField) {
 	f := NewField(baseField)
 	f.SetConfig(t.Config())
 	t.AppendField(f)
 }
 
-// ExecParam 获取执行参数，其中replace into的参数方式以及被注册
+// ExecParam retrieves execution parameters, where the replace into parameter mode has been registered.
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
 	switch mode {
 	case WriteModeInsert:
@@ -67,30 +67,30 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 	return nil, false
 }
 
-// ShouldRetry 重试
+// ShouldRetry determines whether a retry is necessary.
 func (t *Table) ShouldRetry(err error) bool {
 	return godror.IsBadConn(errors.Cause(err))
 }
 
-// ShouldOneByOne 单个重试
+// ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
 	_, ok := errors.Cause(err).(*godror.OraErr)
 	return ok && !godror.IsBadConn(err)
 }
 
-// InsertParam Insert into 参数
+// InsertParam represents the parameters for the insert into operation.
 type InsertParam struct {
 	*database.BaseParam
 }
 
-// NewInsertParam 通过表table和事务参数txOpts插入参数
+// NewInsertParam creates insert parameters based on the table and transaction options (txOpts).
 func NewInsertParam(t database.Table, txOpts *sql.TxOptions) *InsertParam {
 	return &InsertParam{
 		BaseParam: database.NewBaseParam(t, txOpts),
 	}
 }
 
-// Query 通过多条记录 records生成批量insert into插入sql语句
+// Query generates a batch of insert into SQL statements for insertion based on multiple records.
 func (ip *InsertParam) Query(_ []element.Record) (query string, err error) {
 	buf := bytes.NewBufferString("insert into ")
 	buf.WriteString(ip.Table().Quoted())
@@ -115,7 +115,7 @@ func (ip *InsertParam) Query(_ []element.Record) (query string, err error) {
 	return buf.String(), nil
 }
 
-// Agrs 通过多条记录 records生成批量insert into参数
+// Agrs generates a batch of insert into parameters based on multiple records.
 func (ip *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
 	for fi, f := range ip.Table().Fields() {
 		var ba [][]byte

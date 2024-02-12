@@ -1,32 +1,27 @@
-[TOC]
+# go-etl Data Synchronization Developer Guide
 
+## 1 Introduction to the Synchronization Framework
 
-
-# go-etl数据同步开发者指南
-
-## 1 同步框架简介
-
-go-etl主要离线数据同步框架，框架如下
+go-etl is primarily an offline data synchronization framework, structured as follows:
 
 ```
-readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)  
+readerPlugin(reader) —> Framework(Exchanger+Transformer) -> writerPlugin(riter)  
 ```
 
-采用Framework + plugin架构构建。将数据源读取和写入抽象成为Reader/Writer插件，纳入到整个同步框架中。
+It is built using a Framework + plugin architecture. Data source reading and writing are abstracted into Reader/Writer plugins and integrated into the overall synchronization framework.
 
-+ Reader：Reader为数据采集模块，负责采集数据源的数据，将数据发送给Framework。 
++ Reader: The Reader is the data acquisition module, responsible for collecting data from the data source and sending it to the Framework.
++ Writer: The Writer is the data writing module, responsible for continuously fetching data from the Framework and writing it to the destination.
++ Framework: The Framework connects the reader and writer, serving as a data transmission channel between them, and handles core technical issues such as buffering, flow control, concurrency, and data transformation.
 
-+ Writer：Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
+## 2 Introduction to the Core Module (core)
 
-+ Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
+A single data synchronization job completed by go-etl is called a Job. When go-etl receives a Job, it starts a process to complete the entire job synchronization process.
 
-## 2 核心模块(core)介绍
+The go-etl Job module is the central management node for a single job, responsible for data cleanup, sub-task splitting (converting a single job calculation into multiple sub-Tasks), TaskGroup management, and other functions.
 
-go-etl完成单个数据同步的作业，我们称之为Job，go-etl接受到一个Job之后，将启动一个进程来完成整个作业同步过程。
+### 2.1 Scheduling Process
 
-go-etl Job模块是单个作业的中枢管理节点，承担了数据清理、子任务切分(将单一作业计算转化为多个子Task)、TaskGroup管理等功能。
-
-### 2.1 调度流程
 ```
     JOB--split--+-- task1--+           +--taskGroup1--+   
                 |-- task2--|           |--taskGroup2--|        
@@ -43,59 +38,59 @@ go-etl Job模块是单个作业的中枢管理节点，承担了数据清理、�
                                      +----------------------------------------------+     
 ```
 
-如上所示，go-etl Job启动后，会根据不同的源端切分策略，将Job切分成多个小的Task(子任务)，以便于并发执行。Task便是go-etl作业的最小单元，每一个Task都会负 责一部分数据的同步工作。切分多个Task之后，go-etl Job会调用Scheduler模块，根据配置的并发数据量，将拆分成的Task重新组合，组装成TaskGroup(任务组),Task数和taskGroup数可以不同（N:M）。每一个TaskGroup负责以一定的并发运行完毕分配好的所有Task，默认单个任务组的并发数量为4。每一个Task都由TaskGroup负责启动，Task启动后，会固定启动Reader—>Channel—>Writer的线程来完成任务同步工作。
+As shown above, after the go-etl Job starts, it splits the Job into multiple smaller Tasks (sub-tasks) based on different source-side splitting strategies to facilitate concurrent execution. A Task is the smallest unit of a go-etl job, and each Task is responsible for synchronizing a portion of the data. After splitting into multiple Tasks, the go-etl Job calls the Scheduler module. Based on the configured concurrent data volume, the split Tasks are recombined into TaskGroups. The number of Tasks and TaskGroups can be different (N:M). Each TaskGroup is responsible for running all allocated Tasks concurrently with a certain concurrency. The default concurrency for a single TaskGroup is 4. Each Task is started by a TaskGroup. Once a Task starts, it fixes the thread for Reader—>Channel—>Writer to complete the task synchronization work.
 
-go-etl作业运行起来之后，Job监控并等待多个TaskGroup模块任务完成，等待所有TaskGroup任务完成后Job成功退出。否则，异常退出，进程退出值非0。
+When a go-etl job is running, the Job monitors and waits for multiple TaskGroup modules to complete their tasks. Once all TaskGroup tasks are completed, the Job exits successfully. Otherwise, it exits abnormally with a non-zero exit value.
 
-举例来说，用户提交了一个go-etl作业，并且配置了20个并发，目的是将一个100张分表的mysql数据同步到odps里面。go-etl的调度决策思路是：go-etlJob根据分库分表切分成了100个Task。 根据20个并发，go-etl计算共需要分配4个TaskGroup。4个TaskGroup平分切分好的100个Task，每一个TaskGroup负责以5个并发共计运行25个Task。
+For example, a user submits a go-etl job with 20 concurrencies configured, aiming to synchronize data from 100 MySQL sharded tables to ODPS. The scheduling decision-making process of go-etl is as follows: The go-etl Job splits into 100 Tasks based on the sharding of tables. Based on 20 concurrencies, go-etl calculates that a total of 4 TaskGroups are needed. The 4 TaskGroups evenly distribute the 100 split Tasks, and each TaskGroup is responsible for running 25 Tasks with 5 concurrencies.
 
-+ Job:Job是go-etl用以描述从一个源头到一个目的端的同步作业，是go-etl数据同步的最小业务单元。比如：从一张mysql的表同步到odps的一个表的特定分区。   
-+ Task:Task是为最大化而把Job拆分得到的最小执行单元。比如：读一张有1024个分表的mysql分库分表的Job，拆分成1024个读Task，用若干个并发执行。        
-+ TaskGroup: 描述的是一组Task集合。在同一个TaskGroupContainer执行下的Task集合称之为TaskGroup
-+ JobContainer: Job执行器，负责Job全局拆分、调度、前置语句和后置语句等工作的工作单元。类似Yarn中的JobTracker
-+ TaskGroupContainer: TaskGroup执行器，负责执行一组Task的工作单元，类似Yarn中的TaskTracker。
++ Job: A Job is go-etl's description of a synchronization job from a source to a destination. It is the smallest business unit for go-etl data synchronization. For example, synchronizing from a MySQL table to a specific partition of an ODPS table.
++ Task: A Task is the smallest execution unit obtained by maximizing the split of a Job. For example, reading a MySQL sharded table with 1024 sharded tables can be split into 1024 read Tasks and executed with several concurrencies.
++ TaskGroup: Describes a set of Task collections. A collection of Tasks executed under the same TaskGroupContainer is called a TaskGroup.
++ JobContainer: The Job executor, responsible for global Job splitting, scheduling, pre-statements, post-statements, and other work units. Similar to JobTracker in Yarn.
++ TaskGroupContainer: The TaskGroup executor, responsible for executing a set of Tasks. Similar to TaskTracker in Yarn.
 
-## 3 编程接口
+## 3 Programming Interface
 
-### 3.1 Reader插件接口
+### 3.1 Reader Plugin Interface
 
-Reader需要实现以下接口:
+The Reader needs to implement the following interfaces:
 
 #### 3.1.1 Job
 
-Job组合*plugin.BaseJob，实现方法
+The Job combines *plugin.BaseJob and implements the following methods:
 
 ```golang
     Init(ctx context.Context) (err error)
     Destroy(ctx context.Context) (err error)
     Split(ctx context.Context, number int) ([]*config.JSON, error)
-    Prepare(ctx context.Context) error  //默认为空方法
-    Post(ctx context.Context) error     //默认为空方法
+    Prepare(ctx context.Context) error  // Default empty method
+    Post(ctx context.Context) error     // Default empty method
 ```
 
-- `Init`: Job对象初始化工作，此时可以通过`PluginJobConf()`获取与本插件相关的配置。读插件获得配置中`reader`部分。
-- `Prepare`: 全局准备工作。
-- `Split`: 拆分`Task`。参数number框架建议的拆分数，一般是运行时所配置的并发度。值返回的是`Task`的配置列表。
-- `Post`: 全局的后置工作。
-- `Destroy`: Job对象自身的销毁工作。
+- `Init`: Initializes the Job object. At this point, the configuration related to this plugin can be obtained through `PluginJobConf()`. The Reader plugin obtains the `reader` part of the configuration.
+- `Prepare`: Global preparation work.
+- `Split`: Splits the `Task`. The parameter `number` suggests the number of splits, which is generally the concurrency configured during runtime. The return value is a list of `Task` configurations.
+- `Post`: Global post-processing work.
+- `Destroy`: Destroys the Job object itself.
 
 #### 3.1.2 Task
 
-Task组合*plugin.BaseTask,实现方法
+The Task combines *plugin.BaseTask and implements the following methods:
 
 ```golang
     Init(ctx context.Context) (err error)
     Destroy(ctx context.Context) (err error)
-    StartRead(ctx context.Context,sender plugin.RecordSender) error 
-    Prepare(ctx context.Context) error  //默认为空方法
-    Post(ctx context.Context) error     //默认为空方法
+    StartRead(ctx context.Context, sender plugin.RecordSender) error 
+    Prepare(ctx context.Context) error  // Default empty method
+    Post(ctx context.Context) error     // Default empty method
 ```
 
-- `Init`：Task对象的初始化。此时可以通过`PluginJobConf()`获取与本`Task`相关的配置。这里的配置是`Job`的`Split`方法返回的配置列表中的其中一个。
-- `Prepare`：局部的准备工作。
-- `StartRead`: 从数据源读数据，写入到`RecordSender`中。`RecordSender`会把数据写入连接Reader和Writer的缓存队列。
-- `Post`: 局部的后置工作。
-- `Destroy`: Task象自身的销毁工作。
+- `Init`: Initializes the Task object. At this point, the configuration related to this `Task` can be obtained through `PluginJobConf()`. The configuration here is one of the configuration lists returned by the `Split` method of the `Job`.
+- `Prepare`: Local preparation work.
+- `StartRead`: Reads data from the data source and writes it to `RecordSender`. `RecordSender` writes the data to the cache queue connecting Reader and Writer.
+- `Post`: Local post-processing work.
+- `Destroy`: Destroys the Task object itself.
 
 #### 3.1.3 Reader
 
@@ -104,19 +99,18 @@ Task组合*plugin.BaseTask,实现方法
     Task() reader.Task
 ```
 
-+ `Job`: 获取上述的Job的实例
++ `Job`: Gets an instance of the aforementioned Job.
++ `Task`: Gets an instance of the aforementioned Task.
 
-+ `Task`: 获取上述的Task的实例
-
-#### 3.1.4 命令生成 
+#### 3.1.4 Command Generation
 
 ```bash
 cd tools/go-etl/plugin
-#新增一个名为Mysql的reader -p命令可以时任意大小写，用于指定reader的名字，如果新增-d 代表会删除原来的模板
+# Adds a new Reader named Mysql. The -p command can be in any case and is used to specify the name of the Reader. If -d is added, it means the original template will be deleted.
 go run main.go -t reader -p Mysql
 ```
 
-这个命令会在datax/plugin/reader中自动生成一个如下mysql的reader模板来帮助开发
+This command automatically generates the following Mysql Reader template in datax/plugin/reader to assist in development:
 
 ```
     reader---mysql--+-----resources--+--plugin.json
@@ -126,7 +120,7 @@ go run main.go -t reader -p Mysql
                     |--task.go
 ```
 
-如下，不要忘了在plugin.json加入开发者名字和描述
+As shown below, don't forget to add the developer's name and description in plugin.json:
 
 ```json
 {
@@ -136,114 +130,114 @@ go run main.go -t reader -p Mysql
 }
 ```
 
-另外，以帮助开发者避免在使用插件注册命令后编译时报错。
+Additionally, this helps developers avoid compilation errors after using the plugin registration command.
 
-#### 3.1.5 数据库
+#### 3.1.5 Database
 
-如果你想帮忙实现关系型数据库的数据源，根据以下方式去实现你的数据源将更加方便
+If you want to help implement a data source for a relational database, following these guidelines will make the implementation of your data source more convenient.
 
-##### 3.1.5.1 数据库存储
+##### 3.1.5.1 Database Storage
 
-查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+Refer to the [Database Storage Developer Guide](../storage/database/README.md). This will not only assist you in implementing the Reader plugin interface more quickly but also aid in the implementation of the Writer plugin interface.
 
-##### 3.1.5.2 数据库读取器
+##### 3.1.5.2 Database Reader
 
-dbms reader通过抽象数据库存储的DBWrapper结构体成如下Querier，然后利用Querier完成Job和Task的实现
+The dbms reader abstracts the DBWrapper structure of database storage into a Querier as follows and then utilizes the Querier to implement Job and Task functionalities.
 
 ```go
-//Querier 查询器
+// Querier Interface
 type Querier interface {
-	//通过基础表信息获取具体表
-	Table(*database.BaseTable) database.Table
-	//检测连通性
-	PingContext(ctx context.Context) error
-	//通过query查询语句进行查询
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-	//通过参数param获取具体表
-	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
-	//通过参数param，处理句柄handler获取记录
-	FetchRecord(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error)
-	//通过参数param，处理句柄handler使用事务获取记录
-	FetchRecordWithTx(ctx context.Context, param database.Parameter, handler database.FetchHandler) (err error)
-	//关闭资源
-	Close() error
+ // Obtains a specific table based on basic table information
+ Table(*database.BaseTable) database.Table
+ // Checks connectivity
+ PingContext(ctx context.Context) error
+ // Queries using a query statement
+ QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+ // Obtains a specific table based on parameters
+ FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
+ // Retrieves records using parameters and a handler
+ FetchRecord(ctx context.Context, param database.Parameter, handler database.FetchHandler) error
+ // Retrieves records using parameters, a handler, and a transaction
+ FetchRecordWithTx(ctx context.Context, param database.Parameter, handler database.FetchHandler) error
+ // Closes resources
+ Close() error
 }
 ```
 
-像mysql实现Job和Reader,对于Task需要使用dbms.StartRead函数实现StartRead方法
+For implementing Job and Reader in the context of MySQL, the Task requires the use of the `dbms.StartRead` function to implement the `StartRead` method.
 
-#### 3.1.6 二维表文件流
+#### 3.1.6 Two-dimensional Table File Stream
 
-##### 3.1.6.1 二维表文件流存储
+##### 3.1.6.1 Two-dimensional Table File Stream Storage
 
-查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+Refer to the [Two-dimensional Table File Stream Storage Developer Guide](../storage/stream/file/README.md). This will assist you in implementing both the Reader and Writer plugin interfaces more quickly.
 
-##### 3.1.6.2 文件读取器
+##### 3.1.6.2 File Reader
 
-像cvs那样Task和Reader,这里需要独立实现Job，实现切分方法Split和初始化方法Init
+For Tasks and Readers like CSV, independent implementation of Job is required, specifically implementing the `Split` method for splitting and the `Init` method for initialization.
 
-### 3.2 Writer插件接口
+### 3.2 Writer Plugin Interface
 
-Writer 需要实现以下接口:
+Writers need to implement the following interfaces:
 
 #### 3.2.1 Job
 
-Job组合*plugin.BaseJob,实现方法:
+The Job combines `*plugin.BaseJob` and implements the following methods:
 
 ```golang
-    Init(ctx context.Context) (err error)
-    Destroy(ctx context.Context) (err error)
-    Split(ctx context.Context, number int) ([]*config.JSON, error) 
-    Prepare(ctx context.Context) error //默认为空方法
-    Post(ctx context.Context) error    //默认为空方法
+ Init(ctx context.Context) (err error)
+ Destroy(ctx context.Context) (err error)
+ Split(ctx context.Context, number int) ([]*config.JSON, error)
+ Prepare(ctx context.Context) error // Default empty method
+ Post(ctx context.Context) error    // Default empty method
 ```
 
-- `Init`: Job对象初始化工作，此时可以通过`PluginJobConf()`获取与本插件相关的配置。写插件获得`writer`部分。
-- `Prepare`: 全局准备工作。
-- `Split`: 拆分`Task`。参数`number`框架建议的拆分数，一般是运行时所配置的并发度。值返回的是`Task`的配置列表。
-- `Post`: 全局的后置工作。
-- `Destroy`: Job对象自身的销毁工作。
+- `Init`: Initializes the Job object. At this point, plugin-related configurations can be obtained through `PluginJobConf()`. The writer section is obtained for the write plugin.
+- `Prepare`: Performs global preparation work.
+- `Split`: Splits the Task. The parameter `number` suggests the number of splits, generally the configured concurrency level during runtime. The return value is a list of Task configurations.
+- `Post`: Performs global post-processing work.
+- `Destroy`: Performs destruction work for the Job object itself.
 
 #### 3.2.2 Task
 
-Task组合*plugin.BaseTask,实现方法:
+The Task combines `*plugin.BaseTask` and implements the following methods:
 
 ```golang
-    Init(ctx context.Context) (err error)
-    Destroy(ctx context.Context) (err error)
-    StartWrite(ctx context.Context,receiver plugin.RecordReceiver) error
-    Prepare(ctx context.Context) error     //默认为空方法
-    Post(ctx context.Context) error        //默认为空方法
-    SupportFailOver() bool                 //默认为空方法
+ Init(ctx context.Context) (err error)
+ Destroy(ctx context.Context) (err error)
+ StartWrite(ctx context.Context, receiver plugin.RecordReceiver) error
+ Prepare(ctx context.Context) error     // Default empty method
+ Post(ctx context.Context) error        // Default empty method
+ SupportFailOver() bool                 // Default empty method
 ```
 
-- `Init`：Task对象的初始化。此时可以通过`PluginJobConf()`获取与本`Task`相关的配置。这里的配置是`Job`的`split`方法返回的配置列表中的其中一个。
-- `Prepare`：局部的准备工作。
-- `StartWrite`：从`RecordReceiver`中读取数据，写入目标数据源。`RecordReceiver`中的数据来自Reader和Writer之间的缓存队列。
-- `Post`: 局Task部的后置工作。
-- `Destroy`: Task自身的销毁工作。
-- `SupportFailOver`: Task是否支持故障转移。
+- `Init`: Initializes the Task object. At this point, the configuration related to this Task can be obtained through `PluginJobConf()`. The configuration here is one of the configuration lists returned by the Job's `split` method.
+- `Prepare`: Performs local preparation work.
+- `StartWrite`: Reads data from the `RecordReceiver` and writes it to the target data source. The data in the `RecordReceiver` comes from the cache queue between the Reader and Writer.
+- `Post`: Performs local post-processing work for the Task.
+- `Destroy`: Performs destruction work for the Task itself.
+- `SupportFailOver`: Indicates whether the Task supports failover.
 
 #### 3.2.3 Writer
 
 ```golang
-    Job() writer.Job
-    Task() writer.Task
+ Job() writer.Job
+ Task() writer.Task
 ```
 
-+ `Job`: 获取上述的Job的实例
+- `Job`: Obtains an instance of the aforementioned Job.
+- `Task`: Obtains an instance of the aforementioned Task.
 
-+ `Task`: 获取上述的Task的实例
-
-#### 3.2.4 命令生成
+#### 3.2.4 Command Generation
 
 ```bash
 cd tools/go-etl/plugin
-#新增一个名为Mysql的writer -p命令可以时任意大小写，用于指定writer的名字，如果新增-d 代表会删除原来的模板
+# Adds a new writer named Mysql. The -p command can be in any case and is used to specify the name of the writer. If -d is added, it will delete the original template.
 go run main.go -t writer -p Mysql
 ```
 
-这个命令会在datax/plugin/writer中自动生成如下一个mysql的writer模板来帮助开发
+This command automatically generates the following template for a mysql writer in `datax/plugin/writer` to assist in development:
+
 ```
     writer--mysql---+-----resources--+--plugin.json
                     |--job.go        |--plugin_job_template.json
@@ -252,71 +246,71 @@ go run main.go -t writer -p Mysql
                     |--writer.go
 ```
 
-如下，不要忘了在plugin.json加入开发者名字和描述
+Additionally, don't forget to add the developer's name and description to `plugin.json` as follows:
 
 ```json
 {
     "name" : "mysqlwriter",
     "developer":"Breeze0806",
-    "description":"use github.com/go-sql-driver/mysql. database/sql DB execute select sql, retrieve data from the ResultSet. warn: The more you know about the database, the less problems you encounter."
+    "description":"Uses github.com/go-sql-driver/mysql. The database/sql DB executes select SQL and retrieves data from the ResultSet. Warning: The more you know about the database, the fewer problems you will encounter."
 }
 ```
 
-另外，这个可以帮助开发者避免在使用插件注册命令后编译时报错。
+This helps developers avoid compilation errors after using the plugin registration command.
 
-#### 3.2.5 数据库
+#### 3.2.5 Database
 
-如果你想帮忙实现数据库的数据源，根据以下方式去实现你的数据源将更加方便，当然前提你所使用的驱动库必须实现golang标准库的database/sql的接口。
+If you want to help implement a data source for a database, following these guidelines will make the implementation of your data source more convenient. However, it is essential that the driver library you use implements the `database/sql` interface of the Golang standard library.
 
-##### 3.2.5.1 数据库存储
+##### 3.2.5.1 Database Storage
 
-查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+Refer to the [Database Storage Developer Guide](../storage/database/README.md). This will assist you in implementing both the Reader and Writer plugin interfaces more quickly.
 
-##### 3.2.5.2 数据库写入器
+##### 3.2.5.2 Database Writer
 
-dbms writer通过抽象数据库存储的DBWrapper结构体成如下Execer，然后利用Execer完成Job和Task的实现
+The dbms writer abstracts the DBWrapper structure of database storage into an Execer as follows and then utilizes the Execer to implement Job and Task functionalities.
 
 ```go
-//Execer 执行器
+// Execer Interface
 type Execer interface {
-	//通过基础表信息获取具体表
-	Table(*database.BaseTable) database.Table
-	//检测连通性
-	PingContext(ctx context.Context) error
-	//通过query查询语句进行查询
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-	//通过query查询语句进行查询
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	//通过参数param获取具体表
-	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
-	//批量执行
-	BatchExec(ctx context.Context, opts *database.ParameterOptions) (err error)
-	//prepare/exec批量执行
-	BatchExecStmt(ctx context.Context, opts *database.ParameterOptions) (err error)
-	//事务批量执行
-	BatchExecWithTx(ctx context.Context, opts *database.ParameterOptions) (err error)
-	//事务prepare/exec批量执行
-	BatchExecStmtWithTx(ctx context.Context, opts *database.ParameterOptions) (err error)
-	//关闭
-	Close() error
+ // Obtains a specific table based on basic table information
+ Table(*database.BaseTable) database.Table
+ // Checks connectivity
+ PingContext(ctx context.Context) error
+ // Queries using a query statement
+ QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+ // Executes a query statement
+ ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+ // Obtains a specific table based on parameters
+ FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
+ // Performs batch execution
+ BatchExec(ctx context.Context, opts *database.ParameterOptions) error
+ // Performs batch execution using prepare/exec
+ BatchExecStmt(ctx context.Context, opts *database.ParameterOptions) error
+ // Performs batch execution within a transaction
+ BatchExecWithTx(ctx context.Context, opts *database.ParameterOptions) error
+ // Performs batch execution using prepare/exec within a transaction
+ BatchExecStmtWithTx(ctx context.Context, opts *database.ParameterOptions) error
+ // Closes the connection
+ Close() error
 }
 ```
 
-像mysql实现Job和Writer,对于Task需要使用dbms.StartWrite函数实现StartWrite方法
+For implementing Job and Writer in the context of MySQL, the Task requires the use of the `dbms.StartWrite` function to implement the `StartWrite` method.
 
-#### 3.2.6 二维表文件流
+#### 3.2.6 Two-dimensional Table File Stream
 
-##### 3.2.6.1 二维表文件流存储
+##### 3.2.6.1 Two-dimensional Table File Stream Storage
 
-查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+Refer to the [Two-dimensional Table File Stream Storage Developer Guide](../storage/stream/file/README.md). This will assist you in implementing both the Reader and Writer plugin interfaces more quickly.
 
-##### 3.2.6.2 文件读取器
+##### 3.2.6.2 File Writer
 
-像cvs那样Task和Writer,这里需要独立实现Job，实现切分方法Split和初始化方法Init
+For Tasks and Writers like CSV, independent implementation of Job is required, specifically implementing the `Split` method for splitting and the `Init` method for initialization.
 
-## 4 插件配置文件
+## 4 Plugin Configuration File
 
-`go-etl`使用`json`作为配置文件的格式。一个典型的`go-etl`任务配置如下：
+`go-etl` uses `json` as the format for its configuration files. A typical `go-etl` task configuration looks like this:
 
 ```json
 {
@@ -394,29 +388,29 @@ type Execer interface {
 }
 ```
 
-任务的**配置中`job.content.reader.parameter`的value部分会传给`Reader.Job`；`job.content.writer.parameter`的value部分会传给`Writer.Job`** ，`Reader.Job`和`Writer.Job`可以通过`super.getPluginJobConf()`来获取。
+In the task configuration, the `value` part of `job.content.reader.parameter` is passed to `Reader.Job`, and the `value` part of `job.content.writer.parameter` is passed to `Writer.Job`. Both `Reader.Job` and `Writer.Job` can access these values through `super.getPluginJobConf()`.
 
-### 4.1 如何设计配置参数
+### 4.1 Designing Configuration Parameters
 
-> 配置文件的设计是插件开发的第一步！
+> Designing the configuration file is the first step in plugin development!
 
-任务配置中`reader`和`writer`下`parameter`部分是插件的配置参数，插件的配置参数应当遵循以下原则：
+The `parameter` sections under `reader` and `writer` in the task configuration are the configuration parameters for the plugins. These configuration parameters should follow these principles:
 
-- 驼峰命名：所有配置项采用驼峰命名法，首字母小写，单词首字母大写。
+- Camel Case Naming: All configuration items should use camel case naming, with the first letter lowercase and the first letter of each word capitalized.
 
-- 正交原则：配置项必须正交，功能没有重复，没有潜规则。
+- Orthogonality: Configuration items must be orthogonal, with no overlapping functionality and no hidden rules.
 
-- 富类型：合理使用json的类型，减少无谓的处理逻辑，减少出错的可能。
+- Rich Types: Reasonably use JSON types to reduce unnecessary processing logic and potential for errors.
 
-  - 使用正确的数据类型。比如，bool类型的值使用`true`/`false`，而非`"yes"`/`"true"`/`0`等。
-  - 合理使用集合类型，比如，用数组替代有分隔符的字符串。
+  - Use the correct data type. For example, use `true`/`false` for bool type values, not `"yes"`/`"true"`/`0`, etc.
+  - Reasonably use collection types. For example, use arrays instead of delimited strings.
 
-- 类似通用：遵守同一类型的插件的习惯，比如数据库的`connection`参数都是如下结构：
+- Similar and Universal: Follow the conventions of the same type of plugins. For example, the `connection` parameter for databases typically has the following structure:
 
   ```json
   {
       "connection":  {
-      	"url": "tcp(192.168.0.1:3306)/mysql?parseTime=false",
+          "url": "tcp(192.168.0.1:3306)/mysql?parseTime=false",
           "table": {
               "db":"source",
               "name":"type_table"
@@ -425,96 +419,98 @@ type Execer interface {
   }
   ```
 
-### 4.2 如何使用`config.JSON`结构体
+### 4.2 Using the `config.JSON` Struct
 
-```josn
+```json
 {
     "a":{
         "b":[{
-            c:"x"
+            "c":"x"
         }]
     }
 }
 ```
 
-GetConfig中要访问到x字符串 path每层的访问路径为a,a.b,a.b.0，a.b.0.c
+To access the string "x" in `GetConfig`, the path would be a, a.b, a.b.0, a.b.0.c.
 
-注意，因为插件看到的配置只是整个配置的一部分。使用`json.Config`对象时，需要注意当前的根路径是什么。
+Note that because plugins only see a portion of the overall configuration, when using the `json.Config` object, it is important to be aware of the current root path.
 
-更多`json.Config`的操作请参考`config`包的文档。
+For more operations with `json.Config`, please refer to the documentation of the `config` package.
 
-## 5 插件打包发布
+## 5 Plugin Packaging and Release
 
-### 5.1 新增许可证（license）
+### 5.1 Adding a License
 
-当你开发完一个功能后在提交前，请运行如下命令用于自动加入许可证并使用gofmt -s -w格式化代码
+After developing a feature and before submitting it, please run the following command to automatically add a license and format the code using `gofmt -s -w`:
 
 ```bash
 go run tools/license/main.go
 ```
 
-### 5.2 插件注册
+### 5.2 Plugin Registration
 
-在使用golang编译前，需要将插件注册到代码中去。
+Before compiling with Golang, plugins need to be registered within the codebase.
 
-golang静态编译的方式决定了go-etl框架不能用运行时动态加载插件的方式去获取插件，为此这里只能使用注册代码的方式，以下命令会生成将由开发者开发的reader和writer插件注册到程序中的代码。
+Due to Golang's static compilation, the go-etl framework cannot dynamically load plugins at runtime. Therefore, plugins developed by developers, specifically readers and writers, need to be registered via generated code. The following command facilitates this:
 
 ```bash
 go generate ./...
 ```
-主要的原理如下会将对应go-etl/plugin插件中的reader和writer的resources的plugin.json生成plugin.go，同时在go-etl目录下生成plugin.go用于导入这些插件， 具体在tools/go-etl/build实现,另外通过-i命令可以忽略编译数据源来源，可以忽略db2， 由于db2会使用odbc去访问数据库，并且需要在linux中被依赖，如果不需要用这个直接忽略。
 
-## 6. 插件数据传输
+The main principle is to generate `plugin.go` files from the `plugin.json` resources found in the corresponding go-etl/plugin directory for readers and writers. Additionally, a `plugin.go` file is generated in the go-etl directory to import these plugins. This process is implemented in `tools/go-etl/build`. Optionally, the `-i` command can be used to ignore compiling certain data sources, such as DB2, which uses ODBC for database access and requires additional Linux dependencies.
 
-跟一般的`生产者-消费者`模式一样，`Reader`插件和`Writer`插件之间也是通过`channel`来实现数据的传输的。`channel`可以是内存的，也可能是持久化的，插件不必关心。插件通过`RecordSender`往`channel`写入数据，通过`RecordReceiver`从`channel`读取数据。
+## 6. Plugin Data Transfer
 
-`channel`中的一条数据为一个`Record`的对象，`Record`中可以放多个`Column`对象，这可以简单理解为数据库中的记录和列，`Record`原型具体见[文档](../element/README.md)的《记录》一章。
+Similar to the typical "producer-consumer" pattern, data transfer between the `Reader` and `Writer` plugins occurs through `channels`. These channels can be in-memory or persistent, and plugins do not need to concern themselves with the implementation details. Plugins write data to the channel using `RecordSender` and read data from the channel using `RecordReceiver`.
 
-因为`Record`是一个接口，`Reader`插件首先调用`RecordSender.createRecord()`创建一个`Record`实例，然后把`Column`一个个添加到`Record`中。
+A single item in the channel is a `Record` object, which can hold multiple `Column` objects. This can be simply understood as a record and its columns in a database. For more details on the `Record` prototype, refer to the "Records" chapter in the [documentation](../element/README.md).
 
-`Writer`插件调用`RecordReceiver.getFromReader()`方法获取`Record`，然后把`Column`遍历出来，写入目标存储中。当`Reader`尚未退出，传输还在进行时，如果暂时没有数据`RecordReceiver.getFromReader()`方法会阻塞直到有数据。如果传输已经结束，会返回`ErrTerminate`，`Writer`插件可以据此判断是否结束`startWrite`方法。
+Since `Record` is an interface, the `Reader` plugin first calls `RecordSender.createRecord()` to create a `Record` instance and then adds `Column` objects to it.
 
-### 6.1 数据类型转化
+The `Writer` plugin calls `RecordReceiver.getFromReader()` to retrieve a `Record` and then iterates over the `Column` objects to write them to the target storage. While the `Reader` is still active and transmission is ongoing, if there is no data currently available, `RecordReceiver.getFromReader()` will block until data becomes available. Once transmission has ended, it will return `ErrTerminate`, allowing the `Writer` plugin to determine when to end its `startWrite` method.
 
-为了规范源端和目的端类型转换操作，保证数据不失真，go-etl支持六种内部数据类型,具体见[文档](../element/README.md)的《数据类型转化》一章。
+### 6.1 Data Type Conversion
 
-## 7. 插件文档
+To standardize data type conversion operations between the source and destination, and to ensure data fidelity, go-etl supports six internal data types. For more details, refer to the "Data Type Conversion" chapter in the [documentation](../element/README.md).
 
-在插件文档README.md文档中加入以下几章内容
+## 7. Plugin Documentation
 
-1. **快速介绍**：介绍插件的使用场景，特点等。
-2. **实现原理**：介绍插件实现的底层原理，比如`mysqlwriter`通过`insert into`和`replace into`来实现插入，`tair`插件通过tair客户端实现写入。
-3. **配置说明**
-   - 给出典型场景下的同步任务的json配置文件。
-   - 介绍每个参数的含义、是否必选、默认值、取值范围和其他约束。
-4. **类型转换**
-   - 插件是如何在实际的存储类型和`go-etl`的内部类型之间进行转换的。
-   - 以及是否存在特殊处理。
-5. **性能报告**
-   - 软硬件环境，系统版本，java版本，CPU、内存等。
-   - 数据特征，记录大小等。
-   - 测试参数集（多组），系统参数（比如并发数），插件参数（比如batchSize）
-   - 不同参数下同步速度（Rec/s, MB/s），机器负载（load, cpu）等，对数据源压力（load, cpu, mem等）。
-6. **约束限制**：是否存在其他的使用限制条件。
-7. **FAQ**：用户经常会遇到的问题。
+Include the following chapters in the plugin's README.md documentation:
 
-## 8. 从源码进行编译
+1. **Quick Introduction**: Describes the plugin's use cases and features.
+2. **Implementation Principles**: Explains the underlying principles of the plugin's implementation.
+3. **Configuration Instructions**:
+	* Provides a sample JSON configuration file for a typical synchronization task.
+	* Describes the meaning, requirement, default value, range, and other constraints of each parameter.
+4. **Type Conversion**:
+	* Explains how the plugin converts between the actual storage type and go-etl's internal type.
+	* Mentions any special handling.
+5. **Performance Report**:
+	* Details the hardware and software environment, system version, Java version, CPU, memory, etc.
+	* Describes the data characteristics, such as record size.
+	* Lists the test parameter sets, system parameters (e.g., concurrency), and plugin parameters (e.g., batchSize).
+	* Provides synchronization speeds (Rec/s, MB/s), machine load (load, cpu), and the impact on the data source (load, cpu, mem) for different parameters.
+6. **Constraints and Limitations**: Mentions any additional usage restrictions.
+7. **FAQ**: Addresses commonly asked questions by users.
 
-### 8.1 linux
+## 8. Compiling from Source Code
 
-#### 8.1.1 编译依赖
+### 8.1 Linux
 
-1. golang 1.16以及以上版本
+#### 8.1.1 Compilation Dependencies
 
-#### 8.1.2 构建
+1. Golang 1.16 or higher.
+
+#### 8.1.2 Building
+
 ```bash
 make dependencies
 make release
 ```
 
-#### 8.1.3 去掉db2依赖
+#### 8.1.3 Excluding DB2 Dependencies
 
-在编译前需要export IGNORE_PACKAGES=db2 
+Before compiling, set the `IGNORE_PACKAGES` environment variable to `db2`:
 
 ```bash
 export IGNORE_PACKAGES=db2
@@ -522,58 +518,61 @@ make dependencies
 make release
 ```
 
-### 8.2 windows
+### 8.2 Windows
 
-####  8.2.1 编译依赖
-1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
-2. golang 1.16以及以上
-3. 最小编译环境为win7 
+#### 8.2.1 Compilation Dependencies
 
-####  8.2.2 构建
+1. A MinGW-w64 environment with GCC 7.2.0 or higher is required for compilation.
+2. Golang 1.16 or higher.
+3. The minimum supported compilation environment is Windows 7.
+
+#### 8.2.2 Building
+
 ```bash
 release.bat
 ```
 
-#### 8.1.3 去掉db2依赖
+#### 8.2.3 Excluding DB2 Dependencies
 
-在编译前需要set IGNORE_PACKAGES=db2
+Before compiling, set the `IGNORE_PACKAGES` environment variable to `db2`:
 
 ```bash
 set IGNORE_PACKAGES=db2
 release.bat
 ```
 
-
-### 8.3 编译产物
-
-```
-    +---datax---|---plugin---+---reader--mysql---|--README.md
-    |                        | .......
-    |                        |
-    |                        |---writer--mysql---|--README.md
-    |                        | .......
-    |
-    +---bin----datax
-    +---exampales---+---csvpostgres----config.json
-    |               |---db2------------config.json
-    |               | .......
-    |
-    +---README_USER.md
+### 8.3 Compilation Output
 
 ```
-+ datax/plugin下是各插件的文档
-+ bin下的是数据同步程序datax
-+ exampales下是各场景的数据同步的配置文档
-+ README_USER.md是用户使用手册
++---datax---|---plugin---+---reader--mysql---|--README.md
+|                        | .......
+|                        |
+|                        |---writer--mysql---|--README.md
+|                        | .......
+|
++---bin----datax
++---examples---+---csvpostgres----config.json
+|               |---db2------------config.json
+|               | .......
+|
++---README_USER.md
+```
 
-## 9. 调试http接口
+* The `datax/plugin` directory contains documentation for each plugin.
+* The `bin` directory contains the data synchronization program `datax`.
+* The `examples` directory contains configuration files for various data synchronization scenarios.
+* `README_USER.md` is the user manual.
+
+## 9. Debugging HTTP Interfaces
 
 ```bash
 datax -http :8443 -c examples/limit/config.json
 ```
 
-### 9.1 获取当前调试数据
-使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
+### 9.1 Accessing Current Debug Data
+
+Use a web browser to access `http://127.0.0.1:8443/debug/pprof` to retrieve debug information.
+
 ```
 /debug/pprof/
 

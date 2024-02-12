@@ -33,26 +33,26 @@ import (
 type taskExecer struct {
 	Err error
 
-	taskConf     *config.JSON //任务JSON配置
-	taskID       int64        //任务编号
+	taskConf     *config.JSON // Task JSON Configuration - Configuration for a task in JSON format
+	taskID       int64        // Task ID - Unique identifier for the task
 	ctx          context.Context
-	channel      *channel.Channel //记录通道
-	writerRunner runner.Runner    //写入运行器
-	readerRunner runner.Runner    //执行运行器
+	channel      *channel.Channel // Log Channel - Channel used for logging task-related information
+	writerRunner runner.Runner    // Write Runner - Component responsible for writing operations in the task
+	readerRunner runner.Runner    // Execute Runner - Component responsible for executing the main operations of the task
 	wg           sync.WaitGroup
 	errors       chan error
 
 	destroy      sync.Once
 	key          string
 	exchanger    *exchange.RecordExchanger
-	cancalMutex  sync.Mutex         //由于取消函数会被多线程调用,需要加锁
-	cancel       context.CancelFunc //取消函数
-	attemptCount *atomic.Int32      //执行次数
+	cancalMutex  sync.Mutex         // Since the cancel function can be called by multiple threads, locking is required
+	cancel       context.CancelFunc // Cancel Function - Function used to cancel the task's execution
+	attemptCount *atomic.Int32      // Execution Count - Number of times the task has been executed
 }
 
-// newTaskExecer 根据上下文ctx，任务配置taskConf，前缀关键字prefixKey
-// 执行次数attemptCount生成任务执行器，当taskID不存在，工作器名字配置以及
-// 对应写入器和读取器不存在时会报错
+// newTaskExecer - Creates a new task executor based on the context (ctx), task configuration (taskConf), prefix key (prefixKey),
+// and attempt count (attemptCount). It will report an error if the task ID does not exist, or if the configured writer or reader does not exist.
+
 func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	jobID, taskGroupID int64, attemptCount int) (t *taskExecer, err error) {
 	t = &taskExecer{
@@ -118,7 +118,7 @@ func newTaskExecer(ctx context.Context, taskConf *config.JSON,
 	return
 }
 
-// Start 读取运行器和写入运行器分别在携程中执行
+// Start - Executes the read runner and write runner in separate goroutines
 func (t *taskExecer) Start() {
 	var ctx context.Context
 	t.cancalMutex.Lock()
@@ -158,19 +158,19 @@ func (t *taskExecer) Start() {
 	readerWg.Wait()
 }
 
-// AttemptCount 执行次数
+// AttemptCount - Number of attempts made to execute the task
 func (t *taskExecer) AttemptCount() int32 {
 	return t.attemptCount.Load()
 }
 
-// Do 执行函数
+// Do - The execution function for the task
 func (t *taskExecer) Do() (err error) {
 	log.Debugf("taskExecer %v start to do", t.key)
 	defer func() {
 		t.attemptCount.Inc()
 		log.Debugf("taskExecer %v end to do", t.key)
 	}()
-	//执行读取写入运行器
+	// Execute Read-Write Runner - Executes the runner responsible for both reading and writing operations
 	t.Start()
 	log.Debugf("taskExecer %v do wait runner stop", t.key)
 	cnt := 0
@@ -189,12 +189,12 @@ func (t *taskExecer) Do() (err error) {
 	}
 }
 
-// Key 关键字
+// Key - A keyword or identifier used in the context of the task
 func (t *taskExecer) Key() string {
 	return t.key
 }
 
-// WriterSuportFailOverport 写入器是否支持错误重试
+// WriterSupportsFailover - Indicates whether the writer supports failover or error retry mechanisms
 func (t *taskExecer) WriterSuportFailOverport() bool {
 	task, ok := t.writerRunner.Plugin().(writer.Task)
 	if !ok {
@@ -203,7 +203,7 @@ func (t *taskExecer) WriterSuportFailOverport() bool {
 	return task.SupportFailOver()
 }
 
-// Shutdown 通过cancel停止写入器，关闭reader和writer
+// Shutdown - Stops the writer through cancellation and closes both the reader and writer
 func (t *taskExecer) Shutdown() {
 	log.Debugf("taskExecer %v starts to shutdown", t.key)
 	defer log.Debugf("taskExecer %v ends to shutdown", t.key)
@@ -245,13 +245,13 @@ Loop:
 	t.writerRunner.Shutdown()
 }
 
-// Stats 统计信息
+// Stats - Information or metrics related to the task's execution
 type Stats struct {
 	TaskID  int64             `json:"taskID"`
 	Channel channel.StatsJSON `json:"channel"`
 }
 
-// Stats 获取统计信息
+// Get Stats - Retrieves the statistical information related to the task's execution
 func (t *taskExecer) Stats() Stats {
 	return Stats{
 		TaskID:  t.taskID,

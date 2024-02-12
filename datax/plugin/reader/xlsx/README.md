@@ -1,20 +1,20 @@
-# XlsxReader插件文档
+# XlsxReader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-XlsxReader插件实现了从csv文件读取数据。在底层实现上，XlsxReader通过github.com/xuri/excelize/v2的流式读取方式读取文件。
+The XlsxReader plugin enables data reading from XLSX files. Under the hood, XlsxReader utilizes the streaming read method from github.com/xuri/excelize/v2 to process files.
 
-## 实现原理
+## Implementation Principle
 
-XlsxReader通过github.com/xuri/excelize/v2的流式读取方式读取文件，并将每一行结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。这种流式读取方式具有读取速度快，占用内存少的优点。
+XlsxReader employs the streaming read method from github.com/xuri/excelize/v2 to read files, assembling each row of data into an abstract dataset using go-etl's custom data types. This dataset is then passed downstream to the Writer for further processing. This streaming approach offers fast reading speeds and low memory usage.
 
-XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的storage/stream/file的file.InStreamer来实现具体的读取。
+XlsxReader implements the specific reading process by utilizing the reading workflow defined in file.Task and invoking go-etl's custom file.InStreamer from storage/stream/file.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个从xlsx文件同步抽取数据到本地的作业:
+Configuring a job to synchronize data extraction from an XLSX file to a local destination:
 
 ```json
 {
@@ -45,81 +45,84 @@ XlsxReader通过使用file.Task中定义的读取流程调用go-etl自定义的s
 }
 ```
 
-### 参数说明
+### Parameter Description
 
 #### column
 
-- 描述 主要用于配置xlsx文件的列信息数组，如不配置对应信息，则认为对应为string类型
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the column information array for the XLSX file. If corresponding information is not configured, the columns are assumed to be of the string type.
+- Required: Yes
+- Default: None
 
 ##### index
 
-- 描述 主要用于配置xlsx文件的列编号，从A开始
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the column index for the XLSX file, starting from A.
+- Required: Yes
+- Default: None
 
 ##### type
 
-- 描述 主要用于配置xlsx文件的列类型，主要有boolen,bigInt,decimal,string,time等类型，目前对time仅能使用string类型读取
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the column type for the XLSX file, including types such as boolean, bigInt, decimal, string, and time. Currently, only the string type can be used for reading time.
+- Required: Yes
+- Default: None
 
 ##### format
 
-- 描述 主要用于配置xlsx文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the column format for the XLSX file, specifically for configuring the format of the time type. It uses the Java Joda Time format, such as "yyyy-MM-dd".
+- Required: Yes, if the type is time.
+- Default: None
 
 #### xlsxs
 
-- 描述 主要用于配置xlsx文件的信息，可以配置多个文件
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure information about the XLSX file(s), allowing for the configuration of multiple files.
+- Required: Yes
+- Default: None
 
 ##### path
 
-- 描述 主要用于配置xlsx文件的绝对路径
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the absolute path of the XLSX file.
+- Required: Yes
+- Default: None
 
-###### sheets
+##### sheets
 
-- 描述 主要用于配置xlsx文件的sheet名数组
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure an array of sheet names within the XLSX file.
+- Required: Yes
+- Default: None
 
 #### nullFormat
 
-- 描述：csv文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
-- 必选：否
-- 默认值：空字符串
+- Description: XLSX files cannot define null (empty pointers) using standard strings. DataX provides the nullFormat parameter to define which strings can represent null. For example, if the user configures nullFormat="\N", then DataX treats "\N" in the source data as a null field.
+- Required: No
+- Default: Empty string
 
 #### startRow
 
-- 描述：从csv文件的第几行开始读取，从1开始。
-- 必选：否
-- 默认值：1
+- Description: Specifies the row number from which to start reading in the XLSX file, starting from 1.
+- Required: No
+- Default: 1
 
+### Type Conversion
 
-### 类型转换
+Currently, the XLSX data types supported by XlsxReader need to be configured in the "column" setting. It should be noted that XLSX currently only supports text-formatted cells, so please check your data types accordingly.
 
-目前XlsxReader支持的cvs数据类型需要在column配置中配置，目前xlsx仅支持文本格式的单元格，请注意检查你的类型。
+Below is a list of type conversions supported by XlsxReader for XLSX data:
 
-下面列出XlsxReader针对 xlsx类型转换列表:
+| go-etl Type | XLSX Data Type |
+| --- | --- |
+| bigInt | bigInt |
+| decimal | decimal |
+| string | string |
+| time | time |
+| bool | bool |
 
-| go-etl的类型 | xlsx数据类型 |
-| ------------ | ------------ |
-| bigInt       | bigInt       |
-| decimal      | decimal      |
-| string       | string       |
-| time         | time         |
-| bool         | bool         |
+## Performance Report
 
-## 性能报告
+Pending testing.
 
-待测试
+## Constraints and Limitations
 
-## 约束限制
+- Currently, only text-formatted cells are supported in XLSX files.
+- The time type in XLSX can only be read as a string type due to limitations in the underlying library.
+- Memory usage and reading speeds may vary depending on the size and complexity of the XLSX file.
 
 ## FAQ

@@ -16,38 +16,38 @@ package schedule
 
 import "sync"
 
-// MappedTaskManager 任务管理器
-// toto 不知道为什么len(remain) + len(run) 无法实时任务数,其中主要是len(run)不准确
+// MappedTaskManager task manager
+// toto I don't know why len(remain) + len(run) can't accurately represent the number of real-time tasks, mainly because len(run) is not accurate
 type MappedTaskManager struct {
 	sync.Mutex
 
-	remain []MappedTask          //待执行队列
-	run    map[string]MappedTask //运行队列
-	num    int                   //任务数
+	remain []MappedTask          // Pending queue
+	run    map[string]MappedTask // Running queue
+	num    int                   // Number of tasks
 }
 
-// NewTaskManager 创建任务管理器
+// NewTaskManager create task manager
 func NewTaskManager() *MappedTaskManager {
 	return &MappedTaskManager{
 		run: make(map[string]MappedTask),
 	}
 }
 
-// IsEmpty 任务管理器是否为空
+// IsEmpty check if the task manager is empty
 func (t *MappedTaskManager) IsEmpty() bool {
 	t.Lock()
 	defer t.Unlock()
 	return t.lockedSize() == 0
 }
 
-// Size 任务数，包含待执行和运行任务
+// Size number of tasks
 func (t *MappedTaskManager) Size() int {
 	t.Lock()
 	defer t.Unlock()
 	return t.lockedSize()
 }
 
-// Runs 获取当前在跑的任务
+// Runs get currently running tasks
 func (t *MappedTaskManager) Runs() (tasks []MappedTask) {
 	t.Lock()
 	for _, v := range t.run {
@@ -57,12 +57,12 @@ func (t *MappedTaskManager) Runs() (tasks []MappedTask) {
 	return
 }
 
-// lockedSize 未加锁的任务数
+// lockedSize number of unlocked tasks
 func (t *MappedTaskManager) lockedSize() int {
 	return t.num
 }
 
-// RemoveRunAndPushRemain 从运行队列移动到待执行队列
+// RemoveRunAndPushRemain move task from running queue to pending queue
 func (t *MappedTaskManager) RemoveRunAndPushRemain(task MappedTask) {
 	t.Lock()
 	defer t.Unlock()
@@ -70,21 +70,21 @@ func (t *MappedTaskManager) RemoveRunAndPushRemain(task MappedTask) {
 	t.lockedPushRemain(task)
 }
 
-// PushRemain 把任务加入待执行队列
+// PushRemain add task to pending queue
 func (t *MappedTaskManager) PushRemain(task MappedTask) {
 	t.Lock()
 	defer t.Unlock()
 	t.lockedPushRemain(task)
 }
 
-// RemoveRun 从运行队列移除出任务
+// RemoveRun remove task from running queue
 func (t *MappedTaskManager) RemoveRun(task MappedTask) {
 	t.Lock()
 	defer t.Unlock()
 	t.lockedRemoveRun(task)
 }
 
-// PopRemainAndAddRun 从待执行队列移到运行队列中
+// PopRemainAndAddRun move task from pending queue to running queue
 func (t *MappedTaskManager) PopRemainAndAddRun() (task MappedTask, ok bool) {
 	t.Lock()
 	defer t.Unlock()
@@ -95,25 +95,25 @@ func (t *MappedTaskManager) PopRemainAndAddRun() (task MappedTask, ok bool) {
 	return
 }
 
-// lockedRemoveRun 从运行队列移除任务
+// lockedRemoveRun remove task from running queue with lock
 func (t *MappedTaskManager) lockedRemoveRun(task MappedTask) {
 	t.run[task.Key()] = nil
 	delete(t.run, task.Key())
 	t.num--
 }
 
-// lockedPushRemain 将任务加入到待执行队列
+// lockedPushRemain add task to pending queue with lock
 func (t *MappedTaskManager) lockedPushRemain(task MappedTask) {
 	t.remain = append(t.remain, task)
 	t.num++
 }
 
-// lockedPushRemain 将任务加入到运行队列
+// lockedPushRemain add task to running queue with lock
 func (t *MappedTaskManager) lockedAddRun(task MappedTask) {
 	t.run[task.Key()] = task
 }
 
-// lockedPopRemain 从待执行队列带出任务te，当代执行队列中没有值时，返回false
+// lockedPopRemain retrieve task from pending queue. If there are no tasks in the pending queue
 func (t *MappedTaskManager) lockedPopRemain() (task MappedTask, ok bool) {
 	if len(t.remain) == 0 {
 		return nil, false

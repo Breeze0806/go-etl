@@ -37,5 +37,10 @@
     "go.coverShowCounts": true,
     "go.testOnSave": false,
     "go.testFlags": [],
-    "go.lintTool": "golint"
+    "go.lintTool": "golint",
+    "[go][go.mod]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    }
 }

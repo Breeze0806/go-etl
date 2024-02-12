@@ -27,19 +27,19 @@ var (
 	defalutBatchTimeout = 1 * time.Second
 )
 
-// Config 文件流输出配置
+// Config - File Stream Output Configuration
 type Config interface {
-	GetBatchSize() int              //单次批量写入数
-	GetBatchTimeout() time.Duration //单次批量写入超时时间
+	GetBatchSize() int              // Single Batch Write Size - The number of records to be written in a single batch.
+	GetBatchTimeout() time.Duration // Single Batch Write Timeout - The maximum time allowed for a single batch write operation.
 }
 
-// BaseConfig 基础文件流输出配置
+// BaseConfig - Basic File Stream Output Configuration
 type BaseConfig struct {
-	BatchSize    int            `json:"batchSize"`    //单次批量写入数
-	BatchTimeout time2.Duration `json:"batchTimeout"` //单次批量写入超时时间
+	BatchSize    int            `json:"batchSize"`    // Single Batch Write Size - The number of records to be written in a single batch.
+	BatchTimeout time2.Duration `json:"batchTimeout"` // Single Batch Write Timeout - The maximum time allowed for a single batch write operation.
 }
 
-// NewBaseConfig 通过json配置获取基础文件流输出配置
+// NewBaseConfig - Retrieves the basic file stream output configuration from a JSON configuration.
 func NewBaseConfig(conf *config.JSON) (*BaseConfig, error) {
 	c := &BaseConfig{}
 	if err := json.Unmarshal([]byte(conf.String()), c); err != nil {
@@ -48,7 +48,7 @@ func NewBaseConfig(conf *config.JSON) (*BaseConfig, error) {
 	return c, nil
 }
 
-// GetBatchTimeout 单次批量写入超时时间
+// GetBatchTimeout - Retrieves the maximum time allowed for a single batch write operation.
 func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	if b.BatchTimeout.Duration == 0 {
 		return defalutBatchTimeout
@@ -56,7 +56,7 @@ func (b *BaseConfig) GetBatchTimeout() time.Duration {
 	return b.BatchTimeout.Duration
 }
 
-// GetBatchSize 单次批量写入数
+// GetBatchSize - Retrieves the number of records to be written in a single batch.
 func (b *BaseConfig) GetBatchSize() int {
 	if b.BatchSize == 0 {
 		return defalutBatchSize

@@ -33,31 +33,31 @@ func init() {
 	file.RegisterCreator("xlsx", &creator)
 }
 
-// Opener xlsx输入流打开器
+// Opener - A utility for opening XLSX input streams.
 type Opener struct {
 }
 
-// Open 打开一个名为filename的xlsx输入流
+// Open - Opens an XLSX input stream named 'filename'.
 func (o *Opener) Open(filename string) (file.InStream, error) {
 	return NewInStream(filename)
 }
 
-// Creator xlsx输出流创建器
+// Creator - A utility for creating XLSX output streams.
 type Creator struct {
 }
 
-// Create 创建一个名为filename的xlsx输出流
+// Create - Creates an XLSX output stream named 'filename'.
 func (c *Creator) Create(filename string) (file.OutStream, error) {
 	return NewOutStream(filename)
 }
 
-// Stream xlsx文件流
+// Stream - Represents an XLSX file stream.
 type Stream struct {
 	file     *excelize.File
 	filename string
 }
 
-// NewInStream 创建一个名为filename的xlsx输入流
+// NewInStream - Creates an XLSX input stream named 'filename'.
 func NewInStream(filename string) (file.InStream, error) {
 	stream := &Stream{}
 	var err error
@@ -68,7 +68,7 @@ func NewInStream(filename string) (file.InStream, error) {
 	return stream, nil
 }
 
-// NewOutStream 创建一个名为filename的xlsx输出流
+// NewOutStream - Creates an XLSX output stream named 'filename'.
 func NewOutStream(filename string) (file.OutStream, error) {
 	stream := &Stream{
 		filename: filename,
@@ -77,17 +77,17 @@ func NewOutStream(filename string) (file.OutStream, error) {
 	return stream, nil
 }
 
-// Rows 新建一个配置未conf的csv行读取器
+// Rows - Creates a new CSV row reader with the given configuration 'conf'.
 func (s *Stream) Rows(conf *config.JSON) (file.Rows, error) {
 	return NewRows(s.file, conf)
 }
 
-// Writer 新建一个配置未conf的xlsx流写入器
+// Writer - Creates a new XLSX stream writer with the given configuration 'conf'.
 func (s *Stream) Writer(conf *config.JSON) (file.StreamWriter, error) {
 	return NewWriter(s.file, conf)
 }
 
-// Close 关闭文件流
+// Close - Closes the file stream.
 func (s *Stream) Close() (err error) {
 	if s.filename != "" {
 		err = s.file.SaveAs(s.filename)
@@ -96,7 +96,7 @@ func (s *Stream) Close() (err error) {
 	return s.file.Close()
 }
 
-// Rows 行读取器
+// Rows - Represents a row reader for CSV data.
 type Rows struct {
 	*excelize.Rows
 
@@ -105,7 +105,7 @@ type Rows struct {
 	config  *InConfig
 }
 
-// NewRows 通过文件句柄f，和配置文件c 创建行读取器
+// NewRows - Creates a row reader using the file handle 'f' and configuration 'c'.
 func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 	var conf *InConfig
 	if conf, err = NewInConfig(c); err != nil {
@@ -122,7 +122,7 @@ func NewRows(f *excelize.File, c *config.JSON) (rows *Rows, err error) {
 	return
 }
 
-// Scan 扫描成列
+// Scan - Scans the data into columns.
 func (r *Rows) Scan() (columns []element.Column, err error) {
 	r.row++
 	if r.row < r.config.startRow() {
@@ -170,7 +170,7 @@ func (r *Rows) getColum(index int, s string) (element.Column, error) {
 	return element.NewDefaultColumn(element.NewStringColumnValue(s), strconv.Itoa(index), byteSize), nil
 }
 
-// Writer xlsx流写入器
+// Writer - Represents an XLSX stream writer.
 type Writer struct {
 	file       *excelize.File
 	writer     *excelize.StreamWriter
@@ -180,7 +180,7 @@ type Writer struct {
 	columns    map[int]Column
 }
 
-// NewWriter 通过文件句柄f，和配置文件c 创建xlsx流写入器
+// NewWriter - Creates an XLSX stream writer using the file handle 'f' and configuration 'c'.
 func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 	w := &Writer{
 		file:    f,
@@ -200,7 +200,7 @@ func NewWriter(f *excelize.File, c *config.JSON) (file.StreamWriter, error) {
 	return w, nil
 }
 
-// Write 将记录record 写入xlsx文件
+// Write - Writes the record 'record' to the XLSX file.
 func (w *Writer) Write(record element.Record) (err error) {
 	w.row++
 	if w.row > w.conf.sheetRow() {
@@ -251,12 +251,12 @@ func (w *Writer) Write(record element.Record) (err error) {
 	return w.writer.SetRow(axis, records)
 }
 
-// Flush 不刷新
+// Flush - No flushing.
 func (w *Writer) Flush() (err error) {
 	return
 }
 
-// Close w.writer有可能为空，刷新文件内存到临时文件
+// Close - Closes the writer. If 'w.writer' is potentially null, flushes the file memory to a temporary file.
 func (w *Writer) Close() (err error) {
 	if w.writer != nil {
 		err = w.writer.Flush()

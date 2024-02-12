@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package sqlserver 实现了sqlserver的数据库方言Dialect，支持mssql 2005+ 对应数据库
+// Package sqlserver implements the Dialect for SQL Server databases, supporting MSSQL 2005+ corresponding databases.
 package sqlserver

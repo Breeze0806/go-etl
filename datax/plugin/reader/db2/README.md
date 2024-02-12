@@ -1,20 +1,20 @@
-# DB2Reader插件文档
+# DB2Reader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-DB2Reader插件实现了从DB2 LUW数据库读取数据。在底层实现上，DB2Reader通过github.com/ibmdb/go_ibm_db以及database/sql连接远程DB2 LUW数据库，并执行相应的sql语句将数据从DB2库中查询出来,这里和其他数据库不同的是由于db2未公开交互协议，db2的golang驱动利用db2的odbc库来连接数据库。
+The DB2Reader plugin enables data extraction from DB2 LUW (Linux, Unix, and Windows) databases. Under the hood, it utilizes the `github.com/ibmdb/go_ibm_db` package along with `database/sql` to connect to remote DB2 LUW databases, execute SQL queries, and retrieve data. Unlike other databases, DB2 does not have a publicly available interaction protocol, so the GoLang driver for DB2 leverages the DB2 ODBC library for database connectivity.
 
-## 实现原理
+## Implementation Principles
 
-DB2Reader通过github.com/ibmdb/go_ibm_db使用db2的odbc库连接远程DB2 LUW数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程DB2 LUW数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
+DB2Reader establishes a connection to the remote DB2 LUW database using the ODBC library via `github.com/ibmdb/go_ibm_db`. It generates SQL queries based on user-provided configuration information, sends them to the remote DB2 LUW database, and receives the results. These results are then packaged into an abstract dataset using go-etl's custom data types and passed downstream to the Writer for processing.
 
-DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中DB2采取了storage/database/db2实现的Dialect。
+DB2Reader accomplishes the specific querying by invoking the query process defined in `dbmsreader` and utilizing go-etl's custom `storage/database` DBWrapper. The DBWrapper encapsulates many interfaces from `database/sql` and abstracts the database dialect. In the case of DB2, it implements the dialect defined in `storage/database/db2`.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个从DB2数据库同步抽取数据到本地的作业:
+Configuring a job to synchronize data from a DB2 database to a local system:
 
 ```json
 {
@@ -47,132 +47,125 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
 }
 ```
 
-### 参数说明
+### Parameter Details
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：HOSTNAME=ip;PORT=port;DATABASE=db，ip代表db2数据库的IP地址和port端口，db表示要默认连接的数据库，和[ibm db2](https://github.com/ibmdb/go_ibm_db)的连接配置信息基本相同，只是将用户名和密码从连接配置信息提出，方便之后对这些信息加密。
-- 必选：是
-- 默认值: 无
+- Description: Specifies the connection information for the remote DB2 database. The basic format is: `HOSTNAME=ip;PORT=port;DATABASE=db`, where `ip` represents the IP address and `port` represents the port number of the DB2 database, and `db` represents the default database to connect to. This configuration is similar to the connection information used by [ibm db2](https://github.com/ibmdb/go_ibm_db) but separates the username and password for easier encryption.
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置db2数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: The username for the DB2 database.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置db2数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: The password for the DB2 database.
+- Required: Yes
+- Default: None
 
 #### table
 
-描述db2表信息
+Describes the DB2 table information.
 
 ##### schema
 
-- 描述 主要用于配置db2表的模式名
-- 必选：是
-- 默认值: 无
+- Description: Specifies the schema name of the DB2 table.
+- Required: Yes
+- Default: None
 
 ##### name
 
-- 描述 主要用于配置db2表的表名
-- 必选：是
-- 默认值: 无
+- Description: Specifies the table name of the DB2 table.
+- Required: Yes
+- Default: None
 
 #### split
 
 ##### key
 
-- 描述 主要用于配置db2表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
-- 必选：否
-- 默认值: 无
+- Description: The split key for the DB2 table. The split key must be of type bigInt, string, or time, assuming the data is evenly distributed based on the split key.
+- Required: No
+- Default: None
 
 ##### timeAccuracy
 
-- 描述 主要用于配置db2表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒），在range设置默认值是必须有值
-- 必选：否
-- 默认值: 无
+- Description: Specifies the time precision for the split key of the DB2 table. Valid values are day, min, s, ms, us, ns. This setting is required if a range is specified.
+- Required: No
+- Default: None
 
 ##### range
 
 ###### type
-- 描述 主要用于配置db2表的切分键默认值类型，值为bigInt/string/time，这里会检查表切分键中的类型，请务必确保类型正确。
-- 必选：否
-- 默认值: 无
+- Description: Specifies the data type of the default value for the split key of the DB2 table. Valid values are bigInt, string, time. Please ensure the correct type is selected.
+- Required: No
+- Default: None
 
 ###### left
-- 描述 主要用于配置db2表的切分键默认最大值
-- 必选：否
-- 默认值: 无
+- Description: Specifies the default maximum value for the split key of the DB2 table.
+- Required: No
+- Default: None
 
 ###### right
-- 描述 主要用于配置db2表的切分键默认最小值
-- 必选：否
-- 默认值: 无
+- Description: Specifies the default minimum value for the split key of the DB2 table.
+- Required: No
+- Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
-
-  支持列裁剪，即列可以挑选部分列进行导出。
-
-  支持列换序，即列可以不按照表schema信息进行导出。
-
-  支持常量配置，用户需要按照DB2 SQL语法格式: ["id", "`table`", "1", "'bazhen.csy'", "null", "left(a,10)", "2.3" , "true"] id为普通列名，`table`为包含保留在的列名，1为整形数字常量，'bazhen.csy'为字符串常量，null为空指针，left(a,10)为表达式，2.3为浮点数，true为布尔值。
-
-- 必选：是
-
-- 默认值: 无
+- Description: An array of column names to be synchronized from the configured table. The user can specify "*" to select all columns by default, e.g., ["*"]. Column pruning (selecting only specific columns) and column reordering (not following the table schema order) are supported. Constant values can also be configured using DB2 SQL syntax, e.g., ["id", "`table`", "1", "'bazhen.csy'", "null", "left(a,10)", "2.3", "true"].
+- Required: Yes
+- Default: None
 
 #### where
 
-- 描述 主要用于配置select的where条件
-- 必选：否
-- 默认值: 无
+- Description: Specifies the WHERE condition for the SELECT query.
+- Required: No
+- Default: None
 
 #### querySql
 
-- 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
-当用户配置querySql时，Db2Reader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
-- 必选：否
-- 默认值：无
+- Description: Allows the user to define a custom SQL query for data filtering. When this option is configured, the system ignores the table, column, and where settings, and directly uses the content of this configuration for data filtering. This is useful for scenarios that require joining multiple tables or complex filtering conditions.
+- Required: No
+- Default: None
 
 #### trimChar
 
-- 描述：对于db2的char类型是否去掉其前后的空格
-- 必选：否
-- 默认值：false
+- Description: Specifies whether to trim leading and trailing spaces from char type columns in DB2.
+- Required: No
+- Default: false
 
-### 类型转换
+### Type Conversions
 
-目前  DB2Reader支持大部分  DB2类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
-下面列出DB2Reader针对  DB2类型转换列表:
+DB2Reader supports most DB2 data types, but there may be some unsupported types. Please check your data types carefully.
 
-| go-etl的类型 | DB2数据类型               |
-| ------------ | ------------------------- |
-| bool         | BOOLEAN                   |
-| bigInt       | BIGINT, INTEGER, SMALLINT |
-| decimal      | DOUBLE, REAL, DECIMAL     |
-| string       | VARCHAR,CHAR              |
-| time         | DATE,TIME,TIMESTAMP       |
-| bytes        | BLOB,CLOB                 |
+The following table lists the type conversion mappings supported by DB2Reader:
 
-## 性能报告
+| go-etl Type | DB2 Data Type |
+| --- | --- |
+| bool | BOOLEAN |
+| bigInt | BIGINT, INTEGER, SMALLINT |
+| decimal | DOUBLE, REAL, DECIMAL |
+| string | VARCHAR, CHAR |
+| time | DATE, TIME, TIMESTAMP |
+| bytes | BLOB, CLOB |
 
-待测试
+## Performance Report
 
-## 约束限制
+Pending testing.
 
-### 数据库编码问题
-目前仅支持utf8字符集
+## Constraints and Limitations
+
+### Database Encoding Issues
+
+Currently, only the UTF-8 character set is supported.
 
 ## FAQ
 
-1.如何配置db2的odbc库
+1. How to configure the DB2 ODBC library?
 
-- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
-- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
+   - For Linux, set the environment variable `LD_LIBRARY_PATH` to point to the DB2 ODBC library path, e.g., `export LD_LIBRARY_PATH=${DB2HOME}/lib`.
+   - For Windows, update the system PATH to include the path to the DB2 ODBC library, e.g., `set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin`.

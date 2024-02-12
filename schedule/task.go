@@ -14,18 +14,18 @@
 
 package schedule
 
-// Task 任务
+// Task
 type Task interface {
-	Do() error //同步执行
+	Do() error // Synchronous execution
 }
 
-// AsyncTask 异步任务
+// AsyncTask (Asynchronous Task)
 type AsyncTask interface {
-	Do() error   //同步执行
-	Post() error //后续通知
+	Do() error   // Synchronous execution
+	Post() error // Follow-up notification
 }
 
-// MappedTask 映射任务
+// MappedTask
 type MappedTask interface {
-	Key() string //映射主键
+	Key() string // Mapped primary key
 }

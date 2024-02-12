@@ -23,42 +23,42 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Creator 创建输出流的创建器
+// Creator - The creator that generates the output stream.
 type Creator interface {
-	Create(filename string) (stream OutStream, err error) //创建名为filename的输出流
+	Create(filename string) (stream OutStream, err error) // Create an output stream named 'filename'.
 }
 
-// OutStream 输出流
+// OutStream - Represents the output stream.
 type OutStream interface {
-	Writer(conf *config.JSON) (writer StreamWriter, err error) //创建写入器
-	Close() (err error)                                        //关闭输出流
+	Writer(conf *config.JSON) (writer StreamWriter, err error) // Create a writer for writing to the output stream.
+	Close() (err error)                                        // Close the output stream.
 }
 
-// StreamWriter 输出流写入器
+// StreamWriter - A writer for writing to the output stream.
 type StreamWriter interface {
-	Write(record element.Record) (err error) //写入记录
-	Flush() (err error)                      //刷新至文件
-	Close() (err error)                      //关闭输出流写入器
+	Write(record element.Record) (err error) // Write a record to the output stream.
+	Flush() (err error)                      // Flush the data to the file.
+	Close() (err error)                      // Close the output stream writer.
 }
 
-// RegisterCreator 通过创建器名称name注册输出流创建器creator
+// RegisterCreator - Registers an output stream creator with the given name 'name'.
 func RegisterCreator(name string, creator Creator) {
 	if err := creators.register(name, creator); err != nil {
 		panic(err)
 	}
 }
 
-// UnregisterAllCreater 注销所有文件打开器
+// UnregisterAllCreater - Unregister all file openers.
 func UnregisterAllCreater() {
 	creators.unregisterAll()
 }
 
-// OutStreamer 输出流包装
+// OutStreamer - A wrapper for the output stream.
 type OutStreamer struct {
 	stream OutStream
 }
 
-// NewOutStreamer 通过creator名称name的输出流包装，并打开名为filename的输出流
+// NewOutStreamer - Opens an output stream named 'filename' using the creator with the given name 'name'.
 func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err error) {
 	creator, ok := creators.creator(name)
 	if !ok {
@@ -72,12 +72,12 @@ func NewOutStreamer(name string, filename string) (streamer *OutStreamer, err er
 	return
 }
 
-// Writer 通过配置conf创建流写入器
+// Writer - Creates a stream writer based on the configuration 'conf'.
 func (s *OutStreamer) Writer(conf *config.JSON) (StreamWriter, error) {
 	return s.stream.Writer(conf)
 }
 
-// Close 关闭写入包装
+// Close - Closes the writing wrapper.
 func (s *OutStreamer) Close() error {
 	return s.stream.Close()
 }

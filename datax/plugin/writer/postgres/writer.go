@@ -20,21 +20,21 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
 	"github.com/Breeze0806/go-etl/storage/database"
 
-	//postgres storage
+	// postgres storage
 	_ "github.com/Breeze0806/go-etl/storage/database/postgres"
 )
 
-// Writer 写入器
+// Writer Writer
 type Writer struct {
 	pluginConf *config.JSON
 }
 
-// ResourcesConfig 插件资源配置
+// ResourcesConfig Plugin Resource Configuration
 func (w *Writer) ResourcesConfig() *config.JSON {
 	return w.pluginConf
 }
 
-// Job 工作
+// Job Job
 func (w *Writer) Job() spiwriter.Job {
 	job := &Job{
 		Job: dbms.NewJob(dbms.NewBaseDbHandler(
@@ -49,7 +49,7 @@ func (w *Writer) Job() spiwriter.Job {
 	return job
 }
 
-// Task 任务
+// Task Task
 func (w *Writer) Task() spiwriter.Task {
 	task := &Task{
 		Task: dbms.NewTask(dbms.NewBaseDbHandler(

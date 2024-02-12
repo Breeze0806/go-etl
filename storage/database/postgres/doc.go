@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package postgres 实现了postgres的数据库方言Dialect，支持postgres 8.0+ 对应数据库
+// Package postgres implements the Dialect for PostgreSQL databases, supporting PostgreSQL 8.0+ corresponding databases.
 package postgres

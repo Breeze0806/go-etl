@@ -38,7 +38,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Container 工作容器环境，所有的工作都在本容器环境中执行
+// Container: the working container environment where all jobs are executed
 type Container struct {
 	ctx context.Context
 	*core.BaseCotainer
@@ -55,14 +55,14 @@ type Container struct {
 	needChannelNumber      int64
 	totalStage             int
 	reportInterval         time.Duration
-	//todo ErrorRecordChecker未使用
+	// todo ErrorRecordChecker is currently not in use
 	errorLimit   util.ErrorRecordChecker
 	taskSchduler *schedule.TaskSchduler
 	wg           sync.WaitGroup
 }
 
-// NewContainer 通过上下文ctx和JSON配置conf生成工作容器环境
-// 当container job id小于0时，会报错
+// NewContainer: creates a working container environment based on the context ctx and JSON configuration conf
+// If the container job ID is less than 0, an error will be reported
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
 		BaseCotainer: core.NewBaseCotainer(),
@@ -79,7 +79,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	return
 }
 
-// Start 工作容器开始工作
+// Start: begins the operation of the working container
 func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobID)
 	defer c.destroy()
@@ -125,8 +125,8 @@ func (c *Container) Start() (err error) {
 	return nil
 }
 
-// destroy 销毁，在jobReader不为空时进行销毁
-// 在jobWriter不为空时进行销毁
+// destroy: destroys the container when jobReader is not empty
+// destroys the container when jobWriter is not empty
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
 		if rerr := c.jobReader.Destroy(c.ctx); rerr != nil {
@@ -146,9 +146,9 @@ func (c *Container) destroy() (err error) {
 	return
 }
 
-// init 检查并初始化读取器和写入器工作
-// 当配置文件读取器和写入器的名字和参数不存在的情况下会报错
-// 另外，读取器和写入器工作初始化失败也会导致报错
+// init: checks and initializes the reader and writer jobs
+// An error will be reported if the names and parameters of the reader and writer in the configuration file do not exist
+// Additionally, failed initialization of the reader and writer jobs will also result in an error
 func (c *Container) init() (err error) {
 	c.readerPluginName, err = c.Config().GetString(coreconst.DataxJobContentReaderName)
 	if err != nil {
@@ -196,8 +196,8 @@ func (c *Container) init() (err error) {
 	return
 }
 
-// prepare 准备读取器和写入器工作
-// 如果读取器和写入器工作准备失败就会报错
+// prepare: prepares the reader and writer jobs
+// An error will be reported if the preparation of the reader and writer jobs fails
 func (c *Container) prepare() (err error) {
 	if err = c.prepareReaderJob(); err != nil {
 		return err
@@ -210,20 +210,20 @@ func (c *Container) prepare() (err error) {
 	return
 }
 
-// prepareReaderJob 准备读取工作
+// prepareReaderJob: prepares the reading job
 func (c *Container) prepareReaderJob() error {
 	return c.jobReader.Prepare(c.ctx)
 }
 
-// prepareReaderJob 准备写入工作
+// prepareWriterJob: prepares the writing job
 func (c *Container) prepareWriterJob() error {
 	return c.jobWriter.Prepare(c.ctx)
 }
 
-// split 切分读取器和写入器工作
-// 先进行读取工作切分成多个任务，再根据读取工作切分的结果进行写入工作切分多个任务
-// 然后逐个将单个读取任务、单个写入任务和转化器组合成完整任务组，由于reader，writer，channel模型
-// 切分时读取器和写入器的比例为1:1，所以这里可以将reader和writer的配置整合到一起
+// split: splits the reader and writer jobs
+// First, the reading job is split into multiple tasks, and then the writing job is split into multiple tasks based on the results of the reading job split
+// Then, individual reading tasks, individual writing tasks, and transformers are combined into complete task groups due to the reader, writer, and channel model
+// When splitting, the ratio of readers to writers is 1:1, so the configurations of readers and writers can be integrated together here
 func (c *Container) split() (err error) {
 	if err = c.adjustChannelNumber(); err != nil {
 		return
@@ -267,7 +267,7 @@ func (c *Container) split() (err error) {
 	return nil
 }
 
-// schedule 使用调度器将任务组进行调度，进入执行队列中
+// schedule: uses a scheduler to schedule the task groups into the execution queue
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
@@ -336,7 +336,7 @@ func (c *Container) setStats(taskGroup *taskgroup.Container, i int) {
 	c.Metrics().Set("metrics."+strconv.Itoa(i), stats)
 }
 
-// post 后置通知
+// post: post-notification
 func (c *Container) post() (err error) {
 	if err = c.jobReader.Post(c.ctx); err != nil {
 		return err
@@ -349,7 +349,7 @@ func (c *Container) post() (err error) {
 	return
 }
 
-// mergeTaskConfigs 逐个将单个读取任务、单个写入任务和转化器组合成完整任务组
+// mergeTaskConfigs: combines individual reading tasks, individual writing tasks, and transformers into complete task groups
 func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
 		err = errors.New("the number of reader tasks are not equal to the number of writer tasks")
@@ -391,8 +391,8 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	return
 }
 
-// distributeTaskIntoTaskGroup 公平的分配 task 到对应的 taskGroup 中。
-// 公平体现在：会考虑 task 中对资源负载作的 load 标识进行更均衡的作业分配操作。
+// distributeTaskIntoTaskGroup: fairly distributes tasks into corresponding task groups
+// Fairness is reflected in: it considers the load indicators for resource loads in tasks to perform a more balanced job allocation operation
 func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
@@ -434,8 +434,8 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	return
 }
 
-// adjustChannelNumber 自适应化通道数量
-// 依次根据字节流大小，记录数大小以及通道数大小生成通道数量
+// adjustChannelNumber: adapts the number of channels
+// Generates the number of channels based on the size of the byte stream, the size of the record count, and the size of the channel count in sequence
 func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
 	var needChannelNumberByRecord int64 = math.MaxInt32
@@ -489,16 +489,16 @@ func (c *Container) adjustChannelNumber() error {
 	}
 
 	// if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
-	// 	//此时 DataxJobSettingSpeedChannel必然存在
-	// 	c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
+	// // At this point, DataxJobSettingSpeedChannel must exist
+	// c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
 	// 	log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
-	// 	return nil
+	// return nil
 	// }
 	return errors.New("job speed should be setted")
 }
 
-// initReaderJob 初始化读取工作
-// 当读取插件名找不到读取工作或者初始化失败就会报错
+// initReaderJob: initializes the reading job
+// An error will be reported if the reading plugin name cannot find the reading job or if the initialization fails
 func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job reader.Job, err error) {
 	ok := false
 	job, ok = loader.LoadReaderJob(c.readerPluginName)
@@ -518,8 +518,8 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-// initReaderJob 初始化写入工作
-// 当写入插件名找不到写入工作或者初始化失败就会报错
+// initWriterJob: initializes the writing job
+// An error will be reported if the writing plugin name cannot find the writing job or if the initialization fails
 func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job writer.Job, err error) {
 	ok := false
 	job, ok = loader.LoadWriterJob(c.writerPluginName)
@@ -539,7 +539,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-// preHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PreHandle
+// preHandle: for users, it is an empty shell, as readers and writers have not implemented the corresponding PreHandle logic
 func (c *Container) preHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPreHandlerPluginType) {
 		return
@@ -570,7 +570,7 @@ func (c *Container) preHandle() (err error) {
 	return
 }
 
-// postHandle 事实上对于使用者是空壳，reader和writer未实现对应逻辑PostHandle
+// postHandle: for users, it is an empty shell, as readers and writers have not implemented the corresponding PostHandle logic
 func (c *Container) postHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPostHandlerPluginType) {
 		return
@@ -601,18 +601,18 @@ func (c *Container) postHandle() (err error) {
 	return
 }
 
-// doAssign 平均分配
-//   需要实现的效果通过例子来说是：
-//   a 库上有表：0, 1, 2
-//   a 库上有表：3, 4
-//   c 库上有表：5, 6, 7
+// doAssign: average distribution
+// The desired effect is demonstrated through an example:
+// Library a has tables: 0, 1, 2
+// Library a has tables: 3, 4
+// Library c has tables: 5, 6, 7
 
-// 如果有 4个 taskGroup
-// 则 assign 后的结果为：
-// taskGroup-0: 0,  4,
-// taskGroup-1: 3,  6,
-// taskGroup-2: 5,  2,
-// taskGroup-3: 1,  7
+// If there are 4 taskGroups
+// The result after assignment would be:
+// taskGroup-0: 0, 4,
+// taskGroup-1: 3, 6,
+// taskGroup-2: 5, 2,
+// taskGroup-3: 1, 7
 func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	taskGroups := make([][]int, taskGroupNumber)
 	var taskMasks []string
@@ -640,8 +640,8 @@ func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	return taskGroups
 }
 
-// parseAndGetResourceMarkAndTaskIDMap 根据task 配置，获取到：
-// 资源名称 --> taskId(List) 的 map 映射关系(对资源负载作的 load 标识: 任务编号)
+// parseAndGetResourceMarkAndTaskIDMap gets the mapping relationship between resource name and taskId(List)
+// according to the task configuration. (The load identification for resource load: task number)
 func parseAndGetResourceMarkAndTaskIDMap(tasksConfigs []*config.JSON) map[string][]int {
 	writerMap := make(map[string][]int)
 	readerMap := make(map[string][]int)

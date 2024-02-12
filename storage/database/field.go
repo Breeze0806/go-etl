@@ -24,26 +24,26 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-// GoType golang的类型
+// GoType refers to the type in the Golang language.
 type GoType uint8
 
-// 字段错误相关
+// Related to field errors.
 var (
-	ErrNotValuerGoType = errors.New("field type is not ValuerGoType") //接口不是ValuerGoType的错误
+	ErrNotValuerGoType = errors.New("field type is not ValuerGoType") // Error indicating that the interface is not a ValuerGoType.
 )
 
-// golang的类型枚举
+// Enumeration of golang types.
 const (
-	GoTypeUnknown GoType = iota //未知类型
-	GoTypeBool                  //布尔类型
-	GoTypeInt64                 //Int64类型
-	GoTypeFloat64               //Float64类型
-	GoTypeString                //字符串类型
-	GoTypeBytes                 //字节流类型
-	GoTypeTime                  //时间类型
+	GoTypeUnknown GoType = iota // Unknown type.
+	GoTypeBool                  // Boolean type.
+	GoTypeInt64                 // Int64 type.
+	GoTypeFloat64               // Float64 type.
+	GoTypeString                // String type.
+	GoTypeBytes                 // Byte stream type.
+	GoTypeTime                  // Time type.
 )
 
-// golang的类型枚举字符串
+// Enumeration string of golang types.
 var goTypeMap = map[GoType]string{
 	GoTypeUnknown: "unknow",
 	GoTypeBool:    "bool",
@@ -54,7 +54,7 @@ var goTypeMap = map[GoType]string{
 	GoTypeTime:    "time",
 }
 
-// String golang的类型枚举字符串描述
+// String description of the enumeration of golang types.
 func (t GoType) String() string {
 	if s, ok := goTypeMap[t]; ok {
 		return s
@@ -62,64 +62,64 @@ func (t GoType) String() string {
 	return "unknow"
 }
 
-// Field 数据库字段
+// Field refers to a database field.
 type Field interface {
 	fmt.Stringer
 
-	Index() int                   //索引
-	Name() string                 //字段名
-	Quoted() string               //引用字段名
-	BindVar(int) string           //占位符号, 从1开始
-	Select() string               //select字段名
-	Type() FieldType              //字段类型
-	Scanner() Scanner             //扫描器
-	Valuer(element.Column) Valuer //赋值器
+	Index() int                   // Index.
+	Name() string                 // Field name.
+	Quoted() string               // Referenced field name.
+	BindVar(int) string           // Placeholder symbol, starting from 1.
+	Select() string               // Selected field name.
+	Type() FieldType              // Field type.
+	Scanner() Scanner             // Scanner.
+	Valuer(element.Column) Valuer // Valuer.
 }
 
-// Scanner 列数据扫描器 数据库驱动的值扫描成列数据
+// Scanner: Data scanner for columns. Converts database driver values into column data.
 type Scanner interface {
 	sql.Scanner
 
-	Column() element.Column //获取列数据
+	Column() element.Column // Get column data.
 }
 
-// Valuer 赋值器 将对应数据转化成数据库驱动的值
+// Valuer: Converts corresponding data into database driver values.
 type Valuer interface {
 	driver.Valuer
 }
 
-// ColumnType 列类型,抽象 sql.ColumnType，也方便自行实现对应函数
+// ColumnType: Represents the type of a column, abstracting sql.ColumnType and facilitating custom implementations.
 type ColumnType interface {
-	Name() string                                   //列名
-	ScanType() reflect.Type                         //扫描类型
-	Length() (length int64, ok bool)                //长度
-	DecimalSize() (precision, scale int64, ok bool) //精度
-	Nullable() (nullable, ok bool)                  //是否为空
-	DatabaseTypeName() string                       //列数据库类型名
+	Name() string                                   // Column name.
+	ScanType() reflect.Type                         // Scanning type.
+	Length() (length int64, ok bool)                // Length.
+	DecimalSize() (precision, scale int64, ok bool) // Precision.
+	Nullable() (nullable, ok bool)                  // Whether it is nullable.
+	DatabaseTypeName() string                       // Name of the column's database type.
 }
 
-// FieldType 字段类型
+// FieldType: Represents the type of a field.
 type FieldType interface {
 	ColumnType
 
-	IsSupportted() bool //是否支持
+	IsSupported() bool // Whether it is supported.
 }
 
-// ValuerGoType 用于赋值器的golang类型判定,是Field的可选功能，
-// 就是对对应驱动的值返回相应的值，方便GoValuer进行判定
+// ValuerGoType: Determines the golang type for a Valuer. An optional feature of Field, it converts corresponding driver values.
+
 type ValuerGoType interface {
 	GoType() GoType
 }
 
-// BaseField 基础字段，主要存储列名name和列类型fieldType
+// BaseField: Represents a basic field, primarily storing the column name and column type.
 type BaseField struct {
 	index     int
 	name      string
 	fieldType FieldType
 }
 
-// NewBaseField 根据列名name和列类型fieldType获取基础字段
-// 用于嵌入其他Field，方便实现各个数据库的Field
+// NewBaseField: Creates a new base field based on the column name and column type.
+// Used for embedding other Fields, facilitating the implementation of database-specific Fields.
 func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	return &BaseField{
 		index:     index,
@@ -128,66 +128,66 @@ func NewBaseField(index int, name string, fieldType FieldType) *BaseField {
 	}
 }
 
-// Index 返回字段名
+// Index: Returns the field name.
 func (b *BaseField) Index() int {
 	return b.index
 }
 
-// Name 返回字段名
+// Name: Returns the field name.
 func (b *BaseField) Name() string {
 	return b.name
 }
 
-// FieldType 返回字段类型
+// FieldType: Returns the field type.
 func (b *BaseField) FieldType() FieldType {
 	return b.fieldType
 }
 
-// String 打印时显示字符串
+// String: Displays a string representation when printing.
 func (b *BaseField) String() string {
 	return b.name
 }
 
-// BaseFieldType 基础字段类型，嵌入其他各种数据库字段类型实现
+// BaseFieldType: Represents the basic type of a field, embedding implementations for various database field types.
 type BaseFieldType struct {
 	ColumnType
 }
 
-// NewBaseFieldType 获取字段类型
+// NewBaseFieldType: Gets the field type.
 func NewBaseFieldType(typ ColumnType) *BaseFieldType {
 	return &BaseFieldType{
 		ColumnType: typ,
 	}
 }
 
-// IsSupportted 是否支持被解析
-func (*BaseFieldType) IsSupportted() bool {
+// IsSupported: Determines if it is supported for parsing.
+func (*BaseFieldType) IsSupported() bool {
 	return true
 }
 
-// BaseScanner 基础扫描器，嵌入其他各种数据库扫描器实现
+// BaseScanner: Represents a basic scanner, embedding implementations for various database scanners.
 type BaseScanner struct {
 	c element.Column
 }
 
-// SetColumn 设置列值，用于数据库方言的列数据设置
+// SetColumn: Sets the column value for database-specific column data settings.
 func (b *BaseScanner) SetColumn(c element.Column) {
 	b.c = c
 }
 
-// Column 取得列值，方便统一取得列值
+// Column: Retrieves the column value, facilitating a unified way to obtain column values.
 func (b *BaseScanner) Column() element.Column {
 	return b.c
 }
 
-// GoValuer 使用GoType类型生成赋值器，主要通过字段f和传入参数列值c来
-// 完成使用GoType类型生成赋值器,方便实现GoValuer
+// GoValuer: Generates a Valuer using the GoType. Primarily done through the field 'f' and the incoming column value 'c'.
+// Completes the generation of a Valuer using the GoType, facilitating the implementation of GoValuer.
 type GoValuer struct {
 	f Field
 	c element.Column
 }
 
-// NewGoValuer 主要通过字段f和传入参数列值c来完成使用GoType类型生成赋值器的生成
+// NewGoValuer: Generates a new Valuer using the GoType, primarily done through the field 'f' and the incoming column value 'c'.
 func NewGoValuer(f Field, c element.Column) *GoValuer {
 	return &GoValuer{
 		f: f,
@@ -195,7 +195,7 @@ func NewGoValuer(f Field, c element.Column) *GoValuer {
 	}
 }
 
-// Value 根据ValuerGoType生成对应的驱动接受的值
+// Value: Generates the corresponding driver-accepted value based on ValuerGoType.
 func (g *GoValuer) Value() (driver.Value, error) {
 	typ, ok := g.f.Type().(ValuerGoType)
 	if !ok {

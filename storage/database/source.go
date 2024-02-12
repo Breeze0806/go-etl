@@ -21,27 +21,27 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-// 默认参数
+// Default Parameters
 const (
 	DefaultMaxOpenConns = 4
 	DefaultMaxIdleConns = 4
 )
 
-// Source 数据源,包含驱动信息，包信息，配置文件以及连接信息
+// Source Data Source, containing driver information, package information, configuration files, and connection information
 type Source interface {
-	Config() *config.JSON   //配置信息
-	Key() string            //一般是连接信息
-	DriverName() string     //驱动名，用于sql.Open的第1个参数
-	ConnectName() string    //连接信息，用于sql.Open的第2个参数
-	Table(*BaseTable) Table //获取具体表
+	Config() *config.JSON   // Configuration Information
+	Key() string            // Typically connection information
+	DriverName() string     // Driver Name, used as the first parameter for sql.Open
+	ConnectName() string    // Connection Information, used as the second parameter for sql.Open
+	Table(*BaseTable) Table // Get Specific Table
 }
 
-// WithConnector 带有连接的数据源, 数据源优先调用该方法生成数据连接池DB
+// WithConnector Data Source with Connection, the data source prefers to call this method to generate a data connection pool DB
 type WithConnector interface {
-	Connector() (driver.Connector, error) //go 1.10 获取连接
+	Connector() (driver.Connector, error) // go 1.10 Get Connection
 }
 
-// NewSource 通过数据库方言的名字获取对应数据源
+// NewSource Obtain the corresponding data source by the name of the database dialect
 func NewSource(name string, conf *config.JSON) (source Source, err error) {
 	d, ok := dialects.dialect(name)
 	if !ok {
@@ -54,20 +54,20 @@ func NewSource(name string, conf *config.JSON) (source Source, err error) {
 	return
 }
 
-// BaseSource 基础数据源，用于存储json配置文件
-// 用于嵌入Source，方便实现各个数据库的Field
+// BaseSource Basic data source for storing JSON configuration files
+// Used to embed Source, facilitating the implementation of various database Fields
 type BaseSource struct {
 	conf *config.JSON
 }
 
-// NewBaseSource 通过json配置文件conf生成基础数据源
+// NewBaseSource Generate a basic data source from the JSON configuration file conf
 func NewBaseSource(conf *config.JSON) *BaseSource {
 	return &BaseSource{
 		conf: conf.CloneConfig(),
 	}
 }
 
-// Config 基础数据源的配置文件
+// Config Configuration file for the basic data source
 func (b *BaseSource) Config() *config.JSON {
 	return b.conf
 }

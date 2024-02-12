@@ -20,22 +20,22 @@ import (
 	"github.com/Breeze0806/go/encoding"
 )
 
-// DefaultJobCollector 默认工作收集器
+// DefaultJobCollector - A default job information collector
 type DefaultJobCollector struct {
 	metrics *container.Metrics
 }
 
-// NewDefaultJobCollector 创建默认工作收集器
+// NewDefaultJobCollector - Creates a new instance of the default job information collector
 func NewDefaultJobCollector(metrics *container.Metrics) plugin.JobCollector {
 	return &DefaultJobCollector{metrics: metrics}
 }
 
-// JSON  获取json的指标
+// JSON - Retrieves metrics in JSON format
 func (d *DefaultJobCollector) JSON() *encoding.JSON {
 	return d.metrics.JSON()
 }
 
-// JSONByKey 获取关键字是key的json的指标
+// JSONByKey - Retrieves metrics in JSON format based on the given key
 func (d *DefaultJobCollector) JSONByKey(key string) *encoding.JSON {
 	return d.metrics.Get(key)
 }

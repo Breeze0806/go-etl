@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package oracle 实现了oracle的数据库方言Dialect，支持oracle 10.5+ 对应数据库
+// Package oracle implements the Dialect for Oracle databases, supporting Oracle 10.5+ corresponding databases.
 package oracle

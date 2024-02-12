@@ -19,39 +19,39 @@ import (
 	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
 )
 
-// Container 容器
+// Container - A component that holds or encapsulates other components
 type Container interface {
 	Start() error
 	Metrics() *container.Metrics
 }
 
-// BaseCotainer 基础容器
+// BaseContainer - A fundamental container that provides basic functionalities
 type BaseCotainer struct {
 	conf    *config.JSON
 	metrics *container.Metrics
 }
 
-// NewBaseCotainer 创建基础容器
+// NewBaseContainer - Creates a new instance of the base container
 func NewBaseCotainer() *BaseCotainer {
 	return &BaseCotainer{}
 }
 
-// SetMetrics 设置指标
+// SetMetrics - Sets the metrics for the container
 func (b *BaseCotainer) SetMetrics(metrics *container.Metrics) {
 	b.metrics = metrics
 }
 
-// Metrics 指标
+// Metrics - Represents the measurements or quantifications of some aspect of the container's operation
 func (b *BaseCotainer) Metrics() *container.Metrics {
 	return b.metrics
 }
 
-// SetConfig 设置JSON配置
+// SetConfig - Sets the JSON configuration for the container
 func (b *BaseCotainer) SetConfig(conf *config.JSON) {
 	b.conf = conf
 }
 
-// Config JSON配置
+// Config - Represents the JSON-formatted configuration settings for the container
 func (b *BaseCotainer) Config() *config.JSON {
 	return b.conf
 }

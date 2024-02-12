@@ -1,20 +1,20 @@
-# SQLServerReader插件文档
+# SQLServerReader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-SQLServerReader插件实现了从sql server数据库读取数据。在底层实现上，SQLServerReader通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并执行相应的sql语句将数据从sql server库中查询出来。
+The SQLServerReader plugin enables data extraction from SQL Server databases. Under the hood, SQLServerReader connects to a remote SQL Server database via `github.com/denisenkom/go-mssqldb` and executes SQL queries to retrieve data from the SQL Server.
 
-## 实现原理
+## Implementation Details
 
-SQLServerReader通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程sql server数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。和直接使用github.com/denisenkom/go-mssqldb。
+SQLServerReader connects to the remote SQL Server database using `github.com/denisenkom/go-mssqldb` and generates SQL queries based on user-provided information. These queries are then sent to the remote SQL Server, and the returned results are assembled into an abstract dataset using go-etl's custom data types before being passed to downstream Writer processing. This differs from directly using `github.com/denisenkom/go-mssqldb`.
 
-SQLServerReader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlserver采取了storage/database/sqlserver实现的Dialect。
+SQLServerReader implements specific queries by invoking the query process defined in `dbmsreader` using go-etl's custom `storage/database` DBWrapper. DBWrapper encapsulates many `database/sql` interfaces and abstracts the database dialect. For SQL Server, it uses the dialect implemented in `storage/database/sqlserver`.
 
-## 功能说明
+## Functionality Overview
 
-### 配置样例
+### Configuration Example
 
-配置一个从sql server数据库同步抽取数据到本地的作业:
+Configuring a job to synchronize data from a SQL Server database to a local destination:
 
 ```json
 {
@@ -48,133 +48,127 @@ SQLServerReader通过使用dbmsreader中定义的查询流程调用go-etl自定�
 }
 ```
 
-### 参数说明
+### Parameter Explanation
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/denisenkom/go-mssqldb)的连接配置信息.
-- 必选：是
-- 默认值: 无
+- Description: Specifies the connection information for the remote SQL Server. The basic format is `sqlserver://ip:port?database=db&encrypt=disable`, where `ip:port` represents the IP address and port of the SQL Server, and `db` is the default database to connect to. See [go-mssqldb](https://github.com/denisenkom/go-mssqldb) for more connection configuration details.
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置sql server数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: Specifies the SQL Server database user.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置sql server数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: Specifies the password for the SQL Server database user.
+- Required: Yes
+- Default: None
 
 #### table
 
-描述sql server表信息
+Describes the SQL Server table information.
 
 ##### db
 
-- 描述 主要用于配置sql server表的数据库名
-- 必选：是
-- 默认值: 无
+- Description: Specifies the database name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 ##### schema
 
-- 描述 主要用于配置sql server表的模式名
-- 必选：是
-- 默认值: 无
+- Description: Specifies the schema name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 ##### name
 
-- 描述 主要用于配置sql server表的表名
-- 必选：是
-- 默认值: 无
+- Description: Specifies the table name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
-
-  支持列裁剪，即列可以挑选部分列进行导出。
-
-  支持列换序，即列可以不按照表schema信息进行导出。
-
-  支持常量配置，用户需要按照sql server语法格式: ["id",  "true", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
-
-- 必选：是
-
-- 默认值: 无
+- Description: Specifies the set of column names to synchronize from the configured table. Use a JSON array to describe the column information. Users can use `*` to select all columns by default, e.g., `["*"]`. Supports column pruning (selecting only specific columns for export) and column reordering (exporting columns in a different order than the table schema). Also supports constant configuration, where users need to follow SQL Server syntax, e.g., `["id", "true", "power(2,3)"]`, where `id` is a regular column name, `'hello'::varchar` is a string constant, `true` is a boolean value, `2.5` is a floating-point number, and `power(2,3)` is a function.
+- Required: Yes
+- Default: None
 
 #### split
 
 ##### key
 
-- 描述 主要用于配置sql server表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
-- 必选：否
-- 默认值: 无
+- Description: Specifies the split key for the SQL Server table. The split key must be of type bigInt/string/time, assuming the data is evenly distributed based on the split key.
+- Required: No
+- Default: None
 
 ##### timeAccuracy
 
-- 描述 主要用于配置sql server表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
-- 必选：否
-- 默认值: 无
+- Description: Specifies the time precision for the SQL Server table's time split key. Used to describe the smallest unit of time, such as day, minute, second, millisecond, microsecond, or nanosecond.
+- Required: No
+- Default: None
 
 ##### range
 
 ###### type
-- 描述 主要用于配置db2表的切分键默认值类型，值为bigInt/string/time，这里会检查表切分键中的类型，请务必确保类型正确。
-- 必选：否
-- 默认值: 无
+
+- Description: Specifies the default data type for the SQL Server table's split key. Values can be bigInt/string/time. This will check the type of the table's split key, so it's important to ensure the type is correct.
+- Required: No
+- Default: None
 
 ###### left
-- 描述 主要用于配置db2表的切分键默认最大值
-- 必选：否
-- 默认值: 无
+
+- Description: Specifies the default maximum value for the SQL Server table's split key.
+- Required: No
+- Default: None
 
 ###### right
-- 描述 主要用于配置db2表的切分键默认最小值
-- 必选：否
-- 默认值: 无
+
+- Description: Specifies the default minimum value for the SQL Server table's split key.
+- Required: No
+- Default: None
 
 #### where
 
-- 描述 主要用于配置select的where条件
-- 必选：否
-- 默认值: 无
+- Description: Specifies the WHERE condition for the SELECT statement.
+- Required: No
+- Default: None
 
 #### querySql
 
-- 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
-当用户配置querySql时，SQLServerReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
-- 必选：否
-- 默认值：无
+- Description: In some scenarios, the `where` configuration may not be sufficient to describe the filtering conditions. Users can use this configuration to define custom SQL queries. When this option is configured, the DataX system will ignore the `table`, `column`, and other configurations and directly use the content of this configuration to filter the data. For example, it can be used for data synchronization after performing a join operation on multiple tables, such as `select a,b from table_a join table_b on table_a.id = table_b.id`. When `querySql` is configured, SQLServerReader ignores the configuration of `table`, `column`, and `where` options, and `querySql` takes priority over these options.
+- Required: No
+- Default: None
 
 #### trimChar
 
-- 描述：对于SQL Server的char，nchar类型是否去掉其前后的空格
-- 必选：否
-- 默认值：false
+- Description: Specifies whether to remove leading and trailing spaces for SQL Server's char and nchar types.
+- Required: No
+- Default: false
 
-### 类型转换
+### Type Conversion
 
-目前SQLServerReader支持大部分SQLServer类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
+Currently, SQLServerReader supports most SQL Server data types, but there may be some unsupported types. Please check your data types accordingly.
 
-下面列出SQLServerReader针对sql server类型转换列表:
+Below is a conversion table for SQLServerReader with respect to SQL Server data types:
 
-| go-etl的类型 | sql server数据类型                                          |
-| ------------ | ----------------------------------------------------------- |
-| bool         | bit                                                         |
-| bigInt       | bigint, int, smallint, tinyint                              |
-| decimal      | numeric, real,float                                         |
-| string       | char, varchar, text, nchar, nvarchar, ntext                 |
-| time         | date, time, datetimeoffset,datetime2,smalldatetime,datetime |
-| bytes        | binary，varbinary，varbinary(max)                           |
+| go-etl Type | SQL Server Data Type                                          |
+| ----------- | ----------------------------------------------------------- |
+| bool        | bit                                                         |
+| bigInt      | bigint, int, smallint, tinyint                              |
+| decimal     | numeric, real, float                                        |
+| string      | char, varchar, text, nchar, nvarchar, ntext                 |
+| time        | date, time, datetimeoffset, datetime2, smalldatetime, datetime |
+| bytes       | binary, varbinary, varbinary(max)                           |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Constraints and Limitations
 
 
+## Frequently Asked Questions (FAQ)
 
-## FAQ

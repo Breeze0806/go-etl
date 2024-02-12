@@ -20,54 +20,54 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-// Plugin 插件
+// Plugin: an extension or add-on component
 type Plugin interface {
 	Pluggable
-	//预检查
+	// PreCheck: a pre-processing check or verification step
 	PreCheck(ctx context.Context) error
-	//准备
+	// Prepare: a preparation step before the main operation
 	Prepare(ctx context.Context) error
-	//后置通知
+	// PostNotification: a notification step after the main operation
 	Post(ctx context.Context) error
-	//预备处理， todo当前未用到
+	// PreHandler: preprocessing, todo: currently not in use
 	PreHandler(ctx context.Context, conf *config.JSON) error
-	//后置通知处理， todo当前未用到
+	// PostHandler: post-notification processing, todo: currently not in use
 	PostHandler(ctx context.Context, conf *config.JSON) error
 }
 
-// BasePlugin 基础插件，用于辅助和简化插件的实现
+// BasePlugin: a fundamental plugin class that assists and simplifies the implementation of plugins
 type BasePlugin struct {
 	*BasePluggable
 }
 
-// NewBasePlugin 创建基础插件
+// NewBasePlugin: a function or method to create a new instance of BasePlugin
 func NewBasePlugin() *BasePlugin {
 	return &BasePlugin{
 		BasePluggable: NewBasePluggable(),
 	}
 }
 
-// PreCheck 预检查空方法
+// PreCheck: an empty method for pre-checking
 func (b *BasePlugin) PreCheck(ctx context.Context) error {
 	return nil
 }
 
-// Post 后置通知空方法
+// Post: an empty method for post-notification
 func (b *BasePlugin) Post(ctx context.Context) error {
 	return nil
 }
 
-// Prepare 预备空方法
+// Prepare: an empty method for preparation
 func (b *BasePlugin) Prepare(ctx context.Context) error {
 	return nil
 }
 
-// PreHandler 预处理空方法
+// PreHandler: an empty method for preprocessing
 func (b *BasePlugin) PreHandler(ctx context.Context, conf *config.JSON) error {
 	return nil
 }
 
-// PostHandler 后置通知处理空方法
+// PostHandler: an empty method for post-notification processing
 func (b *BasePlugin) PostHandler(ctx context.Context, conf *config.JSON) error {
 	return nil
 }

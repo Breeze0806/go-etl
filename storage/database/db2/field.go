@@ -28,57 +28,57 @@ var (
 	timeLayout      = timestampLayout
 )
 
-// Field 字段
+// Field represents a database field.
 type Field struct {
 	*database.BaseField
 	database.BaseConfigSetter
 }
 
-// NewField 通过基本列属性生成字段
+// NewField creates a new field based on basic column attributes.
 func NewField(bf *database.BaseField) *Field {
 	return &Field{
 		BaseField: bf,
 	}
 }
 
-// Quoted 引用，用于SQL语句
+// Quoted is used for quoting in SQL statements.
 func (f *Field) Quoted() string {
 	return Quoted(f.Name())
 }
 
-// BindVar SQL占位符，用于SQL语句
+// BindVar represents an SQL placeholder used in SQL statements.
 func (f *Field) BindVar(_ int) string {
 	return "?"
 }
 
-// Select 查询时字段，用于SQL查询语句
+// Select is the field used during queries for SQL SELECT statements.
 func (f *Field) Select() string {
 	return Quoted(f.Name())
 }
 
-// Type 字段类型
+// Type represents the type of the field.
 func (f *Field) Type() database.FieldType {
 	return NewFieldType(f.FieldType())
 }
 
-// Scanner 扫描器，用于读取数据
+// Scanner is used for reading data.
 func (f *Field) Scanner() database.Scanner {
 	return NewScanner(f)
 }
 
-// Valuer 赋值器，采用GoValuer处理数据
+// Valuer adopts GoValuer for processing data.
 func (f *Field) Valuer(c element.Column) database.Valuer {
 	return database.NewGoValuer(f, c)
 }
 
-// FieldType 字段类型
+// FieldType represents the type of a field.
 type FieldType struct {
 	*database.BaseFieldType
 
 	goType database.GoType
 }
 
-// NewFieldType 创建新的字段类型
+// NewFieldType creates a new field type.
 func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
@@ -100,36 +100,36 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	return f
 }
 
-// IsSupportted 是否支持解析
-func (f *FieldType) IsSupportted() bool {
+// IsSupported determines whether parsing is supported.
+func (f *FieldType) IsSupported() bool {
 	return f.goType != database.GoTypeUnknown
 }
 
-// GoType 返回处理数值时的Golang类型
+// GoType returns the Golang type used when processing numeric values.
 func (f *FieldType) GoType() database.GoType {
 	return f.goType
 }
 
-// Scanner 扫描器
+// Scanner is used for scanning data based on column types.
 type Scanner struct {
 	f *Field
 	database.BaseScanner
 }
 
-// NewScanner 根据列类型生成扫描器
+// NewScanner generates a scanner based on the column type.
 func NewScanner(f *Field) *Scanner {
 	return &Scanner{
 		f: f,
 	}
 }
 
-// Scan 根据列类型读取数据
-// "INTEGER", "BIGINT", "SMALLINT"作为整形处理
-// "DOUBLE", "REAL", "DECIMAL"作为高精度实数处理
-// "DATE", "TIME", "TIMESTAMP" 作为时间处理
-// "CHAR", "VARCHAR"作为字符串处理
-// "BLOB" 作为字节流处理
-// "BOOLEAN" 作为布尔值处理
+// Scan reads data based on the column type.
+// INTEGER, BIGINT, and SMALLINT are treated as integers.
+// DOUBLE, REAL, and DECIMAL are treated as high-precision real numbers.
+// DATE, TIME, and TIMESTAMP are treated as time values.
+// CHAR and VARCHAR are treated as strings.
+// BLOB is treated as a byte stream.
+// BOOLEAN is treated as a boolean value.
 func (s *Scanner) Scan(src interface{}) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)

@@ -1,28 +1,28 @@
-# SQLServerWriter插件文档
+# SQLServerWriter Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-SQLServerWriter插件实现了向sql server数据库写入数据。在底层实现上，SQLServerWriter通过github.com/denisenkom/go-mssqldb以及database/sql连接远程sql server数据库，并执行相应的sql语句将数据写入sql server数据库。
+The SQLServerWriter plugin enables writing data to SQL Server databases. Under the hood, SQLServerWriter connects to remote SQL Server databases using github.com/denisenkom/go-mssqldb and database/sql, executing corresponding SQL statements to write data into the SQL Server database.
 
-## 实现原理
+## Implementation Principles
 
-SQLServerWriter通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程sql server数据库执行。
+SQLServerWriter connects to remote SQL Server databases using github.com/denisenkom/go-mssqldb. It generates write SQL statements based on user-configured information and go-etl's custom data types from the Reader. These statements are then sent to the remote SQL Server database for execution.
 
-SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlserver采取了storage/database/sqlserver实现的Dialect。
+SQLServerWriter implements specific queries by invoking go-etl's custom storage/database DBWrapper, which is defined in the dbmswriter query process. DBWrapper encapsulates many interfaces of database/sql and abstracts the database dialect, Dialect. For SQL Server, it adopts the Dialect implemented by storage/database/sqlserver.
 
-根据你配置的 `writeMode` 生成
+Based on your configured `writeMode`, it generates:
 
-- `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
+- `insert into...` (If there is a conflict with the primary key/unique index, the conflicting row will not be inserted.)
 
-**或者**
+**Or**
 
-- bulk copy 即`inster bulk ...` 与 insert into 行为一致，速度比insert into方式迅速，但是目前不知为何无法插入含有空值的记录
+- bulk copy, i.e., `insert bulk ...` which behaves similarly to insert into but is much faster. However, currently, it cannot insert records containing null values for unknown reasons.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个向sql server数据库同步写入数据的作业:
+Configuring a job to synchronously write data to a SQL Server database:
 
 ```json
 {
@@ -56,112 +56,104 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
 }
 ```
 
-### 参数说明
+### Parameter Description
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/denisenkom/go-mssqldb)的连接配置信息.
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the connection information for the remote end. The basic configuration format is: "sqlserver://ip:port?database=db&encrypt=disable". Here, ip:port represents the IP address and port of the SQL Server database, and db indicates the default database to connect to. For detailed connection configuration information, see [go-mssqldb](https://github.com/denisenkom/go-mssqldb).
+- Required: Yes
+- Default: None
 
 #### username
 
-- 描述 主要用于配置sql server数据库的用户
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the SQL Server database username.
+- Required: Yes
+- Default: None
 
 #### password
 
-- 描述 主要用于配置sql server数据库的密码
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the SQL Server database password.
+- Required: Yes
+- Default: None
 
 #### table
 
-描述sql server表信息
+Describes the SQL Server table information.
 
 ##### db
 
-- 描述 主要用于配置sql server表的数据库名
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the database name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 ##### schema
 
-- 描述 主要用于配置sql server表的模式名
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the schema name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 ##### name
 
-- 描述 主要用于配置sql server表的表名
-- 必选：是
-- 默认值: 无
+- Description: Primarily used to configure the table name of the SQL Server table.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
-
-  支持列裁剪，即列可以挑选部分列进行导出。
-
-  支持列换序，即列可以不按照表schema信息进行导出。
-
-  支持常量配置，用户需要按照sql server语法格式: ["id",  "true", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
-
-- 必选：是
-
-- 默认值: 无
+- Description: The set of column names that need to be synchronized in the configured table, described using a JSON array. Users can use "*" to represent all columns by default, e.g., ["*"]. Column trimming is supported, meaning users can select a subset of columns for export. Column reordering is also supported, meaning columns can be exported in an order different from the table schema. Constant configuration is supported, where users need to follow the SQL Server syntax format: ["id", "true", "power(2,3)"] where id is a regular column name, 'hello'::varchar is a string constant, true is a boolean value, 2.5 is a floating-point number, and power(2,3) is a function.
+- Required: Yes
+- Default: None
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据,copyIn代表批量复制插入。
-- 必选：否
-- 默认值: insert
+- Description: Write mode. "insert" represents writing data using the insert into method, while "copyIn" represents bulk copy insertion.
+- Required: No
+- Default: insert
 
 #### batchTimeout
 
-- 描述 主要用于配置每次批量写入超时时间间隔，格式：数字+单位， 单位：s代表秒，ms代表毫秒，us代表微妙。如果超过该时间间隔就直接写入，和batchSize一起调节写入性能。
-- 必选：否
-- 默认值: 1s
+- Description: Primarily used to configure the timeout interval for each batch write operation. The format is: number + unit, where the unit can be s for seconds, ms for milliseconds, or us for microseconds. If the specified time interval is exceeded, the data will be written directly. This parameter, along with batchSize, helps adjust write performance.
+- Required: No
+- Default: 1s
 
 #### batchSize
 
-- 描述 主要用于配置每次批量写入大小，如果超过该大小就直接写入，和batchTimeout一起调节写入性能。
-- 必选：否
-- 默认值: 1000
+- Description: Primarily used to configure the batch write size. If the specified size is exceeded, the data will be written directly. This parameter, along with batchTimeout, helps adjust write performance.
+- Required: No
+- Default: 1000
 
 #### preSql
 
-- 描述 主要用于在写入数据前的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Primarily used for the set of SQL statements to be executed before writing data. Do not use select statements as they will cause errors.
+- Required: No
+- Default: None
 
 #### postSql
 
-- 描述 主要用于在写入数据后的sql语句组,不要使用select语句，否则会报错。
-- 必选：否
-- 默认值: 无
+- Description: Primarily used for the set of SQL statements to be executed after writing data. Do not use select statements as they will cause errors.
+- Required: No
+- Default: None
 
-### 类型转换
+### Type Conversion
 
-目前SQLServerReader支持大部分SQLServer类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
+Currently, SQLServerReader supports most SQL Server types, but there are some individual types that are not supported. Please check your data types accordingly.
 
-下面列出SQLServerReader针对sql server类型转换列表:
+Below is a conversion table for SQLServerReader against SQL Server data types:
 
-| go-etl的类型 | sql server数据类型                                          |
-| ------------ | ----------------------------------------------------------- |
-| bool         | bit                                                         |
-| bigInt       | bigint, int, smallint, tinyint                              |
-| decimal      | numeric, real,float                                         |
-| string       | char, varchar, text, nchar, nvarchar, ntext                 |
-| time         | date, time, datetimeoffset,datetime2,smalldatetime,datetime |
-| bytes        | binary，varbinary，varbinary(max)                           |
+| go-etl Type | SQL Server Data Type                                          |
+| ----------- | ----------------------------------------------------------- |
+| bool        | bit                                                         |
+| bigInt      | bigint, int, smallint, tinyint                              |
+| decimal     | numeric, real, float                                         |
+| string      | char, varchar, text, nchar, nvarchar, ntext                 |
+| time        | date, time, datetimeoffset, datetime2, smalldatetime, datetime |
+| bytes       | binary, varbinary, varbinary(max)                           |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Constraints and Limitations
+
 
 ## FAQ
-

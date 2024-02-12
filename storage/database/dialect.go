@@ -19,23 +19,23 @@ import (
 	"sync"
 )
 
-// Dialect 数据库方言
+// Dialect Database Dialect
 type Dialect interface {
-	Source(*BaseSource) (Source, error) //数据源
+	Source(*BaseSource) (Source, error) // Data Source
 }
 
 var dialects = &dialectMap{
 	dialects: make(map[string]Dialect),
 }
 
-// RegisterDialect 注册数据库方言，当注册名称相同或者dialect为空时会panic
+// RegisterDialect Registers a database dialect. A panic occurs when the registered name is the same or the dialect is empty.
 func RegisterDialect(name string, dialect Dialect) {
 	if err := dialects.register(name, dialect); err != nil {
 		panic(err)
 	}
 }
 
-// UnregisterAllDialects 注销所有的数据库方言
+// UnregisterAllDialects Unregisters all database dialects.
 func UnregisterAllDialects() {
 	dialects.unregisterAll()
 }

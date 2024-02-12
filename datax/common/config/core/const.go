@@ -14,9 +14,9 @@
 
 package core
 
-// datax 配置文件路径
+// Path of datax configuration file
 var (
-	//datax全局配置路劲
+	// Global configuration path of datax
 	DataxCoreContainerTaskgroupChannel                = "core.container.taskGroup.channel"
 	DataxCoreContainerModel                           = "core.container.model"
 	DataxCoreContainerJobID                           = "core.container.job.id"
@@ -69,7 +69,7 @@ var (
 	DataxJobPreHandlerPluginName                      = "job.preHandler.pluginName"
 	DataxJobPostHandlerPluginType                     = "job.postHandler.pluginType"
 	DataxJobPostHandlerPluginName                     = "job.postHandler.pluginName"
-	//datax局部配置路径
+	// Partial configuration path of datax
 	JobWriter                                 = "writer"
 	JobReader                                 = "reader"
 	JobTransformer                            = "transformer"

@@ -23,13 +23,13 @@ import (
 	"github.com/Breeze0806/go/time2"
 )
 
-// Config 数据库连接基础配置，一般用于sql.DB的配置
+// Config is the basic configuration for database connections, typically used for sql.DB configurations
 type Config struct {
 	Pool PoolConfig `json:"pool"`
 }
 
-// NewConfig 从Json配置中获取数据库连接配置c
-// err是指Json配置无法转化为数据库连接配置
+// NewConfig retrieves the database connection configuration 'c' from a JSON configuration
+// 'err' refers to an error where the JSON configuration cannot be converted into a database connection configuration
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -39,16 +39,16 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 	return
 }
 
-// PoolConfig 数据库连接池配置
-// 一般让最大打开连接数和最大空闲时连接数一致，否则会导致释放连接不及导致文件数不足
+// PoolConfig is the configuration for the database connection pool
+// Generally, the maximum number of open connections should be the same as the maximum number of idle connections, otherwise it can lead to insufficient file resources due to unreleased connections
 type PoolConfig struct {
-	MaxOpenConns    int            `json:"maxOpenConns"`    //最大打开连接数
-	MaxIdleConns    int            `json:"maxIdleConns"`    //最大空闲时连接数
-	ConnMaxIdleTime time2.Duration `json:"connMaxIdleTime"` //最大连接空闲时间
-	ConnMaxLifetime time2.Duration `json:"connMaxLifetime"` //最大连接存活时间
+	MaxOpenConns    int            `json:"maxOpenConns"`    // Maximum number of open connections
+	MaxIdleConns    int            `json:"maxIdleConns"`    // Maximum number of idle connections
+	ConnMaxIdleTime time2.Duration `json:"connMaxIdleTime"` // Maximum idle time for connections
+	ConnMaxLifetime time2.Duration `json:"connMaxLifetime"` // Maximum lifetime for connections
 }
 
-// GetMaxOpenConns 获取最大连接数，默认返回值为4
+// GetMaxOpenConns retrieves the maximum number of open connections, with a default return value of 4
 func (c *PoolConfig) GetMaxOpenConns() int {
 	if c.MaxOpenConns <= 0 {
 		return DefaultMaxOpenConns
@@ -56,7 +56,7 @@ func (c *PoolConfig) GetMaxOpenConns() int {
 	return c.MaxOpenConns
 }
 
-// GetMaxIdleConns 获取空闲时最大连接数，默认返回为4
+// GetMaxIdleConns retrieves the maximum number of idle connections, with a default return value of 4
 func (c *PoolConfig) GetMaxIdleConns() int {
 	if c.MaxIdleConns <= 0 {
 		return DefaultMaxIdleConns
@@ -64,23 +64,24 @@ func (c *PoolConfig) GetMaxIdleConns() int {
 	return c.MaxIdleConns
 }
 
-// ConfigSetter Table的补充方法，用于设置json配置文件
+// ConfigSetter is an additional method for Table, used to set the JSON configuration file
 type ConfigSetter interface {
 	SetConfig(conf *config.JSON)
 }
 
+// BaseConfig is the configuration for the base table
 type BaseConfig struct {
 	TrimChar bool `json:"trimChar"`
 }
 
-// BaseConfigSetter 基础表配置设置
+// BaseConfigSetter is the setter for the base table configuration
 type BaseConfigSetter struct {
 	BaseConfig
 
 	conf *config.JSON
 }
 
-// SetConfig 设置表配置
+// SetConfig sets the table configuration
 func (b *BaseConfigSetter) SetConfig(conf *config.JSON) {
 	b.conf = conf
 	if b.conf != nil {
@@ -88,12 +89,12 @@ func (b *BaseConfigSetter) SetConfig(conf *config.JSON) {
 	}
 }
 
-// Config 获取表配置
+// Config retrieves the table configuration
 func (b *BaseConfigSetter) Config() *config.JSON {
 	return b.conf
 }
 
-// TrimStringChar 消除字符串 char 前后的空格
+// TrimStringChar removes leading and trailing spaces from a string character
 func (b *BaseConfigSetter) TrimStringChar(char string) string {
 	if b.TrimChar {
 		return strings.TrimSpace(char)
@@ -101,7 +102,7 @@ func (b *BaseConfigSetter) TrimStringChar(char string) string {
 	return char
 }
 
-// TrimByteChar 消除字节数组的 char 前后的空格
+// TrimByteChar removes leading and trailing spaces from a byte array character
 func (b *BaseConfigSetter) TrimByteChar(char []byte) []byte {
 	if b.TrimChar {
 		return bytes.TrimSpace(char)

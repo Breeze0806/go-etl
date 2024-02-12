@@ -1,20 +1,20 @@
-# CsvReader插件文档
+# CsvReader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-CsvReader插件实现了从csv文件读取数据。在底层实现上，CsvReader通过标准库os以及encoding/csv读取文件。
+The CsvReader plugin enables data extraction from CSV files. Under the hood, it utilizes the standard libraries `os` and `encoding/csv` for file reading.
 
-## 实现原理
+## Implementation Principles
 
-CsvReader通过标准库os以及encoding/csv读取文件，并将每一行结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
+CsvReader leverages the `os` and `encoding/csv` standard libraries to read files. Each row is assembled into an abstract dataset using go-etl's custom data types and passed downstream for further processing by a Writer.
 
-CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的storage/stream/file的file.InStreamer来实现具体的读取。
+The specific reading process is implemented by invoking go-etl's custom `file.InStreamer` from the reading flow defined in `file.Task`.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个从csv文件同步抽取数据到本地的作业:
+Configuring a job to synchronously extract data from a CSV file to a local destination:
 
 ```json
 {
@@ -22,7 +22,7 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
         "content":[
             {
                 "reader":{
-                    "name": "cvsreader",
+                    "name": "csvreader",
                     "parameter": {
                         "path":["a.txt","b.txt"],
                         "column":[
@@ -42,95 +42,95 @@ CsvReader通过使用file.Task中定义的读取流程调用go-etl自定义的st
 }
 ```
 
-### 参数说明
+### Parameter Explanation
 
 #### path
 
-- 描述 主要用于配置csv文件的绝对路径，可以配置多个文件
-- 必选：是
-- 默认值: 无
+- Description: Specifies the absolute path(s) of the CSV file(s). Multiple files can be configured.
+- Required: Yes
+- Default: None
 
 #### column
 
-- 描述 主要用于配置csv文件的列信息数组，如不配置对应信息，则认为对应为string类型
-- 必选：是
-- 默认值: 无
+- Description: Configures the column information array for the CSV file. If not specified, the corresponding columns are assumed to be of type string.
+- Required: Yes
+- Default: None
 
 ##### index
 
-- 描述 主要用于配置csv文件的列编号，从1开始
-- 必选：是
-- 默认值: 无
+- Description: Specifies the column number in the CSV file, starting from 1.
+- Required: Yes
+- Default: None
 
 ##### type
 
-- 描述 主要用于配置csv文件的列类型，主要有boolen,bigInt,decimal,string,time等类型
-- 必选：是
-- 默认值: 无
+- Description: Configures the data type of the CSV column, including options like boolean, bigInt, decimal, string, time, etc.
+- Required: Yes
+- Default: None
 
 ##### format
 
-- 描述 主要用于配置csv文件的列类型，主要用于配置time类型的格式，使用的是java的joda time格式，如yyyy-MM-dd
-- 必选：是
-- 默认值: 无
+- Description: Specifies the format for the column type, particularly useful for the time type. It uses the Java Joda time format, e.g., yyyy-MM-dd.
+- Required: Yes, for time type
+- Default: None
 
 #### encoding
 
-- 描述 主要用于配置csv文件的编码类型，目前仅支持utf-8和gbk
-- 必选：否
-- 默认值: utf-8
+- Description: Configures the encoding type of the CSV file, currently supporting utf-8 and gbk.
+- Required: No
+- Default: utf-8
 
 #### delimiter
 
-- 描述 主要用于配置csv文件的分隔符，目前不仅支持空格和可见的符号，如逗号，分号等，而且还支持不可见字符，如0x10,设置"\u0010"
-- 必选：否
-- 默认值: ,
+- Description: Specifies the delimiter used in the CSV file. It supports not only visible symbols like commas or semicolons but also invisible characters such as 0x10 (configured as "\u0010").
+- Required: No
+- Default: , (comma)
 
 #### nullFormat
 
-- 描述：csv文件中无法使用标准字符串定义null(空指针)，DataX提供nullFormat定义哪些字符串可以表示为null。例如如果用户配置: nullFormat="\N"，那么如果源头数据是"\N"，DataX视作null字段。
-- 必选：否
-- 默认值：空字符串
+- Description: CSV files cannot represent null (empty pointers) using standard strings. The nullFormat parameter defines which strings can be interpreted as null. For example, if nullFormat is set to "\N", then DataX will treat the source data "\N" as a null field.
+- Required: No
+- Default: Empty string
 
 #### startRow
 
-- 描述：从csv文件的第几行开始读取，从1开始。
-- 必选：否
-- 默认值：1
+- Description: Specifies the row number from which to start reading in the CSV file, starting from 1.
+- Required: No
+- Default: 1
 
 #### comment
 
-- 描述：csv文件的注释
-- 必选：否
-- 默认值：无
+- Description: Provides a comment for the CSV file.
+- Required: No
+- Default: None
 
 #### compress
 
-- 描述：csv文件压缩方式，目前支持gz和zip，gz代表gzip压缩，zip代表zip压缩
-- 必选：否
-- 默认值：无压缩
+- Description: Specifies the compression method used for the CSV file, currently supporting gz (gzip compression) and zip (zip compression).
+- Required: No
+- Default: No compression
 
-### 类型转换
+### Type Conversion
 
-目前CsvReader支持的csv数据类型需要在column配置中配置，请注意检查你的类型。
+The CsvReader currently supports CSV data types that need to be configured in the "column" setting. Please ensure you check your data types.
 
-下面列出CsvReader针对csv类型转换列表:
+Below is a list of type conversions supported by CsvReader for CSV data:
 
-| go-etl的类型 | csv数据类型 |
-| ------------ | ----------- |
-| bigInt       | bigInt      |
-| decimal      | decimal     |
-| string       | string      |
-| time         | time        |
-| bool         | bool        |
+| go-etl Type | CSV Data Type |
+| --- | --- |
+| bigInt | bigInt |
+| decimal | decimal |
+| string | string |
+| time | time |
+| bool | bool |
 
-## 性能报告
+## Performance Report
 
-待测试
+Pending testing.
 
-## 约束限制
+## Limitations and Constraints
 
-### 数据库编码问题
-目前仅支持utf8字符集
 
-## FAQ
+## Frequently Asked Questions (FAQ)
+
+(Note: The FAQ section would typically include common questions and answers related to the plugin's usage, troubleshooting, or best practices. However, as no specific questions were provided, this section remains empty. It can be populated as questions arise from users or developers.)

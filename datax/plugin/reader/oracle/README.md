@@ -1,20 +1,21 @@
-# OracleReader插件文档
+# OracleReader Plugin Documentation
 
-## 快速介绍
+## Quick Introduction
 
-OracleReader插件实现了从Oracle数据库读取数据。在底层实现上，OracleReader通过github.com/godror/godror以及database/sql连接远程Oracle数据库，并执行相应的sql语句将数据从Oracle库中查询出来,这里和其他数据库不同的是由于oracle未公开交互协议，oracle的golang驱动基于[ODPI-C](https://oracle.github.io/odpi/doc/installation.html)实现的,需要利用[Oracle Instant Client]( https://www.oracle.com/database/technologies/instant-client/downloads.html)进行连接,例如，连接oracle 11g需要12.x版本。
+The OracleReader plugin enables data reading from Oracle databases. Under the hood, OracleReader connects to remote Oracle databases using github.com/godror/godror and database/sql, executing corresponding SQL statements to query data from Oracle. Unlike other databases, Oracle's interaction protocol is not publicly available, so the Golang driver for Oracle is based on [ODPI-C](https://oracle.github.io/odpi/doc/installation.html), which requires the use of [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html) for connectivity. For example, connecting to Oracle 11g requires version 12.x.
 
-## 实现原理
+## Implementation Principles
 
-OracleReader通过github.com/godror/godror使用的Oracle Instant Client连接远程oracle数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程oracle数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
+OracleReader connects to remote Oracle databases using Oracle Instant Client via github.com/godror/godror. It generates SQL queries based on user-provided configurations, sends them to the remote Oracle database, and assembles the returned results into an abstract dataset using go-etl's custom data types, which are then passed to downstream Writer processes.
 
-OracleReader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中Oracle采取了storage/database/oracle实现的Dialect。
+OracleReader implements specific queries by invoking the query process defined in dbmsreader, using go-etl's custom storage/database DBWrapper. DBWrapper encapsulates many interfaces of database/sql and abstracts the database dialect, Dialect. In this case, Oracle utilizes the Dialect implemented in storage/database/oracle.
 
-## 功能说明
+## Functionality Description
 
-### 配置样例
+### Configuration Example
 
-配置一个从Oracle数据库同步抽取数据到本地的作业:
+Configuring a job to synchronize data from an Oracle database to a local destination:
+
 
 ```json
 {
@@ -46,137 +47,132 @@ OracleReader通过使用dbmsreader中定义的查询流程调用go-etl自定义�
     }
 }
 ```
-
-### 参数说明
+### Parameter Explanation
 
 #### url
 
-- 描述 主要用于配置对端连接信息。oracle连接数据库的基本配置格式：`connectString="192.168.15.130:1521/xe" heterogeneousPool=false standaloneConnection=true`，connectString代表连接oracle数据库的信息，如果使用servername连接请使用`ip:port/servername`或者`(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ip)(PORT=port))(CONNECT_DATA=(SERVICE_NAME=servername)))`，如果使用sid连接，那么请使用`(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ip)(PORT=port))(CONNECT_DATA=(SID=sid)))`,和[Godror User Guide](https://godror.github.io/godror/doc/contents.html)的连接配置信息基本相同，只是将用户名和密码从连接配置信息提出，方便之后对这些信息加密。
-- 必选：是
-- 默认值: 无
+* Description: Primarily used to configure the connection information for the remote Oracle database. The basic configuration format for connecting to an Oracle database is: `connectString="192.168.15.130:1521/xe" heterogeneousPool=false standaloneConnection=true`. The `connectString` represents the connection information for the Oracle database. If using a server name for the connection, use `ip:port/servername` or `(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ip)(PORT=port))(CONNECT_DATA=(SERVICE_NAME=servername)))`. If using a SID for the connection, use `(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ip)(PORT=port))(CONNECT_DATA=(SID=sid)))`. This is similar to the connection configuration information in the [Godror User Guide](https://godror.github.io/godror/doc/contents.html), except that the username and password are extracted from the connection configuration information for easier encryption.
+* Required: Yes
+* Default: None
 
 #### username
 
-- 描述 主要用于配置oracle数据库的用户
-- 必选：是
-- 默认值: 无
+* Description: Primarily used to configure the username for the Oracle database.
+* Required: Yes
+* Default: None
 
 #### password
 
-- 描述 主要用于配置oracle数据库的密码
-- 必选：是
-- 默认值: 无
+* Description: Primarily used to configure the password for the Oracle database.
+* Required: Yes
+* Default: None
 
 #### table
 
-描述oracle表信息
+Describes the Oracle table information.
 
 ##### schema
 
-- 描述 主要用于配置oracle表的模式名
-- 必选：是
-- 默认值: 无
+* Description: Primarily used to configure the schema name for the Oracle table.
+* Required: Yes
+* Default: None
 
 ##### name
 
-- 描述 主要用于配置oracle表的表名
-- 必选：是
-- 默认值: 无
+* Description: Primarily used to configure the table name for the Oracle table.
+* Required: Yes
+* Default: None
 
 #### column
 
-- 描述：所配置的表中需要同步的列名集合，使用JSON的数组描述字段信息。用户使用*代表默认使用所有列配置，例如["\*"]。
-
-  支持列裁剪，即列可以挑选部分列进行导出。
-
-  支持列换序，即列可以不按照表schema信息进行导出。
-
-  支持常量配置，用户需要按照ORACLE SQL语法格式: ["id", "`table`", "1", "'bazhen.csy'", "null", "left(a,10)", "2.3" , "true"] id为普通列名，`table`为包含保留在的列名，1为整形数字常量，'bazhen.csy'为字符串常量，null为空指针，left(a,10)为表达式，2.3为浮点数，true为布尔值。
-
-- 必选：是
-
-- 默认值: 无
+* Description: An array of column names to be synchronized from the configured table. Users can use the asterisk (*) to indicate that all columns should be used by default, for example, ["*"]. Column pruning is supported, meaning that only a subset of columns can be exported. Column reordering is also supported, meaning that columns do not need to be exported in the same order as the table schema. Constant configuration is supported, where users need to follow the Oracle SQL syntax format: ["id", "`table`", "1", "'bazhen.csy'", "null", "left(a,10)", "2.3", "true"]. In this example, "id" is a regular column name, "`table`" is a column name that contains reserved words, "1" is an integer constant, "'bazhen.csy'" is a string constant, "null" is a null pointer, "left(a,10)" is an expression, "2.3" is a floating-point number, and "true" is a boolean value.
+* Required: Yes
+* Default: None
 
 #### split
 
 ##### key
 
-- 描述 主要用于配置oracle表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
-- 必选：否
-- 默认值: 无
+* Description: Primarily used to configure the splitting key for the Oracle table. The splitting key must be of type bigInt/string/time, assuming that the data is evenly distributed based on the splitting key.
+* Required: No
+* Default: None
 
 ##### timeAccuracy
 
-- 描述 主要用于配置oracle表的时间切分键，主要用于描述时间最小单位，day（日）,min（分钟）,s（秒）,ms（毫秒）,us（微秒）,ns（纳秒）
-- 必选：否
-- 默认值: 无
+* Description: Primarily used to configure the time splitting key for the Oracle table. It is mainly used to describe the smallest unit of time, such as day, minute, second, millisecond, microsecond, nanosecond.
+* Required: No
+* Default: None
 
 ##### range
 
 ###### type
-- 描述 主要用于配置db2表的切分键默认值类型，值为bigInt/string/time，这里不会检查表切分键中的类型，但也请务必确保类型正确。
-- 必选：否
-- 默认值: 无
+
+* Description: Primarily used to configure the default type for the splitting key of the Oracle table. The value can be bigInt/string/time. The system does not check the type in the table splitting key, but it is important to ensure the correct type.
+* Required: No
+* Default: None
 
 ###### left
-- 描述 主要用于配置db2表的切分键默认最大值
-- 必选：否
-- 默认值: 无
+
+* Description: Primarily used to configure the default maximum value for the splitting key of the Oracle table.
+* Required: No
+* Default: None
 
 ###### right
-- 描述 主要用于配置db2表的切分键默认最小值
-- 必选：否
-- 默认值: 无
+
+* Description: Primarily used to configure the default minimum value for the splitting key of the Oracle table.
+* Required: No
+* Default: None
 
 #### where
 
-- 描述 主要用于配置select的where条件
-- 必选：否
-- 默认值: 无
+* Description: Primarily used to configure the WHERE condition for the SELECT statement.
+* Required: No
+* Default: None
 
 #### querySql
 
-- 描述：在有些业务场景下，where这一配置项不足以描述所筛选的条件，用户可以通过该配置型来自定义筛选SQL。当用户配置了这一项之后，DataX系统就会忽略table，column这些配置型，直接使用这个配置项的内容对数据进行筛选，例如需要进行多表join后同步数据，使用select a,b from table_a join table_b on table_a.id = table_b.id
-当用户配置querySql时，OracleReader直接忽略table、column、where条件的配置，querySql优先级大于table、column、where选项。
-- 必选：否
-- 默认值：无
+* Description: In some business scenarios, the `where` configuration item may not be sufficient to describe the filtering conditions. Users can use this configuration item to define custom SQL queries for filtering. When users configure this item, the DataX system will ignore the `table`, `column`, and other related configurations and directly use the content of this configuration item for data filtering. For example, it can be used for data synchronization after performing a join operation on multiple tables, such as `select a,b from table_a join table_b on table_a.id = table_b.id`. When `querySql` is configured in OracleReader, it directly ignores the configuration of `table`, `column`, and `where` conditions, and the priority of `querySql` is higher than that of `table`, `column`, and `where` options.
+* Required: No
+* Default: None
 
 #### trimChar
 
-- 描述：对于oracle的char，nchar类型是否去掉其前后的空格
-- 必选：否
-- 默认值：false
+* Description: Specifies whether to remove leading and trailing spaces for Oracle's char and nchar types.
+* Required: No
+* Default: false
 
-### 类型转换
+### Type Conversion
 
-目前  OracleReader支持大部分  Oracle类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
-下面列出OracleReader针对  Oracle类型转换列表:
+Currently, OracleReader supports most Oracle types, but there are some individual types that are not supported. Please check your data types carefully.
 
-| go-etl的类型 | Oracle数据类型               |
-| ------------ | ------------------------- |
-| bool         | BOOLEAN                   |
-| bigInt       | NUMBER,INTEGER,SMALLINT |
-| decimal      | BINARY_FLOAT, FLOAT, BINARY_DOUBLE,REAL, DECIMAL,NUMBRIC     |
-| string       | VARCHAR,CHAR,NCHAR,VARCHAR2,NVARCHAR2,CLOB,NCLOB              |
-| time         | DATE,TIMESTAMP       |
-| bytes        | BLOB,RAW,LONG RAW,LONG                      |
+Below is a conversion table for OracleReader regarding Oracle types:
 
-## 性能报告
 
-待测试
 
-## 约束限制
+| go-etl Type | Oracle Data Type |
+| --- | --- |
+| bool | BOOLEAN |
+| bigInt | NUMBER, INTEGER, SMALLINT |
+| decimal | BINARY_FLOAT, FLOAT, BINARY_DOUBLE, REAL, DECIMAL, NUMERIC |
+| string | VARCHAR, CHAR, NCHAR, VARCHAR2, NVARCHAR2, CLOB, NCLOB |
+| time | DATE, TIMESTAMP |
+| bytes | BLOB, RAW, LONG RAW, LONG |
 
-### 数据库编码问题
-目前仅支持utf8字符集
+## Performance Report
+
+To be tested.
+
+## Constraints and Limitations
+
+### Database Encoding Issues
+
+Currently, only the UTF-8 character set is supported.
 
 ## FAQ
 
-1.如何配置oracle的Oracle Instant Client
+1. How to configure Oracle Instant Client for Oracle?
 
-例子如下：
+Example configurations:
 
-- 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
-
-- 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
-Oracle Instant Client 19不再支持windows7
+* Note that on Linux, you may need to set an environment variable like `export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Additionally, you may need to install `libaio`.
+* On Windows, you may need to set a path variable like `set path=%path%;%GOPATH%\oracle\instantclient_21_1`. Please note that Oracle Instant Client 19 no longer supports Windows 7.

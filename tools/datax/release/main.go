@@ -68,6 +68,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	data, err = ioutil.ReadFile("README_USER_CHN.md")
+	if err != nil {
+		fmt.Println("ReadFile README_USER.md fail. err:", err)
+		os.Exit(1)
+	}
+
+	err = ioutil.WriteFile("release/README_USER_CHN.md", data, os.ModePerm)
+	if err != nil {
+		fmt.Println("WriteFile release/README_USER.md fail. err:", err)
+		os.Exit(1)
+	}
+
 	output := ""
 	if output, err = cmdOutput("git", "describe", "--abbrev=0", "--tags"); err != nil {
 		fmt.Printf("use git to tag version fail. error: %v\n", err)
@@ -110,6 +122,17 @@ func copyMarkdown(path string) (err error) {
 			}
 			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
 			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README.md"), data, 0644)
+			if err != nil {
+				return
+			}
+
+			data, err = ioutil.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README_CHN.md"))
+			if err != nil {
+				err = nil
+				continue
+			}
+			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
+			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README_CHN.md"), data, 0644)
 			if err != nil {
 				return
 			}

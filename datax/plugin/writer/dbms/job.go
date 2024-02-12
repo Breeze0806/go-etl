@@ -24,16 +24,16 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Job 工作
+// Job Work
 type Job struct {
 	*plugin.BaseJob
 
-	Handler DbHandler //数据库句柄
-	Execer  Execer    //执行器
-	conf    Config    //配置
+	Handler DbHandler // Database handle
+	Execer  Execer    // Executor
+	conf    Config    // Configuration
 }
 
-// NewJob 通过数据库句柄获取工作
+// NewJob Get work through database handle
 func NewJob(handler DbHandler) *Job {
 	return &Job{
 		BaseJob: plugin.NewBaseJob(),
@@ -41,7 +41,7 @@ func NewJob(handler DbHandler) *Job {
 	}
 }
 
-// Init 初始化
+// Init Initialization
 func (j *Job) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = j.PluginConf().GetString("dialect"); err != nil {
@@ -73,7 +73,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	return
 }
 
-// Prepare 准备
+// Prepare Preparation
 func (j *Job) Prepare(ctx context.Context) (err error) {
 	preSQL := j.conf.GetPreSQL()
 	for _, v := range preSQL {
@@ -89,7 +89,7 @@ func (j *Job) Prepare(ctx context.Context) (err error) {
 	return
 }
 
-// Post 后置
+// Post Post-processing
 func (j *Job) Post(ctx context.Context) (err error) {
 	postSQL := j.conf.GetPostSQL()
 	for _, v := range postSQL {
@@ -105,7 +105,7 @@ func (j *Job) Post(ctx context.Context) (err error) {
 	return
 }
 
-// Destroy 销毁
+// Destroy Destruction
 func (j *Job) Destroy(ctx context.Context) (err error) {
 	if j.Execer != nil {
 		err = j.Execer.Close()
@@ -113,7 +113,7 @@ func (j *Job) Destroy(ctx context.Context) (err error) {
 	return errors.Wrapf(err, "Close fail")
 }
 
-// Split 切分任务
+// Split Task division
 func (j *Job) Split(ctx context.Context, number int) (confs []*config.JSON, err error) {
 	for i := 0; i < number; i++ {
 		confs = append(confs, j.PluginJobConf().CloneConfig())

@@ -21,21 +21,21 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Reader 数据库读取器
+// Reader is a database reader.
 type Reader interface {
 	spi.Reader
 
-	ResourcesConfig() *config.JSON //插件资源配置
+	ResourcesConfig() *config.JSON // Plugin resource configuration.
 }
 
-// Maker 写入生成器
+// Maker is a write generator.
 type Maker interface {
 	Default() (Reader, error)
 }
 
-// RegisterReader 通过生成数据库读取器函数new注册到读取器，返回插件资源配置文件地址，在出错时会包err
-// 目前未在代码中实际使用，而是通过tools/datax/build的go generate命令自动将resources/plugin.json
-// 中的内容放入到新生成的代码文件中，用以注册Reader
+// RegisterReader registers a new database reader function and returns the address of the plugin resource configuration file. If an error occurs, it will be wrapped in err.
+// Currently, it is not used directly in the code, but instead, the go generate command in tools/datax/build automatically inserts the content from resources/plugin.json into a newly generated code file to register the Reader.
+// This approach is used to register the Reader without manually editing the code.
 func RegisterReader(maker Maker) (err error) {
 	var reader Reader
 	if reader, err = maker.Default(); err != nil {

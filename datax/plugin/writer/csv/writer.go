@@ -20,24 +20,24 @@ import (
 	"github.com/Breeze0806/go-etl/datax/plugin/writer/file"
 )
 
-// Writer 写入器
+// Writer
 type Writer struct {
 	pluginConf *config.JSON
 }
 
-// ResourcesConfig 插件资源配置
+// ResourcesConfig Plugin Resource Configuration
 func (w *Writer) ResourcesConfig() *config.JSON {
 	return w.pluginConf
 }
 
-// Job 工作
+// Job
 func (w *Writer) Job() spiwriter.Job {
 	job := NewJob()
 	job.SetPluginConf(w.pluginConf)
 	return job
 }
 
-// Task 任务
+// Task
 func (w *Writer) Task() spiwriter.Task {
 	task := file.NewTask(func(conf *config.JSON) (file.Config, error) {
 		c, err := file.NewBaseConfig(conf)

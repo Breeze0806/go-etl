@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package mysql 实现了mysql的数据库方言Dialect，支持mysql 5.6+ 对应数据库
-// 驱动为github.com/go-sql-driver/mysql
-// 数据源Source使用BaseSource来简化实现, 对github.com/go-sql-driver/mysql
-// 驱动进行包装.对于数据库配置，需要和Config一致
-// 表Table使用BaseTable来简化实现,也是基于github.com/go-sql-driver/mysql的
-// 封装,Table实现了FieldAdder的方式去获取列,在ExecParameter中实现写入模式为
-// replace的repalce into批量数据处理模式,写入模式为insert的插入模式复用
-// 已有的database.InsertParam
-// 列Field使用BaseField来简化实现,其中FieldType采用了原来的sql.ColumnType，
-// 并实现了ValuerGoType
-// 扫描器Scanner使用BaseScanner来简化实现
-// 赋值器Valuer 使用了GoValuer的实现方式
+// Package mysql implements the Dialect for MySQL databases, supporting MySQL 5.6+ corresponding databases.
+// The driver used is github.com/go-sql-driver/mysql.
+// The data source Source uses BaseSource to simplify its implementation, wrapping the github.com/go-sql-driver/mysql driver. For database configuration, it needs to be consistent with Config.
+// The Table implementation uses BaseTable to simplify its implementation, also based on github.com/go-sql-driver/mysql.
+// Table implements the FieldAdder approach to acquire columns. In ExecParameter, it implements the replace mode for the replace into bulk data processing mode, and reuses the existing database.InsertParam for the insert mode.
+// The Field uses BaseField to simplify its implementation, where FieldType adopts the original sql.ColumnType and implements ValuerGoType.
+// The Scanner uses BaseScanner to simplify its implementation.
+// The Valuer uses the implementation approach of GoValuer.
+
 package mysql

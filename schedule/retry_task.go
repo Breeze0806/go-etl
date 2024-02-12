@@ -19,14 +19,14 @@ import (
 	"time"
 )
 
-// RetryTask 重试任务
+// RetryTask retry task
 type RetryTask struct {
 	ctx      context.Context
 	task     Task
 	strategy RetryStrategy
 }
 
-// NewRetryTask 通过上下文关系ctx，重试策略strategy以及任务task生成重试任务
+// NewRetryTask generates retry task based on context relationship ctx
 func NewRetryTask(ctx context.Context, strategy RetryStrategy, task Task) *RetryTask {
 	return &RetryTask{
 		ctx:      ctx,
@@ -35,7 +35,7 @@ func NewRetryTask(ctx context.Context, strategy RetryStrategy, task Task) *Retry
 	}
 }
 
-// Do 同步执行
+// Do synchronous execution
 func (r *RetryTask) Do() (err error) {
 	ticker := time.NewTicker(1)
 	defer ticker.Stop()

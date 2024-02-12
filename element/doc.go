@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package element 提供各个类型的列值，列，记录以及记录通道
+// Package element provides various types of column values, columns, records, and record channels
 package element

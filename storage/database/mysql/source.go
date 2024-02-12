@@ -26,28 +26,28 @@ func init() {
 	database.RegisterDialect(d.Name(), d)
 }
 
-// Dialect mysql数据库方言
+// Dialect represents the database dialect for MySQL
 type Dialect struct{}
 
-// Source 生产数据源
+// Source refers to the production data source
 func (d Dialect) Source(bs *database.BaseSource) (database.Source, error) {
 	return NewSource(bs)
 }
 
-// Name 数据库方言的注册名
+// Name is the registered name of the database dialect
 func (d Dialect) Name() string {
 	return "mysql"
 }
 
-// Source mysql数据源
+// Source mysql represents the MySQL data source
 type Source struct {
-	*database.BaseSource //基础数据源
+	*database.BaseSource // Basic data source
 
 	dsn       string
 	mysqlConf *mysql.Config
 }
 
-// NewSource 生成mysql数据源，在配置文件错误时会报错
+// NewSource generates a MySQL data source and will report an error if there's an issue with the configuration file
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,
@@ -64,32 +64,32 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	return source, nil
 }
 
-// DriverName github.com/go-sql-driver/mysql的驱动名
+// DriverName is the driver name for github.com/go-sql-driver/mysql
 func (s *Source) DriverName() string {
 	return "mysql"
 }
 
-// ConnectName github.com/go-sql-driver/mysql的数据源连接信息
+// ConnectName is the connection information for the MySQL data source using github.com/go-sql-driver/mysql
 func (s *Source) ConnectName() string {
 	return s.dsn
 }
 
-// Key 数据源的关键字，用于DBWrapper的复用
+// Key is a keyword for the data source, used for reuse by DBWrapper
 func (s *Source) Key() string {
 	return s.dsn
 }
 
-// Table 生成mysql的表
+// Table generates a table for MySQL
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
-// Connector github.com/go-sql-driver/mysql的数据源连接器
+// Connector is the data source connector for github.com/go-sql-driver/mysql
 func (s *Source) Connector() (driver.Connector, error) {
 	return mysql.NewConnector(s.mysqlConf)
 }
 
-// Quoted mysql引用函数
+// Quoted is the quoting function for MySQL
 func Quoted(s string) string {
 	return "`" + s + "`"
 }

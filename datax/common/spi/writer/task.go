@@ -20,29 +20,29 @@ import (
 	"github.com/Breeze0806/go-etl/datax/common/plugin"
 )
 
-// Task 写入任务
+// Task: a task related to writing operations
 type Task interface {
 	plugin.Task
 
-	//开始从receiver中读取记录写入
+	// Start reading records from the receiver and write them
 	StartWrite(ctx context.Context, receiver plugin.RecordReceiver) error
-	//是否支持故障转移，就是是否在写入后失败重试
+	// SupportFailOver: whether fault tolerance is supported, i.e., whether to retry after a failed write
 	SupportFailOver() bool
 }
 
-// BaseTask 基础写入任务，辅助和简化写入任务接口的实现
+// BaseTask: a fundamental task class that assists and simplifies the implementation of writing task interfaces
 type BaseTask struct {
 	*plugin.BaseTask
 }
 
-// NewBaseTask 创建基础任务
+// NewBaseTask: a function or method to create a new instance of BaseTask
 func NewBaseTask() *BaseTask {
 	return &BaseTask{
 		BaseTask: plugin.NewBaseTask(),
 	}
 }
 
-// SupportFailOver 是否支持故障转移，就是是否在写入后失败重试
+// SupportFailOver: whether fault tolerance is supported, i.e., whether to retry after a failed write
 func (b *BaseTask) SupportFailOver() bool {
 	return false
 }

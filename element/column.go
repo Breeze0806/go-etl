@@ -20,125 +20,125 @@ import (
 	"unsafe"
 )
 
-// ColumnType 列类型
+// ColumnType: Column Type
 type ColumnType string
 
-// 列类型枚举
+// ColumnTypeEnum: Enumeration of column types
 const (
-	TypeUnknown ColumnType = "unknown" //未知类型
-	TypeBool    ColumnType = "bool"    //布尔类型
-	TypeBigInt  ColumnType = "bigInt"  //整数类型
-	TypeDecimal ColumnType = "decimal" //高精度实数类型
-	TypeString  ColumnType = "string"  //字符串类型
-	TypeBytes   ColumnType = "bytes"   //字节流类型
-	TypeTime    ColumnType = "time"    //时间类型
+	TypeUnknown ColumnType = "unknown" // UnknownType: Unknown type
+	TypeBool    ColumnType = "bool"    // BoolType: Boolean type
+	TypeBigInt  ColumnType = "bigInt"  // IntType: Integer type
+	TypeDecimal ColumnType = "decimal" // DecimalType: High-precision real number type
+	TypeString  ColumnType = "string"  // StringType: String type
+	TypeBytes   ColumnType = "bytes"   // BytesType: Byte stream type
+	TypeTime    ColumnType = "time"    // TimeType: Time type
 )
 
-// String 打印显示
+// String: Printing display
 func (c ColumnType) String() string {
 	return string(c)
 }
 
-// ColumnValue 列值
+// ColumnValue: Column Value
 type ColumnValue interface {
 	fmt.Stringer
 
-	Type() ColumnType                  //列类型
-	IsNil() bool                       //是否为空
-	AsBool() (bool, error)             //转化为布尔值
-	AsBigInt() (BigIntNumber, error)   //转化为整数
-	AsDecimal() (DecimalNumber, error) //转化为高精度实数
-	AsString() (string, error)         //转化为字符串
-	AsBytes() ([]byte, error)          //转化为字节流
-	AsTime() (time.Time, error)        // 转化为时间
+	Type() ColumnType                  // ColumnType: Column type
+	IsNil() bool                       // IsNull: Whether it is null
+	AsBool() (bool, error)             // ToBool: Convert to boolean
+	AsBigInt() (BigIntNumber, error)   // ToInt: Convert to integer
+	AsDecimal() (DecimalNumber, error) // ToDecimal: Convert to high-precision real number
+	AsString() (string, error)         // ToString: Convert to string
+	AsBytes() ([]byte, error)          // ToBytes: Convert to byte stream
+	AsTime() (time.Time, error)        // ToTime: Convert to time
 }
 
-// ColumnValueClonable 可克隆列值
+// ColumnValueClonable: Cloneable column value
 type ColumnValueClonable interface {
-	Clone() ColumnValue //克隆
+	Clone() ColumnValue // Clone: Clone
 }
 
-// ColumnValueComparabale 可比较列值
+// ColumnValueComparabale: Comparable column value
 type ColumnValueComparabale interface {
-	//比较 1代表大于， 0代表相等， -1代表小于
+	// Compare: 1 represents greater than, 0 represents equal, -1 represents less than
 	Cmp(ColumnValue) (int, error)
 }
 
-// Column 列
+// Column: Column
 type Column interface {
 	ColumnValue
-	AsInt64() (int64, error)     //转化为64位整数
-	AsFloat64() (float64, error) //转化为64位实数
-	Clone() (Column, error)      //克隆
-	Cmp(Column) (int, error)     //比较, 1代表大于， 0代表相等， -1代表小于
-	Name() string                //列名
-	ByteSize() int64             //字节流大小
-	MemorySize() int64           //内存大小
+	AsInt64() (int64, error)     // ToInt64: Convert to 64-bit integer
+	AsFloat64() (float64, error) // ToFloat64: Convert to 64-bit real number
+	Clone() (Column, error)      // Clone: Clone
+	Cmp(Column) (int, error)     // Compare: 1 represents greater than, 0 represents equal, -1 represents less than
+	Name() string                // Name: Column name
+	ByteSize() int64             // ByteSize: Byte stream size
+	MemorySize() int64           // MemorySize: Memory size
 }
 
 type notNilColumnValue struct{}
 
-// IsNil  是否为空
+// IsNil: Whether it is null
 func (n *notNilColumnValue) IsNil() bool {
 	return false
 }
 
 type nilColumnValue struct{}
 
-// Type  列类型
+// Type: Column type
 func (n *nilColumnValue) Type() ColumnType {
 	return TypeUnknown
 }
 
-// IsNil  是否为空
+// IsNil: Whether it is null
 func (n *nilColumnValue) IsNil() bool {
 	return true
 }
 
-// AsBool 无法转化布尔值
+// AsBool: Failed to convert to boolean
 func (n *nilColumnValue) AsBool() (bool, error) {
 	return false, ErrNilValue
 }
 
-// AsBigInt 无法转化整数
+// AsBigInt: Failed to convert to integer
 func (n *nilColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, ErrNilValue
 }
 
-// AsDecimal 无法转化高精度实数
+// AsDecimal: Failed to convert to high-precision real number
 func (n *nilColumnValue) AsDecimal() (DecimalNumber, error) {
 	return nil, ErrNilValue
 }
 
-// AsString 无法转化字符串
+// AsString: Failed to convert to string
 func (n *nilColumnValue) AsString() (string, error) {
 	return "", ErrNilValue
 }
 
-// AsBytes 无法转化字节流
+// AsBytes: Failed to convert to byte stream
 func (n *nilColumnValue) AsBytes() ([]byte, error) {
 	return nil, ErrNilValue
 }
 
-// AsTime 无法转化时间
+// AsTime: Failed to convert to time
 func (n *nilColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, ErrNilValue
 }
 
-// String 打印显示
+// String: Printing display
 func (n *nilColumnValue) String() string {
 	return "<nil>"
 }
 
-// DefaultColumn 默认值
+// DefaultColumn: Default value
 type DefaultColumn struct {
-	ColumnValue // 列值
+	ColumnValue // ColumnValue: Column value
 
 	name     string
 	byteSize int
 }
 
-// NewDefaultColumn 根据列值v,列名name,字节流大小byteSize，生成默认列
+// NewDefaultColumn: Create a new default column based on column value v, column name name, and byte stream size byteSize
 func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	return &DefaultColumn{
 		ColumnValue: v,
@@ -147,12 +147,12 @@ func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	}
 }
 
-// Name 列名
+// Name: Column name
 func (d *DefaultColumn) Name() string {
 	return d.name
 }
 
-// Cmp 比较列，如果不是可比较列值，就会报错
+// Cmp: Compare columns. If it's not a comparable column value, an error will occur.
 func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	if d.Name() != c.Name() {
 		return 0, ErrColumnNameNotEqual
@@ -164,7 +164,7 @@ func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	return comparabale.Cmp(c)
 }
 
-// Clone 克隆列，如果不是可克隆列值，就会报错
+// Clone: Clone a column. If it's not a cloneable column value, an error will occur.
 func (d *DefaultColumn) Clone() (Column, error) {
 	colnable, ok := d.ColumnValue.(ColumnValueClonable)
 	if !ok {
@@ -178,17 +178,17 @@ func (d *DefaultColumn) Clone() (Column, error) {
 	}, nil
 }
 
-// ByteSize 字节流大小
+// ByteSize: Byte stream size
 func (d *DefaultColumn) ByteSize() int64 {
 	return int64(d.byteSize)
 }
 
-// MemorySize 内存大小
+// MemorySize: Memory size
 func (d *DefaultColumn) MemorySize() int64 {
 	return int64(d.byteSize + len(d.name) + 4)
 }
 
-// AsInt64 转化为64位整数
+// AsInt64: Convert to 64-bit integer
 func (d *DefaultColumn) AsInt64() (int64, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -197,7 +197,7 @@ func (d *DefaultColumn) AsInt64() (int64, error) {
 	return bi.Int64()
 }
 
-// AsFloat64 转化为64位实数
+// AsFloat64: Convert to 64-bit real number
 func (d *DefaultColumn) AsFloat64() (float64, error) {
 	dec, err := d.AsDecimal()
 	if err != nil {
@@ -206,7 +206,7 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 	return dec.Float64()
 }
 
-// ByteSize 字节大小
+// ByteSize: Byte size
 func ByteSize(src interface{}) int {
 	switch data := src.(type) {
 	case nil:

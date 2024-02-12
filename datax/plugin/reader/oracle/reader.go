@@ -21,17 +21,17 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// Reader 读取器
+// Reader
 type Reader struct {
 	pluginConf *config.JSON
 }
 
-// ResourcesConfig 插件资源配置
+// ResourcesConfig Plugin resource configuration
 func (r *Reader) ResourcesConfig() *config.JSON {
 	return r.pluginConf
 }
 
-// Job 工作
+// Job
 func (r *Reader) Job() spireader.Job {
 	job := &Job{
 		Job: dbms.NewJob(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {
@@ -45,7 +45,7 @@ func (r *Reader) Job() spireader.Job {
 	return job
 }
 
-// Task 任务
+// Task
 func (r *Reader) Task() spireader.Task {
 	task := &Task{
 		Task: dbms.NewTask(dbms.NewBaseDbHandler(func(name string, conf *config.JSON) (q dbms.Querier, err error) {

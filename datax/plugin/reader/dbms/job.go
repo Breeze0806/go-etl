@@ -27,7 +27,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Job 工作
+// Job
 type Job struct {
 	*plugin.BaseJob
 
@@ -36,7 +36,7 @@ type Job struct {
 	handler DbHandler
 }
 
-// NewJob 通过数据库句柄handler获取工作
+// NewJob Get job through database handler
 func NewJob(handler DbHandler) *Job {
 	return &Job{
 		BaseJob: plugin.NewBaseJob(),
@@ -44,7 +44,7 @@ func NewJob(handler DbHandler) *Job {
 	}
 }
 
-// Init 初始化
+// Init Initialization
 func (j *Job) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = j.PluginConf().GetString("dialect"); err != nil {
@@ -77,7 +77,7 @@ func (j *Job) Init(ctx context.Context) (err error) {
 	return
 }
 
-// Destroy 销毁
+// Destroy Destruction
 func (j *Job) Destroy(ctx context.Context) (err error) {
 	if j.Querier != nil {
 		err = j.Querier.Close()
@@ -116,7 +116,7 @@ func (j *Job) fetchMax(ctx context.Context, splitTable database.Table) (c elemen
 	return
 }
 
-// Split 切分
+// Split Division
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
 	if len(j.Config.GetQuerySQL()) > 0 {
 		for _, v := range j.Config.GetQuerySQL() {
