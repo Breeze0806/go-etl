@@ -92,10 +92,10 @@ release.bat
 #### 编译产物
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README.md
+    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
-    |                        |---writer--mysql---|--README.md
+    |                        |---writer--mysql---|--README_zh-CN.md
     |                        | .......
     |
     +---bin----datax
@@ -103,14 +103,14 @@ release.bat
     |               |---db2------------config.json
     |               | .......
     |
-    +---README_USER.md
+    +---README_USER_zh-CN.md
 
 ```
 
 + datax/plugin下是各插件的文档
 + bin下的是数据同步程序datax
 + exampales下是各场景的数据同步的配置文档
-+ README_USER.md是用户使用手册
++ README_USER_zh-CN.md是中文用户使用手册
 
 ## 模块简介
 ### datax

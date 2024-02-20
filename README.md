@@ -114,7 +114,7 @@ release.bat
 + The datax/plugin directory contains the documentation for various plugins.
 + The bin directory houses the data synchronization program, named datax.
 + The examples directory includes configuration files for data synchronization in different scenarios.
-+ README_USER.md is the user manual or guide.
++ README_USER is the user manual or guide in English.
 
 ## Module Introduction
 ### datax
