@@ -88,6 +88,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	// TIME has negative values and cannot be converted normally, while YEAR is TINYINT.
 	// todo: test YEAR
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT",
+		"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT",
 		"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR",
 		"TIME", "YEAR",
 		"DECIMAL":
@@ -126,7 +127,7 @@ func NewScanner(f *Field) *Scanner {
 }
 
 // Scan Read data based on the column type
-// MEDIUMINT, INT, BIGINT, SMALLINT, TINYINT, YEAR are treated as integers.
+// MEDIUMINT, INT, BIGINT, SMALLINT, TINYINT, YEAR, UNSIGNED INT, UNSIGNED BIGINT, UNSIGNED SMALLINT, UNSIGNED TINYINT are treated as integers.
 // DOUBLE, FLOAT, DECIMAL are treated as high-precision real numbers.
 // DATE, DATETIME, TIMESTAMP are treated as time.
 // TEXT, LONGTEXT, MEDIUMTEXT, TINYTEXT, CHAR, VARCHAR, TIME are treated as strings.
@@ -137,7 +138,8 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 
 	switch s.f.Type().DatabaseTypeName() {
 	// todo: test year
-	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR":
+	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR",
+		"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBigIntColumnValue()
