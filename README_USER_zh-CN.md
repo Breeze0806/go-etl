@@ -62,7 +62,7 @@ data -c config.json
                     "parameter": {
                         "username": "postgres",
                         "password": "123456",
-                        "writeMode": "insert",README_CHN
+                        "writeMode": "insert",
                         "column": ["*"],
                         "preSql": [],
                         "connection":  {
@@ -87,13 +87,13 @@ data -c config.json
 
 | 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
 | ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README_CHN.md)、[写](datax/plugin/writer/mysql/README_CHN.md) |
-|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README_CHN.md)、[写](datax/plugin/writer/postgres/README_CHN.md) |
-|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_CHN.md)、[写](datax/plugin/writer/db2/README_CHN.md) |
-|              | SQL Server         | √            | √          | [读](datax/plugin/reader/sqlserver/README_CHN.md)、[写](datax/plugin/writer/sqlserver/README_CHN.md) |
-|              | Oracle             | √            | √          | [读](datax/plugin/reader/oracle/README_CHN.md)、[写](datax/plugin/writer/oracle/README_CHN.md) |
-| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_CHN.md)、[写](datax/plugin/writer/csv/README_CHN.md) |
-|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_CHN.md)、[写](datax/plugin/writer/xlsx/README_CHN.md) |
+| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README_zh-CN.md)、[写](datax/plugin/writer/mysql/README_zh-CN.md) |
+|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README_zh-CN.md)、[写](datax/plugin/writer/postgres/README_zh-CN.md) |
+|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_zh-CN.md)、[写](datax/plugin/writer/db2/README_zh-CN.md) |
+|              | SQL Server         | √            | √          | [读](datax/plugin/reader/sqlserver/README_zh-CN.md)、[写](datax/plugin/writer/sqlserver/README_zh-CN.md) |
+|              | Oracle             | √            | √          | [读](datax/plugin/reader/oracle/README_zh-CN.md)、[写](datax/plugin/writer/oracle/README_zh-CN.md) |
+| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_zh-CN.md)、[写](datax/plugin/writer/csv/README_zh-CN.md) |
+|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_zh-CN.md)、[写](datax/plugin/writer/xlsx/README_zh-CN.md) |
 
 #### 2.1.2 使用示例
 

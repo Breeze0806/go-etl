@@ -18,6 +18,8 @@ Similar data synchronization capabilities to datax, implemented in the datax pac
 
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
 
++ [Chinese Version(中文版)](README_zh-CN.md)
+
 ## Data Synchronization Tool
 
 This data synchronization tool has the synchronization capability for the following data sources.
