@@ -144,7 +144,7 @@ go run main.go -t reader -p Mysql
 
 ##### 3.1.5.1 数据库存储
 
-查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+查看[数据库存储开发者指南](../storage/database/README_zh-CN.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
 ##### 3.1.5.2 数据库读取器
 
@@ -176,7 +176,7 @@ type Querier interface {
 
 ##### 3.1.6.1 二维表文件流存储
 
-查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+查看[二维表文件流存储开发者指南](../storage/stream/file/README_zh-CN.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
 ##### 3.1.6.2 文件读取器
 
@@ -270,7 +270,7 @@ go run main.go -t writer -p Mysql
 
 ##### 3.2.5.1 数据库存储
 
-查看[数据库存储开发者指南](../storage/database/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+查看[数据库存储开发者指南](../storage/database/README_zh-CN.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
 ##### 3.2.5.2 数据库写入器
 
@@ -308,7 +308,7 @@ type Execer interface {
 
 ##### 3.2.6.1 二维表文件流存储
 
-查看[二维表文件流存储开发者指南](../storage/stream/file/README.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
+查看[二维表文件流存储开发者指南](../storage/stream/file/README_zh-CN.md),不仅能帮助你更快地实现Reader插件接口，而且能帮助你更快地实现Writer插件接口
 
 ##### 3.2.6.2 文件读取器
 
@@ -468,7 +468,7 @@ go generate ./...
 
 跟一般的`生产者-消费者`模式一样，`Reader`插件和`Writer`插件之间也是通过`channel`来实现数据的传输的。`channel`可以是内存的，也可能是持久化的，插件不必关心。插件通过`RecordSender`往`channel`写入数据，通过`RecordReceiver`从`channel`读取数据。
 
-`channel`中的一条数据为一个`Record`的对象，`Record`中可以放多个`Column`对象，这可以简单理解为数据库中的记录和列，`Record`原型具体见[文档](../element/README.md)的《记录》一章。
+`channel`中的一条数据为一个`Record`的对象，`Record`中可以放多个`Column`对象，这可以简单理解为数据库中的记录和列，`Record`原型具体见[文档](../element/README_zh-CN.md)的《记录》一章。
 
 因为`Record`是一个接口，`Reader`插件首先调用`RecordSender.createRecord()`创建一个`Record`实例，然后把`Column`一个个添加到`Record`中。
 
@@ -476,7 +476,7 @@ go generate ./...
 
 ### 6.1 数据类型转化
 
-为了规范源端和目的端类型转换操作，保证数据不失真，go-etl支持六种内部数据类型,具体见[文档](../element/README.md)的《数据类型转化》一章。
+为了规范源端和目的端类型转换操作，保证数据不失真，go-etl支持六种内部数据类型,具体见[文档](../element/README_zh-CN.md)的《数据类型转化》一章。
 
 ## 7. 插件文档
 
@@ -547,10 +547,10 @@ release.bat
 ### 8.3 编译产物
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README.md
+    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
-    |                        |---writer--mysql---|--README.md
+    |                        |---writer--mysql---|--README_zh-CN.md
     |                        | .......
     |
     +---bin----datax
@@ -558,13 +558,13 @@ release.bat
     |               |---db2------------config.json
     |               | .......
     |
-    +---README_USER.md
+    +---README_USER_zh-CN.md
 
 ```
 + datax/plugin下是各插件的文档
 + bin下的是数据同步程序datax
 + exampales下是各场景的数据同步的配置文档
-+ README_USER.md是用户使用手册
++ README_USER_zh-CN.md是用户使用手册
 
 ## 9. 调试http接口
 

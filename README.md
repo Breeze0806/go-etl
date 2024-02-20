@@ -135,7 +135,7 @@ This architecture allows for flexibility and scalability, as new data sources an
 For detailed information, please refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md). This documentation provides guidance on how to use the go-etl framework for data synchronization, including information on its architecture, plugin system, and how to develop custom Reader and Writer plugins.
 
 ### element
-Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions]((element\README.md)). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
+Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions](element/README.md). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
 
 ### storage
 

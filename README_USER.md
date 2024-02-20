@@ -10,7 +10,7 @@ You can download the 64-bit version of the binary program for Windows or Linux o
 
 Obtain the datax binary program from the downloaded package. On Linux, as shown in the Makefile, export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib. This library can be downloaded from [ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli), otherwise it will not run.
 
-Additionally, for Oracle, you need to download the corresponding 64-bit version of the ODBC dependency from [Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html). It can also be found in the shared files of **QQ Group 185188648**.
+Additionally, for Oracle, you need to download the corresponding 64-bit version of the ODBC dependency from [Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html).
 
 ### 2.1 Single-Task Data Synchronization
 
