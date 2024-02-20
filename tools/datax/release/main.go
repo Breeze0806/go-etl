@@ -68,13 +68,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err = ioutil.ReadFile("README_USER_CHN.md")
+	data, err = ioutil.ReadFile("README_USER_zh-CN.md")
 	if err != nil {
 		fmt.Println("ReadFile README_USER.md fail. err:", err)
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile("release/README_USER_CHN.md", data, os.ModePerm)
+	err = ioutil.WriteFile("release/README_USER_zh-CN.md", data, os.ModePerm)
 	if err != nil {
 		fmt.Println("WriteFile release/README_USER.md fail. err:", err)
 		os.Exit(1)
@@ -126,13 +126,13 @@ func copyMarkdown(path string) (err error) {
 				return
 			}
 
-			data, err = ioutil.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README_CHN.md"))
+			data, err = ioutil.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README_zh-CN.md"))
 			if err != nil {
 				err = nil
 				continue
 			}
 			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
-			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README_CHN.md"), data, 0644)
+			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README_zh-CN.md"), data, 0644)
 			if err != nil {
 				return
 			}
