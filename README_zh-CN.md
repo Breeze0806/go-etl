@@ -24,21 +24,21 @@ go-etl将提供的etl能力如下：
 
 | 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
 | ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README_CHN.md)、[写](datax/plugin/writer/mysql/README_CHN.md) |
-|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README_CHN.md)、[写](datax/plugin/writer/postgres/README_CHN.md) |
-|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_CHN.md)、[写](datax/plugin/writer/db2/README_CHN.md) |
-|              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README_CHN.md)、[写](datax/plugin/writer/sqlserver/README_CHN.md) |
-|              | Oracle            | √            | √          | [读](datax/plugin/reader/oracle/README_CHN.md)、[写](datax/plugin/writer/oracle/README_CHN.md) |
-| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_CHN.md)、[写](datax/plugin/writer/csv/README_CHN.md) |
-|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_CHN.md)、[写](datax/plugin/writer/xlsx/README_CHN.md) |
+| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README_zh-CN.md)、[写](datax/plugin/writer/mysql/README_zh-CN.md) |
+|              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README_zh-CN.md)、[写](datax/plugin/writer/postgres/README_zh-CN.md) |
+|              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_zh-CN.md)、[写](datax/plugin/writer/db2/README_zh-CN.md) |
+|              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README_zh-CN.md)、[写](datax/plugin/writer/sqlserver/README_zh-CN.md) |
+|              | Oracle            | √            | √          | [读](datax/plugin/reader/oracle/README_zh-CN.md)、[写](datax/plugin/writer/oracle/README_zh-CN.md) |
+| 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_zh-CN.md)、[写](datax/plugin/writer/csv/README_zh-CN.md) |
+|              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_zh-CN.md)、[写](datax/plugin/writer/xlsx/README_zh-CN.md) |
 
 ### 数据同步用户手册
 
-使用[go-etl数据同步用户手册](README_USER_CHN.md)开始数据同步
+使用[go-etl数据同步用户手册](README_USER_zh-CN.md)开始数据同步
 
 ### 数据同步开发宝典
 
-参考[go-etl数据同步开发者文档](datax/README_CHN.md)来帮助开发
+参考[go-etl数据同步开发者文档](datax/README_zh-CN.md)来帮助开发
 
 ### 数据同步工具编译
 
@@ -92,10 +92,10 @@ release.bat
 #### 编译产物
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README.md
+    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
-    |                        |---writer--mysql---|--README.md
+    |                        |---writer--mysql---|--README_zh-CN.md
     |                        | .......
     |
     +---bin----datax
@@ -103,14 +103,14 @@ release.bat
     |               |---db2------------config.json
     |               | .......
     |
-    +---README_USER.md
+    +---README_USER_zh-CN.md
 
 ```
 
 + datax/plugin下是各插件的文档
 + bin下的是数据同步程序datax
 + exampales下是各场景的数据同步的配置文档
-+ README_USER.md是用户使用手册
++ README_USER_zh-CN.md是中文用户使用手册
 
 ## 模块简介
 ### datax
@@ -127,24 +127,24 @@ readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)
 + Writer：Writer为数据写入模块，负责不断向Framework取数据，并将数据写入到目的端。
 + Framework：Framework用于连接reader和writer，作为两者的数据传输通道，并处理缓冲，流控，并发，数据转换等核心技术问题
 
-具体可以参考[go-etl数据同步开发者文档](datax/README_CHN.md)。
+具体可以参考[go-etl数据同步开发者文档](datax/README_zh-CN.md)。
 
 ### element
 
-目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[go-etl数据类型说明](element\README_CHN.md)。
+目前已经实现了go-etl中的数据类型以及数据类型转换，可以参考[go-etl数据类型说明](element\README_zh-CN.md)。
 
 ### storage
 
 #### database
 
-目前已经实现了数据库的基础集成，抽象了数据库方言(Dialect)接口，具体实现可以参考[数据库存储开发者指南](storage/database/README_CHN.md)。
+目前已经实现了数据库的基础集成，抽象了数据库方言(Dialect)接口，具体实现可以参考[数据库存储开发者指南](storage/database/README_zh-CN.md)。
 
 #### stream
 
 主要用于字节流的解析，如文件，消息队列，elasticsearch等，字节流格式可以是cvs，json, xml等。
 
 ##### file
-主要用于文件的解析，如cvs，excel等，抽象了输入流（InputStream）和输出流（OutputStream）接口，具体实现可以参考[类二维表文件存储开发者指南](storage/stream/file/README_CHN.md)。
+主要用于文件的解析，如cvs，excel等，抽象了输入流（InputStream）和输出流（OutputStream）接口，具体实现可以参考[类二维表文件存储开发者指南](storage/stream/file/README_zh-CN.md)。
 ### tools
 
 工具集用于编译，新增许可证等

@@ -1,9 +1,3 @@
-当然可以，请提供您需要翻译的内容。
-
-（如果您指的是上面关于“MysqlReader插件文档”的内容，那么该段内容的英文翻译如下：）
-
----
-
 # MysqlReader Plugin Documentation
 
 ## Quick Introduction
@@ -163,7 +157,7 @@ Below is a conversion table for MysqlReader regarding MySQL types:
 
 | go-etl Type | MySQL Data Type |
 | --- | --- |
-| bigInt | int, tinyint, smallint, mediumint, bigint, year |
+| bigInt | int, tinyint, smallint, mediumint, bigint, year,unsigned int, unsigned bigint, unsigned smallint, unsigned tinyint |
 | decimal | float, double, decimal |
 | string | varchar, char, tinytext, text, mediumtext, longtext |
 | time | date, datetime, timestamp, time |

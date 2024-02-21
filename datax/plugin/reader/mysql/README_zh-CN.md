@@ -155,7 +155,7 @@ MysqlReader通过使用dbmsreader中定义的查询流程调用go-etl自定义�
 
 | go-etl的类型 | mysql数据类型                                       |
 | ------------ | --------------------------------------------------- |
-| bigInt       | int, tinyint, smallint, mediumint, bigint,year      |
+| bigInt       | int, tinyint, smallint, mediumint, bigint,year,unsigned int, unsigned bigint, unsigned smallint, unsigned tinyint     |
 | decimal      | float, double, decimal                              |
 | string       | varchar, char, tinytext, text, mediumtext, longtext |
 | time         | date, datetime, timestamp, time                     |

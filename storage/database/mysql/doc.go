@@ -21,4 +21,5 @@
 // The Scanner uses BaseScanner to simplify its implementation.
 // The Valuer uses the implementation approach of GoValuer.
 
+// Package mysql implements the Dialect of mysql database, supporting the corresponding database of mysql 5.7+
 package mysql

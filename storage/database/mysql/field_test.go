@@ -16,7 +16,9 @@ package mysql
 
 import (
 	"database/sql"
+	"math"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -71,6 +73,15 @@ func mustDecimalColumnValueFromString(s string) element.ColumnValue {
 	}
 	return c
 }
+
+func mustBigIntValueFromString(s string) element.ColumnValue {
+	c, err := element.NewBigIntColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
 func TestField_Quoted(t *testing.T) {
 	tests := []struct {
 		name string
@@ -384,7 +395,7 @@ func TestScanner_Scan(t *testing.T) {
 		wantErr bool
 		want    element.Column
 	}{
-		//"MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR"
+		//"MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR"，"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT"
 		{
 			name: "BIGINT",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BIGINT")))),
@@ -420,11 +431,27 @@ func TestScanner_Scan(t *testing.T) {
 		},
 		{
 			name: "SMALLINT",
-			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TINYINT")))),
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("SMALLINT")))),
 			args: args{
 				src: int32(123),
 			},
 			wantErr: true,
+		},
+		{
+			name: "UNSIGNED BIGINT",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TINYINT")))),
+			args: args{
+				src: []byte(strconv.FormatUint(math.MaxUint64, 10)),
+			},
+			want: element.NewDefaultColumn(mustBigIntValueFromString(strconv.FormatUint(math.MaxUint64, 10)), "test", element.ByteSize(strconv.FormatUint(math.MaxUint64, 10))),
+		},
+		{
+			name: "UNSIGNED INT",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("UNSIGNED INT")))),
+			args: args{
+				src: int64(math.MaxInt32),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(math.MaxInt32)), "test", element.ByteSize(int64(math.MaxInt32))),
 		},
 		//"BLOB", "LONGBLOB", "MEDIUMBLOB", "BINARY", "TINYBLOB", "VARBINARY"
 		{
@@ -768,6 +795,27 @@ func TestFieldType_IsSupportted(t *testing.T) {
 			name: "NEWDATE",
 			f:    NewFieldType(newMockFieldType("NEWDATE")),
 			want: false,
+		},
+		//"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT"
+		{
+			name: "UNSIGNED INT",
+			f:    NewFieldType(newMockFieldType("UNSIGNED INT")),
+			want: true,
+		},
+		{
+			name: "UNSIGNED BIGINT",
+			f:    NewFieldType(newMockFieldType("UNSIGNED BIGINT")),
+			want: true,
+		},
+		{
+			name: "UNSIGNED SMALLINT",
+			f:    NewFieldType(newMockFieldType("UNSIGNED SMALLINT")),
+			want: true,
+		},
+		{
+			name: "UNSIGNED TINYINT",
+			f:    NewFieldType(newMockFieldType("UNSIGNED TINYINT")),
+			want: true,
 		},
 	}
 	for _, tt := range tests {

@@ -18,6 +18,8 @@ Similar data synchronization capabilities to datax, implemented in the datax pac
 
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
 
++ [Chinese Version(中文版)](README_zh-CN.md)
+
 ## Data Synchronization Tool
 
 This data synchronization tool has the synchronization capability for the following data sources.
@@ -112,7 +114,7 @@ release.bat
 + The datax/plugin directory contains the documentation for various plugins.
 + The bin directory houses the data synchronization program, named datax.
 + The examples directory includes configuration files for data synchronization in different scenarios.
-+ README_USER.md is the user manual or guide.
++ README_USER is the user manual or guide in English.
 
 ## Module Introduction
 ### datax
@@ -133,7 +135,7 @@ This architecture allows for flexibility and scalability, as new data sources an
 For detailed information, please refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md). This documentation provides guidance on how to use the go-etl framework for data synchronization, including information on its architecture, plugin system, and how to develop custom Reader and Writer plugins.
 
 ### element
-Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions]((element\README.md)). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
+Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions](element/README.md). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
 
 ### storage
 
