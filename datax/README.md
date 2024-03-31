@@ -105,7 +105,7 @@ The Task combines *plugin.BaseTask and implements the following methods:
 #### 3.1.4 Command Generation
 
 ```bash
-cd tools/go-etl/plugin
+cd tools/datax/plugin
 # Adds a new Reader named Mysql. The -p command can be in any case and is used to specify the name of the Reader. If -d is added, it means the original template will be deleted.
 go run main.go -t reader -p Mysql
 ```

@@ -8,6 +8,8 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 
+English | [简体中文](README_zh-CN.md)
+
 go-etl is a toolset for extracting, transforming, and loading data sources, providing powerful data synchronization capabilities.
 
 go-etl will provide the following ETL capabilities:
@@ -17,8 +19,6 @@ The ability to extract and load data from data streams in a two-dimensional tabl
 Similar data synchronization capabilities to datax, implemented in the datax package
 
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
-
-+ [Chinese Version(中文版)](README_zh-CN.md)
 
 ## Data Synchronization Tool
 
@@ -31,6 +31,7 @@ This data synchronization tool has the synchronization capability for the follow
 |              | DB2 LUW            | √            | √          | [Read](datax/plugin/reader/db2/README.md)、[Write](datax/plugin/writer/db2/README.md) |
 |              | SQL Server            | √            | √          | [Read](datax/plugin/reader/sqlserver/README.md)、[Write](datax/plugin/writer/sqlserver/README.md) |
 |              | Oracle            | √            | √          | [Read](datax/plugin/reader/oracle/README.md)、[Write](datax/plugin/writer/oracle/README.md) |
+|              | Sqlite3            | √            | √          | [Read](datax/plugin/reader/sqlite3/README.md)、[Write](datax/plugin/writer/sqlite3/README.md) |
 | Unstructured Data Stream    | CSV                | √            | √          | [Read](datax/plugin/reader/csv/README.md)、[Write](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [Read](datax/plugin/reader/xlsx/README.md)、[Write](datax/plugin/writer/xlsx/README.md) |
 
@@ -40,7 +41,7 @@ Start data synchronization with the [go-etl Data Synchronization User Manual](RE
 
 ### Data Synchronization Development Handbook
 
-Refer to the [go-etlData Synchronization Developer Documentation](datax/README.md) to assist with your development.
+Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md) to assist with your development.
 
 
 ### Compile
