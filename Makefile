@@ -1,9 +1,13 @@
-DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+ifdef DB2_HOME
+	DB2HOME=${DB2_HOME}
+else
+	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
+	export LD_LIBRARY_PATH=${DB2HOME}/lib
+endif
 export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
 export CGO_CFLAGS=-I${DB2HOME}/include
 export CGO_LDFLAGS=-L${DB2HOME}/lib
-export LD_LIBRARY_PATH=${DB2HOME}/lib
 # Many Go tools take file globs or directories as arguments instead of packages.
 # The linting tools evolve with each Go version, so run them only on the latest
 # stable release.
