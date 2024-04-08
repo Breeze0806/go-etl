@@ -24,9 +24,9 @@ import (
 
 func main() {
 	initLog()
-	var configFile = flag.String("c", "config.json", "config")
-	var wizardFile = flag.String("w", "", "wizard")
-	var httpAddr = flag.String("http", "", "http")
+	configFile := flag.String("c", "config.json", "config")
+	wizardFile := flag.String("w", "", "wizard")
+	httpAddr := flag.String("http", "", "http")
 	flag.Parse()
 	if *wizardFile != "" {
 		if err := tools.NewWizard(*configFile, *wizardFile).GenerateConfigsAndScripts(); err != nil {
@@ -46,5 +46,4 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("run success\n")
-	return
 }
