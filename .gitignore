@@ -19,3 +19,6 @@ release/*
 *.tar.gz
 *.chn
 *.en
+
+*.swp
+tags
