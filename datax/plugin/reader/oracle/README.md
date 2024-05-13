@@ -113,13 +113,13 @@ Describes the Oracle table information.
 
 ###### left
 
-* Description: Primarily used to configure the default maximum value for the splitting key of the Oracle table.
+* Description: Primarily used to configure the default minimum value for the splitting key of the Oracle table.
 * Required: No
 * Default: None
 
 ###### right
 
-* Description: Primarily used to configure the default minimum value for the splitting key of the Oracle table.
+* Description: Primarily used to configure the default maximum value for the splitting key of the Oracle table.
 * Required: No
 * Default: None
 

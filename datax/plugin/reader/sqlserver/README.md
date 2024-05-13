@@ -120,13 +120,13 @@ Describes the SQL Server table information.
 
 ###### left
 
-- Description: Specifies the default maximum value for the SQL Server table's split key.
+- Description: Specifies the default minimum value for the SQL Server table's split key.
 - Required: No
 - Default: None
 
 ###### right
 
-- Description: Specifies the default minimum value for the SQL Server table's split key.
+- Description: Specifies the default maximum value for the SQL Server table's split key.
 - Required: No
 - Default: None
 
