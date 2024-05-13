@@ -120,13 +120,13 @@ Describes the MySQL table information.
 
 ###### left
 
-- Description: Primarily used to configure the default maximum value of the split key for the MySQL table.
+- Description: Primarily used to configure the default minimum value of the split key for the MySQL table.
 - Required: No
 - Default: None
 
 ###### right
 
-- Description: Primarily used to configure the default minimum value of the split key for the MySQL table.
+- Description: Primarily used to configure the default maximum value of the split key for the MySQL table.
 - Required: No
 - Default: None
 

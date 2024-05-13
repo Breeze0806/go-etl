@@ -118,12 +118,12 @@ Describes the Postgres table information.
 - Default: None
 
 ###### left
-- Description: Mainly used to configure the default maximum value of the splitting key for the Postgres table.
+- Description: Mainly used to configure the default minimum value of the splitting key for the Postgres table.
 - Required: No
 - Default: None
 
 ###### right
-- Description: Mainly used to configure the default minimum value of the splitting key for the Postgres table.
+- Description: Mainly used to configure the default maximum value of the splitting key for the Postgres table.
 - Required: No
 - Default: None
 
