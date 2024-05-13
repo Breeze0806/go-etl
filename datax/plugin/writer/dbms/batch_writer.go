@@ -111,18 +111,16 @@ func (b *BaseBatchWriter) BatchTimeout() time.Duration {
 
 // BatchWrite - The process of writing data in batches.
 func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Record) (err error) {
-	if b.strategy != nil {
-		retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
-			return b.batchWrite(ctx, records)
-		}))
-		err = retry.Do()
-	}
+	retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
+		return b.batchWriteWithLog(ctx, records, "")
+	}))
+	err = retry.Do()
 
 	if b.judger != nil {
 		if b.judger.ShouldOneByOne(err) {
-			for _, r := range records {
+			for i := range records {
 				retry := schedule.NewRetryTask(ctx, b.strategy, newWriteTask(func() error {
-					return b.batchWrite(ctx, []element.Record{r})
+					return b.batchWriteWithLog(ctx, []element.Record{records[i]}, "one by one")
 				}))
 				err = retry.Do()
 				if b.Task.Config.IgnoreOneByOneError() {
@@ -148,6 +146,14 @@ func (b *BaseBatchWriter) batchWrite(ctx context.Context, records []element.Reco
 		return b.Task.Execer.BatchExecStmtWithTx(ctx, b.opts)
 	}
 	return b.Task.Execer.BatchExec(ctx, b.opts)
+}
+
+func (b *BaseBatchWriter) batchWriteWithLog(ctx context.Context, records []element.Record, msg string) (err error) {
+	if err = b.batchWrite(ctx, records); err != nil {
+		log.Debugf("jobID: %v taskgroupID:%v taskID: %v batchWrite(%v) %v error: %+v",
+			b.JobID(), b.TaskGroupID(), b.TaskID(), records, msg, err)
+	}
+	return
 }
 
 type writeTask struct {
