@@ -189,7 +189,7 @@ func TestBaseConfig_IgnoreOneByOneError(t *testing.T) {
 		},
 		{
 			name: "2",
-			b:    testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"ignoreOneByOneError":"true"}}}}`)),
+			b:    testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"ignoreOneByOneError":false}}}}`)),
 			want: false,
 		},
 	}

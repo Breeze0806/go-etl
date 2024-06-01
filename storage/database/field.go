@@ -74,6 +74,7 @@ type Field interface {
 	Type() FieldType              // Field type.
 	Scanner() Scanner             // Scanner.
 	Valuer(element.Column) Valuer // Valuer.
+	SetError(err *error)
 }
 
 // Scanner: Data scanner for columns. Converts database driver values into column data.
@@ -148,6 +149,12 @@ func (b *BaseField) String() string {
 	return b.name
 }
 
+func (b *BaseField) SetError(err *error) {
+	if *err != nil {
+		*err = fmt.Errorf("field: %v, %v", b.name, *err)
+	}
+}
+
 // BaseFieldType: Represents the basic type of a field, embedding implementations for various database field types.
 type BaseFieldType struct {
 	ColumnType
@@ -196,7 +203,8 @@ func NewGoValuer(f Field, c element.Column) *GoValuer {
 }
 
 // Value: Generates the corresponding driver-accepted value based on ValuerGoType.
-func (g *GoValuer) Value() (driver.Value, error) {
+func (g *GoValuer) Value() (val driver.Value, err error) {
+	defer g.f.SetError(&err)
 	typ, ok := g.f.Type().(ValuerGoType)
 	if !ok {
 		return nil, ErrNotValuerGoType

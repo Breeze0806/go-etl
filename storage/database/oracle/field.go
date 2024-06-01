@@ -134,6 +134,7 @@ func NewScanner(f *Field) *Scanner {
 // CLOB, NCLOB, VARCHAR2, NVARCHAR2, CHAR, NCHAR are treated as string types
 // BLOB, RAW, LONG RAW, LONG are treated as byte types
 func (s *Scanner) Scan(src interface{}) (err error) {
+	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
 
@@ -254,6 +255,7 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 
 // Value Assignment
 func (v *Valuer) Value() (value driver.Value, err error) {
+	defer v.f.SetError(&err)
 	switch v.f.Type().DatabaseTypeName() {
 	case "BOOLEAN":
 		// In Oracle, inserting an empty string is actually treated as nil, corresponding to NULL
