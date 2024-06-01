@@ -126,6 +126,9 @@ func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Reco
 				if b.Task.Config.IgnoreOneByOneError() {
 					err = nil
 				}
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
@@ -214,7 +217,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 	ticker := time.NewTicker(w.BatchTimeout())
 	defer ticker.Stop()
 	var records []element.Record
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchWrite",
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v start to BatchWrite",
 		w.JobID(), w.TaskGroupID(), w.TaskID())
 	for {
 		select {
