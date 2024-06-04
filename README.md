@@ -14,9 +14,9 @@ go-etl is a toolset for extracting, transforming, and loading data sources, prov
 
 go-etl will provide the following ETL capabilities:
 
-The ability to extract and load data from mainstream databases is implemented in the storage package
-The ability to extract and load data from data streams in a two-dimensional table-like format is implemented in the stream package
-Similar data synchronization capabilities to datax, implemented in the datax package
+- The ability to extract and load data from mainstream databases is implemented in the storage package
+- The ability to extract and load data from data streams in a two-dimensional table-like format is implemented in the stream package
+- Similar data synchronization capabilities to datax, implemented in the datax package
 
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
 
