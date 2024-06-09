@@ -6,7 +6,7 @@ export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
 export CGO_CFLAGS=-I${IBM_DB_HOME}/include
 export CGO_LDFLAGS=-L${IBM_DB_HOME}/lib
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${IBM_DB_HOME}/lib
+export LD_LIBRARY_PATH=${IBM_DB_HOME}/lib
 # Many Go tools take file globs or directories as arguments instead of packages.
 # The linting tools evolve with each Go version, so run them only on the latest
 # stable release.
