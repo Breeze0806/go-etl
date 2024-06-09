@@ -65,7 +65,7 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 	if j, ok := task.Table.(database.Judger); ok {
 		strategy, err := task.Config.GetRetryStrategy(j)
 		if err != nil {
-			log.Printf("[WARNING] jobID: %v taskgroupID:%v taskID: %v GetRetryStrategy fail error: %v",
+			log.Warnf("jobID: %v taskgroupID:%v taskID: %v GetRetryStrategy fail error: %v",
 				task.JobID(), task.TaskGroupID(), task.TaskID(), err)
 		}
 		w.strategy = strategy

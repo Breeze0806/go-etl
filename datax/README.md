@@ -499,7 +499,7 @@ Include the following chapters in the plugin's README.md documentation:
 
 #### 8.1.1 Compilation Dependencies
 
-1. Golang 1.16 or higher.
+1. golang 1.20 or higher.
 
 #### 8.1.2 Building
 
@@ -523,7 +523,7 @@ make release
 #### 8.2.1 Compilation Dependencies
 
 1. A MinGW-w64 environment with GCC 7.2.0 or higher is required for compilation.
-2. Golang 1.16 or higher.
+2. golang 1.20 or higher.
 3. The minimum supported compilation environment is Windows 7.
 
 #### 8.2.2 Building

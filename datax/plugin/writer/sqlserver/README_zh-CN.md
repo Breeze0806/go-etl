@@ -2,11 +2,11 @@
 
 ## 快速介绍
 
-SQLServerWriter插件实现了向sql server数据库写入数据。在底层实现上，SQLServerWriter通过github.com/denisenkom/go-mssqldb以及database/sql连接远程sql server数据库，并执行相应的sql语句将数据写入sql server数据库。
+SQLServerWriter插件实现了向sql server数据库写入数据。在底层实现上，SQLServerWriter通过github.com/microsoft/go-mssqldb以及database/sql连接远程sql server数据库，并执行相应的sql语句将数据写入sql server数据库。
 
 ## 实现原理
 
-SQLServerWriter通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程sql server数据库执行。
+SQLServerWriter通过github.com/microsoft/go-mssqldb连接远程sql server数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程sql server数据库执行。
 
 SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlserver采取了storage/database/sqlserver实现的Dialect。
 
@@ -60,7 +60,7 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/denisenkom/go-mssqldb)的连接配置信息.
+- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/microsoft/go-mssqldb)的连接配置信息.
 - 必选：是
 - 默认值: 无
 

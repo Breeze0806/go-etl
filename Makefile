@@ -1,19 +1,17 @@
+IBM_DB_HOME := ${GOPATH}/src/github.com/ibmdb/clidriver
 ifdef DB2_HOME
-	DB2HOME=${DB2_HOME}
-else
-	DB2HOME=${GOPATH}/src/github.com/ibmdb/clidriver
-	export LD_LIBRARY_PATH=${DB2HOME}/lib
+	IBM_DB_HOME=${DB2_HOME}
 endif
 export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
-export CGO_CFLAGS=-I${DB2HOME}/include
-export CGO_LDFLAGS=-L${DB2HOME}/lib
+export CGO_CFLAGS=-I${IBM_DB_HOME}/include
+export CGO_LDFLAGS=-L${IBM_DB_HOME}/lib
 # Many Go tools take file globs or directories as arguments instead of packages.
 # The linting tools evolve with each Go version, so run them only on the latest
 # stable release.
 GO_VERSION := $(shell go version | cut -d " " -f 3)
 GO_MINOR_VERSION := $(word 2,$(subst ., ,$(GO_VERSION)))
-LINTABLE_MINOR_VERSIONS := 20
+LINTABLE_MINOR_VERSIONS := 22
 ifneq ($(filter $(LINTABLE_MINOR_VERSIONS),$(GO_MINOR_VERSION)),)
 SHOULD_LINT := true
 endif
@@ -24,7 +22,7 @@ all: lint release test
 .PHONY: dependencies
 dependencies:
 	@echo "Installing db2 lib..."
-	git clone -b v0.4.4 --depth=1 https://github.com/ibmdb/go_ibm_db $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db
+	git clone -b v0.4.5 --depth=1 https://github.com/ibmdb/go_ibm_db $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db
 	cd $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 ifdef SHOULD_LINT
 #	@echo "Installing golint..."
