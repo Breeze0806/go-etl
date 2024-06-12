@@ -19,7 +19,6 @@
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
                                 "table": {
-                                    "db":"postgres",
                                     "schema":"public",
                                     "name":"cvs"
                                 }
@@ -31,13 +30,6 @@
                     "name": "csvwriter",
                     "parameter": {
                         "path":["d:\\b.txt"],
-                        "column":[
-                            {
-                                "index":"1",
-                                "type":"time",
-                                "format":"yyyy-MM-dd"
-                            }
-                        ],
                         "encoding":"utf-8",
                         "delimiter":",",
                         "batchTimeout": "1s",

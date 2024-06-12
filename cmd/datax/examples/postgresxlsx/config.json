@@ -19,7 +19,6 @@
                         "connection":  {
                                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable&connect_timeout=2",
                                 "table": {
-                                    "db":"postgres",
                                     "schema":"public",
                                     "name":"cvs"
                                 }
@@ -30,13 +29,6 @@
                 "writer":{
                     "name": "xlsxwriter",
                     "parameter": {
-                        "column" :[
-                            {
-                                "index":"A",
-                                "type":"time",
-                                "format":"yyyy-MM-dd"
-                            }
-                        ],
                         "xlsxs":[
                             {
                                 "path":"Book1.xlsx",
