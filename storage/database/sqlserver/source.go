@@ -59,12 +59,12 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	return source, nil
 }
 
-// DriverName is the driver name for github.com/denisenkom/go-mssqldb
+// DriverName is the driver name for github.com/microsoft/go-mssqldb
 func (s *Source) DriverName() string {
 	return "sqlserver"
 }
 
-// ConnectName is the connection information for the MSSQL data source using github.com/denisenkom/go-mssqldb
+// ConnectName is the connection information for the MSSQL data source using github.com/microsoft/go-mssqldb
 func (s *Source) ConnectName() string {
 	return s.dsn
 }

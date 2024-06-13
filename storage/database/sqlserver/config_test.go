@@ -85,7 +85,7 @@ func TestConfig_FormatDSN(t *testing.T) {
 				Username: "user",
 				Password: "passwd",
 			},
-			wantDsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?disableRetry=true",
+			wantDsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?dial+timeout=15&disableretry=true",
 		},
 		{
 			name: "2",

@@ -2,11 +2,11 @@
 
 ## Quick Introduction
 
-The SQLServerWriter plugin enables writing data to SQL Server databases. Under the hood, SQLServerWriter connects to remote SQL Server databases using github.com/denisenkom/go-mssqldb and database/sql, executing corresponding SQL statements to write data into the SQL Server database.
+The SQLServerWriter plugin enables writing data to SQL Server databases. Under the hood, SQLServerWriter connects to remote SQL Server databases using github.com/microsoft/go-mssqldb and database/sql, executing corresponding SQL statements to write data into the SQL Server database.
 
 ## Implementation Principles
 
-SQLServerWriter connects to remote SQL Server databases using github.com/denisenkom/go-mssqldb. It generates write SQL statements based on user-configured information and go-etl's custom data types from the Reader. These statements are then sent to the remote SQL Server database for execution.
+SQLServerWriter connects to remote SQL Server databases using github.com/microsoft/go-mssqldb. It generates write SQL statements based on user-configured information and go-etl's custom data types from the Reader. These statements are then sent to the remote SQL Server database for execution.
 
 SQLServerWriter implements specific queries by invoking go-etl's custom storage/database DBWrapper, which is defined in the dbmswriter query process. DBWrapper encapsulates many interfaces of database/sql and abstracts the database dialect, Dialect. For SQL Server, it adopts the Dialect implemented by storage/database/sqlserver.
 
@@ -60,7 +60,7 @@ Configuring a job to synchronously write data to a SQL Server database:
 
 #### url
 
-- Description: Primarily used to configure the connection information for the remote end. The basic configuration format is: "sqlserver://ip:port?database=db&encrypt=disable". Here, ip:port represents the IP address and port of the SQL Server database, and db indicates the default database to connect to. For detailed connection configuration information, see [go-mssqldb](https://github.com/denisenkom/go-mssqldb).
+- Description: Primarily used to configure the connection information for the remote end. The basic configuration format is: "sqlserver://ip:port?database=db&encrypt=disable". Here, ip:port represents the IP address and port of the SQL Server database, and db indicates the default database to connect to. For detailed connection configuration information, see [go-mssqldb](https://github.com/microsoft/go-mssqldb).
 - Required: Yes
 - Default: None
 

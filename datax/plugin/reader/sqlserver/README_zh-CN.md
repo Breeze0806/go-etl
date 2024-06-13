@@ -2,11 +2,11 @@
 
 ## 快速介绍
 
-SQLServerReader插件实现了从sql server数据库读取数据。在底层实现上，SQLServerReader通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并执行相应的sql语句将数据从sql server库中查询出来。
+SQLServerReader插件实现了从sql server数据库读取数据。在底层实现上，SQLServerReader通过github.com/microsoft/go-mssqldb连接远程sql server数据库，并执行相应的sql语句将数据从sql server库中查询出来。
 
 ## 实现原理
 
-SQLServerReader通过github.com/denisenkom/go-mssqldb连接远程sql server数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程sql server数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。和直接使用github.com/denisenkom/go-mssqldb。
+SQLServerReader通过github.com/microsoft/go-mssqldb连接远程sql server数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程sql server数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。和直接使用github.com/microsoft/go-mssqldb。
 
 SQLServerReader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlserver采取了storage/database/sqlserver实现的Dialect。
 
@@ -52,7 +52,7 @@ SQLServerReader通过使用dbmsreader中定义的查询流程调用go-etl自定�
 
 #### url
 
-- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/denisenkom/go-mssqldb)的连接配置信息.
+- 描述 主要用于配置对端连接信息。基本配置格式：sqlserver://ip:port?database=db&encrypt=disable"，ip:port代表mysql数据库的IP地址和端口，db表示要默认连接的数据库，详细见[go-mssqldb](https://github.com/microsoft/go-mssqldb)的连接配置信息.
 - 必选：是
 - 默认值: 无
 

@@ -2,5 +2,5 @@
 	"name" : "sqlserverwriter",
 	"developer":"Breeze0806",
 	"dialect":"sqlserver",
-	"description":"use github.com/denisenkom/go-mssqldb"
+	"description":"use github.com/microsoft/go-mssqldb"
 }

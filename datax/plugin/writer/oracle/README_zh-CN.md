@@ -163,3 +163,36 @@ OracleReader通过使用dbmswriter中中定义的查询流程调用go-etl自定�
 
 - 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
 Oracle Instant Client 19不再支持windows7
+
+1.如何配置oracle的Oracle Instant Client
+
+例子如下：
+
+- 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
+
+- 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
+  Oracle Instant Client 19不再支持windows7
+
+2.如何消除`godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
+
+您可以与您的数据库管理员（DBA）沟通，以将数据库的时区（DBTIMEZONE）与底层操作系统的时区同步，或者使用以下 SQL 语句：
+
+```sql
+ALTER SESSION SET TIME_ZONE='Europe/Berlin'
+```
+
+或者在[./connection.md]（连接字符串）中设置一个选定的时区：
+
+```ini
+timezone="Europe/Berlin"
+```
+
+（它使用 time.LoadLocation 进行解析，因此可以使用这样的名称，或者使用 local，或者使用数字形式如 +0500 表示固定时区）。
+
+警告：使用 ALTER SESSION 更改的时区可能不会被每次读取，因此请始终将 ALTER SESSION 一致地设置为相同的时区，或者使用以下连接参数：
+
+```ini
+perSessionTimezone=1
+```
+
+以强制每次会话都检查时区（而不是每个数据库只缓存一次）。
