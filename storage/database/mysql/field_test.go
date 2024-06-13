@@ -400,9 +400,9 @@ func TestScanner_Scan(t *testing.T) {
 			name: "BIGINT",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("BIGINT")))),
 			args: args{
-				src: []byte("123123456789"),
+				src: int64(123123456789),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123123456789), "test", element.ByteSize([]byte("123123456789"))),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123123456789), "test", element.ByteSize(int64(123123456789))),
 		},
 		{
 			name: "MEDIUMINT",
@@ -441,9 +441,9 @@ func TestScanner_Scan(t *testing.T) {
 			name: "UNSIGNED BIGINT",
 			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("TINYINT")))),
 			args: args{
-				src: []byte(strconv.FormatUint(math.MaxUint64, 10)),
+				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(mustBigIntValueFromString(strconv.FormatUint(math.MaxUint64, 10)), "test", element.ByteSize(strconv.FormatUint(math.MaxUint64, 10))),
+			want: element.NewDefaultColumn(mustBigIntValueFromString(strconv.FormatUint(math.MaxUint64, 10)), "test", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{
 			name: "UNSIGNED INT",
