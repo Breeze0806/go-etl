@@ -75,7 +75,7 @@ make release
 ##### Compilation Dependencies:
 
 1. Mingw-w64 with gcc 7.2.0 or higher is required for compilation.
-2. Golang version 1.19 or above is necessary.
+2. Golang version 1.20 or above is necessary.
 3. The minimum compilation environment is Windows 7.
 
 ##### build
