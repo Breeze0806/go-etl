@@ -56,6 +56,13 @@ func NewBigIntColumnValueFromInt64(v int64) ColumnValue {
 	}
 }
 
+// NewBigIntColumnValueFromUint64 - Create a big integer column value from an int64 v
+func NewBigIntColumnValueFromUint64(v uint64) ColumnValue {
+	return &BigIntColumnValue{
+		val: _DefaultNumberConverter.ConvertBigIntFromUint(v),
+	}
+}
+
 // NewBigIntColumnValue - Create a big integer column value from a big.Int v
 func NewBigIntColumnValue(v *big.Int) ColumnValue {
 	return &BigIntColumnValue{

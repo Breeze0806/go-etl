@@ -20,10 +20,10 @@ import (
 	"unsafe"
 )
 
-// ColumnType: Column Type
+// ColumnType Column Type
 type ColumnType string
 
-// ColumnTypeEnum: Enumeration of column types
+// ColumnTypeEnum Enumeration of column types
 const (
 	TypeUnknown ColumnType = "unknown" // UnknownType: Unknown type
 	TypeBool    ColumnType = "bool"    // BoolType: Boolean type
@@ -34,12 +34,12 @@ const (
 	TypeTime    ColumnType = "time"    // TimeType: Time type
 )
 
-// String: Printing display
+// String Printing display
 func (c ColumnType) String() string {
 	return string(c)
 }
 
-// ColumnValue: Column Value
+// ColumnValue Column Value
 type ColumnValue interface {
 	fmt.Stringer
 
@@ -53,18 +53,18 @@ type ColumnValue interface {
 	AsTime() (time.Time, error)        // ToTime: Convert to time
 }
 
-// ColumnValueClonable: Cloneable column value
+// ColumnValueClonable Cloneable column value
 type ColumnValueClonable interface {
 	Clone() ColumnValue // Clone: Clone
 }
 
-// ColumnValueComparabale: Comparable column value
+// ColumnValueComparabale Comparable column value
 type ColumnValueComparabale interface {
 	// Compare: 1 represents greater than, 0 represents equal, -1 represents less than
 	Cmp(ColumnValue) (int, error)
 }
 
-// Column: Column
+// Column Column
 type Column interface {
 	ColumnValue
 	AsInt64() (int64, error)     // ToInt64: Convert to 64-bit integer
@@ -78,67 +78,67 @@ type Column interface {
 
 type notNilColumnValue struct{}
 
-// IsNil: Whether it is null
+// IsNil Whether it is null
 func (n *notNilColumnValue) IsNil() bool {
 	return false
 }
 
 type nilColumnValue struct{}
 
-// Type: Column type
+// Type Column type
 func (n *nilColumnValue) Type() ColumnType {
 	return TypeUnknown
 }
 
-// IsNil: Whether it is null
+// IsNil Whether it is null
 func (n *nilColumnValue) IsNil() bool {
 	return true
 }
 
-// AsBool: Failed to convert to boolean
+// AsBool Failed to convert to boolean
 func (n *nilColumnValue) AsBool() (bool, error) {
 	return false, ErrNilValue
 }
 
-// AsBigInt: Failed to convert to integer
+// AsBigInt Failed to convert to integer
 func (n *nilColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, ErrNilValue
 }
 
-// AsDecimal: Failed to convert to high-precision real number
+// AsDecimal Failed to convert to high-precision real number
 func (n *nilColumnValue) AsDecimal() (DecimalNumber, error) {
 	return nil, ErrNilValue
 }
 
-// AsString: Failed to convert to string
+// AsString Failed to convert to string
 func (n *nilColumnValue) AsString() (string, error) {
 	return "", ErrNilValue
 }
 
-// AsBytes: Failed to convert to byte stream
+// AsBytes Failed to convert to byte stream
 func (n *nilColumnValue) AsBytes() ([]byte, error) {
 	return nil, ErrNilValue
 }
 
-// AsTime: Failed to convert to time
+// AsTime Failed to convert to time
 func (n *nilColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, ErrNilValue
 }
 
-// String: Printing display
+// String Printing display
 func (n *nilColumnValue) String() string {
 	return "<nil>"
 }
 
-// DefaultColumn: Default value
+// DefaultColumn Default value
 type DefaultColumn struct {
-	ColumnValue // ColumnValue: Column value
+	ColumnValue // ColumnValue Column value
 
 	name     string
 	byteSize int
 }
 
-// NewDefaultColumn: Create a new default column based on column value v, column name name, and byte stream size byteSize
+// NewDefaultColumn Create a new default column based on column value v, column name name, and byte stream size byteSize
 func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	return &DefaultColumn{
 		ColumnValue: v,
@@ -147,12 +147,12 @@ func NewDefaultColumn(v ColumnValue, name string, byteSize int) Column {
 	}
 }
 
-// Name: Column name
+// Name Column name
 func (d *DefaultColumn) Name() string {
 	return d.name
 }
 
-// Cmp: Compare columns. If it's not a comparable column value, an error will occur.
+// Cmp Compare columns. If it's not a comparable column value, an error will occur.
 func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	if d.Name() != c.Name() {
 		return 0, ErrColumnNameNotEqual
@@ -164,7 +164,7 @@ func (d *DefaultColumn) Cmp(c Column) (int, error) {
 	return comparabale.Cmp(c)
 }
 
-// Clone: Clone a column. If it's not a cloneable column value, an error will occur.
+// Clone Clone a column. If it's not a cloneable column value, an error will occur.
 func (d *DefaultColumn) Clone() (Column, error) {
 	colnable, ok := d.ColumnValue.(ColumnValueClonable)
 	if !ok {
@@ -178,17 +178,17 @@ func (d *DefaultColumn) Clone() (Column, error) {
 	}, nil
 }
 
-// ByteSize: Byte stream size
+// ByteSize Byte stream size
 func (d *DefaultColumn) ByteSize() int64 {
 	return int64(d.byteSize)
 }
 
-// MemorySize: Memory size
+// MemorySize Memory size
 func (d *DefaultColumn) MemorySize() int64 {
 	return int64(d.byteSize + len(d.name) + 4)
 }
 
-// AsInt64: Convert to 64-bit integer
+// AsInt64 Convert to 64-bit integer
 func (d *DefaultColumn) AsInt64() (int64, error) {
 	bi, err := d.AsBigInt()
 	if err != nil {
@@ -197,7 +197,7 @@ func (d *DefaultColumn) AsInt64() (int64, error) {
 	return bi.Int64()
 }
 
-// AsFloat64: Convert to 64-bit real number
+// AsFloat64 Convert to 64-bit real number
 func (d *DefaultColumn) AsFloat64() (float64, error) {
 	dec, err := d.AsDecimal()
 	if err != nil {
@@ -206,7 +206,7 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 	return dec.Float64()
 }
 
-// ByteSize: Byte size
+// ByteSize Byte size
 func ByteSize(src interface{}) int {
 	switch data := src.(type) {
 	case nil:

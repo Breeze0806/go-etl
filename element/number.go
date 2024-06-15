@@ -30,21 +30,23 @@ var _IntTen = big.NewInt(10)
 var _StrZero = "0"
 var _DefaultNumberConverter NumberConverter = &Converter{}
 
-// Number - Numeric value
+// Number   Numeric value
 type Number interface {
 	Bool() (bool, error)
 	String() string
 }
 
-// NumberConverter - Number converter
+// NumberConverter   Number converter
 type NumberConverter interface {
 	ConvertBigIntFromInt(i int64) (num BigIntNumber)
+	ConvertBigIntFromUint(i uint64) (num BigIntNumber)
+	ConvertDecimalFromFloat32(f float32) (num DecimalNumber)
 	ConvertDecimalFromFloat(f float64) (num DecimalNumber)
 	ConvertBigInt(s string) (num BigIntNumber, err error)
 	ConvertDecimal(s string) (num DecimalNumber, err error)
 }
 
-// BigIntNumber - High-precision integer
+// BigIntNumber   High-precision integer
 type BigIntNumber interface {
 	Number
 
@@ -54,7 +56,7 @@ type BigIntNumber interface {
 	AsBigInt() *big.Int
 }
 
-// DecimalNumber - High-precision decimal
+// DecimalNumber   High-precision decimal
 type DecimalNumber interface {
 	Number
 
@@ -64,76 +66,139 @@ type DecimalNumber interface {
 	AsDecimal() decimal.Decimal
 }
 
-// Int64 - 64-bit integer
+// Int64   64-bit integer
 type Int64 struct {
 	value int64
 }
 
-// Bool - Convert to boolean
+// Bool   Convert to boolean
 func (i *Int64) Bool() (bool, error) {
 	return i.value != 0, nil
 }
 
-// Int64 - Convert to 64-bit integer
+// Int64   Convert to 64-bit integer
 func (i *Int64) Int64() (int64, error) {
 	return i.value, nil
 }
 
-// Float64 - Convert to 64-bit floating-point number
+// Float64   Convert to 64-bit floating-point number. But it will result in loss of precision.
 func (i *Int64) Float64() (float64, error) {
 	return float64(i.value), nil
 }
 
-// BigInt - Convert to high-precision integer
+// BigInt   Convert to high-precision integer
 func (i *Int64) BigInt() BigIntNumber {
 	return i
 }
 
-// Decimal - Convert to high-precision decimal
+// Decimal   Convert to high-precision decimal
 func (i *Int64) Decimal() DecimalNumber {
 	return i
 }
 
-// Decimal - Convert to string
+// Decimal   Convert to string
 func (i *Int64) String() string {
 	return strconv.FormatInt(i.value, 10)
 }
 
-// CloneBigInt - Clone high-precision integer
+// CloneBigInt   Clone high-precision integer
 func (i *Int64) CloneBigInt() BigIntNumber {
 	return &Int64{
 		value: i.value,
 	}
 }
 
-// CloneDecimal - Clone high-precision decimal
+// CloneDecimal   Clone high-precision decimal
 func (i *Int64) CloneDecimal() DecimalNumber {
 	return &Int64{
 		value: i.value,
 	}
 }
 
-// AsBigInt - Convert to high-precision integer
+// AsBigInt   Convert to high-precision integer
 func (i *Int64) AsBigInt() *big.Int {
 	return big.NewInt(i.value)
 }
 
-// AsDecimal - Convert to high-precision decimal
+// AsDecimal   Convert to high-precision decimal
 func (i *Int64) AsDecimal() decimal.Decimal {
 	return decimal.NewFromInt(i.value)
 }
 
-// BigInt - Big integer
+// Uint64  ungined 64-bit integer
+type Uint64 struct {
+	value uint64
+}
+
+// Bool   Convert to boolean
+func (i *Uint64) Bool() (bool, error) {
+	return i.value != 0, nil
+}
+
+// Int64   Convert to 64-bit integer
+func (i *Uint64) Int64() (int64, error) {
+	if i.value > uint64(math.MaxInt64) {
+		return 0, errors.New("element: uint64 to int64 fail for out of range")
+	}
+	return int64(i.value), nil
+}
+
+// Float64   Convert to 64-bit floating-point number. But it will result in loss of precision.
+func (i *Uint64) Float64() (float64, error) {
+	return float64(i.value), nil
+}
+
+// BigInt   Convert to high-precision integer
+func (i *Uint64) BigInt() BigIntNumber {
+	return i
+}
+
+// Decimal   Convert to high-precision decimal
+func (i *Uint64) Decimal() DecimalNumber {
+	return i
+}
+
+// Decimal   Convert to string
+func (i *Uint64) String() string {
+	return strconv.FormatUint(i.value, 10)
+}
+
+// CloneBigInt   Clone high-precision integer
+func (i *Uint64) CloneBigInt() BigIntNumber {
+	return &Uint64{
+		value: i.value,
+	}
+}
+
+// CloneDecimal   Clone high-precision decimal
+func (i *Uint64) CloneDecimal() DecimalNumber {
+	return &Uint64{
+		value: i.value,
+	}
+}
+
+// AsBigInt   Convert to high-precision integer
+func (i *Uint64) AsBigInt() (bi *big.Int) {
+	bi = new(big.Int).SetUint64(i.value)
+	return
+}
+
+// AsDecimal   Convert to high-precision decimal
+func (i *Uint64) AsDecimal() decimal.Decimal {
+	return decimal.NewFromUint64(i.value)
+}
+
+// BigInt   Big integer
 type BigInt struct {
 	value *big.Int
 }
 
-// Bool - Convert to boolean
+// Bool   Convert to boolean
 func (b *BigInt) Bool() (bool, error) {
 	return b.value.Cmp(_IntZero) != 0, nil
 }
 
-// Int64 - Convert to 64-bit integer
+// Int64   Convert to 64-bit integer
 func (b *BigInt) Int64() (int64, error) {
 	if b.value.IsInt64() {
 		return b.value.Int64(), nil
@@ -141,7 +206,7 @@ func (b *BigInt) Int64() (int64, error) {
 	return 0, errors.New("element: BigInt to int64 fail for out of range")
 }
 
-// Float64 - Convert to 64-bit floating-point number
+// Float64   Convert to 64-bit floating-point number
 func (b *BigInt) Float64() (v float64, err error) {
 	f := new(big.Float).SetInt(b.value)
 	if v, _ = f.Float64(); math.Abs(v) > math.MaxFloat64 {
@@ -152,61 +217,61 @@ func (b *BigInt) Float64() (v float64, err error) {
 	return
 }
 
-// BigInt - Convert to high-precision integer
+// BigInt   Convert to high-precision integer
 func (b *BigInt) BigInt() BigIntNumber {
 	return b
 }
 
-// Decimal - Convert to high-precision decimal
+// Decimal   Convert to high-precision decimal
 func (b *BigInt) Decimal() DecimalNumber {
 	return b
 }
 
-// Decimal - Convert to string
+// Decimal   Convert to string
 func (b *BigInt) String() string {
 	return b.value.String()
 }
 
-// CloneBigInt - Clone high-precision integer
+// CloneBigInt   Clone high-precision integer
 func (b *BigInt) CloneBigInt() BigIntNumber {
 	return &BigInt{
 		value: new(big.Int).Set(b.value),
 	}
 }
 
-// CloneDecimal - Clone high-precision decimal
+// CloneDecimal   Clone high-precision decimal
 func (b *BigInt) CloneDecimal() DecimalNumber {
 	return &BigInt{
 		value: new(big.Int).Set(b.value),
 	}
 }
 
-// AsBigInt - Convert to high-precision integer
+// AsBigInt   Convert to high-precision integer
 func (b *BigInt) AsBigInt() *big.Int {
 	return b.value
 }
 
-// AsDecimal - Convert to high-precision decimal
+// AsDecimal   Convert to high-precision decimal
 func (b *BigInt) AsDecimal() decimal.Decimal {
 	return decimal.NewFromBigInt(b.value, 0)
 }
 
-// BigIntStr - High-precision integer string
+// BigIntStr   High-precision integer string
 type BigIntStr struct {
 	value string
 }
 
-// Bool - Convert to boolean
+// Bool   Convert to boolean
 func (b *BigIntStr) Bool() (bool, error) {
 	return false, errors.New("element: BigIntStr to Bool fail for out of range")
 }
 
-// Int64 - Convert to 64-bit integer
+// Int64   Convert to 64-bit integer
 func (b *BigIntStr) Int64() (int64, error) {
 	return 0, errors.New("element: BigIntStr to int64 fail for out of range")
 }
 
-// Float64 - Convert to 64-bit floating-point number
+// Float64   Convert to 64-bit floating-point number
 func (b *BigIntStr) Float64() (v float64, err error) {
 	f, _ := new(big.Float).SetString(b.value)
 	if v, _ = f.Float64(); math.Abs(v) > math.MaxFloat64 {
@@ -217,106 +282,59 @@ func (b *BigIntStr) Float64() (v float64, err error) {
 	return
 }
 
-// BigInt - Convert to high-precision integer
+// BigInt   Convert to high-precision integer
 func (b *BigIntStr) BigInt() BigIntNumber {
 	return b
 }
 
-// Decimal - Convert to high-precision decimal
+// Decimal   Convert to high-precision decimal
 func (b *BigIntStr) Decimal() DecimalNumber {
 	return b
 }
 
-// Decimal - Convert to string
+// Decimal   Convert to string
 func (b *BigIntStr) String() string {
 	return b.value
 }
 
-// CloneBigInt - Clone high-precision integer
+// CloneBigInt   Clone high-precision integer
 func (b *BigIntStr) CloneBigInt() BigIntNumber {
 	return &BigIntStr{
 		value: b.value,
 	}
 }
 
-// CloneDecimal - Clone high-precision decimal
+// CloneDecimal   Clone high-precision decimal
 func (b *BigIntStr) CloneDecimal() DecimalNumber {
 	return &BigIntStr{
 		value: b.value,
 	}
 }
 
-// AsBigInt - Convert to high-precision integer
+// AsBigInt   Convert to high-precision integer
 func (b *BigIntStr) AsBigInt() *big.Int {
 	v, _ := new(big.Int).SetString(b.value, 10)
 	return v
 }
 
-// AsDecimal - Convert to high-precision decimal
+// AsDecimal   Convert to high-precision decimal
 func (b *BigIntStr) AsDecimal() decimal.Decimal {
 	v, _ := new(big.Int).SetString(b.value, 10)
 	return decimal.NewFromBigInt(v, 0)
 }
 
-// Float64 - 64-bit floating-point number
-type Float64 struct {
-	value float64
-}
-
-// Bool - Convert to boolean
-func (f *Float64) Bool() (bool, error) {
-	return f.value != 0.0, nil
-}
-
-// Float64 - Convert to 64-bit floating-point number
-func (f *Float64) Float64() (float64, error) {
-	return f.value, nil
-}
-
-// BigInt - Convert to high-precision integer
-func (f *Float64) BigInt() BigIntNumber {
-	s := f.String()
-	pIndex := strings.Index(s, ".")
-	if pIndex == -1 {
-		pIndex = len(s)
-	}
-	return convertBigInt(s[:pIndex]).(BigIntNumber)
-}
-
-// Decimal - Convert to high-precision decimal
-func (f *Float64) Decimal() DecimalNumber {
-	return f
-}
-
-// Decimal - Convert to string
-func (f *Float64) String() string {
-	return strconv.FormatFloat(f.value, 'f', -1, 64)
-}
-
-// CloneDecimal - Clone high-precision decimal
-func (f *Float64) CloneDecimal() DecimalNumber {
-	return &Float64{
-		value: f.value,
-	}
-}
-
-// AsDecimal - Convert to high-precision decimal
-func (f *Float64) AsDecimal() decimal.Decimal {
-	return decimal.NewFromFloat(f.value)
-}
-
-// DecimalStr - High-precision decimal string
+// DecimalStr   High-precision decimal string
 type DecimalStr struct {
 	value  string
 	intLen int
 }
 
-// Bool - Convert to boolean
+// Bool   Convert to boolean
 func (d *DecimalStr) Bool() (bool, error) {
 	return d.value != _StrZero, nil
 }
 
-// Float64 - Convert to 64-bit floating-point number
+// Float64   Convert to 64-bit floating-point number
 func (d *DecimalStr) Float64() (v float64, err error) {
 	f, _ := new(big.Float).SetString(d.value)
 	if v, _ = f.Float64(); math.Abs(v) > math.MaxFloat64 {
@@ -327,23 +345,23 @@ func (d *DecimalStr) Float64() (v float64, err error) {
 	return
 }
 
-// BigInt - Convert to high-precision integer
+// BigInt   Convert to high-precision integer
 func (d *DecimalStr) BigInt() BigIntNumber {
 	return convertBigInt(d.value[:d.intLen]).(BigIntNumber)
 
 }
 
-// Decimal - Convert to high-precision decimal
+// Decimal   Convert to high-precision decimal
 func (d *DecimalStr) Decimal() DecimalNumber {
 	return d
 }
 
-// Decimal - Convert to string
+// Decimal   Convert to string
 func (d *DecimalStr) String() string {
 	return d.value
 }
 
-// CloneDecimal - Clone high-precision decimal
+// CloneDecimal   Clone high-precision decimal
 func (d *DecimalStr) CloneDecimal() DecimalNumber {
 	return &DecimalStr{
 		value:  d.value,
@@ -351,7 +369,7 @@ func (d *DecimalStr) CloneDecimal() DecimalNumber {
 	}
 }
 
-// AsDecimal - Convert to high-precision decimal
+// AsDecimal   Convert to high-precision decimal
 func (d *DecimalStr) AsDecimal() decimal.Decimal {
 	intString := d.value
 	if d.intLen+1 < len(d.value) {
@@ -361,17 +379,17 @@ func (d *DecimalStr) AsDecimal() decimal.Decimal {
 	return decimal.NewFromBigInt(v, int32(-len(d.value)+d.intLen+1))
 }
 
-// Decimal - High-precision decimal
+// Decimal   High-precision decimal
 type Decimal struct {
 	value decimal.Decimal
 }
 
-// Bool - Convert to boolean
+// Bool   Convert to boolean
 func (d *Decimal) Bool() (bool, error) {
 	return d.value.Cmp(decimal.Zero) != 0, nil
 }
 
-// Float64 - Convert to 64-bit floating-point number
+// Float64   Convert to 64-bit floating-point number
 func (d *Decimal) Float64() (float64, error) {
 	v, _ := d.value.Float64()
 	if math.Abs(v) > math.MaxFloat64 {
@@ -380,7 +398,7 @@ func (d *Decimal) Float64() (float64, error) {
 	return v, nil
 }
 
-// BigInt - Convert to high-precision integer
+// BigInt   Convert to high-precision integer
 func (d *Decimal) BigInt() BigIntNumber {
 	exp := d.value.Exponent()
 	value := d.value.Coefficient()
@@ -398,46 +416,60 @@ func (d *Decimal) BigInt() BigIntNumber {
 	}
 }
 
-// Decimal - Convert to high-precision decimal
+// Decimal   Convert to high-precision decimal
 func (d *Decimal) Decimal() DecimalNumber {
 	return d
 }
 
-// Decimal - Convert to string
+// Decimal   Convert to string
 func (d *Decimal) String() string {
 	return d.value.String()
 }
 
-// CloneDecimal - Clone high-precision decimal
+// CloneDecimal   Clone high-precision decimal
 func (d *Decimal) CloneDecimal() DecimalNumber {
 	return &Decimal{
 		value: d.value.Copy(),
 	}
 }
 
-// AsDecimal - Convert to high-precision decimal
+// AsDecimal   Convert to high-precision decimal
 func (d *Decimal) AsDecimal() decimal.Decimal {
 	return d.value
 }
 
-// OldConverter - Unchecked conversion
+// OldConverter   Unchecked conversion
 type OldConverter struct{}
 
-// ConvertBigIntFromInt - Convert to decimal from integer
+// ConvertBigIntFromInt   Convert to decimal from integer
 func (c *OldConverter) ConvertBigIntFromInt(i int64) (num BigIntNumber) {
 	return &BigInt{
 		value: big.NewInt(i),
 	}
 }
 
-// ConvertDecimalFromFloat - Convert to decimal from floating-point number
+// ConvertBigIntFromUint   Convert to decimal from unsigned integer
+func (c *OldConverter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
+	return &BigInt{
+		value: new(big.Int).SetUint64(i),
+	}
+}
+
+// ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
+func (c *OldConverter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
+	return &Decimal{
+		value: decimal.NewFromFloat32(f),
+	}
+}
+
+// ConvertDecimalFromFloat   Convert to decimal from floating-point number
 func (c *OldConverter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
 	return &Decimal{
 		value: decimal.NewFromFloat(f),
 	}
 }
 
-// ConvertDecimal - Convert string to decimal
+// ConvertDecimal   Convert string to decimal
 func (c *OldConverter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 	var d decimal.Decimal
 	if d, err = decimal.NewFromString(s); err != nil {
@@ -449,7 +481,7 @@ func (c *OldConverter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 	return
 }
 
-// ConvertBigInt - Convert string to integer
+// ConvertBigInt   Convert string to integer
 func (c *OldConverter) ConvertBigInt(s string) (num BigIntNumber, err error) {
 	b, ok := new(big.Int).SetString(s, 10)
 	if !ok {
@@ -462,24 +494,38 @@ func (c *OldConverter) ConvertBigInt(s string) (num BigIntNumber, err error) {
 	return
 }
 
-// Converter - Number converter
+// Converter   Number converter
 type Converter struct{}
 
-// ConvertBigIntFromInt - Convert to decimal from integer
+// ConvertBigIntFromInt   Convert to decimal from integer
 func (c *Converter) ConvertBigIntFromInt(i int64) (num BigIntNumber) {
 	return &Int64{
 		value: i,
 	}
 }
 
-// ConvertDecimalFromFloat - Convert to decimal from floating-point number
-func (c *Converter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
-	return &Float64{
-		value: f,
+// ConvertBigIntFromUint   Convert to decimal from unsigned integer
+func (c *Converter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
+	return &Uint64{
+		value: i,
 	}
 }
 
-// ConvertDecimal - Convert string to decimal
+// ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
+func (c *Converter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
+	return &Decimal{
+		value: decimal.NewFromFloat32(f),
+	}
+}
+
+// ConvertDecimalFromFloat   Convert to decimal from floating-point number
+func (c *Converter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
+	return &Decimal{
+		value: decimal.NewFromFloat(f),
+	}
+}
+
+// ConvertDecimal   Convert string to decimal
 func (c *Converter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 	eIndex := strings.IndexAny(s, "Ee")
 	if eIndex == -1 {
