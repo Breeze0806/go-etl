@@ -105,12 +105,12 @@ Describes the DB2 table information.
 - Default: None
 
 ###### left
-- Description: Specifies the default maximum value for the split key of the DB2 table.
+- Description: Specifies the default minimum value for the split key of the DB2 table.
 - Required: No
 - Default: None
 
 ###### right
-- Description: Specifies the default minimum value for the split key of the DB2 table.
+- Description: Specifies the default maximum value for the split key of the DB2 table.
 - Required: No
 - Default: None
 

@@ -865,6 +865,18 @@ func Test_doSplit(t *testing.T) {
 				big.NewInt(22),
 			},
 		},
+		{
+			name: "5",
+			args: args{
+				left:  big.NewInt(22),
+				right: big.NewInt(19),
+				num:   1,
+			},
+			wantResults: []*big.Int{
+				big.NewInt(19),
+				big.NewInt(22),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -984,6 +996,23 @@ func Test_split(t *testing.T) {
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
 			},
 			wantErr: true,
+		},
+		{
+			name: "8",
+			args: args{
+				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "", 0),
+				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(50003)), "", 0),
+				num:        1,
+				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
+			},
+			wantRanges: []SplitRange{
+				{
+					Type:  element.TypeBigInt.String(),
+					Left:  "10000",
+					Right: "50003",
+					where: "f1 >= $1 and f1 <= $2",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {

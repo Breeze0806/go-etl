@@ -8,6 +8,8 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 
+[English](README.md) | 简体中文
+
 go-etl是一个集数据源抽取，转化，加载的工具集，提供强大的数据同步能力。
 
 go-etl将提供的etl能力如下：
