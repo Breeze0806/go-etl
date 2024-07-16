@@ -67,22 +67,22 @@ func (t *TimeColumnValue) Type() ColumnType {
 	return TypeTime
 }
 
-// AsBool: Cannot convert to a boolean value
+// AsBool Cannot convert to a boolean value
 func (t *TimeColumnValue) AsBool() (bool, error) {
 	return false, NewTransformErrorFormColumnTypes(t.Type(), TypeBool, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsBigInt: Cannot convert to a big integer
+// AsBigInt Cannot convert to a big integer
 func (t *TimeColumnValue) AsBigInt() (BigIntNumber, error) {
 	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeBigInt, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsDecimal: Cannot convert to a high-precision decimal number
+// AsDecimal Cannot convert to a high-precision decimal number
 func (t *TimeColumnValue) AsDecimal() (DecimalNumber, error) {
 	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeDecimal, fmt.Errorf("val: %v", t.String()))
 }
 
-// AsString: Converts to a string
+// AsString Converts to a string
 func (t *TimeColumnValue) AsString() (s string, err error) {
 	var i interface{}
 	i, err = t.TimeDecode(t.val)
@@ -92,7 +92,7 @@ func (t *TimeColumnValue) AsString() (s string, err error) {
 	return i.(string), nil
 }
 
-// AsBytes: Converts to a byte stream
+// AsBytes Converts to a byte stream
 func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
 	var i interface{}
 	i, err = t.TimeDecode(t.val)
@@ -102,7 +102,7 @@ func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
 	return []byte(i.(string)), nil
 }
 
-// AsTime: Converts to a time value
+// AsTime Converts to a time value
 func (t *TimeColumnValue) AsTime() (time.Time, error) {
 	return t.val, nil
 }
@@ -118,7 +118,7 @@ func (t *TimeColumnValue) Clone() ColumnValue {
 	}
 }
 
-// Cmp: Returns 1 for greater than, 0 for equal, and -1 for less than
+// Cmp Returns 1 for greater than, 0 for equal, and -1 for less than
 func (t *TimeColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsTime()
 	if err != nil {

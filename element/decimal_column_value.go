@@ -50,6 +50,13 @@ type DecimalColumnValue struct {
 	val DecimalNumber // High-precision decimal
 }
 
+// NewDecimalColumnValueFromFloat32 creates a high-precision decimal column value from a float64 value.
+func NewDecimalColumnValueFromFloat32(f float32) ColumnValue {
+	return &DecimalColumnValue{
+		val: _DefaultNumberConverter.ConvertDecimalFromFloat32(f),
+	}
+}
+
 // NewDecimalColumnValueFromFloat creates a high-precision decimal column value from a float64 value.
 func NewDecimalColumnValueFromFloat(f float64) ColumnValue {
 	return &DecimalColumnValue{

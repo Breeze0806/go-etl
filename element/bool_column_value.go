@@ -100,7 +100,7 @@ func (b *BoolColumnValue) AsBytes() ([]byte, error) {
 	return []byte(b.String()), nil
 }
 
-// AsTime: Currently, a Boolean cannot be converted to a time value
+// AsTime Currently, a Boolean cannot be converted to a time value
 func (b *BoolColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
@@ -117,7 +117,7 @@ func (b *BoolColumnValue) Clone() ColumnValue {
 	return NewBoolColumnValue(b.val)
 }
 
-// Cmp: Returns 1 for greater than, 0 for equal, and -1 for less than
+// Cmp Returns 1 for greater than, 0 for equal, and -1 for less than
 func (b *BoolColumnValue) Cmp(right ColumnValue) (int, error) {
 	rightValue, err := right.AsBool()
 	if err != nil {
