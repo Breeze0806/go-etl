@@ -128,7 +128,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 		return
 	}
 
-	if j.Config.GetSplitConfig().Key == "" || number == 1 {
+	if j.Config.GetSplitConfig().Key == "" {
 		return []*config.JSON{j.PluginJobConf().CloneConfig()}, nil
 	}
 

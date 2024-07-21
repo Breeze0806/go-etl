@@ -35,10 +35,6 @@ var (
 		intLen: 9,
 	}
 
-	benchFloat64 = &Float64{
-		value: float64(math.MaxInt64) / 1e9,
-	}
-
 	benchInt64 = &Int64{
 		value: math.MaxInt64,
 	}
@@ -355,15 +351,6 @@ func BenchmarkDecimal_DecmialStr_String(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = benchDecimalStr.String()
-	}
-}
-
-func BenchmarkDecimal_Float64_String(b *testing.B) {
-
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = benchFloat64.String()
 	}
 }
 

@@ -105,12 +105,12 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
 - 默认值: 无
 
 ###### left
-- 描述 主要用于配置db2表的切分键默认最大值
+- 描述 主要用于配置db2表的切分键默认最小值
 - 必选：否
 - 默认值: 无
 
 ###### right
-- 描述 主要用于配置db2表的切分键默认最小值
+- 描述 主要用于配置db2表的切分键默认最大值
 - 必选：否
 - 默认值: 无
 
@@ -176,3 +176,7 @@ DB2Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的s
 
 - 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
 - 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
+
+2.遇到错误`[CLI Driver] SQL1042C An unexpected system error occurred. SQLSTATE=58004 SQLCODE=-1042`
+
+-在url中加入AUTHENTICATION=SERVER;选项

@@ -14,11 +14,14 @@ go-etl is a toolset for extracting, transforming, and loading data sources, prov
 
 go-etl will provide the following ETL capabilities:
 
-The ability to extract and load data from mainstream databases is implemented in the storage package
-The ability to extract and load data from data streams in a two-dimensional table-like format is implemented in the stream package
-Similar data synchronization capabilities to datax, implemented in the datax package
+- The ability to extract and load data from mainstream databases is implemented in the storage package
+- The ability to extract and load data from data streams in a two-dimensional table-like format is implemented in the stream package
+- Similar data synchronization capabilities to datax, implemented in the datax package
 
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
+
+
+
 
 ## Data Synchronization Tool
 
@@ -50,7 +53,7 @@ Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.
 
 ##### Compilation dependencies
 
-1. golang 1.16 and later versions
+1. golang 1.20 and later versions
 2. gcc 4.8 and later versions
 
 ##### build
@@ -75,7 +78,7 @@ make release
 ##### Compilation Dependencies:
 
 1. Mingw-w64 with gcc 7.2.0 or higher is required for compilation.
-2. Golang version 1.16 or above is necessary.
+2. Golang version 1.20 or above is necessary.
 3. The minimum compilation environment is Windows 7.
 
 ##### build

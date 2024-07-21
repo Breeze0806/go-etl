@@ -8,6 +8,8 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 
+[English](README.md) | 简体中文
+
 go-etl是一个集数据源抽取，转化，加载的工具集，提供强大的数据同步能力。
 
 go-etl将提供的etl能力如下：
@@ -47,7 +49,7 @@ go-etl将提供的etl能力如下：
 
 ##### 编译依赖
 
-1. golang 1.16以及以上版本
+1. golang 1.20以及以上版本
 
 ##### 构建
 
@@ -71,7 +73,7 @@ make release
 ##### 编译依赖
 
 1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
-2. golang 1.16以及以上
+2. golang 1.20以及以上
 3. 最小编译环境为win7 
 
 ##### 构建

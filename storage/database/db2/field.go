@@ -131,6 +131,7 @@ func NewScanner(f *Field) *Scanner {
 // BLOB is treated as a byte stream.
 // BOOLEAN is treated as a boolean value.
 func (s *Scanner) Scan(src interface{}) (err error) {
+	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
 	switch s.f.Type().DatabaseTypeName() {

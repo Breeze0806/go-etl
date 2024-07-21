@@ -2,11 +2,11 @@
 
 ## Quick Introduction
 
-The SQLServerReader plugin enables data extraction from SQL Server databases. Under the hood, SQLServerReader connects to a remote SQL Server database via `github.com/denisenkom/go-mssqldb` and executes SQL queries to retrieve data from the SQL Server.
+The SQLServerReader plugin enables data extraction from SQL Server databases. Under the hood, SQLServerReader connects to a remote SQL Server database via `github.com/microsoft/go-mssqldb` and executes SQL queries to retrieve data from the SQL Server.
 
 ## Implementation Details
 
-SQLServerReader connects to the remote SQL Server database using `github.com/denisenkom/go-mssqldb` and generates SQL queries based on user-provided information. These queries are then sent to the remote SQL Server, and the returned results are assembled into an abstract dataset using go-etl's custom data types before being passed to downstream Writer processing. This differs from directly using `github.com/denisenkom/go-mssqldb`.
+SQLServerReader connects to the remote SQL Server database using `github.com/microsoft/go-mssqldb` and generates SQL queries based on user-provided information. These queries are then sent to the remote SQL Server, and the returned results are assembled into an abstract dataset using go-etl's custom data types before being passed to downstream Writer processing. This differs from directly using `github.com/microsoft/go-mssqldb`.
 
 SQLServerReader implements specific queries by invoking the query process defined in `dbmsreader` using go-etl's custom `storage/database` DBWrapper. DBWrapper encapsulates many `database/sql` interfaces and abstracts the database dialect. For SQL Server, it uses the dialect implemented in `storage/database/sqlserver`.
 
@@ -52,7 +52,7 @@ Configuring a job to synchronize data from a SQL Server database to a local dest
 
 #### url
 
-- Description: Specifies the connection information for the remote SQL Server. The basic format is `sqlserver://ip:port?database=db&encrypt=disable`, where `ip:port` represents the IP address and port of the SQL Server, and `db` is the default database to connect to. See [go-mssqldb](https://github.com/denisenkom/go-mssqldb) for more connection configuration details.
+- Description: Specifies the connection information for the remote SQL Server. The basic format is `sqlserver://ip:port?database=db&encrypt=disable`, where `ip:port` represents the IP address and port of the SQL Server, and `db` is the default database to connect to. See [go-mssqldb](https://github.com/microsoft/go-mssqldb) for more connection configuration details.
 - Required: Yes
 - Default: None
 
@@ -120,13 +120,13 @@ Describes the SQL Server table information.
 
 ###### left
 
-- Description: Specifies the default maximum value for the SQL Server table's split key.
+- Description: Specifies the default minimum value for the SQL Server table's split key.
 - Required: No
 - Default: None
 
 ###### right
 
-- Description: Specifies the default minimum value for the SQL Server table's split key.
+- Description: Specifies the default maximum value for the SQL Server table's split key.
 - Required: No
 - Default: None
 

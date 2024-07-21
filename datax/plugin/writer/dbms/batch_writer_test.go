@@ -267,7 +267,7 @@ func TestBaseBatchWriter_BatchWrite(t *testing.T) {
 				Execer:   &MockExecer{},
 				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
 					"schema", "table"), true, true),
-				Config: testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3}}}`)),
+				Config: testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3}}}}}`)),
 			}, ExecModeTx, nil),
 			args: args{
 				ctx: context.TODO(),
@@ -280,15 +280,40 @@ func TestBaseBatchWriter_BatchWrite(t *testing.T) {
 			},
 			wantErr: false,
 		},
+
 		{
 			name: "8",
 			b: NewBaseBatchWriter(&Task{
 				BaseTask: spiwriter.NewBaseTask(),
-				Execer:   &MockExecer{},
+				Execer: &MockExecer{
+					BatchErr: errors.New("mock error 9"),
+				},
 				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
 					"schema", "table"), true, true),
-				Config: testBaseConfig(testJSONFromString(`{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3},"ignoreOneByOneError":true}}`)),
-			}, ExecModeTx, nil),
+				Config: testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3},"ignoreOneByOneError":false}}}}`)),
+			}, ExecModeNormal, nil),
+			args: args{
+				ctx: context.TODO(),
+				records: []element.Record{
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+					element.NewDefaultRecord(),
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "10",
+			b: NewBaseBatchWriter(&Task{
+				BaseTask: spiwriter.NewBaseTask(),
+				Execer: &MockExecer{
+					BatchErr: errors.New("mock error 10"),
+				},
+				Table: NewMockTableWithJudger(database.NewBaseTable("instance",
+					"schema", "table"), true, true),
+				Config: testBaseConfig(testJSONFromString(`{"job":{"setting":{"retry":{"type":"ntimes","strategy":{"wait":"1ns","n":3},"ignoreOneByOneError":true}}}}`)),
+			}, ExecModeNormal, nil),
 			args: args{
 				ctx: context.TODO(),
 				records: []element.Record{
@@ -303,6 +328,7 @@ func TestBaseBatchWriter_BatchWrite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Logf("%v", tt.b.Task.Config.(*BaseConfig))
 			if err := tt.b.BatchWrite(tt.args.ctx, tt.args.records); (err != nil) != tt.wantErr {
 				t.Errorf("BaseBatchWriter.BatchWrite() error = %v, wantErr %v", err, tt.wantErr)
 			}

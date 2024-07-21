@@ -32,8 +32,9 @@ func newMetricHandler(engine *datax.Engine) *metricHandler {
 
 func (h *metricHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	if h.engine.Metrics().JSON() == nil {
+	j := h.engine.Metrics().JSON()
+	if j == nil {
 		return
 	}
-	w.Write([]byte(h.engine.Metrics().JSON().String()))
+	w.Write([]byte(j.String()))
 }

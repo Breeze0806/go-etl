@@ -101,12 +101,12 @@ func (c *Container) Start() (err error) {
 		log.Errorf("DataX jobContainer %v prepare failed. err: %v", c.jobID, err)
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to split. err: %v", c.jobID)
+	log.Infof("DataX jobContainer %v starts to split.", c.jobID)
 	if err = c.split(); err != nil {
 		log.Errorf("DataX jobContainer %v split failed. err: %v", c.jobID, err)
 		return
 	}
-	log.Infof("DataX jobContainer %v starts to schedule. err: %v", c.jobID)
+	log.Infof("DataX jobContainer %v starts to schedule.", c.jobID)
 	if err = c.schedule(); err != nil {
 		log.Errorf("DataX jobContainer %v schedule failed. err: %v", c.jobID, err)
 		return

@@ -105,12 +105,12 @@ Describes the DB2 table information.
 - Default: None
 
 ###### left
-- Description: Specifies the default maximum value for the split key of the DB2 table.
+- Description: Specifies the default minimum value for the split key of the DB2 table.
 - Required: No
 - Default: None
 
 ###### right
-- Description: Specifies the default minimum value for the split key of the DB2 table.
+- Description: Specifies the default maximum value for the split key of the DB2 table.
 - Required: No
 - Default: None
 
@@ -169,3 +169,8 @@ Currently, only the UTF-8 character set is supported.
 
    - For Linux, set the environment variable `LD_LIBRARY_PATH` to point to the DB2 ODBC library path, e.g., `export LD_LIBRARY_PATH=${DB2HOME}/lib`.
    - For Windows, update the system PATH to include the path to the DB2 ODBC library, e.g., `set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin`.
+
+
+2. What should I do when encountering the error `[CLI Driver] SQL1042C An unexpected system error occurred. SQLSTATE=58004 SQLCODE=-1042`?
+
+   - Add the AUTHENTICATION=SERVER; option to the `url`.

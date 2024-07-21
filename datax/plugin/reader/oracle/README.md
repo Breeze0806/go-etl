@@ -113,13 +113,13 @@ Describes the Oracle table information.
 
 ###### left
 
-* Description: Primarily used to configure the default maximum value for the splitting key of the Oracle table.
+* Description: Primarily used to configure the default minimum value for the splitting key of the Oracle table.
 * Required: No
 * Default: None
 
 ###### right
 
-* Description: Primarily used to configure the default minimum value for the splitting key of the Oracle table.
+* Description: Primarily used to configure the default maximum value for the splitting key of the Oracle table.
 * Required: No
 * Default: None
 
@@ -176,3 +176,30 @@ Example configurations:
 
 * Note that on Linux, you may need to set an environment variable like `export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Additionally, you may need to install `libaio`.
 * On Windows, you may need to set a path variable like `set path=%path%;%GOPATH%\oracle\instantclient_21_1`. Please note that Oracle Instant Client 19 no longer supports Windows 7.
+
+2. How to eliminate `godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
+
+Either speak with your DBA to synchronize the DB's time zone (DBTIMEZONE) with the underlying OS' time zone, or use
+
+```sql
+ALTER SESSION SET TIME_ZONE='Europe/Berlin'
+```
+
+
+or set one chosen timezone in the [./connection.md](connection string):
+
+```ini
+timezone="Europe/Berlin"
+```
+
+
+(it is parsed with time.LoadLocation, so such names can be used, or local, or a numeric +0500 fixed zone).
+
+WARNING: time zone altered with ALTER SESSION may not be read each and every time, so either always ALTER SESSION consistently to the same timezone, or use the
+
+```ini
+perSessionTimezone=1
+```
+
+
+connection parameter, to force checking the time zone for each session (and not cache it per DB).

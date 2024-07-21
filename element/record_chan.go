@@ -19,7 +19,7 @@ import (
 	"sync"
 )
 
-// RecordChan: Record channel. Fixes memory overflow issues.
+// RecordChan Record channel. Fixes memory overflow issues.
 type RecordChan struct {
 	lock   sync.Mutex
 	ch     chan Record
@@ -29,12 +29,12 @@ type RecordChan struct {
 
 const defaultRequestChanBuffer = 1024
 
-// NewRecordChan: Create a new record channel.
+// NewRecordChan Create a new record channel.
 func NewRecordChan(ctx context.Context) *RecordChan {
 	return NewRecordChanBuffer(ctx, 0)
 }
 
-// NewRecordChanBuffer: Create a new record channel with a capacity of n.
+// NewRecordChanBuffer Create a new record channel with a capacity of n.
 func NewRecordChanBuffer(ctx context.Context, n int) *RecordChan {
 	if n <= 0 {
 		n = defaultRequestChanBuffer
@@ -46,7 +46,7 @@ func NewRecordChanBuffer(ctx context.Context, n int) *RecordChan {
 	return ch
 }
 
-// Close: Close the channel.
+// Close Close the channel.
 func (c *RecordChan) Close() {
 	c.lock.Lock()
 	if !c.closed {
@@ -56,12 +56,12 @@ func (c *RecordChan) Close() {
 	c.lock.Unlock()
 }
 
-// Buffered: Number of elements currently buffered in the record channel.
+// Buffered Number of elements currently buffered in the record channel.
 func (c *RecordChan) Buffered() int {
 	return len(c.ch)
 }
 
-// PushBack: Append a record r to the end of the channel and return the current size of the queue.
+// PushBack Append a record r to the end of the channel and return the current size of the queue.
 func (c *RecordChan) PushBack(r Record) int {
 	select {
 	case c.ch <- r:
@@ -70,7 +70,7 @@ func (c *RecordChan) PushBack(r Record) int {
 	return c.Buffered()
 }
 
-// PopFront: Remove and return the record at the front of the channel, and indicate whether there are more values remaining.
+// PopFront Remove and return the record at the front of the channel, and indicate whether there are more values remaining.
 func (c *RecordChan) PopFront() (r Record, ok bool) {
 	select {
 	case r, ok = <-c.ch:
@@ -80,7 +80,7 @@ func (c *RecordChan) PopFront() (r Record, ok bool) {
 	return r, ok
 }
 
-// PushBackAll: Append multiple records obtained through the fetchRecord function to the end of the channel.
+// PushBackAll Append multiple records obtained through the fetchRecord function to the end of the channel.
 func (c *RecordChan) PushBackAll(fetchRecord func() (Record, error)) error {
 	for {
 		r, err := fetchRecord()
@@ -91,7 +91,7 @@ func (c *RecordChan) PushBackAll(fetchRecord func() (Record, error)) error {
 	}
 }
 
-// PopFrontAll: Remove and return all records from the front of the channel using the onRecord function.
+// PopFrontAll Remove and return all records from the front of the channel using the onRecord function.
 func (c *RecordChan) PopFrontAll(onRecord func(Record) error) error {
 	for {
 		r, ok := c.PopFront()
