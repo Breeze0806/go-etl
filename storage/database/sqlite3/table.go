@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package sqlite3
 
 import (
 	"database/sql"
 	"database/sql/driver"
-	"net"
 
 	"github.com/Breeze0806/go-etl/storage/database"
+	sqlite3 "github.com/mattn/go-sqlite3"
 	"github.com/pingcap/errors"
 )
 
@@ -38,18 +38,15 @@ func NewTable(b *database.BaseTable) *Table {
 
 // Quoted refers to the fully qualified name of the table.
 func (t *Table) Quoted() string {
-	//todo it
-	return ""
+	return Quoted(t.Name())
 }
 
 func (t *Table) String() string {
-	//todo it
-	return ""
+	return t.Quoted()
 }
 
 // AddField adds a new column to the table.
 func (t *Table) AddField(baseField *database.BaseField) {
-	//todo it
 	f := NewField(baseField)
 	f.SetConfig(t.Config())
 	t.AppendField(f)
@@ -57,14 +54,13 @@ func (t *Table) AddField(baseField *database.BaseField) {
 
 // ExecParam retrieves execution parameters, where the copy in parameter mode has been registered.
 func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Parameter, bool) {
-	//todo it
 	return nil, false
 }
 
 // ShouldRetry determines whether a retry is necessary.
 func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
-	case net.Error:
+	case sqlite3.Error:
 		return true
 	default:
 		return cause == driver.ErrBadConn
@@ -73,6 +69,5 @@ func (t *Table) ShouldRetry(err error) bool {
 
 // ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
-	//todo it
-	return false
+	return true
 }

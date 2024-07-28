@@ -11,6 +11,7 @@ require (
 	github.com/gorilla/handlers v1.5.2
 	github.com/ibmdb/go_ibm_db v0.4.5
 	github.com/lib/pq v1.10.9
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/microsoft/go-mssqldb v1.7.2
 	github.com/pingcap/errors v0.11.4
 	github.com/shopspring/decimal v1.4.0

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package sqlite3
 
 import (
 	"github.com/Breeze0806/go-etl/storage/database"
@@ -61,8 +61,7 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 
 // DriverName is the driver name
 func (s *Source) DriverName() string {
-	//todo DriverName
-	return "pgTimeout"
+	return "sqlite3"
 }
 
 // ConnectName is the connection information for the PostgreSQL data source
@@ -82,6 +81,5 @@ func (s *Source) Table(b *database.BaseTable) database.Table {
 
 // Quoted is the quoting function for PostgreSQL
 func Quoted(s string) string {
-	//todo Quoted
-	return ""
+	return `"` + s + `"`
 }

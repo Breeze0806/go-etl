@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package sqlite3
 
 import (
+	"fmt"
+
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
@@ -44,8 +46,7 @@ func (f *Field) Quoted() string {
 
 // BindVar - SQL placeholder used in SQL statements.
 func (f *Field) BindVar(i int) string {
-	//todo it
-	return ""
+	return "?"
 }
 
 // Select - Represents a field for querying purposes in SQL query statements.
@@ -86,7 +87,8 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 
 // IsSupported - Indicates whether parsing is supported for a specific type.
 func (f *FieldType) IsSupported() bool {
-	return f.GoType() != database.GoTypeUnknown
+	return true
+	//return f.GoType() != database.GoTypeUnknown
 }
 
 // GoType - Returns the Golang type used when processing numerical values.
@@ -110,9 +112,51 @@ func NewScanner(f *Field) *Scanner {
 
 // Scan - Reads data from a column based on its type.
 func (s *Scanner) Scan(src interface{}) (err error) {
+	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
-	//todo it
+	switch s.f.Type().DatabaseTypeName() {
+	case "INTEGER":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilBigIntColumnValue()
+		case int64:
+			cv = element.NewBigIntColumnValueFromInt64(data)
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
+		}
+	case "BLOB":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilBytesColumnValue()
+		case []byte:
+			cv = element.NewBytesColumnValue(data)
+		default:
+			return fmt.Errorf("src is %v(%T),but not %v", src, src, element.TypeBytes)
+		}
+	case "NUMERIC", "REAL":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilTimeColumnValue()
+		case int64:
+			cv = element.NewBigIntColumnValueFromInt64(data)
+		case float64:
+			cv = element.NewDecimalColumnValueFromFloat(data)
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
+		}
+	case "TEXT":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilStringColumnValue()
+		case string:
+			cv = element.NewStringColumnValue(data)
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeString)
+		}
+	default:
+		return fmt.Errorf("src is %v(%T), but db type is %v", src, src, s.f.Type().DatabaseTypeName())
+	}
 	s.SetColumn(element.NewDefaultColumn(cv, s.f.Name(), byteSize))
 	return
 }
