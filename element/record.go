@@ -103,7 +103,7 @@ func NewDefaultRecord() *DefaultRecord {
 	}
 }
 
-// AddColumn adds a new column c. If column c already exists, an error is reported.
+// Add adds a new column c. If column c already exists, an error is reported.
 func (r *DefaultRecord) Add(c Column) error {
 	if _, ok := r.columns[c.Name()]; ok {
 		return ErrColumnExist
@@ -133,7 +133,7 @@ func (r *DefaultRecord) GetByName(name string) (Column, error) {
 	return nil, ErrColumnNotExist
 }
 
-// SetColumnByIndex sets the value of the column at index i. If the index is out of range, an error is reported.
+// Set sets the value of the column at index i. If the index is out of range, an error is reported.
 func (r *DefaultRecord) Set(i int, c Column) error {
 	if i >= len(r.names) || i < 0 {
 		return ErrIndexOutOfRange
@@ -148,7 +148,7 @@ func (r *DefaultRecord) Set(i int, c Column) error {
 	return nil
 }
 
-// PutColumn sets the value of the column with the specified name. If the column name doesn't exist, an error is reported.
+// Put sets the value of the column with the specified name. If the column name doesn't exist, an error is reported.
 func (r *DefaultRecord) Put(c Column) error {
 	r.columns[c.Name()] = c
 	r.incSize(c)

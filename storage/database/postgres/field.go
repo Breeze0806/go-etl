@@ -131,6 +131,7 @@ func NewScanner(f *Field) *Scanner {
 
 // Scan - Reads data from a column based on its type.
 func (s *Scanner) Scan(src interface{}) (err error) {
+	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
 	switch s.f.Type().DatabaseTypeName() {

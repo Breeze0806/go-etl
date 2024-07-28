@@ -1097,185 +1097,6 @@ func TestBigIntStr_AsDecimal(t *testing.T) {
 	}
 }
 
-func TestFloat64_Bool(t *testing.T) {
-	tests := []struct {
-		name    string
-		f       *Float64
-		want    bool
-		wantErr bool
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 0.0,
-			},
-			want: false,
-		},
-		{
-			name: "2",
-			f: &Float64{
-				value: 1e-9,
-			},
-			want: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.f.Bool()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Float64.Bool() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("Float64.Bool() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64_Float64(t *testing.T) {
-	tests := []struct {
-		name    string
-		f       *Float64
-		want    float64
-		wantErr bool
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 0.0,
-			},
-			want: 0.0,
-		},
-		{
-			name: "2",
-			f: &Float64{
-				value: 1e-9,
-			},
-			want: 1e-9,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.f.Float64()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Float64.Float64() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("Float64.Float64() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64_BigInt(t *testing.T) {
-	tests := []struct {
-		name string
-		f    *Float64
-		want BigIntNumber
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 123456.0789,
-			},
-			want: &Int64{
-				value: 123456,
-			},
-		},
-		{
-			name: "2",
-			f: &Float64{
-				value: 1.023456789e30,
-			},
-			want: &BigIntStr{
-				value: strconv.FormatFloat(1.023456789e30, 'f', -1, 64),
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.BigInt(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Float64.BigInt() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64_Decimal(t *testing.T) {
-	tests := []struct {
-		name string
-		f    *Float64
-		want DecimalNumber
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 123456.0789,
-			},
-			want: &Float64{
-				value: 123456.0789,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.Decimal(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Float64.Decimal() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64_CloneDecimal(t *testing.T) {
-	tests := []struct {
-		name string
-		f    *Float64
-		want DecimalNumber
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 123456.0789,
-			},
-			want: &Float64{
-				value: 123456.0789,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.CloneDecimal(); !reflect.DeepEqual(got, tt.want) || got == tt.f {
-				t.Errorf("Float64.CloneDecimal() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64_AsDecimal(t *testing.T) {
-	tests := []struct {
-		name string
-		f    *Float64
-		want decimal.Decimal
-	}{
-		{
-			name: "1",
-			f: &Float64{
-				value: 123456.0789,
-			},
-			want: decimal.NewFromFloat(123456.0789),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.AsDecimal(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Float64.AsDecimal() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestDecimalStr_Bool(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -1943,8 +1764,8 @@ func TestConverter_ConvertDecimalFromFloat(t *testing.T) {
 			args: args{
 				f: math.MaxFloat64,
 			},
-			wantNum: &Float64{
-				value: math.MaxFloat64,
+			wantNum: &Decimal{
+				value: decimal.NewFromFloat(math.MaxFloat64),
 			},
 		},
 	}
@@ -1952,6 +1773,408 @@ func TestConverter_ConvertDecimalFromFloat(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if gotNum := testNumConverter.ConvertDecimalFromFloat(tt.args.f); !reflect.DeepEqual(gotNum, tt.wantNum) {
 				t.Errorf("Converter.ConvertDecimalFromFloat() = %v, want %v", gotNum, tt.wantNum)
+			}
+		})
+	}
+}
+
+func TestUint64_Bool(t *testing.T) {
+	tests := []struct {
+		name    string
+		i       *Uint64
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			i:       &Uint64{value: 0},
+			want:    false,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			i:       &Uint64{value: math.MaxUint64},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "3",
+			i:       &Uint64{value: 123456789},
+			want:    true,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.i.Bool()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Uint64.Bool() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Uint64.Bool() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_Int64(t *testing.T) {
+	tests := []struct {
+		name    string
+		i       *Uint64
+		want    int64
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			i:       &Uint64{value: 0},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			i:       &Uint64{value: uint64(math.MaxInt64)},
+			want:    math.MaxInt64,
+			wantErr: false,
+		},
+		{
+			name:    "3",
+			i:       &Uint64{value: uint64(math.MaxInt64 + 1)},
+			want:    0,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.i.Int64()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Uint64.Int64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Uint64.Int64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_Float64(t *testing.T) {
+	tests := []struct {
+		name    string
+		i       *Uint64
+		want    float64
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			i:       &Uint64{value: 0},
+			want:    0.0,
+			wantErr: false,
+		},
+		{
+			name:    "2",
+			i:       &Uint64{value: math.MaxInt64},
+			want:    9.223372036854776e+18,
+			wantErr: false,
+		},
+		{
+			name:    "3",
+			i:       &Uint64{value: math.MaxUint64},
+			want:    1.8446744073709552e+19,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.i.Float64()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Uint64.Float64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Uint64.Float64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_BigInt(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want BigIntNumber
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: math.MaxUint64},
+			want: &Uint64{value: math.MaxUint64},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.BigInt(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Uint64.BigInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_Decimal(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want DecimalNumber
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: math.MaxUint64},
+			want: &Uint64{value: math.MaxUint64},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.Decimal(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Uint64.Decimal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_String(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want string
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: 1234567890},
+			want: "1234567890",
+		},
+		{
+			name: "2",
+			i:    &Uint64{value: math.MaxUint64},
+			want: "18446744073709551615",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.String(); got != tt.want {
+				t.Errorf("Uint64.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_CloneBigInt(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want BigIntNumber
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: math.MaxUint64},
+			want: &Uint64{value: math.MaxUint64},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.CloneBigInt(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Uint64.CloneBigInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_CloneDecimal(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want DecimalNumber
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: math.MaxUint64},
+			want: &Uint64{value: math.MaxUint64},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.CloneDecimal(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Uint64.CloneDecimal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUint64_AsBigInt(t *testing.T) {
+	tests := []struct {
+		name   string
+		i      *Uint64
+		wantBi *big.Int
+	}{
+		{
+			name:   "1",
+			i:      &Uint64{value: math.MaxInt64 + 1},
+			wantBi: new(big.Int).SetUint64(math.MaxInt64 + 1),
+		},
+		{
+			name:   "2",
+			i:      &Uint64{value: math.MaxUint64},
+			wantBi: new(big.Int).SetUint64(math.MaxUint64),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotBi := tt.i.AsBigInt(); !reflect.DeepEqual(gotBi, tt.wantBi) {
+				t.Errorf("Uint64.AsBigInt() = %v, want %v", gotBi, tt.wantBi)
+			}
+		})
+	}
+}
+
+func TestUint64_AsDecimal(t *testing.T) {
+	tests := []struct {
+		name string
+		i    *Uint64
+		want decimal.Decimal
+	}{
+		{
+			name: "1",
+			i:    &Uint64{value: math.MaxInt64 + 1},
+			want: decimal.NewFromUint64(math.MaxInt64 + 1),
+		},
+		{
+			name: "2",
+			i:    &Uint64{value: math.MaxUint64},
+			want: decimal.NewFromUint64(math.MaxUint64),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.i.AsDecimal(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Uint64.AsDecimal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOldConverter_ConvertBigIntFromUint(t *testing.T) {
+	type args struct {
+		i uint64
+	}
+	tests := []struct {
+		name    string
+		c       *OldConverter
+		args    args
+		wantNum BigIntNumber
+	}{
+		{
+			name: "1",
+			c:    &OldConverter{},
+			args: args{
+				i: math.MaxUint64,
+			},
+			wantNum: &BigInt{
+				value: new(big.Int).SetUint64(math.MaxUint64),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotNum := tt.c.ConvertBigIntFromUint(tt.args.i); !reflect.DeepEqual(gotNum, tt.wantNum) {
+				t.Errorf("OldConverter.ConvertBigIntFromUint() = %v, want %v", gotNum, tt.wantNum)
+			}
+		})
+	}
+}
+
+func TestOldConverter_ConvertDecimalFromFloat32(t *testing.T) {
+	type args struct {
+		f float32
+	}
+	tests := []struct {
+		name    string
+		c       *OldConverter
+		args    args
+		wantNum DecimalNumber
+	}{
+		{
+			name: "1",
+			c:    &OldConverter{},
+			args: args{
+				f: math.MaxFloat32,
+			},
+			wantNum: &Decimal{
+				value: decimal.NewFromFloat32(math.MaxFloat32),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotNum := tt.c.ConvertDecimalFromFloat32(tt.args.f); !reflect.DeepEqual(gotNum, tt.wantNum) {
+				t.Errorf("OldConverter.ConvertDecimalFromFloat32() = %v, want %v", gotNum, tt.wantNum)
+			}
+		})
+	}
+}
+
+func TestConverter_ConvertBigIntFromUint(t *testing.T) {
+	type args struct {
+		i uint64
+	}
+	tests := []struct {
+		name    string
+		c       *Converter
+		args    args
+		wantNum BigIntNumber
+	}{
+		{
+			name: "1",
+			c:    &Converter{},
+			args: args{
+				i: math.MaxUint64,
+			},
+			wantNum: &Uint64{
+				value: math.MaxUint64,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotNum := tt.c.ConvertBigIntFromUint(tt.args.i); !reflect.DeepEqual(gotNum, tt.wantNum) {
+				t.Errorf("Converter.ConvertBigIntFromUint() = %v, want %v", gotNum, tt.wantNum)
+			}
+		})
+	}
+}
+
+func TestConverter_ConvertDecimalFromFloat32(t *testing.T) {
+	type args struct {
+		f float32
+	}
+	tests := []struct {
+		name    string
+		c       *Converter
+		args    args
+		wantNum DecimalNumber
+	}{
+		{
+			name: "1",
+			c:    &Converter{},
+			args: args{
+				f: math.MaxFloat32,
+			},
+			wantNum: &Decimal{
+				value: decimal.NewFromFloat32(math.MaxFloat32),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotNum := tt.c.ConvertDecimalFromFloat32(tt.args.f); !reflect.DeepEqual(gotNum, tt.wantNum) {
+				t.Errorf("Converter.ConvertDecimalFromFloat32() = %v, want %v", gotNum, tt.wantNum)
 			}
 		})
 	}

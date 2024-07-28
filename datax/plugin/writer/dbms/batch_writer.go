@@ -65,7 +65,7 @@ func NewBaseBatchWriter(task *Task, execMode string, opts *sql.TxOptions) *BaseB
 	if j, ok := task.Table.(database.Judger); ok {
 		strategy, err := task.Config.GetRetryStrategy(j)
 		if err != nil {
-			log.Printf("[WARNING] jobID: %v taskgroupID:%v taskID: %v GetRetryStrategy fail error: %v",
+			log.Warnf("jobID: %v taskgroupID:%v taskID: %v GetRetryStrategy fail error: %v",
 				task.JobID(), task.TaskGroupID(), task.TaskID(), err)
 		}
 		w.strategy = strategy
@@ -125,6 +125,9 @@ func (b *BaseBatchWriter) BatchWrite(ctx context.Context, records []element.Reco
 				err = retry.Do()
 				if b.Task.Config.IgnoreOneByOneError() {
 					err = nil
+				}
+				if err != nil {
+					return
 				}
 			}
 		}
@@ -214,7 +217,7 @@ func StartWrite(ctx context.Context, w BatchWriter,
 	ticker := time.NewTicker(w.BatchTimeout())
 	defer ticker.Stop()
 	var records []element.Record
-	log.Debugf("jobID: %v taskgroupID:%v taskID: %v  start to BatchWrite",
+	log.Debugf("jobID: %v taskgroupID:%v taskID: %v start to BatchWrite",
 		w.JobID(), w.TaskGroupID(), w.TaskID())
 	for {
 		select {

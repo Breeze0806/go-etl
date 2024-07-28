@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 
 	"github.com/Breeze0806/go-etl/config"
-	"github.com/denisenkom/go-mssqldb/msdsn"
+	"github.com/microsoft/go-mssqldb/msdsn"
 )
 
 // Config is the MSSQL configuration
@@ -39,7 +39,7 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 }
 
 func (c *Config) fetchMssqlConfig() (conf msdsn.Config, err error) {
-	conf, _, err = msdsn.Parse(c.URL)
+	conf, err = msdsn.Parse(c.URL)
 	if err != nil {
 		return
 	}

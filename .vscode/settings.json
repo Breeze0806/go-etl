@@ -6,7 +6,7 @@
     "[go]": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true,
+            "source.organizeImports": "explicit"
         },
         // Optional: Disable snippets, as they conflict with completion ranking.
         "editor.snippetSuggestions": "none",
@@ -14,7 +14,7 @@
     "[go.mod]": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true,
+            "source.organizeImports": "explicit"
         },
     },
     "gopls": {

@@ -32,13 +32,13 @@ var (
 	ErrColumnNameNotEqual       = errors.New("column name is not equal")      // Column names differ
 )
 
-// TransformError: Conversion error
+// TransformError Conversion error
 type TransformError struct {
 	err error
 	msg string
 }
 
-// NewTransformError: Creates a conversion error based on the message msg and error err
+// NewTransformError Creates a conversion error based on the message msg and error err
 func NewTransformError(msg string, err error) *TransformError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr
@@ -49,12 +49,12 @@ func NewTransformError(msg string, err error) *TransformError {
 	}
 }
 
-// NewTransformErrorFromColumnTypes: Generates a conversion error from the error err when converting from type one to type other
+// NewTransformErrorFormColumnTypes Generates a conversion error from the error err when converting from type one to type other
 func NewTransformErrorFormColumnTypes(one, other ColumnType, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
 
-// NewTransformErrorFromString: Generates a conversion error from the error err when converting from one to other
+// NewTransformErrorFormString Generates a conversion error from the error err when converting from one to other
 func NewTransformErrorFormString(one, other string, err error) *TransformError {
 	return NewTransformError(fmt.Sprintf("%s transform to %s", one, other), err)
 }
@@ -70,13 +70,13 @@ func (e *TransformError) Unwrap() error {
 	return e.err
 }
 
-// SetError: Sets an error
+// SetError Sets an error
 type SetError struct {
 	err error
 	msg string
 }
 
-// NewSetError: Generates a setting error by setting the value i to the specified other type with the error err
+// NewSetError Generates a setting error by setting the value i to the specified other type with the error err
 func NewSetError(i interface{}, other ColumnType, err error) *SetError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr

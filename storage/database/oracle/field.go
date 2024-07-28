@@ -24,7 +24,6 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/godror/godror"
-	"github.com/shopspring/decimal"
 )
 
 var (
@@ -134,6 +133,7 @@ func NewScanner(f *Field) *Scanner {
 // CLOB, NCLOB, VARCHAR2, NVARCHAR2, CHAR, NCHAR are treated as string types
 // BLOB, RAW, LONG RAW, LONG are treated as byte types
 func (s *Scanner) Scan(src interface{}) (err error) {
+	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
 
@@ -208,7 +208,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilDecimalColumnValue()
 		case float32:
-			cv = element.NewDecimalColumnValue(decimal.NewFromFloat32(data))
+			cv = element.NewDecimalColumnValueFromFloat32(data)
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		case int64:
@@ -254,6 +254,7 @@ func NewValuer(f *Field, c element.Column) *Valuer {
 
 // Value Assignment
 func (v *Valuer) Value() (value driver.Value, err error) {
+	defer v.f.SetError(&err)
 	switch v.f.Type().DatabaseTypeName() {
 	case "BOOLEAN":
 		// In Oracle, inserting an empty string is actually treated as nil, corresponding to NULL

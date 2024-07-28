@@ -20,7 +20,6 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/storage/database"
-	_ "github.com/denisenkom/go-mssqldb"
 )
 
 func testJSONFromString(s string) *config.JSON {
@@ -58,7 +57,7 @@ func TestDialect_Source(t *testing.T) {
 					"username":"user",
 					"password":"passwd"
 				}`)),
-				dsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?disableRetry=true",
+				dsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?dial+timeout=15&disableretry=true",
 			},
 		},
 	}
@@ -122,7 +121,7 @@ func TestNewSource(t *testing.T) {
 					"username":"user",
 					"password":"passwd"
 				}`)),
-				dsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?disableRetry=true",
+				dsn: "sqlserver://user:passwd@127.0.0.1:1234/instance?dial+timeout=15&disableretry=true",
 			},
 		},
 		{

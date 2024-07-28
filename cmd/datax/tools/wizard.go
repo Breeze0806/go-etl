@@ -18,7 +18,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -56,7 +56,9 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 	}
 
 	dataSourceExt := filepath.Ext(dataSourceAbsFile)
-	os.MkdirAll(filepath.Join(filepath.Dir(dataSourceAbsFile), "config"), 0755)
+	if err = os.MkdirAll(filepath.Join(filepath.Dir(dataSourceAbsFile), "config"), 0o755); err != nil {
+		return err
+	}
 	dataSourcePrefix := filepath.Join(filepath.Dir(dataSourceAbsFile), "config",
 		filepath.Base(dataSourceAbsFile)[:len(filepath.Base(dataSourceAbsFile))-len(dataSourceExt)])
 
@@ -140,14 +142,14 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 		}
 
 		filename := dataSourcePrefix + "_" + strconv.Itoa(line) + dataSourceExt
-		err = ioutil.WriteFile(filename, []byte(cloneDataSource.String()), 0644)
+		err = os.WriteFile(filename, []byte(cloneDataSource.String()), fs.FileMode(0o644))
 		if err != nil {
 			return err
 		}
 		scripts = append(scripts, generateScript(filename))
 	}
 
-	err = ioutil.WriteFile("run"+ext(), []byte(strings.Join(scripts, "\n")), 0644)
+	err = os.WriteFile("run"+ext(), []byte(strings.Join(scripts, "\n")), fs.FileMode(0o644))
 	if err != nil {
 		return err
 	}

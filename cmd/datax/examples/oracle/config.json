@@ -14,7 +14,7 @@
                     "name": "oraclereader",
                     "parameter": {
                         "connection":  {
-                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
                             "table": {
                                 "schema":"TEST",
                                 "name":"SRC"
@@ -30,7 +30,7 @@
                     "name": "oraclewriter",
                     "parameter": {
                         "connection":  {
-                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
                             "table": {
                                 "schema":"TEST",
                                 "name":"DEST"

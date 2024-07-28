@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package sqlite3
 
 import (
 	"encoding/json"
@@ -39,6 +39,5 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 
 // FormatDSN generates data source connection information and will report an error if the URL is incorrect
 func (c *Config) FormatDSN() (dsn string, err error) {
-	//todo 
-	return 
+	return c.URL, nil
 }

@@ -17,6 +17,7 @@ package database
 import (
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"math"
 	"reflect"
 	"testing"
@@ -302,6 +303,47 @@ func TestBaseFieldType_IsSupportted(t *testing.T) {
 			}
 			if got := b.IsSupported(); got != tt.want {
 				t.Errorf("BaseFieldType.IsSupportted() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseField_SetError(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name    string
+		b       *BaseField
+		args    args
+		wantErr string
+	}{
+		{
+			name: "1",
+			b:    NewBaseField(1, "f1", NewBaseFieldType(&sql.ColumnType{})),
+			args: args{
+				err: errors.New("mock error"),
+			},
+			wantErr: "field: f1, mock error",
+		},
+		{
+			name: "2",
+			b:    NewBaseField(1, "f1", NewBaseFieldType(&sql.ColumnType{})),
+			args: args{
+				err: nil,
+			},
+			wantErr: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.b.SetError(&tt.args.err)
+			err := tt.args.err
+			if tt.args.err == nil {
+				err = errors.New("")
+			}
+			if err.Error() != tt.wantErr {
+				t.Errorf("BaseField.Error() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

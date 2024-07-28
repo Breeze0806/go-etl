@@ -734,3 +734,31 @@ func TestDecimalColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestNewDecimalColumnValueFromFloat32(t *testing.T) {
+	type args struct {
+		f float32
+	}
+	tests := []struct {
+		name string
+		args args
+		want ColumnValue
+	}{
+		{
+			name: "1",
+			args: args{
+				f: math.MaxFloat32,
+			},
+			want: &DecimalColumnValue{
+				val: _DefaultNumberConverter.ConvertDecimalFromFloat32(math.MaxFloat32),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewDecimalColumnValueFromFloat32(tt.args.f); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewDecimalColumnValueFromFloat32() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

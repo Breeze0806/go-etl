@@ -742,3 +742,31 @@ func TestBigIntColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestNewBigIntColumnValueFromUint64(t *testing.T) {
+	type args struct {
+		v uint64
+	}
+	tests := []struct {
+		name string
+		args args
+		want ColumnValue
+	}{
+		{
+			name: "Zero",
+			args: args{
+				v: 0,
+			},
+			want: &BigIntColumnValue{
+				val: &Uint64{value: 0},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewBigIntColumnValueFromUint64(tt.args.v); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewBigIntColumnValueFromUint64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

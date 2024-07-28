@@ -161,3 +161,30 @@ Here's an example:
 * On Linux, set the environment variable like this: `export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Also, note that you need to install `libaio`.
 * On Windows, update the system path like this: `set path=%path%;%GOPATH%\oracle\instantclient_21_1`.
 Note: Oracle Instant Client 19 is no longer supported on Windows 7.
+
+2. How to eliminate `godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
+
+Either speak with your DBA to synchronize the DB's time zone (DBTIMEZONE) with the underlying OS' time zone, or use
+
+```sql
+ALTER SESSION SET TIME_ZONE='Europe/Berlin'
+```
+
+
+or set one chosen timezone in the [./connection.md](connection string):
+
+```ini
+timezone="Europe/Berlin"
+```
+
+
+(it is parsed with time.LoadLocation, so such names can be used, or local, or a numeric +0500 fixed zone).
+
+WARNING: time zone altered with ALTER SESSION may not be read each and every time, so either always ALTER SESSION consistently to the same timezone, or use the
+
+```ini
+perSessionTimezone=1
+```
+
+
+connection parameter, to force checking the time zone for each session (and not cache it per DB).

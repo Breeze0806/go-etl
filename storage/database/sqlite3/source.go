@@ -61,11 +61,10 @@ func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 
 // DriverName is the driver name
 func (s *Source) DriverName() string {
-	//todo DriverName
-	return "pgTimeout"
+	return "sqlite3"
 }
 
-// ConnectName is the connection information for the PostgreSQL data source
+// ConnectName is the connection information for the Sqlite3 data source
 func (s *Source) ConnectName() string {
 	return s.dsn
 }
@@ -75,13 +74,12 @@ func (s *Source) Key() string {
 	return s.dsn
 }
 
-// Table generates a table for MySQL (Note: This line seems inconsistent with the context, as it mentions MySQL while the surrounding text is about PostgreSQL. It might be a mistake or needs clarification.)
+// Table generates a table for Sqlite3 (Note: This line seems inconsistent with the context, as it mentions MySQL while the surrounding text is about PostgreSQL. It might be a mistake or needs clarification.)
 func (s *Source) Table(b *database.BaseTable) database.Table {
 	return NewTable(b)
 }
 
 // Quoted is the quoting function for PostgreSQL
 func Quoted(s string) string {
-	//todo Quoted
-	return ""
+	return "`" + s + "`"
 }
