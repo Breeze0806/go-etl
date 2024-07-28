@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package postgres
+package sqlite3
 
 import (
 	"github.com/Breeze0806/go-etl/storage/database"
