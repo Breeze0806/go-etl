@@ -16,18 +16,17 @@ package sqlite3
 
 import (
 	"encoding/json"
-
 	"github.com/Breeze0806/go-etl/config"
+	"github.com/pingcap/errors"
+	"os"
 )
 
-// Config is the PostgreSQL configuration
+// Config is the Sqlite3 configuration
 type Config struct {
-	URL      string `json:"url"`      // Database URL, including the database address and other database parameters
-	Username string `json:"username"` // Username
-	Password string `json:"password"` // Password
+	URL string `json:"url"` // Database URL, including the database address and other database parameters
 }
 
-// NewConfig creates a PostgreSQL configuration and will report an error if the format does not meet the requirements
+// NewConfig creates a Sqlite3 configuration and will report an error if the format does not meet the requirements
 func NewConfig(conf *config.JSON) (c *Config, err error) {
 	c = &Config{}
 	err = json.Unmarshal([]byte(conf.String()), c)
@@ -39,5 +38,18 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 
 // FormatDSN generates data source connection information and will report an error if the URL is incorrect
 func (c *Config) FormatDSN() (dsn string, err error) {
+	if c.isValidPath(c.URL) {
+		err = errors.New("configure a url that is not a valid file path")
+		return
+	}
 	return c.URL, nil
+}
+
+// IsValidPath to check whether a given path points to an existing file or directory.
+func (c *Config) isValidPath(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil || info.IsDir() {
+		return false
+	}
+	return true
 }

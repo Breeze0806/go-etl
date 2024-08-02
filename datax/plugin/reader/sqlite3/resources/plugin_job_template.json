@@ -1,6 +1,14 @@
 {
 	"name": "sqlite3reader",
 	"parameter": {
-
+		"column": ["*"],
+		"connection":  {
+			"url": "E:\\Sqlite3\\test.db",
+			"table": {
+				"db":"main",
+				"name":"type_table"
+			}
+		},
+		"where": ""
 	}
 }
