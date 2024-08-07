@@ -17,8 +17,6 @@ package sqlite3
 import (
 	"encoding/json"
 	"github.com/Breeze0806/go-etl/config"
-	"github.com/pingcap/errors"
-	"os"
 )
 
 // Config is the Sqlite3 configuration
@@ -38,18 +36,5 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 
 // FormatDSN generates data source connection information and will report an error if the URL is incorrect
 func (c *Config) FormatDSN() (dsn string, err error) {
-	if c.isValidPath(c.URL) {
-		err = errors.New("configure a url that is not a valid file path")
-		return
-	}
 	return c.URL, nil
-}
-
-// IsValidPath to check whether a given path points to an existing file or directory.
-func (c *Config) isValidPath(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil || info.IsDir() {
-		return false
-	}
-	return true
 }
