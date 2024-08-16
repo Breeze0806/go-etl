@@ -17,9 +17,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/pprof"
+	"os"
 	"time"
 
 	"github.com/Breeze0806/go-etl/config"
@@ -40,7 +40,7 @@ type enveronment struct {
 func newEnveronment(filename string, addr string) (e *enveronment) {
 	e = &enveronment{}
 	var buf []byte
-	buf, e.err = ioutil.ReadFile(filename)
+	buf, e.err = os.ReadFile(filename)
 	if e.err != nil {
 		return e
 	}
@@ -101,7 +101,7 @@ func (e *enveronment) startEngine() *enveronment {
 		return e
 	}
 	go func() {
-		statsTimer := time.NewTicker(5 * time.Second)
+		statsTimer := time.NewTicker(1 * time.Second)
 		defer statsTimer.Stop()
 		exit := false
 		for {
@@ -109,7 +109,6 @@ func (e *enveronment) startEngine() *enveronment {
 			case <-statsTimer.C:
 			case <-e.ctx.Done():
 				exit = true
-			default:
 			}
 			if e.engine.Container != nil {
 				fmt.Printf("%v\r", e.engine.Metrics().JSON())
