@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -179,15 +179,15 @@ type pluginParser struct {
 }
 
 func (p *pluginParser) readPackages(path string, ignoreMap map[string]struct{}) (err error) {
-	var list []os.FileInfo
-	list, err = ioutil.ReadDir(path)
+	var list []fs.DirEntry
+	list, err = os.ReadDir(path)
 	if err != nil {
 		return err
 	}
 	var data []byte
 	for _, v := range list {
 		if v.IsDir() {
-			data, err = ioutil.ReadFile(filepath.Join(path, v.Name(), "resources", "plugin.json"))
+			data, err = os.ReadFile(filepath.Join(path, v.Name(), "resources", "plugin.json"))
 			if err != nil {
 				err = nil
 				continue
