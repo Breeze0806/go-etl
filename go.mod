@@ -13,7 +13,7 @@ require (
 	github.com/microsoft/go-mssqldb v1.7.2
 	github.com/pingcap/errors v0.11.4
 	github.com/shopspring/decimal v1.4.0
-	github.com/vjeantet/jodaTime v1.0.1-0.20230228221333-1919616ca196
+	github.com/vjeantet/jodaTime v1.0.1-0.20230228221016-e7adbb78e1de
 	github.com/xuri/excelize/v2 v2.8.1
 	go.uber.org/atomic v1.11.0
 	golang.org/x/text v0.15.0
