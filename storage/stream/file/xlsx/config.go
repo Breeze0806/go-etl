@@ -20,7 +20,7 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
-	"github.com/Breeze0806/jodaTime"
+	"github.com/vjeantet/jodaTime"
 	"github.com/xuri/excelize/v2"
 )
 
