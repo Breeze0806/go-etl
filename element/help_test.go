@@ -26,7 +26,7 @@ type mockTimeDecoder struct {
 	StringTimeDecoder
 }
 
-func (m *mockTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
+func (m *mockTimeDecoder) TimeDecode(t time.Time) (any, error) {
 	return time.Time{}, fmt.Errorf("mockTimeDecoder error")
 }
 

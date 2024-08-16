@@ -24,7 +24,7 @@ import (
 
 func TestScanner_Scan_Chinese(t *testing.T) {
 	type args struct {
-		src interface{}
+		src any
 	}
 	tests := []struct {
 		name    string

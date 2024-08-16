@@ -19,6 +19,6 @@ release/*
 *.tar.gz
 *.chn
 *.en
-
+testdata
 *.swp
 tags

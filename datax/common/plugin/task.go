@@ -42,7 +42,7 @@ type Task interface {
 	// Set Task ID
 	SetTaskID(taskID int64)
 	// Wrap Error
-	Wrapf(err error, format string, args ...interface{}) error
+	Wrapf(err error, format string, args ...any) error
 	// Format - Log format
 	Format(format string) string
 }
@@ -105,7 +105,7 @@ func (b *BaseTask) SetJobID(jobID int64) {
 }
 
 // Wrapf - Wraps an error with additional context
-func (b *BaseTask) Wrapf(err error, format string, args ...interface{}) error {
+func (b *BaseTask) Wrapf(err error, format string, args ...any) error {
 	return errors.Wrapf(err, b.Format(format), args...)
 }
 

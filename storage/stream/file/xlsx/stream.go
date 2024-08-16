@@ -224,7 +224,7 @@ func (w *Writer) Write(record element.Record) (err error) {
 				w.conf.Header = append(w.conf.Header, col.Name())
 			}
 		}
-		var records []interface{}
+		var records []any
 		for _, v := range w.conf.Header {
 			records = append(records, v)
 		}
@@ -235,7 +235,7 @@ func (w *Writer) Write(record element.Record) (err error) {
 		w.row++
 	}
 
-	var records []interface{}
+	var records []any
 	for i := 0; i < record.ColumnNumber(); i++ {
 		var col element.Column
 		if col, err = record.GetByIndex(i); err != nil {

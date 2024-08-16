@@ -43,7 +43,7 @@ func (m *Metrics) JSON() *encoding.JSON {
 }
 
 // Set - Sets the value at the specified path
-func (m *Metrics) Set(path string, value interface{}) error {
+func (m *Metrics) Set(path string, value any) error {
 	m.Lock()
 	defer m.Unlock()
 	return m.metricJSON.Set(path, value)

@@ -274,7 +274,7 @@ func TestInsertParam_Agrs(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		wantValuers []interface{}
+		wantValuers []any
 		wantErr     bool
 	}{
 		{
@@ -309,7 +309,7 @@ func TestInsertParam_Agrs(t *testing.T) {
 				},
 				t: NewTable(database.NewBaseTable("db", "schema", "table")),
 			},
-			wantValuers: []interface{}{
+			wantValuers: []any{
 				[]string{"1", "5", "9"},
 				[][]byte{nil, []byte("4"), []byte("7")},
 				[]string{"3", "6", "8"},

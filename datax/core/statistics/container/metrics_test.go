@@ -73,7 +73,7 @@ func TestNewMetrics(t *testing.T) {
 func TestMetrics_Set(t *testing.T) {
 	type args struct {
 		path  string
-		value interface{}
+		value any
 	}
 	tests := []struct {
 		name    string

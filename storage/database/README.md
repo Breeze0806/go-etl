@@ -103,7 +103,7 @@ type Parameter interface {
  Table() Table                                 // Table or view
  TxOptions() *sql.TxOptions                    // Transaction mode
  Query([]element.Record) (string, error)       // SQL prepare statement
- Agrs([]element.Record) ([]interface{}, error) // Prepare parameters
+ Agrs([]element.Record) ([]any, error) // Prepare parameters
 }
 ```
 

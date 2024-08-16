@@ -366,7 +366,7 @@ func Test_getQueryAndAgrs(t *testing.T) {
 		name      string
 		args      args
 		wantQuery string
-		wantAgrs  []interface{}
+		wantAgrs  []any
 		wantErr   bool
 	}{
 		{

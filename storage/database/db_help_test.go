@@ -73,7 +73,7 @@ func (m *mockParameter) Query([]element.Record) (string, error) {
 	return "mock", nil
 }
 
-func (m *mockParameter) Agrs([]element.Record) ([]interface{}, error) {
+func (m *mockParameter) Agrs([]element.Record) ([]any, error) {
 	return nil, m.agrsErr
 }
 
