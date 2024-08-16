@@ -28,7 +28,7 @@ type Querier interface {
 	// Check connectivity.
 	PingContext(ctx context.Context) error
 	// Perform a query using the specified query statement.
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	// Obtain a specific table based on the provided parameters.
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
 	// Retrieve records using the provided parameters and the handler.

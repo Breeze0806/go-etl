@@ -238,7 +238,7 @@ func TestCopyInParam_Agrs(t *testing.T) {
 		name        string
 		input       input
 		args        args
-		wantValuers []interface{}
+		wantValuers []any
 		wantErr     bool
 	}{
 		{
@@ -280,7 +280,7 @@ func TestCopyInParam_Agrs(t *testing.T) {
 					},
 				},
 			},
-			wantValuers: []interface{}{
+			wantValuers: []any{
 				int64(1), "2", "3",
 				int64(5), "4", "6",
 				int64(9), "7", "8",

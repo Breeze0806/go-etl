@@ -130,7 +130,7 @@ func NewScanner(f *Field) *Scanner {
 }
 
 // Scan - Reads data from a column based on its type.
-func (s *Scanner) Scan(src interface{}) (err error) {
+func (s *Scanner) Scan(src any) (err error) {
 	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)

@@ -77,7 +77,7 @@ type SetError struct {
 }
 
 // NewSetError Generates a setting error by setting the value i to the specified other type with the error err
-func NewSetError(i interface{}, other ColumnType, err error) *SetError {
+func NewSetError(i any, other ColumnType, err error) *SetError {
 	for uerr := err; uerr != nil; uerr = errors.Unwrap(err) {
 		err = uerr
 	}

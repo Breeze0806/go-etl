@@ -127,7 +127,7 @@ func (rp *ReplaceParam) Query(records []element.Record) (query string, err error
 }
 
 // Agrs generates a batch of replace into parameters based on multiple records.
-func (rp *ReplaceParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
+func (rp *ReplaceParam) Agrs(records []element.Record) (valuers []any, err error) {
 	for _, r := range records {
 		for fi, f := range rp.Table().Fields() {
 			var c element.Column
@@ -139,7 +139,7 @@ func (rp *ReplaceParam) Agrs(records []element.Record) (valuers []interface{}, e
 				return nil, err
 			}
 
-			valuers = append(valuers, interface{}(v))
+			valuers = append(valuers, any(v))
 		}
 	}
 	return

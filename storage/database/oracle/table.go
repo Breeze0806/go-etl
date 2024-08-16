@@ -116,7 +116,7 @@ func (ip *InsertParam) Query(_ []element.Record) (query string, err error) {
 }
 
 // Agrs generates a batch of insert into parameters based on multiple records.
-func (ip *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
+func (ip *InsertParam) Agrs(records []element.Record) (valuers []any, err error) {
 	for fi, f := range ip.Table().Fields() {
 		var ba [][]byte
 		var sa []string
@@ -138,7 +138,7 @@ func (ip *InsertParam) Agrs(records []element.Record) (valuers []interface{}, er
 				sa = append(sa, data)
 			}
 		}
-		var a interface{}
+		var a any
 
 		if len(ba) > 0 {
 			a = ba

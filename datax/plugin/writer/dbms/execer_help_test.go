@@ -150,11 +150,11 @@ func (m *MockExecer) PingContext(ctx context.Context) error {
 	return m.PingErr
 }
 
-func (m *MockExecer) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (m *MockExecer) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	return nil, m.QueryErr
 }
 
-func (m *MockExecer) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+func (m *MockExecer) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	if query == "wait" {
 		time.Sleep(100 * time.Millisecond)
 	}
@@ -245,7 +245,7 @@ func (m *MockReceiver) Shutdown() error {
 }
 
 func equalConfigJSON(gotConfig, wantConfig *config.JSON) bool {
-	var got, want interface{}
+	var got, want any
 	err := json.Unmarshal([]byte(gotConfig.String()), &got)
 	if err != nil {
 		panic(err)

@@ -606,6 +606,9 @@ func (c *Converter) ConvertBigInt(s string) (num BigIntNumber, err error) {
 	if len(first) == 0 {
 		first = "0"
 	}
+	if first == "0" {
+		sign = ""
+	}
 	return convertBigInt(sign + first).(BigIntNumber), nil
 }
 
@@ -685,6 +688,9 @@ func convertDecimal(s string) (num DecimalNumber, err error) {
 			first = "0"
 		}
 		if len(s[pIndex+1:]) == 0 {
+			if first == "0" {
+				sign = ""
+			}
 			return &DecimalStr{
 				value:  sign + first,
 				intLen: len(sign) + len(first),
@@ -705,6 +711,7 @@ func convertDecimal(s string) (num DecimalNumber, err error) {
 	if len(first) == 0 {
 		first = "0"
 	}
+
 	return convertBigInt(sign + first).(DecimalNumber), nil
 }
 

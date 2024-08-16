@@ -38,11 +38,11 @@ type Table interface {
 
 // Parameter Execution parameters for SQL statements with table, transaction mode, and SQL
 type Parameter interface {
-	SetTable(Table)                               // Set table or view
-	Table() Table                                 // Table or view
-	TxOptions() *sql.TxOptions                    // Transaction mode
-	Query([]element.Record) (string, error)       // SQL prepare statement
-	Agrs([]element.Record) ([]interface{}, error) // Prepare parameters
+	SetTable(Table)                         // Set table or view
+	Table() Table                           // Table or view
+	TxOptions() *sql.TxOptions              // Transaction mode
+	Query([]element.Record) (string, error) // SQL prepare statement
+	Agrs([]element.Record) ([]any, error)   // Prepare parameters
 }
 
 // ParameterOptions Options for parameters
@@ -194,7 +194,7 @@ func (i *InsertParam) Query(records []element.Record) (query string, err error) 
 }
 
 // Args Generate bulk insert parameters from multiple records
-func (i *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
+func (i *InsertParam) Agrs(records []element.Record) (valuers []any, err error) {
 	for _, r := range records {
 		for fi, f := range i.Table().Fields() {
 			var c element.Column
@@ -206,7 +206,7 @@ func (i *InsertParam) Agrs(records []element.Record) (valuers []interface{}, err
 				return nil, err
 			}
 
-			valuers = append(valuers, interface{}(v))
+			valuers = append(valuers, any(v))
 		}
 	}
 	return
@@ -232,6 +232,6 @@ func (t *TableQueryParam) Query(_ []element.Record) (s string, err error) {
 }
 
 // Args Generate parameters, but they are empty
-func (t *TableQueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
+func (t *TableQueryParam) Agrs(_ []element.Record) (a []any, err error) {
 	return nil, nil
 }

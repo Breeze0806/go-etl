@@ -26,9 +26,9 @@ type Execer interface {
 	// Obtain relational database configuration through configuration
 	PingContext(ctx context.Context) error
 
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	// BaseDbHandler Basic Database Execution Handler Encapsulation
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
 

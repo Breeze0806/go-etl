@@ -170,7 +170,7 @@ func TestBaseTask_Wrapf(t *testing.T) {
 	type args struct {
 		err    error
 		format string
-		args   []interface{}
+		args   []any
 	}
 	tests := []struct {
 		name    string

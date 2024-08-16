@@ -251,7 +251,7 @@ func TestReplaceParam_Agrs(t *testing.T) {
 		name        string
 		rp          *ReplaceParam
 		args        args
-		wantValuers []interface{}
+		wantValuers []any
 		wantErr     bool
 	}{
 		{
@@ -286,7 +286,7 @@ func TestReplaceParam_Agrs(t *testing.T) {
 				},
 				t: database.NewBaseTable("db", "", "table"),
 			},
-			wantValuers: []interface{}{
+			wantValuers: []any{
 				"1", "2", "3",
 				"5", "4", "6",
 				"9", "7", "8",
