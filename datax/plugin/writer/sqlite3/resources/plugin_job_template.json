@@ -1,12 +1,13 @@
 {
 	"name": "sqlite3writer",
 	"parameter": {
+		"writeMode": "insert",
 		"column": ["*"],
 		"connection":  {
-			"url": "E:\\Sqlite3\\test.db",
+			"url": "",
 			"table": {
-				"db":"main",
-				"name":"type_table"
+				"db":"",
+				"name":""
 			}
 		},
 		"batchTimeout": "1s",

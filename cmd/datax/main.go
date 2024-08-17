@@ -24,7 +24,7 @@ import (
 
 func main() {
 	initLog()
-	configFile := flag.String("c", "F:\\OpenSource\\etl\\go-etl\\cmd\\datax\\config.json", "config")
+	configFile := flag.String("c", "", "config")
 	wizardFile := flag.String("w", "", "wizard")
 	httpAddr := flag.String("http", "", "http")
 	flag.Parse()

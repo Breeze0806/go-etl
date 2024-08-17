@@ -1,5 +1,6 @@
 {
 	"name" : "sqlite3reader",
-	"developer":"",
-	"description":""
+	"developer":"LiMaWanYan",
+	"dialect":"sqlite3",
+	"description":"use github.com/mattn/go-sqlite3"
 }

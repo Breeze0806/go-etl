@@ -69,5 +69,9 @@ func (t *Table) ShouldRetry(err error) bool {
 
 // ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
-	return true
+	switch errors.Cause(err).(type) {
+	case sqlite3.Error:
+		return true
+	}
+	return false
 }

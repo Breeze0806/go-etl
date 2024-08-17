@@ -3,10 +3,10 @@
 	"parameter": {
 		"column": ["*"],
 		"connection":  {
-			"url": "E:\\Sqlite3\\test.db",
+			"url": "",
 			"table": {
-				"db":"main",
-				"name":"type_table"
+				"db":"",
+				"name":""
 			}
 		},
 		"where": ""

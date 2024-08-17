@@ -22,8 +22,6 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-const maxNumPlaceholder = 65535
-
 var execModeMap = map[string]string{
 	database.WriteModeInsert: dbms.ExecModeNormal,
 }
@@ -42,14 +40,6 @@ type Task struct {
 
 type batchWriter struct {
 	*dbms.BaseBatchWriter
-}
-
-func (b *batchWriter) BatchSize() (size int) {
-	size = maxNumPlaceholder / len(b.Task.Table.Fields())
-	if b.Task.Config.GetBatchSize() < size {
-		size = b.Task.Config.GetBatchSize()
-	}
-	return
 }
 
 // StartWrite
