@@ -41,7 +41,7 @@ cover:
 .PHONY: release
 release:
 	@go generate ./...
-	@cd cmd/datax && go build && cd ../..
+	@cd cmd/datax && go build -ldflags="-s -w" && cd ../..
 	@go run tools/datax/release/main.go
 .PHONY: doc
 doc:
