@@ -12,11 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sqlite3
+package main
 
-import "github.com/Breeze0806/go-etl/datax/plugin/writer/dbms"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
-// Job
-type Job struct {
-	*dbms.Job
+func TestMainRun(t *testing.T) {
+	initLog()
+	e := newEnveronment("F:\\OpenSource\\etl\\go-etl\\cmd\\datax\\config.json", "")
+	defer e.close()
+	if err := e.build(); err != nil {
+		fmt.Printf("run fail. err: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("run success\n")
 }

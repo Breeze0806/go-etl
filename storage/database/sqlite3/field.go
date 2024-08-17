@@ -81,7 +81,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
-	//todo ot
+	f.goType = database.GoTypeString
 	return f
 }
 

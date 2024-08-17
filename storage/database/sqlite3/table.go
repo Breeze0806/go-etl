@@ -23,13 +23,13 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Table represents a PostgreSQL table.
+// Table represents a Sqlite3 table.
 type Table struct {
 	*database.BaseTable
 	database.BaseConfigSetter
 }
 
-// NewTable creates a new PostgreSQL table. Note that at this point, the schema parameter in BaseTable refers to the schema name, instance is the database name, and name is the table name.
+// NewTable creates a new Sqlite3 table. Note that at this point, the schema parameter in BaseTable refers to the schema name, instance is the database name, and name is the table name.
 func NewTable(b *database.BaseTable) *Table {
 	return &Table{
 		BaseTable: b,

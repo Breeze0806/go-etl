@@ -1,0 +1,49 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "mysqlreader",
+                    "parameter": {
+                        "username": "root",
+                        "password": "123456",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "tcp(127.0.0.1:3306)/campus-recruiting?parseTime=false",
+                                "table": {
+                                    "db":"campus-recruiting",
+                                    "name":"goadmin_menu"
+                                }
+                            },
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "sqlite3writer",
+                    "parameter": {
+                        "writeMode": "insert",
+                        "column": ["*"],
+                        "connection":  {
+                            "url": "E:\\Sqlite3\\test.db",
+                            "table": {
+                                "db":"main",
+                                "name":"goadmin_menu"
+                            }
+                        },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ]
+    }
+}

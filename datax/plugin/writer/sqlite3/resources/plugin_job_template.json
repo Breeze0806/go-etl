@@ -1,6 +1,15 @@
 {
 	"name": "sqlite3writer",
 	"parameter": {
-
+		"column": ["*"],
+		"connection":  {
+			"url": "E:\\Sqlite3\\test.db",
+			"table": {
+				"db":"main",
+				"name":"type_table"
+			}
+		},
+		"batchTimeout": "1s",
+		"batchSize":1000
 	}
 }
