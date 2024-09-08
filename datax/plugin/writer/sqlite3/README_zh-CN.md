@@ -2,11 +2,11 @@
 
 ## 快速介绍
 
-Sqlite3Writer插件实现了向sqlite3数据库写入数据。在底层实现上，Sqlite3Writer通过github.com/lib/pq以及database/sql连接远程sqlite3数据库，并执行相应的sql语句将数据写入sqlite3数据库。
+Sqlite3Writer插件实现了向sqlite3数据库写入数据。在底层实现上，Sqlite3Writer通过github.com/mattn/go-sqlite3以及database/sql连接远程sqlite3数据库，并执行相应的sql语句将数据写入sqlite3数据库。
 
 ## 实现原理
 
-Sqlite3Writer通过github.com/lib/pq连接远程sqlite3数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程sqlite3数据库执行。
+Sqlite3Writer通过github.com/mattn/go-sqlite3连接远程sqlite3数据库，并根据用户配置的信息和来自Reader的go-etl自定义的数据类型生成写入SQL语句，然后发送到远程sqlite3数据库执行。
 
 sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlite3采取了storage/database/sqlite3实现的Dialect。
 
@@ -23,34 +23,28 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 
 ```json
 {
-    "job":{
-        "content":[
-            {
-               "writer":{
-                    "name": "sqlite3writer",
-                    "parameter": {
-                        "username": "sqlite3",
-                        "password": "123456",
-                        "writeMode": "insert",
-                        "column": ["*"],
-                        "session": [],
-                        "preSql": [],
-                        "connection":  {
-                                "url": "",
-                                "table": {
-                                    "schema":"destination",
-                                    "name":"type_table"
-                                }
-                         },
-                        "preSql": ["create table a like b"],
-                        "postSql": ["drop table a"],
-                        "batchTimeout": "1s",
-                        "batchSize":1000
-                    }
-               }
+  "content": [
+    {
+      "writer": {
+        "name": "sqlite3writer",
+        "parameter": {
+          "writeMode": "insert",
+          "column": [
+            "*"
+          ],
+          "connection": {
+            "url": "E:\\Sqlite3\\test.db",
+            "table": {
+              "db": "main",
+              "name": "type_table_copy"
             }
-        ]
+          },
+          "batchTimeout": "1s",
+          "batchSize": 1000
+        }
+      }
     }
+  ]
 }
 ```
 
@@ -62,27 +56,9 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 - 必选：是
 - 默认值: 无
 
-#### username
-
-- 描述 主要用于配置sqlite3数据库的用户
-- 必选：是
-- 默认值: 无
-
-#### password
-
-- 描述 主要用于配置sqlite3数据库的密码
-- 必选：是
-- 默认值: 无
-
 #### name
 
 描述sqlite3表信息
-
-##### schema
-
-- 描述 主要用于配置sqlite3表的模式名
-- 必选：是
-- 默认值: 无
 
 ##### table
 
@@ -98,7 +74,7 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 
   支持列换序，即列可以不按照表schema信息进行导出。
 
-  支持常量配置，用户需要按照PostgreSQL语法格式: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
+  支持常量配置，用户需要按照PostgreSQL语法格式。
 
 - 必选：是
 
@@ -142,12 +118,7 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 
 | go-etl的类型 | sqlite3数据类型                                         |
 | ------------ | -------------------------------------------------------- |
-| bool         |   |
-| bigInt       |  |
-| decimal      |                   |
-| string       |                                            |
-| time         |                                     |
-| bytes        |                                                      |
+| string         |  INTEGER、TEXT、REAL、BLOB |
 
 ## 性能报告
 

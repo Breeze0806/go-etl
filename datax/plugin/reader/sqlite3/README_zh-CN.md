@@ -2,11 +2,11 @@
 
 ## 快速介绍
 
-Sqlite3Reader插件实现了从Sqlite3数据库读取数据。在底层实现上，Sqlite3Reader通过github.com/lib/pq连接远程Sqlite3数据库，并执行相应的sql语句将数据从数据库库中查询出来。
+Sqlite3Reader插件实现了从Sqlite3数据库读取数据。在底层实现上，Sqlite3Reader通过github.com/mattn/go-sqlite3连接远程Sqlite3数据库，并执行相应的sql语句将数据从数据库库中查询出来。
 
 ## 实现原理
 
-Sqlite3Reader通过github.com/lib/pq连接远程Sqlite3数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程Sqlite3数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
+Sqlite3Reader通过github.com/mattn/go-sqlite3连接远程Sqlite3数据库，并根据用户配置的信息生成查询SQL语句，然后发送到远程Sqlite3数据库，并将该SQL执行返回结果使用go-etl自定义的数据类型拼装为抽象的数据集，并传递给下游Writer处理。
 
 Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlite3采取了storage/database/sqlite3实现的Dialect。
 
@@ -18,32 +18,28 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 ```json
 {
-    "job":{
-        "content":[
-            {
-                "reader":{
-                    "name": "sqlite3reader",
-                    "parameter": {
-                        "username": "",
-                        "password": "",
-                        "column": ["*"],
-                        "connection":  {
-                                "url": "",
-                                "table": {
-                                    "schema":"source",
-                                    "name":"type_table"
-                                }
-                            },
-                        "split" : {
-                            "key":"id"
-                        },                               
-                        "where": "",
-                        "querySql":["select a,b from table_a join table_b on table_a.id = table_b.id"]
-                    }
-                }
-            }
-        ]
-    }
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "sqlite3reader",
+          "parameter": {
+            "column": [
+              "*"
+            ],
+            "connection": {
+              "url": "E:\\Sqlite3\\test.db",
+              "table": {
+                "db": "main",
+                "name": "type_table"
+              }
+            },
+            "where": ""
+          }
+        }
+      }
+    ]
+  }
 }
 ```
 
@@ -51,31 +47,13 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 #### url
 
-- 描述 主要用于配置对端连接信息。
-- 必选：是
-- 默认值: 无
-
-#### username
-
-- 描述 主要用于配置sqlite3数据库的用户
-- 必选：是
-- 默认值: 无
-
-#### password
-
-- 描述 主要用于配置sqlite3数据库的密码
+- 描述 主要用于配置sqlite3数据库文件路径。
 - 必选：是
 - 默认值: 无
 
 #### table
 
 描述sqlite3表信息
-
-##### schema
-
-- 描述 主要用于配置sqlite3表的模式名
-- 必选：是
-- 默认值: 无
 
 ##### name
 
@@ -91,7 +69,7 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
   支持列换序，即列可以不按照表schema信息进行导出。
 
-  支持常量配置，用户需要按照sqlite3QL语法格式: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] id为普通列名，'hello'::varchar为字符串常量，true为布尔值，2.5为浮点数, power(2,3)为函数。
+  支持常量配置，用户需要按照sqlite3语法格式。
 
 - 必选：是
 
@@ -101,7 +79,7 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 ##### key
 
-- 描述 主要用于配置sqlite3ql表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
+- 描述 主要用于配置sqlite3表的切分键，切分键必须为bigInt/string/time类型，假设数据按切分键分布是均匀的
 - 必选：否
 - 默认值: 无
 
@@ -153,14 +131,9 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 下面列出Sqlite3Reader针对sqlite3类型转换列表:
 
-| go-etl的类型 | sqlite3数据类型                                         |
-| ------------ | -------------------------------------------------------- |
-| bool         |                                                  |
-| bigInt       |  |
-| decimal      |                  |
-| string       |                                             |
-| time         |                                    |
-| bytes        |                                                      |
+| go-etl的类型 | sqlite3数据类型        |
+| ------------ |--------------------|
+| string       | INTEGER、TEXT、REAL、BLOB |
 
 ## 性能报告
 

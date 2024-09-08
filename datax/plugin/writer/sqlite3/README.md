@@ -2,11 +2,11 @@
 
 ## Quick Introduction
 
-The Sqlite3Writer plugin enables writing data to Sqlite3 databases. Under the hood, Sqlite3Writer connects to remote Sqlite3 databases using github.com/lib/pq and database/sql, executing corresponding SQL statements to write data into the Sqlite3 database.
+The Sqlite3Writer plugin enables writing data to Sqlite3 databases. Under the hood, Sqlite3Writer connects to remote Sqlite3 databases using github.com/mattn/go-sqlite3, executing corresponding SQL statements to write data into the Sqlite3 database.
 
 ## Implementation Principles
 
-Sqlite3Writer connects to remote Sqlite3 databases via github.com/lib/pq. It generates SQL statements for writing based on user-provided configuration information and go-etl's custom data types from the Reader. These statements are then sent to the remote Sqlite3 database for execution.
+Sqlite3Writer connects to remote Sqlite3 databases via github.com/mattn/go-sqlite3. It generates SQL statements for writing based on user-provided configuration information and go-etl's custom data types from the Reader. These statements are then sent to the remote Sqlite3 database for execution.
 
 Sqlite3 implements specific queries by utilizing the query process defined in dbmswriter, calling go-etl's custom storage/database DBWrapper. DBWrapper encapsulates numerous interfaces from database/sql and abstracts the database dialect, Dialect. For Sqlite3, it adopts the Dialect implemented in storage/database/postgres.
 
@@ -24,34 +24,30 @@ Configuring a job to synchronously write data to a Sqlite3 database:
 
 ```json
 {
-    "job":{
-        "content":[
-            {
-               "writer":{
-                    "name": "sqlite3writer",
-                    "parameter": {
-                        "username": "postgres",
-                        "password": "123456",
-                        "writeMode": "insert",
-                        "column": ["*"],
-                        "session": [],
-                        "preSql": [],
-                        "connection":  {
-                                "url": "",
-                                "table": {
-                                    "schema":"destination",
-                                    "name":"type_table"
-                                }
-                         },
-                        "preSql": ["create table a like b"],
-                        "postSql": ["drop table a"],
-                        "batchTimeout": "1s",
-                        "batchSize":1000
-                    }
-               }
+  "content": [
+    {
+      "writer": {
+        "name": "sqlite3writer",
+        "parameter": {
+          "writeMode": "insert",
+          "column": [
+            "*"
+          ],
+          "connection": {
+            "url": "E:\\Sqlite3\\test.db",
+            "table": {
+              "db": "main",
+              "name": "type_table_copy"
             }
-        ]
+          },
+          "preSql": ["create table a like b"],
+          "postSql": ["drop table a"],
+          "batchTimeout": "1s",
+          "batchSize": 1000
+        }
+      }
     }
+  ]
 }
 ```
 
@@ -63,27 +59,9 @@ Configuring a job to synchronously write data to a Sqlite3 database:
 - Required: Yes
 - Default: None
 
-#### username
-
-- Description: Used to configure the username for the Sqlite3 database.
-- Required: Yes
-- Default: None
-
-#### password
-
-- Description: Used to configure the password for the Sqlite3 database.
-- Required: Yes
-- Default: None
-
 #### name
 
 Describes the Sqlite3 table information.
-
-##### schema
-
-- Description: Primarily used to configure the schema name of the Sqlite3 table.
-- Required: Yes
-- Default: None
 
 ##### table
 
@@ -99,7 +77,7 @@ Describes the Sqlite3 table information.
 
   Supports column reordering, meaning columns can be exported in an order different from the table schema.
 
-  Supports constant configuration. Users need to follow the PostgreSQL syntax format: ["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"] where id is a regular column name, 'hello'::varchar is a string constant, true is a boolean value, 2.5 is a floating-point number, and power(2,3) is a function.
+  Supports constant configuration. Users need to follow the PostgreSQL syntax format.
 
 - Required: Yes
 - Default: None
@@ -140,14 +118,9 @@ Currently, Sqlite3Writer supports most Sqlite3 types, but there may be some indi
 
 Below is a conversion table for Sqlite3Writer with regards to Sqlite3 types:
 
-| go-etl Type | Sqlite3 Data Type |
-| --- | --- |
-| bool |  |
-| bigInt |  |
-| decimal | |
-| string |  |
-| time |  |
-| bytes |   |
+| go-etl的类型 | sqlite3数据类型                                         |
+| ------------ | -------------------------------------------------------- |
+| string         |  INTEGER、TEXT、REAL、BLOB |
 
 ## Performance Report
 
