@@ -294,6 +294,150 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			want: element.NewDefaultColumn(element.NewNilBigIntColumnValue(), "f1", 0),
 		},
+		{
+			name: "2",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("INTEGER"))))),
+			args: args{
+				src: int64(2 ^ 63 - 1),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(2^63-1)), "f1", element.ByteSize(int64(2^63-1))),
+		},
+		{
+			name: "3",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("BLOB"))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilBytesColumnValue(), "f1", 0),
+		},
+		{
+			name: "4",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("BLOB"))))),
+			args: args{
+				src: []byte("123"),
+			},
+			want: element.NewDefaultColumn(element.NewBytesColumnValue([]byte("123")), "f1", element.ByteSize([]byte("123"))),
+		},
+		{
+			name: "5",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilTimeColumnValue(), "f1", 0),
+		},
+		{
+			name: "6",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
+			args: args{
+				src: int64(2 ^ 63 - 1),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(2^63-1)), "f1", element.ByteSize(int64(2^63-1))),
+		},
+		{
+			name: "7",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
+			args: args{
+				src: 1.23456789,
+			},
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1.23456789), "f1", element.ByteSize(1.23456789)),
+		},
+		{
+			name: "8",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("REAL"))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilTimeColumnValue(), "f1", 0),
+		},
+		{
+			name: "9",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("REAL"))))),
+			args: args{
+				src: int64(2 ^ 63 - 1),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(2^63-1)), "f1", element.ByteSize(int64(2^63-1))),
+		},
+		{
+			name: "10",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("REAL"))))),
+			args: args{
+				src: 1.23456789,
+			},
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat(1.23456789), "f1", element.ByteSize(1.23456789)),
+		},
+		{
+			name: "11",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("TEXT"))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilStringColumnValue(), "f1", 0),
+		},
+		{
+			name: "12",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("TEXT"))))),
+			args: args{
+				src: "123",
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("123"), "f1", element.ByteSize("123")),
+		},
+		{
+			name: "13",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("INTEGER"))))),
+			args: args{
+				src: "123",
+			},
+			wantErr: true,
+		},
+		{
+			name: "14",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("BLOB"))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
+		{
+			name: "15",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
+		{
+			name: "16",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("REAL"))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
+		{
+			name: "17",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("TEXT"))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
