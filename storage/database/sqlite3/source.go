@@ -81,5 +81,5 @@ func (s *Source) Table(b *database.BaseTable) database.Table {
 
 // Quoted is the quoting function for PostgreSQL
 func Quoted(s string) string {
-	return "`" + s + "`"
+	return `"` + s + `"`
 }

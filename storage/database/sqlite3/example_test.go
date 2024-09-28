@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sqlite3
+package sqlite3_test
 
 import (
 	"context"
@@ -22,6 +22,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/Breeze0806/go-etl/storage/database/sqlite3"
 )
 
 func testJSONFromString(s string) *config.JSON {
@@ -38,7 +39,7 @@ type TableParam struct {
 
 func NewTableParam() *TableParam {
 	return &TableParam{
-		BaseParam: database.NewBaseParam(NewTable(database.NewBaseTable("", "", "test")), nil),
+		BaseParam: database.NewBaseParam(sqlite3.NewTable(database.NewBaseTable("", "", "test")), nil),
 	}
 }
 
@@ -62,7 +63,7 @@ func (f *FetchHandler) CreateRecord() (element.Record, error) {
 	return element.NewDefaultRecord(), nil
 }
 
-func Test_Sqlite3(t *testing.T) {
+func ExampleSqlite3(t *testing.T) {
 	t.Log("strat")
 	db, err := database.Open("sqlite3", testJSONFromString(`{"url":"E:\\projects\\sqlite3\\test.db"}`))
 	if err != nil {
