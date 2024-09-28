@@ -1,0 +1,14 @@
+{
+	"name": "sqlite3reader",
+	"parameter": {
+		"column": ["*"],
+		"connection":  {
+			"url": "",
+			"table": {
+				"db":"",
+				"name":""
+			}
+		},
+		"where": ""
+	}
+}
