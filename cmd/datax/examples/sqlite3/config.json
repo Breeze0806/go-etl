@@ -1,0 +1,47 @@
+{
+  "core" : {
+    "container": {
+      "job":{
+        "id": 1,
+        "sleepInterval":100
+      }
+    }
+  },
+  "job":{
+    "content":[
+      {
+        "reader":{
+          "name": "sqlite3reader",
+          "parameter": {
+            "column": ["*"],
+            "connection":  {
+              "url": "E:\\Sqlite3\\test.db",
+              "table": {
+                "db":"main",
+                "name":"type_table"
+              }
+            },
+            "where": ""
+          }
+        },
+        "writer":{
+          "name": "sqlite3writer",
+          "parameter": {
+            "writeMode": "insert",
+            "column": ["*"],
+            "connection":  {
+              "url": "E:\\Sqlite3\\test.db",
+              "table": {
+                "db":"main",
+                "name":"type_table_copy"
+              }
+            },
+            "batchTimeout": "1s",
+            "batchSize":1000
+          }
+        },
+        "transformer":[]
+      }
+    ]
+  }
+}

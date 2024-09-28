@@ -18,6 +18,7 @@ import (
 	"database/sql"
 	"math"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -442,7 +443,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromUint64(math.MaxUint64), "test", element.ByteSize(uint64(math.MaxUint64))),
+			want: element.NewDefaultColumn(mustBigIntValueFromString(strconv.FormatUint(math.MaxUint64, 10)), "test", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{
 			name: "UNSIGNED INT",

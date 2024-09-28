@@ -21,8 +21,6 @@ go-etl will provide the following ETL capabilities:
 Since I have limited energy, everyone is welcome to submit issues to discuss go-etl, let's make progress together!
 
 
-
-
 ## Data Synchronization Tool
 
 This data synchronization tool has the synchronization capability for the following data sources.

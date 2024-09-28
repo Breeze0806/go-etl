@@ -16,6 +16,7 @@ package mysql
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
@@ -145,7 +146,9 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilBigIntColumnValue()
 		case uint64:
-			cv = element.NewBigIntColumnValueFromUint64(data)
+			if cv, err = element.NewBigIntColumnValueFromString(strconv.FormatUint(data, 10)); err != nil {
+				return
+			}
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
 		default:

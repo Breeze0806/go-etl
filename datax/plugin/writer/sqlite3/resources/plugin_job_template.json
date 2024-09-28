@@ -1,6 +1,16 @@
 {
 	"name": "sqlite3writer",
 	"parameter": {
-
+		"writeMode": "insert",
+		"column": ["*"],
+		"connection":  {
+			"url": "",
+			"table": {
+				"db":"",
+				"name":""
+			}
+		},
+		"batchTimeout": "1s",
+		"batchSize":1000
 	}
 }

@@ -2,11 +2,11 @@
 
 ## Quick Introduction
 
-The Sqlite3Reader plugin enables data reading from Sqlite3 databases. Under the hood, Sqlite3Reader connects to remote Sqlite3 databases using `github.com/lib/pq` and executes corresponding SQL statements to query data from the database.
+The Sqlite3Reader plugin enables data reading from Sqlite3 databases. Under the hood, Sqlite3Reader connects to remote Sqlite3 databases using `github.com/mattn/go-sqlite3` and executes corresponding SQL statements to query data from the database.
 
 ## Implementation Principles
 
-Sqlite3Reader connects to remote Sqlite3 databases using `github.com/lib/pq` and generates SQL queries based on user-provided configuration information. These queries are then sent to the remote Sqlite3 database, and the returned results are assembled into an abstract dataset using go-etl's custom data types. This dataset is then passed to downstream Writer processing.
+Sqlite3Reader connects to remote Sqlite3 databases using `github.com/mattn/go-sqlite3` and generates SQL queries based on user-provided configuration information. These queries are then sent to the remote Sqlite3 database, and the returned results are assembled into an abstract dataset using go-etl's custom data types. This dataset is then passed to downstream Writer processing.
 Sqlite3Reader implements specific queries by calling go-etl's custom `storage/database` DBWrapper, which is defined in the dbmsreader's query process. DBWrapper encapsulates many interfaces of `database/sql` and abstracts the database dialect, Dialect. For sqlite3, the implementation of Dialect provided by `storage/database/sqlite3` is used.
 
 ## Functionality Description
@@ -17,32 +17,28 @@ Configuring a job to synchronize data from a Sqlite3 database to a local system:
 
 ```json
 {
-    "job":{
-        "content":[
-            {
-                "reader":{
-                    "name": "sqlite3reader",
-                    "parameter": {
-                        "username": "",
-                        "password": "",
-                        "column": ["*"],
-                        "connection":  {
-                                "url": "",
-                                "table": {
-                                    "schema":"source",
-                                    "name":"type_table"
-                                }
-                            },
-                        "split" : {
-                            "key":"id"
-                        },                               
-                        "where": "",
-                        "querySql":["select a,b from table_a join table_b on table_a.id = table_b.id"]
-                    }
-                }
-            }
-        ]
-    }
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "sqlite3reader",
+          "parameter": {
+            "column": [
+              "*"
+            ],
+            "connection": {
+              "url": "E:\\Sqlite3\\test.db",
+              "table": {
+                "db": "main",
+                "name": "type_table"
+              }
+            },
+            "where": ""
+          }
+        }
+      }
+    ]
+  }
 }
 ```
 
@@ -50,31 +46,13 @@ Configuring a job to synchronize data from a Sqlite3 database to a local system:
 
 #### url
 
-- Description: Mainly used to configure the connection information for the remote database
-- Required: Yes
-- Default: None
-
-#### username
-
-- Description: Mainly used to configure the sqlite3 database username.
-- Required: Yes
-- Default: None
-
-#### password
-
-- Description: Mainly used to configure the sqlite3 database password.
+- Description: It is mainly used to configure the path of sqlite3 database files
 - Required: Yes
 - Default: None
 
 #### table
 
 Describes the sqlite3 table information.
-
-##### schema
-
-- Description: Mainly used to configure the schema name of the sqlite3 table.
-- Required: Yes
-- Default: None
 
 ##### name
 
@@ -90,7 +68,7 @@ Describes the sqlite3 table information.
 
   Supports column reordering, meaning the columns can be exported in an order different from the table schema.
 
-  Supports constant configuration. Users need to follow the PostgreSQL syntax format: `["id", "'hello'::varchar", "true", "2.5::real", "power(2,3)"]`. Here, "id" is a regular column name, `'hello'::varchar` is a string constant, "true" is a boolean value, "2.5" is a floating-point number, and `power(2,3)` is a function.
+  Supports constant configuration. Users need to follow the sqlite3 syntax format.
 
 - Required: Yes
 - Default: None
@@ -151,14 +129,9 @@ Currently, Sqlite3Reader supports most sqlite3 types, but there are still some i
 
 Below is a list of type conversions that Sqlite3Reader performs for sqlite3 types:
 
-| go-etl Type | sqlite3 Data Type                                         |
-| ----------- | -------------------------------------------------------- |
-| bool        |                                                          |
-| bigInt      |                                                           |
-| decimal     |                                                          |
-| string      |                                                            |
-| time        |                                                           |
-| bytes       |                                                           |
+| go-etl的类型 | sqlite3数据类型        |
+| ------------ |--------------------|
+| string       | INTEGER、TEXT、REAL、BLOB |
 
 ## Performance Report
 
