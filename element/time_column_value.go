@@ -84,7 +84,7 @@ func (t *TimeColumnValue) AsDecimal() (DecimalNumber, error) {
 
 // AsString Converts to a string
 func (t *TimeColumnValue) AsString() (s string, err error) {
-	var i interface{}
+	var i any
 	i, err = t.TimeDecode(t.val)
 	if err != nil {
 		return "", NewTransformErrorFormColumnTypes(t.Type(), TypeString, fmt.Errorf("val: %v", t.String()))
@@ -94,7 +94,7 @@ func (t *TimeColumnValue) AsString() (s string, err error) {
 
 // AsBytes Converts to a byte stream
 func (t *TimeColumnValue) AsBytes() (b []byte, err error) {
-	var i interface{}
+	var i any
 	i, err = t.TimeDecode(t.val)
 	if err != nil {
 		return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeString, fmt.Errorf("val: %v", t.String()))

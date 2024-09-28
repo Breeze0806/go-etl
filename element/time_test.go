@@ -22,7 +22,7 @@ import (
 
 func TestStringTimeEncoder_TimeEncode(t *testing.T) {
 	type args struct {
-		i interface{}
+		i any
 	}
 	tests := []struct {
 		name    string

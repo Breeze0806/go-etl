@@ -132,7 +132,7 @@ func NewScanner(f *Field) *Scanner {
 // TIMESTAMP, TIMESTAMP WITH TIME ZONE, TIMESTAMP WITH LOCAL TIME ZONE, DATE are treated as time types
 // CLOB, NCLOB, VARCHAR2, NVARCHAR2, CHAR, NCHAR are treated as string types
 // BLOB, RAW, LONG RAW, LONG are treated as byte types
-func (s *Scanner) Scan(src interface{}) (err error) {
+func (s *Scanner) Scan(src any) (err error) {
 	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)

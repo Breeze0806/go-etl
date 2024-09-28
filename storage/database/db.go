@@ -135,7 +135,7 @@ func (d *DB) FetchTableWithParam(ctx context.Context, param Parameter) (Table, e
 // Returns an Error if Any
 func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
-	var agrs []interface{}
+	var agrs []any
 
 	if query, agrs, err = getQueryAndAgrs(param, nil); err != nil {
 		return
@@ -162,7 +162,7 @@ func (d *DB) FetchRecord(ctx context.Context, param Parameter, handler FetchHand
 // Returns an Error if Any
 func (d *DB) FetchRecordWithTx(ctx context.Context, param Parameter, handler FetchHandler) (err error) {
 	var query string
-	var agrs []interface{}
+	var agrs []any
 
 	if query, agrs, err = getQueryAndAgrs(param, nil); err != nil {
 		return
@@ -245,12 +245,12 @@ func (d *DB) PingContext(ctx context.Context) error {
 }
 
 // QueryContext Query Multiple Rows of Data through Query
-func (d *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (d *DB) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	return d.db.QueryContext(ctx, query, args...)
 }
 
 // ExecContext Execute Query and Acquire Result
-func (d *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+func (d *DB) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	return d.db.ExecContext(ctx, query, args...)
 }
 
@@ -264,7 +264,7 @@ func (d *DB) Close() (err error) {
 
 func (d *DB) batchExec(ctx context.Context, param Parameter, records []element.Record) (err error) {
 	var query string
-	var agrs []interface{}
+	var agrs []any
 
 	if query, agrs, err = getQueryAndAgrs(param, records); err != nil {
 		return
@@ -291,7 +291,7 @@ func (d *DB) batchExecStmt(ctx context.Context, param Parameter, records []eleme
 	}()
 
 	for _, r := range records {
-		var valuers []interface{}
+		var valuers []any
 		if valuers, err = param.Agrs([]element.Record{
 			r,
 		}); err != nil {
@@ -309,7 +309,7 @@ func (d *DB) batchExecStmt(ctx context.Context, param Parameter, records []eleme
 
 func (d *DB) batchExecWithTx(ctx context.Context, param Parameter, records []element.Record) (err error) {
 	var query string
-	var agrs []interface{}
+	var agrs []any
 
 	if query, agrs, err = getQueryAndAgrs(param, records); err != nil {
 		return
@@ -360,7 +360,7 @@ func (d *DB) batchExecStmtWithTx(ctx context.Context, param Parameter, records [
 	}()
 
 	for _, r := range records {
-		var valuers []interface{}
+		var valuers []any
 		if valuers, err = param.Agrs([]element.Record{
 			r,
 		}); err != nil {
@@ -394,7 +394,7 @@ func execParam(opts *ParameterOptions) (param Parameter, err error) {
 	return
 }
 
-func getQueryAndAgrs(param Parameter, records []element.Record) (query string, agrs []interface{}, err error) {
+func getQueryAndAgrs(param Parameter, records []element.Record) (query string, agrs []any, err error) {
 	if query, err = param.Query(records); err != nil {
 		err = errors.Errorf("param.Query() err: %v", err)
 		return
@@ -440,7 +440,7 @@ func fetchTableByRows(rows *sql.Rows, table Table) (Table, error) {
 }
 
 func readRowsToRecord(rows *sql.Rows, param Parameter, handler FetchHandler) (err error) {
-	var scanners []interface{}
+	var scanners []any
 	for _, f := range param.Table().Fields() {
 		scanners = append(scanners, f.Scanner())
 	}

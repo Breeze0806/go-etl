@@ -69,7 +69,7 @@ func (t *TableParam) Query(_ []element.Record) (string, error) {
 }
 
 // Agrs Get query parameters
-func (t *TableParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (t *TableParam) Agrs(_ []element.Record) ([]any, error) {
 	return nil, nil
 }
 
@@ -119,7 +119,7 @@ func (q *QueryParam) Query(_ []element.Record) (string, error) {
 }
 
 // Agrs Get query parameters
-func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
+func (q *QueryParam) Agrs(_ []element.Record) (a []any, err error) {
 	if len(q.Config.GetQuerySQL()) > 0 {
 		return nil, nil
 	}
@@ -134,7 +134,7 @@ func (q *QueryParam) Agrs(_ []element.Record) (a []interface{}, err error) {
 				if right, err = q.Config.GetSplitConfig().Range.rightColumn(v.Name()); err != nil {
 					return
 				}
-				var li, ri interface{}
+				var li, ri any
 				if li, err = v.Valuer(left).Value(); err != nil {
 					return
 				}
@@ -178,7 +178,7 @@ func (s *SplitParam) Query(_ []element.Record) (string, error) {
 }
 
 // Agrs Get query parameters
-func (s *SplitParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (s *SplitParam) Agrs(_ []element.Record) ([]any, error) {
 	return nil, nil
 }
 
@@ -213,7 +213,7 @@ func (m *MinParam) Query(_ []element.Record) (string, error) {
 }
 
 // Agrs Get query parameters
-func (m *MinParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (m *MinParam) Agrs(_ []element.Record) ([]any, error) {
 	return nil, nil
 }
 
@@ -248,6 +248,6 @@ func (m *MaxParam) Query(_ []element.Record) (string, error) {
 }
 
 // Agrs Get query parameters
-func (m *MaxParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (m *MaxParam) Agrs(_ []element.Record) ([]any, error) {
 	return nil, nil
 }

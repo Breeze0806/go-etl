@@ -1,15 +1,18 @@
 {
-    "name": "cvsreader",
-    "parameter": {
-        "path":["",""],
-        "column":[
-            {
-                "index":"1",
-                "type":"time",
-                "format":"yyyy-MM-dd"
-            }
-        ],
-        "encoding":"",
-        "delimiter":""
-    }
+	"name": "csvreader",
+	"parameter": {
+		"path": [
+			"",
+			""
+		],
+		"column": [
+			{
+				"index": "1",
+				"type": "time",
+				"format": "yyyy-MM-dd"
+			}
+		],
+		"encoding": "",
+		"delimiter": ""
+	}
 }

@@ -18,7 +18,6 @@ import (
 	"database/sql"
 	"math"
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 
@@ -385,7 +384,7 @@ func TestFieldType_GoType(t *testing.T) {
 
 func TestScanner_Scan(t *testing.T) {
 	type args struct {
-		src interface{}
+		src any
 	}
 	tests := []struct {
 		name    string
@@ -443,7 +442,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(mustBigIntValueFromString(strconv.FormatUint(math.MaxUint64, 10)), "test", element.ByteSize(uint64(math.MaxUint64))),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromUint64(math.MaxUint64), "test", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{
 			name: "UNSIGNED INT",

@@ -345,7 +345,7 @@ func TestFieldType_IsSupportted(t *testing.T) {
 
 func TestScanner_Scan(t *testing.T) {
 	type args struct {
-		src interface{}
+		src any
 	}
 	tests := []struct {
 		name    string

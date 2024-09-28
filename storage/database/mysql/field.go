@@ -133,7 +133,8 @@ func NewScanner(f *Field) *Scanner {
 // DATE, DATETIME, TIMESTAMP are treated as time.
 // TEXT, LONGTEXT, MEDIUMTEXT, TINYTEXT, CHAR, VARCHAR, TIME are treated as strings.
 // BLOB, LONGBLOB, MEDIUMBLOB, BINARY, TINYBLOB, VARBINARY are treated as byte streams.
-func (s *Scanner) Scan(src interface{}) (err error) {
+
+func (s *Scanner) Scan(src any) (err error) {
 	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
@@ -146,9 +147,7 @@ func (s *Scanner) Scan(src interface{}) (err error) {
 		case nil:
 			cv = element.NewNilBigIntColumnValue()
 		case uint64:
-			if cv, err = element.NewBigIntColumnValueFromString(strconv.FormatUint(data, 10)); err != nil {
-				return
-			}
+			cv = element.NewBigIntColumnValueFromUint64(data)
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
 		default:

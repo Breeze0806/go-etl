@@ -19,7 +19,6 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -107,8 +106,8 @@ func main() {
 
 // Read packages exclude vendor,.vscode,.git
 func readPackages(path string) (packages []string, err error) {
-	var list []os.FileInfo
-	list, err = ioutil.ReadDir(path)
+	var list []fs.DirEntry
+	list, err = os.ReadDir(path)
 	if err != nil {
 		return
 	}
@@ -127,7 +126,7 @@ func readPackages(path string) (packages []string, err error) {
 
 // Check License
 func addLicenseHeader(filename string) error {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}
@@ -156,7 +155,7 @@ func addLicenseHeader(filename string) error {
 
 // Check License
 func checkLicenseHeader(filename string) error {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}

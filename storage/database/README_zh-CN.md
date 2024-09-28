@@ -104,7 +104,7 @@ type Parameter interface {
 	Table() Table                                 //表或者视图
 	TxOptions() *sql.TxOptions                    //事务模式
 	Query([]element.Record) (string, error)       //sql prepare语句
-	Agrs([]element.Record) ([]interface{}, error) //prepare参数
+	Agrs([]element.Record) ([]any, error) //prepare参数
 }
 ```
 

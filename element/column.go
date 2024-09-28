@@ -207,7 +207,7 @@ func (d *DefaultColumn) AsFloat64() (float64, error) {
 }
 
 // ByteSize Byte size
-func ByteSize(src interface{}) int {
+func ByteSize(src any) int {
 	switch data := src.(type) {
 	case nil:
 		return 0

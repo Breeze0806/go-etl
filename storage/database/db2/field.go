@@ -130,7 +130,7 @@ func NewScanner(f *Field) *Scanner {
 // CHAR and VARCHAR are treated as strings.
 // BLOB is treated as a byte stream.
 // BOOLEAN is treated as a boolean value.
-func (s *Scanner) Scan(src interface{}) (err error) {
+func (s *Scanner) Scan(src any) (err error) {
 	defer s.f.SetError(&err)
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)

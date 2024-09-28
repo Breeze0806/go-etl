@@ -225,7 +225,7 @@ func (m *mockWriter) Task() writer.Task {
 }
 
 func equalConfigJSON(gotConfig, wantConfig *config.JSON) bool {
-	var got, want interface{}
+	var got, want any
 	err := json.Unmarshal([]byte(gotConfig.String()), &got)
 	if err != nil {
 		panic(err)

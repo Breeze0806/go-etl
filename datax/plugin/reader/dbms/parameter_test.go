@@ -121,7 +121,7 @@ func Test_tableParam_Agrs(t *testing.T) {
 		name    string
 		t       *TableParam
 		args    args
-		want    []interface{}
+		want    []any
 		wantErr bool
 	}{
 		{
@@ -263,7 +263,7 @@ func Test_queryParam_Agrs(t *testing.T) {
 		q       *QueryParam
 		args    args
 		config  *BaseConfig
-		want    []interface{}
+		want    []any
 		wantErr bool
 	}{
 		{
@@ -295,7 +295,7 @@ func Test_queryParam_Agrs(t *testing.T) {
 			args: args{
 				in0: nil,
 			},
-			want: []interface{}{
+			want: []any{
 				int64(11), int64(22),
 			},
 		},
@@ -472,7 +472,7 @@ func TestSplitParam_Agrs(t *testing.T) {
 		name    string
 		s       *SplitParam
 		args    args
-		want    []interface{}
+		want    []any
 		wantErr bool
 	}{
 		{
@@ -567,7 +567,7 @@ func TestMinParam_Agrs(t *testing.T) {
 		name    string
 		m       *MinParam
 		args    args
-		want    []interface{}
+		want    []any
 		wantErr bool
 	}{
 		{
@@ -652,7 +652,7 @@ func TestMaxParam_Agrs(t *testing.T) {
 		name    string
 		m       *MaxParam
 		args    args
-		want    []interface{}
+		want    []any
 		wantErr bool
 	}{
 		{
