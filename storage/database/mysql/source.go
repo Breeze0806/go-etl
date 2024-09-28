@@ -47,7 +47,7 @@ type Source struct {
 	mysqlConf *mysql.Config
 }
 
-// NewSource generates a   data source and will report an error if there's an issue with the configuration file
+// NewSource generates a MySQL data source and will report an error if there's an issue with the configuration file
 func NewSource(bs *database.BaseSource) (s database.Source, err error) {
 	source := &Source{
 		BaseSource: bs,

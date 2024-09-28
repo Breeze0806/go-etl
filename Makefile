@@ -1,12 +1,13 @@
 IBM_DB_HOME := ${GOPATH}/src/github.com/ibmdb/clidriver
 ifdef DB2_HOME
 	IBM_DB_HOME=${DB2_HOME}
+else
+	export LD_LIBRARY_PATH=${IBM_DB_HOME}/lib	
 endif
 export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
 export CGO_CFLAGS=-I${IBM_DB_HOME}/include
 export CGO_LDFLAGS=-L${IBM_DB_HOME}/lib
-export LD_LIBRARY_PATH=${IBM_DB_HOME}/lib
 
 
 .PHONY: all

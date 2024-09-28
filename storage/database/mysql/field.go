@@ -16,7 +16,6 @@ package mysql
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
@@ -133,7 +132,6 @@ func NewScanner(f *Field) *Scanner {
 // DATE, DATETIME, TIMESTAMP are treated as time.
 // TEXT, LONGTEXT, MEDIUMTEXT, TINYTEXT, CHAR, VARCHAR, TIME are treated as strings.
 // BLOB, LONGBLOB, MEDIUMBLOB, BINARY, TINYBLOB, VARBINARY are treated as byte streams.
-
 func (s *Scanner) Scan(src any) (err error) {
 	defer s.f.SetError(&err)
 	var cv element.ColumnValue
