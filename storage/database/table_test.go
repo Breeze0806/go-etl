@@ -267,7 +267,7 @@ func TestInsertParam_Agrs(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
-		wantValuers []interface{}
+		wantValuers []any
 		wantErr     bool
 	}{
 		{
@@ -302,7 +302,7 @@ func TestInsertParam_Agrs(t *testing.T) {
 				},
 				t: NewBaseTable("db", "schema", "table"),
 			},
-			wantValuers: []interface{}{
+			wantValuers: []any{
 				int64(1), float64(2.0), "3",
 				int64(5), float64(4.0), "6",
 				int64(9), float64(7.0), "8",
@@ -464,7 +464,7 @@ func TestTableQueryParam_Agrs(t *testing.T) {
 		name    string
 		t       *TableQueryParam
 		args    args
-		wantA   []interface{}
+		wantA   []any
 		wantErr bool
 	}{
 		{

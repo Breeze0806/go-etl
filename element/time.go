@@ -24,13 +24,13 @@ var DefaultTimeFormat = "2006-01-02 15:04:05.999999999Z07:00"
 
 // TimeDecoder - Time decoder
 type TimeDecoder interface {
-	TimeDecode(t time.Time) (interface{}, error)
+	TimeDecode(t time.Time) (any, error)
 	Layout() string
 }
 
 // TimeEncoder - Time encoder
 type TimeEncoder interface {
-	TimeEncode(i interface{}) (time.Time, error)
+	TimeEncode(i any) (time.Time, error)
 }
 
 // StringTimeEncoder - String time encoder
@@ -46,7 +46,7 @@ func NewStringTimeEncoder(layout string) TimeEncoder {
 }
 
 // TimeEncode - Encode to time. If 'i' is not a string or not in the layout format, an error will be reported.
-func (e *StringTimeEncoder) TimeEncode(i interface{}) (time.Time, error) {
+func (e *StringTimeEncoder) TimeEncode(i any) (time.Time, error) {
 	s, ok := i.(string)
 	if !ok {
 		return time.Time{}, fmt.Errorf("%v is %T, not string", i, i)
@@ -67,7 +67,7 @@ func NewStringTimeDecoder(layout string) TimeDecoder {
 }
 
 // TimeDecode - Decode a string time based on the layout of the go time format into a string
-func (d *StringTimeDecoder) TimeDecode(t time.Time) (interface{}, error) {
+func (d *StringTimeDecoder) TimeDecode(t time.Time) (any, error) {
 	return t.Format(d.layout), nil
 }
 

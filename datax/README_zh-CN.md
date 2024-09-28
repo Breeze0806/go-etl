@@ -158,7 +158,7 @@ type Querier interface {
 	//检测连通性
 	PingContext(ctx context.Context) error
 	//通过query查询语句进行查询
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	//通过参数param获取具体表
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
 	//通过参数param，处理句柄handler获取记录
@@ -284,9 +284,9 @@ type Execer interface {
 	//检测连通性
 	PingContext(ctx context.Context) error
 	//通过query查询语句进行查询
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	//通过query查询语句进行查询
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 	//通过参数param获取具体表
 	FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
 	//批量执行

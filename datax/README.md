@@ -152,7 +152,7 @@ type Querier interface {
  // Checks connectivity
  PingContext(ctx context.Context) error
  // Queries using a query statement
- QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+ QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
  // Obtains a specific table based on parameters
  FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
  // Retrieves records using parameters and a handler
@@ -278,9 +278,9 @@ type Execer interface {
  // Checks connectivity
  PingContext(ctx context.Context) error
  // Queries using a query statement
- QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+ QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
  // Executes a query statement
- ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+ ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
  // Obtains a specific table based on parameters
  FetchTableWithParam(ctx context.Context, param database.Parameter) (database.Table, error)
  // Performs batch execution

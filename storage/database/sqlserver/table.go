@@ -121,7 +121,7 @@ func (ci *CopyInParam) Query(_ []element.Record) (query string, err error) {
 }
 
 // Agrs generates a batch of copy in parameters based on multiple records.
-func (ci *CopyInParam) Agrs(records []element.Record) (valuers []interface{}, err error) {
+func (ci *CopyInParam) Agrs(records []element.Record) (valuers []any, err error) {
 	for _, r := range records {
 		for fi, f := range ci.Table().Fields() {
 			var c element.Column
@@ -133,7 +133,7 @@ func (ci *CopyInParam) Agrs(records []element.Record) (valuers []interface{}, er
 				return nil, err
 			}
 
-			valuers = append(valuers, interface{}(v))
+			valuers = append(valuers, any(v))
 		}
 	}
 	return

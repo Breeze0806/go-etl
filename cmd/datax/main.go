@@ -24,7 +24,7 @@ import (
 
 func main() {
 	initLog()
-	configFile := flag.String("c", "", "config")
+	configFile := flag.String("c", "config.json", "config")
 	wizardFile := flag.String("w", "", "wizard")
 	httpAddr := flag.String("http", "", "http")
 	flag.Parse()

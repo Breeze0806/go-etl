@@ -3,6 +3,6 @@ go mod download
 go mod vendor   
 go generate ./...
 cd cmd\datax
-go build 
+go build -ldflags="-s -w"
 cd ../..
 go run tools/datax/release/main.go

@@ -527,7 +527,7 @@ func TestDefaultColumn_Cmp(t *testing.T) {
 
 func TestByteSize(t *testing.T) {
 	type args struct {
-		src interface{}
+		src any
 	}
 	tests := []struct {
 		name string

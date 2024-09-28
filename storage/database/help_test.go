@@ -145,7 +145,7 @@ type mockScanner struct {
 	BaseScanner
 }
 
-func (m *mockScanner) Scan(src interface{}) error {
+func (m *mockScanner) Scan(src any) error {
 	var cv element.ColumnValue
 	switch m.f.Type().DatabaseTypeName() {
 	case strconv.Itoa(int(GoTypeBool)):

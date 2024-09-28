@@ -21,7 +21,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -56,25 +56,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	data, err := ioutil.ReadFile("README_USER.md")
+	data, err := os.ReadFile("README_USER.md")
 	if err != nil {
 		fmt.Println("ReadFile README_USER.md fail. err:", err)
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile("release/README_USER.md", data, os.ModePerm)
+	err = os.WriteFile("release/README_USER.md", data, os.ModePerm)
 	if err != nil {
 		fmt.Println("WriteFile release/README_USER.md fail. err:", err)
 		os.Exit(1)
 	}
 
-	data, err = ioutil.ReadFile("README_USER_zh-CN.md")
+	data, err = os.ReadFile("README_USER_zh-CN.md")
 	if err != nil {
 		fmt.Println("ReadFile README_USER.md fail. err:", err)
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile("release/README_USER_zh-CN.md", data, os.ModePerm)
+	err = os.WriteFile("release/README_USER_zh-CN.md", data, os.ModePerm)
 	if err != nil {
 		fmt.Println("WriteFile release/README_USER.md fail. err:", err)
 		os.Exit(1)
@@ -107,32 +107,32 @@ func main() {
 }
 
 func copyMarkdown(path string) (err error) {
-	var list []os.FileInfo
-	list, err = ioutil.ReadDir(filepath.Join(sourceUserPath, path))
+	var list []fs.DirEntry
+	list, err = os.ReadDir(filepath.Join(sourceUserPath, path))
 	if err != nil {
 		return err
 	}
 	var data []byte
 	for _, v := range list {
 		if v.IsDir() {
-			data, err = ioutil.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README.md"))
+			data, err = os.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README.md"))
 			if err != nil {
 				err = nil
 				continue
 			}
 			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
-			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README.md"), data, 0644)
+			err = os.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README.md"), data, 0644)
 			if err != nil {
 				return
 			}
 
-			data, err = ioutil.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README_zh-CN.md"))
+			data, err = os.ReadFile(filepath.Join(sourceUserPath, path, v.Name(), "README_zh-CN.md"))
 			if err != nil {
 				err = nil
 				continue
 			}
 			os.MkdirAll(filepath.Join(destUserPath, path, v.Name()), os.ModePerm)
-			err = ioutil.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README_zh-CN.md"), data, 0644)
+			err = os.WriteFile(filepath.Join(destUserPath, path, v.Name(), "README_zh-CN.md"), data, 0644)
 			if err != nil {
 				return
 			}
@@ -143,21 +143,21 @@ func copyMarkdown(path string) (err error) {
 
 func copyConfig() (err error) {
 	os.MkdirAll(destExamplePath, os.ModePerm)
-	var list []os.FileInfo
-	list, err = ioutil.ReadDir(sourceExamplePath)
+	var list []fs.DirEntry
+	list, err = os.ReadDir(sourceExamplePath)
 	if err != nil {
 		return err
 	}
 	var data []byte
 	for _, v := range list {
 		if v.IsDir() {
-			data, err = ioutil.ReadFile(filepath.Join(sourceExamplePath, v.Name(), "config.json"))
+			data, err = os.ReadFile(filepath.Join(sourceExamplePath, v.Name(), "config.json"))
 			if err != nil {
 				err = nil
 				continue
 			}
 			os.MkdirAll(filepath.Join(destExamplePath, v.Name()), os.ModePerm)
-			err = ioutil.WriteFile(filepath.Join(destExamplePath, v.Name(), "config.json"), data, 0644)
+			err = os.WriteFile(filepath.Join(destExamplePath, v.Name(), "config.json"), data, 0644)
 			if err != nil {
 				return
 			}
