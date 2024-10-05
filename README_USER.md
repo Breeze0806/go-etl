@@ -187,7 +187,18 @@ datax -c examples/postgrescsv/config.json
 datax -c examples/postgresxlsx/config.json
 ```
 
-##### 2.1.2.10 Other Synchronization Examples
+##### 2.1.2.10 Synchronizing with sqlite3
+
+* Before use, download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html). 
+* Note: On Windows, set `path=%path%;/opt/sqlite/sqlite3.dll`. 
+* Initialize the database using `cmd/datax/examples/sqlite3/init.sql` **for testing purposes**
+* Start the sqlite3 synchronization command:
+
+```bash
+datax -c examples/sqlite3/config.json
+```
+
+##### 2.1.2.11 Other Synchronization Examples
 
 In addition to the above examples, all data sources listed in the go-etl features can be used interchangeably. Configurations can be set up for data sources such as MySQL to PostgreSQL, MySQL to Oracle, Oracle to DB2, etc.
 

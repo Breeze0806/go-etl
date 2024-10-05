@@ -131,7 +131,10 @@ Below is a list of type conversions that Sqlite3Reader performs for sqlite3 type
 
 | go-etl的类型 | sqlite3数据类型        |
 | ------------ |--------------------|
-| string       | INTEGER、TEXT、REAL、BLOB |
+| bigInt |  INTEGER |
+| decimal | REAL, NUMERIC |
+| string | TEXT |
+| bytes | BLOB |
 
 ## Performance Report
 
@@ -141,5 +144,8 @@ To be tested.
 
 ### Database Encoding Issues
 Currently, only the utf8 character set is supported.
+
+### Data type limitation
+The issue of the NUMERIC data type not supporting high-precision real numbers
 
 ## FAQ

@@ -278,6 +278,11 @@ func TestFieldType_IsSupportted(t *testing.T) {
 			f:    NewFieldType(newMockColumnType("TEXT")),
 			want: true,
 		},
+		{
+			name: "6",
+			f:    NewFieldType(newMockColumnType("TEXT1")),
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -448,6 +453,15 @@ func TestScanner_Scan(t *testing.T) {
 			name: "17",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType("TEXT"))))),
+			args: args{
+				src: 123,
+			},
+			wantErr: true,
+		},
+		{
+			name: "18",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("TEXT1"))))),
 			args: args{
 				src: 123,
 			},

@@ -133,7 +133,10 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 | go-etl的类型 | sqlite3数据类型        |
 | ------------ |--------------------|
-| string       | INTEGER、TEXT、REAL、BLOB |
+| bigInt |  INTEGER |
+| decimal | REAL, NUMERIC |
+| string | TEXT |
+| bytes | BLOB |
 
 ## 性能报告
 
@@ -143,5 +146,8 @@ Sqlite3Reader通过使用dbmsreader中定义的查询流程调用go-etl自定义
 
 ### 数据库编码问题
 目前仅支持utf8字符集
+
+### 数据类型限制
+数据类型NUMERIC不支持高精度实数的问题
 
 ## FAQ

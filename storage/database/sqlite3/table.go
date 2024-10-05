@@ -60,8 +60,8 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 // ShouldRetry determines whether a retry is necessary.
 func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
-	case sqlite3.Error:
-		return true
+	case *sqlite3.Error:
+		return false
 	default:
 		return cause == driver.ErrBadConn
 	}

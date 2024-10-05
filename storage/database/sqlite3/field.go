@@ -81,14 +81,16 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
-	f.goType = database.GoTypeString
+	switch f.DatabaseTypeName() {
+	case "INTEGER", "BLOB", "NUMERIC", "REAL", "TEXT":
+		f.goType = database.GoTypeString
+	}
 	return f
 }
 
 // IsSupported - Indicates whether parsing is supported for a specific type.
 func (f *FieldType) IsSupported() bool {
-	return true
-	//return f.GoType() != database.GoTypeUnknown
+	return f.GoType() != database.GoTypeUnknown
 }
 
 // GoType - Returns the Golang type used when processing numerical values.
