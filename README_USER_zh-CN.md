@@ -193,6 +193,7 @@ datax -c examples/postgresxlsx/config.json
 * 在使用前，请下载相应的[SQLite驱动](https://www.sqlite.org/download.html). 
 * 注意：在 Windows 系统上，设置 `path=%path%;/opt/sqlite/sqlite3.dll`。
 * 使用 `cmd/datax/examples/sqlite3/init.sql` **用于测试目的** 初始化数据库
+* 在 `examples/sqlite3/config.json` 文件中，`url` 表示 sqlite3 数据库文件的路径。在 Windows 系统上，它可以是 `E:\sqlite3\test.db`，而在 Linux 系统上，它可以是 `/sqlite3/test.db`。
 * 启动 sqlite3 同步命令：
 
 ##### 2.1.2.11 其他同步例子

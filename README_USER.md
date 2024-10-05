@@ -192,6 +192,7 @@ datax -c examples/postgresxlsx/config.json
 * Before use, download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html). 
 * Note: On Windows, set `path=%path%;/opt/sqlite/sqlite3.dll`. 
 * Initialize the database using `cmd/datax/examples/sqlite3/init.sql` **for testing purposes**
+* In `examples/sqlite3/config.json`, `url` is the path of sqlite3 database files. On Windows, it can be `E:\sqlite3\test.db`, meanwhile, on Linux, it can be `/sqlite3/test.db`,
 * Start the sqlite3 synchronization command:
 
 ```bash

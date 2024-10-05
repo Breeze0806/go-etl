@@ -17,7 +17,6 @@ package sqlite3_test
 import (
 	"context"
 	"fmt"
-	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
@@ -63,15 +62,17 @@ func (f *FetchHandler) CreateRecord() (element.Record, error) {
 	return element.NewDefaultRecord(), nil
 }
 
-func ExampleSqlite3(t *testing.T) {
-	t.Log("strat")
+func Example_sqlite3() {
+	fmt.Println("strat")
 	db, err := database.Open("sqlite3", testJSONFromString(`{"url":"E:\\projects\\sqlite3\\test.db"}`))
 	if err != nil {
-		t.Errorf("open fail. err: %v", err)
+		fmt.Printf("open fail. err: %v", err)
+		return
 	}
 	defer db.Close()
 	err = db.FetchRecord(context.TODO(), NewTableParam(), &FetchHandler{})
 	if err != nil {
-		t.Errorf("fetchRecord fail. err: %v", err)
+		fmt.Printf("fetchRecord fail. err: %v", err)
+		return
 	}
 }
