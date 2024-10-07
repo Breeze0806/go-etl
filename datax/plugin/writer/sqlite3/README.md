@@ -36,7 +36,6 @@ Configuring a job to synchronously write data to a Sqlite3 database:
           "connection": {
             "url": "E:\\Sqlite3\\test.db",
             "table": {
-              "db": "main",
               "name": "type_table_copy"
             }
           },
@@ -59,11 +58,11 @@ Configuring a job to synchronously write data to a Sqlite3 database:
 - Required: Yes
 - Default: None
 
-#### name
+#### table
 
 Describes the Sqlite3 table information.
 
-##### table
+##### name
 
 - Description: Primarily used to configure the table name of the Sqlite3 table.
 - Required: Yes
@@ -120,7 +119,7 @@ Below is a conversion table for Sqlite3Writer with regards to Sqlite3 types:
 
 | go-etl的类型 | sqlite3数据类型                                         |
 | ------------ | -------------------------------------------------------- |
-| string         |  INTEGER、TEXT、REAL、BLOB |
+| string         |  INTEGER,TEXT,REAL,BLOB,NUMERIC|
 
 ## Performance Report
 

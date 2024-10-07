@@ -10,10 +10,9 @@ Sqlite3Writer通过github.com/mattn/go-sqlite3连接远程sqlite3数据库，并
 
 sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的storage/database的DBWrapper来实现具体的查询。DBWrapper封装了database/sql的众多接口，并且抽象出了数据库方言Dialect。其中sqlite3采取了storage/database/sqlite3实现的Dialect。
 
+根据你配置的 `writeMode` 生成
 
-**或者**
-
-- `copy in ...` 与 insert into 行为一致，速度比insert into方式迅速。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
+- `insert into...`(当主键/唯一性索引冲突时会写不进去冲突的行)
 
 ## 功能说明
 
@@ -35,7 +34,6 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
           "connection": {
             "url": "E:\\Sqlite3\\test.db",
             "table": {
-              "db": "main",
               "name": "type_table_copy"
             }
           },
@@ -56,11 +54,11 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 - 必选：是
 - 默认值: 无
 
-#### name
+#### table
 
 描述sqlite3表信息
 
-##### table
+##### name
 
 - 描述 主要用于配置sqlite3表的表名
 - 必选：是
@@ -82,7 +80,7 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据，copyIn代表copy in方式写入数据。
+- 描述：写入模式，insert代表insert into方式写入数据。
 - 必选：否
 - 默认值: insert
 
@@ -118,7 +116,7 @@ sqlite3通过使用dbmswriter中定义的查询流程调用go-etl自定义的sto
 
 | go-etl的类型 | sqlite3数据类型                                         |
 | ------------ | -------------------------------------------------------- |
-| string         |  INTEGER、TEXT、REAL、BLOB |
+| string         |  INTEGER,TEXT,REAL,BLOB,NUMERIC|
 
 ## 性能报告
 

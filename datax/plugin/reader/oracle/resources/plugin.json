@@ -2,5 +2,5 @@
 	"name" : "oraclereader",
 	"developer":"Breeze0806",
 	"dialect":"oracle",
-	"description":""
+	"description":"OracleReader connects to remote Oracle databases using Oracle Instant Client via github.com/godror/godror"
 }
