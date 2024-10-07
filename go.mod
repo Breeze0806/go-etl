@@ -3,7 +3,7 @@ module github.com/Breeze0806/go-etl
 go 1.20
 
 require (
-	github.com/Breeze0806/go v0.0.0-20240604140839-b0eedfe73848
+	github.com/Breeze0806/go v0.0.0-20241007070500-6a4893c38b81
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/godror/godror v0.44.0
 	github.com/google/uuid v1.6.0
@@ -31,7 +31,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
-	github.com/tidwall/gjson v1.17.1 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
