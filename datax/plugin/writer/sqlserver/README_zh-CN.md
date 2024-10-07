@@ -16,7 +16,8 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
 
 **或者**
 
-- bulk copy 即`inster bulk ...` 与 insert into 行为一致，速度比insert into方式迅速，但是目前不知为何无法插入含有空值的记录
+- bulk copy 即`BULK INSERT ...` 与 insert into 行为一致，速度比insert into方式迅速。比起`insert into...`,我们更推荐这种写入模式。
+
 
 ## 功能说明
 
@@ -45,6 +46,9 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
                                     "schema":"dest",
                                     "name":"mytable"
                                 }
+                         },
+                         "bulkOption":{
+                            "KeepNulls":true
                          },
                         "batchTimeout": "1s",
                         "batchSize":1000
@@ -114,9 +118,59 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据,copyIn代表批量复制插入。
+- 描述：写入模式，insert代表insert into方式写入数据， copyIn代表批量复制插入。
 - 必选：否
 - 默认值: insert
+
+#### bulkOption
+
+- 描述：主要用于copyIn的批量写入配置，作用于`BULK INSERT`的配置
+- 必选：否
+- 默认值: 无
+
+以下是您提供的英文段落的中文翻译：
+
+##### CheckConstraints
+
++ 描述：表示`CHECK_CONSTRAINTS`。指定在批量导入操作期间，必须检查目标表或视图上的所有约束。如果不使用`CHECK_CONSTRAINTS`选项，则会忽略任何CHECK和FOREIGN KEY约束，并且在操作后，表上的约束将被标记为不受信任。
++ 必选：否
++ 默认值：无
+
+##### FireTriggers
+
++ 描述：表示`FIRE_TRIGGERS`。指定在批量导入操作期间，目标表上定义的任何插入触发器都会执行。如果为目标表的INSERT操作定义了触发器，则它们会在每个完成的批次上触发。如果未指定`FIRE_TRIGGERS`，则不会执行任何插入触发器。
++ 必选：否
++ 默认值：无
+
+##### KeepNulls
+
++ 描述：表示`KEEPNULLS`。指定在批量导入操作期间，空列应保留空值，而不是为插入的列插入任何默认值。
++ 必选：否
++ 默认值：无
+
+##### KilobytesPerBatch
+
++ 描述：表示`KILOBYTES_PER_BATCH`。指定每批数据的大致千字节（KB）数为*kilobytes_per_batch*。默认情况下，`KILOBYTES_PER_BATCH`是未知的。
++ 必选：否
++ 默认值：无
+
+##### RowsPerBatch
+
++ 描述：表示`ROWS_PER_BATCH`。指示数据文件中数据的大致行数。默认情况下，数据文件中的所有数据都作为单个事务发送到服务器，并且查询优化器不知道批次中的行数。如果指定了`ROWS_PER_BATCH`（值大于0），则服务器将使用此值来优化批量导入操作。为`ROWS_PER_BATCH`指定的值应大致与实际行数相同。
++ 必选：否
++ 默认值：无
+
+##### Order
+
++ 描述：表示`ORDER`。指定数据文件中数据的排序方式。如果导入的数据根据表上的聚集索引（如果有）进行排序，则可以提高批量导入性能。如果数据文件以不同的顺序排序，即不是聚集索引键的顺序，或者表上没有聚集索引，则忽略`ORDER`子句。提供的列名称必须是目标表中的有效列名称。默认情况下，批量插入操作假定数据文件是无序的。为了优化批量导入，SQL Server还会验证导入的数据是否已排序。
++ 必选：否
++ 默认值：无
+
+##### Tablock
+
++ 描述：表示`TABLOCK`。指定在批量导入操作期间获取表级锁。如果表没有索引并且指定了TABLOCK，则多个客户端可以同时加载表。默认情况下，锁定行为由表的**在批量加载时表锁定**选项确定。在批量导入操作期间持有锁可以减少表上的锁争用，在某些情况下可以显著提高性能。
++ 必选：否
++ 默认值：无
 
 #### batchTimeout
 
