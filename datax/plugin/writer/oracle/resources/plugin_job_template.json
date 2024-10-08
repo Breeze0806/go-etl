@@ -1,6 +1,20 @@
 {
 	"name": "oraclewriter",
 	"parameter": {
-
+		"connection":  {
+			"url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+			"table": {
+				"schema":"TEST",
+				"name":"DEST"
+			}
+		},
+		"username": "system",
+		"password": "oracle",
+		"writeMode": "insert",
+		"column": ["*"],
+		"preSql": ["create table a like b"],
+		"postSql": ["drop table a"],
+		"batchTimeout": "1s",
+		"batchSize":1000
 	}
 }

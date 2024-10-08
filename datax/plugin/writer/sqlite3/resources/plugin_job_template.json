@@ -1,0 +1,19 @@
+{
+	"name": "sqlite3writer",
+	"parameter": {
+	  "writeMode": "insert",
+	  "column": [
+		"*"
+	  ],
+	  "connection": {
+		"url": "E:\\Sqlite3\\test.db",
+		"table": {
+		  "name": "type_table_copy"
+		}
+	  },
+	  "preSql": ["create table a like b"],
+	  "postSql": ["drop table a"],
+	  "batchTimeout": "1s",
+	  "batchSize": 1000
+	}
+  }

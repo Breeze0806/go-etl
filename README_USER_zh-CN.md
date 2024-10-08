@@ -92,6 +92,7 @@ data -c config.json
 |              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_zh-CN.md)、[写](datax/plugin/writer/db2/README_zh-CN.md) |
 |              | SQL Server         | √            | √          | [读](datax/plugin/reader/sqlserver/README_zh-CN.md)、[写](datax/plugin/writer/sqlserver/README_zh-CN.md) |
 |              | Oracle             | √            | √          | [读](datax/plugin/reader/oracle/README_zh-CN.md)、[写](datax/plugin/writer/oracle/README_zh-CN.md) |
+|              | Sqlite3            | √            | √          | [读](datax/plugin/reader/sqlite3/README.md)、[写](datax/plugin/writer/sqlite3/README.md) |
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_zh-CN.md)、[写](datax/plugin/writer/csv/README_zh-CN.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_zh-CN.md)、[写](datax/plugin/writer/xlsx/README_zh-CN.md) |
 
@@ -187,7 +188,15 @@ datax -c examples/postgrescsv/config.json
 datax -c examples/postgresxlsx/config.json
 ```
 
-##### 2.1.2.10 其他同步例子
+##### 2.1.2.10 与 sqlite3 同步
+
+* 在使用前，请下载相应的[SQLite驱动](https://www.sqlite.org/download.html). 
+* 注意：在 Windows 系统上，设置 `path=%path%;/opt/sqlite/sqlite3.dll`。
+* 使用 `cmd/datax/examples/sqlite3/init.sql` **用于测试目的** 初始化数据库
+* 在 `examples/sqlite3/config.json` 文件中，`url` 表示 sqlite3 数据库文件的路径。在 Windows 系统上，它可以是 `E:\sqlite3\test.db`，而在 Linux 系统上，它可以是 `/sqlite3/test.db`。
+* 启动 sqlite3 同步命令：
+
+##### 2.1.2.11 其他同步例子
 
 除了上述例子外，在go-etl特性中所列出的数据源都可以交叉使用，还配置例如mysql到postgresql数据源，mysql到oracle,oracle到db2等等，
 

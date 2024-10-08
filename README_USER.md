@@ -92,6 +92,7 @@ The configurations for `reader` and `writer` are as follows:
 |                     | DB2 LUW            | √             | √              | [Read](datax/plugin/reader/db2/README.md), [Write](datax/plugin/writer/db2/README.md) |
 |                     | SQL Server         | √             | √              | [Read](datax/plugin/reader/sqlserver/README.md), [Write](datax/plugin/writer/sqlserver/README.md) |
 |                     | Oracle             | √             | √              | [Read](datax/plugin/reader/oracle/README.md), [Write](datax/plugin/writer/oracle/README.md) |
+|              | Sqlite3            | √            | √          | [Read](datax/plugin/reader/sqlite3/README.md)、[Write](datax/plugin/writer/sqlite3/README.md) |
 | Unstructured Stream | CSV                | √             | √              | [Read](datax/plugin/reader/csv/README.md), [Write](datax/plugin/writer/csv/README.md) |
 |                     | XLSX (excel)       | √             | √              | [Read](datax/plugin/reader/xlsx/README.md), [Write](datax/plugin/writer/xlsx/README.md) |
 
@@ -186,7 +187,19 @@ datax -c examples/postgrescsv/config.json
 datax -c examples/postgresxlsx/config.json
 ```
 
-##### 2.1.2.10 Other Synchronization Examples
+##### 2.1.2.10 Synchronizing with sqlite3
+
+* Before use, download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html). 
+* Note: On Windows, set `path=%path%;/opt/sqlite/sqlite3.dll`. 
+* Initialize the database using `cmd/datax/examples/sqlite3/init.sql` **for testing purposes**
+* In `examples/sqlite3/config.json`, `url` is the path of sqlite3 database files. On Windows, it can be `E:\sqlite3\test.db`, meanwhile, on Linux, it can be `/sqlite3/test.db`,
+* Start the sqlite3 synchronization command:
+
+```bash
+datax -c examples/sqlite3/config.json
+```
+
+##### 2.1.2.11 Other Synchronization Examples
 
 In addition to the above examples, all data sources listed in the go-etl features can be used interchangeably. Configurations can be set up for data sources such as MySQL to PostgreSQL, MySQL to Oracle, Oracle to DB2, etc.
 

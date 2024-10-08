@@ -1,19 +1,20 @@
 {
-	"name": "db2writer",
-	"parameter": {
-                "username": "",
-                "password": "",
-                "writeMode": "",
-                "column": [],
-                "preSql": [],
-                "connection": {
-                        "url": "",
+        "name": "db2writer",
+        "parameter": {
+                "connection":  {
+                        "url": "HOSTNAME=127.0.0.1;PORT=50000;DATABASE=db",
                         "table": {
-                                "schema":"",
-                                "name":""
+                                "schema":"SOURCE",
+                                "name":"TEST"
                         }
                 },
+                "username": "root",
+                "password": "12345678",
+                "writeMode": "insert",
+                "column": ["*"],
+                "preSql": ["create table a like b"],
+                "postSql": ["drop table a"],
                 "batchTimeout": "1s",
                 "batchSize":1000
-	}
+        }
 }

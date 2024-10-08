@@ -1,6 +1,19 @@
 {
 	"name": "oraclereader",
 	"parameter": {
-
+		"connection":  {
+			"url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true",
+			"table": {
+				"schema":"TEST",
+				"name":"SRC"
+			}
+		},
+		"username": "system",
+		"password": "oracle",
+		"column": ["*"],
+		"split" : {
+			"key":"id"
+		},   
+		"where": ""	
 	}
 }

@@ -2,5 +2,5 @@
     "name" : "csvreader",
     "developer":"Breeze0806",
     "opener":"csv",
-    "description":""
+    "description":"CsvReader leverages the os and encoding/csv standard libraries to read files"
 }

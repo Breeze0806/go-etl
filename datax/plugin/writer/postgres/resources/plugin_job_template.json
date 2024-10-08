@@ -9,7 +9,6 @@
         "connection":  {
                 "url": "postgres://192.168.15.130:5432/postgres?sslmode=disable",
                 "table": {
-                    "db":"postgres",
                     "schema":"destination",
                     "name":"type_table"
                 }

@@ -1,5 +1,5 @@
 {
-    "name": "csvwriter",
+    "name": "xlsxwriter",
     "parameter": {
         "column" :[
             {
@@ -10,11 +10,11 @@
         ],
         "xlsxs":[
             {
-                "path":"",
-                "sheets":["",""]   
+                "path":"Book1.xlsx",
+                "sheets":["Sheet1"]
             }
         ],
-        "batchSize":1000,
-        "batchTimeout":"1s"
+        "batchTimeout": "1s",
+        "batchSize":1000
     }
 }

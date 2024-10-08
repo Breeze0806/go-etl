@@ -10,7 +10,12 @@ MysqlWriter connects to remote Mysql databases using github.com/go-sql-driver/my
 
 MysqlWriter implements specific queries by invoking go-etl's custom DBWrapper from storage/database, using the query process defined in dbmswriter. DBWrapper encapsulates many interfaces from database/sql and abstracts the database dialect, Dialect. For Mysql, the Dialect implemented by storage/database/mysql is used.
 
-Based on the configured `writeMode`, MysqlWriter generates either an `insert into...` statement (which will not insert conflicting rows in case of primary key/unique index conflicts) or a `replace into...` statement (which behaves like `insert into` when no conflicts occur, but replaces the entire row with new values when conflicts arise). Data is buffered in memory and written in batches to optimize performance.
+Based on the configured `writeMode`, MysqlWriter generates: 
+an `insert into...` statement (which will not insert conflicting rows in case of primary key/unique index conflicts) 
+
+**or** 
+
+a `replace into...` statement (which behaves like `insert into` when no conflicts occur, but replaces the entire row with new values when conflicts arise). Data is buffered in memory and written in batches to optimize performance.
 
 ## Functionality Description
 
