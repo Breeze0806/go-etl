@@ -23,14 +23,14 @@ import (
 	"github.com/Breeze0806/go-etl/storage/stream/file"
 )
 
-// Task
+// Task  normal file task
 type Task struct {
 	*plugin.BaseTask
 
 	streamer *file.InStreamer
 }
 
-// NewTask Create a new task
+// NewTask Create normal file task
 func NewTask() *Task {
 	return &Task{
 		BaseTask: plugin.NewBaseTask(),
@@ -54,7 +54,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-// Destroy Destroy
+// Destroy Destroy normal file task
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.streamer != nil {
 		err = t.streamer.Close()

@@ -26,7 +26,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// Task
+// Task normal dbms task
 type Task struct {
 	*plugin.BaseTask
 

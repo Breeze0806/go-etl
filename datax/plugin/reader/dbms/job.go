@@ -27,7 +27,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Job
+// Job normal dbms job
 type Job struct {
 	*plugin.BaseJob
 

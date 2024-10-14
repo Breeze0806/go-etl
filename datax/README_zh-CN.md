@@ -111,7 +111,7 @@ Task组合*plugin.BaseTask,实现方法
 #### 3.1.4 命令生成 
 
 ```bash
-cd tools//datax/plugin
+cd tools/datax/plugin
 #新增一个名为Mysql的reader -p命令可以时任意大小写，用于指定reader的名字，如果新增-d 代表会删除原来的模板
 go run main.go -t reader -p Mysql
 ```

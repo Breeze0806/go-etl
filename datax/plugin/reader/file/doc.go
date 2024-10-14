@@ -12,27 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package file describes the file reader. For Tasks and Readers like CSV, independent implementation of Job is required, specifically implementing the `Split` method for splitting and the `Init` method for initialization.
 package file
-
-import (
-	"context"
-
-	"github.com/Breeze0806/go-etl/datax/common/plugin"
-)
-
-// Job normal file job
-type Job struct {
-	*plugin.BaseJob
-}
-
-// NewJob create normal file job
-func NewJob() *Job {
-	return &Job{
-		plugin.NewBaseJob(),
-	}
-}
-
-// Destroy destroy normal file job
-func (j *Job) Destroy(ctx context.Context) (err error) {
-	return
-}

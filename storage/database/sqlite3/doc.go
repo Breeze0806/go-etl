@@ -12,27 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package file
-
-import (
-	"context"
-
-	"github.com/Breeze0806/go-etl/datax/common/plugin"
-)
-
-// Job normal file job
-type Job struct {
-	*plugin.BaseJob
-}
-
-// NewJob create normal file job
-func NewJob() *Job {
-	return &Job{
-		plugin.NewBaseJob(),
-	}
-}
-
-// Destroy destroy normal file job
-func (j *Job) Destroy(ctx context.Context) (err error) {
-	return
-}
+// Package sqlite3 implements the Dialect for sqllite3 databases, supporting sqllite3.0.x corresponding databases.
+package sqlite3

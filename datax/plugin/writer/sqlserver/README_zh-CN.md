@@ -128,8 +128,6 @@ SQLServerWriter通过使用dbmswriter中定义的查询流程调用go-etl自定�
 - 必选：否
 - 默认值: 无
 
-以下是您提供的英文段落的中文翻译：
-
 ##### CheckConstraints
 
 + 描述：表示`CHECK_CONSTRAINTS`。指定在批量导入操作期间，必须检查目标表或视图上的所有约束。如果不使用`CHECK_CONSTRAINTS`选项，则会忽略任何CHECK和FOREIGN KEY约束，并且在操作后，表上的约束将被标记为不受信任。

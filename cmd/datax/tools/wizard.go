@@ -111,7 +111,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 				return err
 			}
 		case "db2reader", "mysqlreader", "oraclereader",
-			"postgresreader", "sqlserverreader":
+			"postgresreader", "sqlserverreader", "sqlite3reader":
 			if err = cloneDataSource.Set(coreconst.DataxJobContentReaderParameter+
 				".connection.table.name", record[0]); err != nil {
 				return err
@@ -132,7 +132,7 @@ func (w *Wizard) GenerateConfigsAndScripts() (err error) {
 				return err
 			}
 		case "db2writer", "mysqlwriter", "oraclewriter",
-			"postgreswriter", "sqlserverwriter":
+			"postgreswriter", "sqlserverwriter", "sqlite3writer":
 			if err = cloneDataSource.Set(coreconst.DataxJobContentWriterParameter+
 				".connection.table.name", record[1]); err != nil {
 				return err

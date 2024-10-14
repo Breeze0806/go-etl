@@ -24,7 +24,7 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
-// Task
+// Task normal dbms task
 type Task struct {
 	*writer.BaseTask
 
@@ -42,7 +42,7 @@ func NewTask(handler DbHandler) *Task {
 	}
 }
 
-// Init
+// Init init normal dbms task
 func (t *Task) Init(ctx context.Context) (err error) {
 	var name string
 	if name, err = t.PluginConf().GetString("dialect"); err != nil {
@@ -83,7 +83,7 @@ func (t *Task) Init(ctx context.Context) (err error) {
 	return
 }
 
-// Destroy
+// Destroy destroy normal dbms task
 func (t *Task) Destroy(ctx context.Context) (err error) {
 	if t.Execer != nil {
 		err = t.Execer.Close()
