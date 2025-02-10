@@ -45,7 +45,7 @@ func main() {
 	translate := flag.Bool("t", false, "translate")
 	flag.Parse()
 
-	packages := []string{"datax"}
+	packages := []string{"schedule"}
 	var codeFiles []string //= []string{
 	// 	"storage/database/mysql/field.go",
 	// 	"storage/database/oracle/field.go",
@@ -100,14 +100,6 @@ func main() {
 					log.Errorf("fetchComment %v fail. err : %v", filename, err)
 					return
 				}
-				if _, err := os.Stat(filename + ".en"); err != nil {
-					f, err := os.Create(filename + ".en")
-					if err != nil {
-						log.Errorf("create %v.en fail. err : %v", filename, err)
-						return
-					}
-					f.Close()
-				}
 			}
 		}(v)
 	}
@@ -142,14 +134,23 @@ func fetchComment(filename string) (err error) {
 	}
 
 	chnFile := filename + ".chn"
-	var f *os.File
+	var f, fen *os.File
 	f, err = os.Create(chnFile)
 	if err != nil {
 		return
 	}
 	defer f.Close()
 
-	var w *csv.Writer
+	//if _, err = os.Stat(filename + ".en"); err != nil {
+	fen, err = os.Create(filename + ".en")
+	if err != nil {
+		log.Errorf("create %v.en fail. err : %v", filename, err)
+		return
+	}
+	defer fen.Close()
+	//}
+
+	var w, wen *csv.Writer
 	w = csv.NewWriter(f)
 	w.Comma = '^'
 	defer w.Flush()
@@ -157,6 +158,15 @@ func fetchComment(filename string) (err error) {
 		"请将中文翻译成英文", "",
 	})
 	l := 1
+
+	if fen != nil {
+		wen = csv.NewWriter(fen)
+		wen.Comma = '^'
+		defer wen.Flush()
+		wen.Write([]string{
+			"请将中文翻译成英文", "",
+		})
+	}
 	for i, commentGroup := range astFile.Comments {
 		if i == 0 {
 			continue
@@ -170,7 +180,16 @@ func fetchComment(filename string) (err error) {
 				comment.Text,
 			}
 			w.Write(record)
+			if fen != nil {
+				for i := range record {
+					record[i] = strings.ReplaceAll(record[i], ":", " -")
+				}
+				wen.Write(record)
+			}
 			if l%1000 == 0 {
+				if fen != nil {
+					wen.Flush()
+				}
 				w.Flush()
 			}
 		}

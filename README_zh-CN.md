@@ -7,6 +7,7 @@
 [![GitHub release date][release-date-img]][release-date]
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
+[![Mentioned in Awesome Go][awesome-img]][awesome]
 
 [English](README.md) | 简体中文
 
@@ -195,3 +196,5 @@ go run tools/license/main.go
 [release-date]: https://github.com/Breeze0806/go-etl/releases
 [cov-img]: https://codecov.io/gh/Breeze0806/go-etl/branch/main/graph/badge.svg?token=UGb27Nysga
 [cov]: https://codecov.io/gh/Breeze0806/go-etl
+[awesome-img]:https://awesome.re/mentioned-badge.svg
+[awesome]:https://github.com/avelino/awesome-go

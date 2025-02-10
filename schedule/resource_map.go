@@ -23,21 +23,21 @@ type mappedResouceWrapper struct {
 	useCount int
 }
 
-// ResourceMap: Resource mapping
+// ResourceMap - Resource mapping
 type ResourceMap struct {
 	mu sync.Mutex
 
 	resources map[string]*mappedResouceWrapper
 }
 
-// NewResourceMap: Create a resource mapping
+// NewResourceMap - Create a resource mapping
 func NewResourceMap() *ResourceMap {
 	return &ResourceMap{
 		resources: make(map[string]*mappedResouceWrapper),
 	}
 }
 
-// Get: Retrieve a resource based on the keyword key. If the resource does not exist
+// Get - Retrieve a resource based on the keyword key. If the resource does not exist
 // If there is an error creating the resource
 func (r *ResourceMap) Get(key string, create func() (MappedResource, error)) (resource MappedResource, err error) {
 	var ok bool
@@ -58,7 +58,7 @@ func (r *ResourceMap) Get(key string, create func() (MappedResource, error)) (re
 	return
 }
 
-// Release: Release a resource based on the resource itself. If the resource does not exist
+// Release - Release a resource based on the resource itself. If the resource does not exist
 // If there is an error creating the resource
 func (r *ResourceMap) Release(resource MappedResource) (err error) {
 	r.mu.Lock()
@@ -67,7 +67,7 @@ func (r *ResourceMap) Release(resource MappedResource) (err error) {
 	return fn()
 }
 
-// UseCount: Calculate the number of times a resource has been used based on the resource itself
+// UseCount - Calculate the number of times a resource has been used based on the resource itself
 func (r *ResourceMap) UseCount(resource MappedResource) int {
 	r.mu.Lock()
 	defer r.mu.Unlock()

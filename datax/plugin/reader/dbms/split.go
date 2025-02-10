@@ -39,7 +39,7 @@ type splitRangeFetcher interface {
 type SplitConfig struct {
 	Key string `json:"key"` // Splitting Key
 	// day (Day), min (Minute), s (Second), ms (Millisecond), us (Microsecond), ns (Nanosecond)
-	TimeAccuracy string     `json:"timeAccuracy"` // Splitting Time Precision (Default: day)
+	TimeAccuracy string     `json:"timeAccuracy"` // Splitting Time Precision (Default - day)
 	Range        SplitRange `json:"range"`        // Splitting Range
 }
 
@@ -111,7 +111,7 @@ func (s SplitConfig) checkType(splitTable database.Table) (err error) {
 
 // SplitRange - Splitting Range Configuration
 type SplitRange struct {
-	Type   string `json:"type"`   // Type: bigint, string, time
+	Type   string `json:"type"`   // Type - bigint, string, time
 	Layout string `json:"layout"` // Time Format
 	Left   string `json:"left"`   // Start Point
 	Right  string `json:"right"`  // End Point

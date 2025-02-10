@@ -45,7 +45,7 @@ func (r *Reader) Plugin() plugin.Task {
 	return r.task
 }
 
-// Run is the execution sequence: Init->Prepare->StartRead->Post->Destroy.
+// Run is the execution sequence - Init->Prepare->StartRead->Post->Destroy.
 func (r *Reader) Run(ctx context.Context) (err error) {
 	defer func() {
 		log.Debugf("datax reader runner %v starts to destroy", r.describe)

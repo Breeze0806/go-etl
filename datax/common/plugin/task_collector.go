@@ -16,8 +16,8 @@ package plugin
 
 import "github.com/Breeze0806/go-etl/element"
 
-// TaskCollector: a component or system that collects task information
-// todo: currently not in use
+// TaskCollector - a component or system that collects task information
+// todo - currently not in use
 type TaskCollector interface {
 	CollectDirtyRecordWithError(record element.Record, err error)
 	CollectDirtyRecordWithMsg(record element.Record, msgErr string)

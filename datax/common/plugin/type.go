@@ -14,7 +14,7 @@
 
 package plugin
 
-// Type: Plugin Type
+// Type - Plugin Type
 type Type string
 
 // Plugin Type Enumeration
@@ -25,7 +25,7 @@ var (
 	Handler     Type = "handler"     // Processor
 )
 
-// NewType: New Type
+// NewType - New Type
 func NewType(s string) Type {
 	return Type(s)
 }
@@ -34,7 +34,7 @@ func (t Type) String() string {
 	return string(t)
 }
 
-// IsValid: Is Valid
+// IsValid - Is Valid
 func (t Type) IsValid() bool {
 	switch t {
 	case Reader, Writer, Transformer, Handler:

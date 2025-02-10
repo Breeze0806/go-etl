@@ -20,54 +20,54 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 )
 
-// Plugin: an extension or add-on component
+// Plugin - an extension or add-on component
 type Plugin interface {
 	Pluggable
-	// PreCheck: a pre-processing check or verification step
+	// PreCheck - a pre-processing check or verification step
 	PreCheck(ctx context.Context) error
-	// Prepare: a preparation step before the main operation
+	// Prepare - a preparation step before the main operation
 	Prepare(ctx context.Context) error
-	// PostNotification: a notification step after the main operation
+	// PostNotification - a notification step after the main operation
 	Post(ctx context.Context) error
-	// PreHandler: preprocessing, todo: currently not in use
+	// PreHandler - preprocessing, todo - currently not in use
 	PreHandler(ctx context.Context, conf *config.JSON) error
-	// PostHandler: post-notification processing, todo: currently not in use
+	// PostHandler - post-notification processing, todo - currently not in use
 	PostHandler(ctx context.Context, conf *config.JSON) error
 }
 
-// BasePlugin: a fundamental plugin class that assists and simplifies the implementation of plugins
+// BasePlugin - a fundamental plugin class that assists and simplifies the implementation of plugins
 type BasePlugin struct {
 	*BasePluggable
 }
 
-// NewBasePlugin: a function or method to create a new instance of BasePlugin
+// NewBasePlugin - a function or method to create a new instance of BasePlugin
 func NewBasePlugin() *BasePlugin {
 	return &BasePlugin{
 		BasePluggable: NewBasePluggable(),
 	}
 }
 
-// PreCheck: an empty method for pre-checking
+// PreCheck - an empty method for pre-checking
 func (b *BasePlugin) PreCheck(ctx context.Context) error {
 	return nil
 }
 
-// Post: an empty method for post-notification
+// Post - an empty method for post-notification
 func (b *BasePlugin) Post(ctx context.Context) error {
 	return nil
 }
 
-// Prepare: an empty method for preparation
+// Prepare - an empty method for preparation
 func (b *BasePlugin) Prepare(ctx context.Context) error {
 	return nil
 }
 
-// PreHandler: an empty method for preprocessing
+// PreHandler - an empty method for preprocessing
 func (b *BasePlugin) PreHandler(ctx context.Context, conf *config.JSON) error {
 	return nil
 }
 
-// PostHandler: an empty method for post-notification processing
+// PostHandler - an empty method for post-notification processing
 func (b *BasePlugin) PostHandler(ctx context.Context, conf *config.JSON) error {
 	return nil
 }

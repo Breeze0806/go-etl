@@ -38,7 +38,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// Container: the working container environment where all jobs are executed
+// Container - the working container environment where all jobs are executed
 type Container struct {
 	ctx context.Context
 	*core.BaseCotainer
@@ -61,7 +61,7 @@ type Container struct {
 	wg           sync.WaitGroup
 }
 
-// NewContainer: creates a working container environment based on the context ctx and JSON configuration conf
+// NewContainer - creates a working container environment based on the context ctx and JSON configuration conf
 // If the container job ID is less than 0, an error will be reported
 func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err error) {
 	c = &Container{
@@ -79,7 +79,7 @@ func NewContainer(ctx context.Context, conf *config.JSON) (c *Container, err err
 	return
 }
 
-// Start: begins the operation of the working container
+// Start - begins the operation of the working container
 func (c *Container) Start() (err error) {
 	log.Infof("DataX jobContainer %v starts job.", c.jobID)
 	defer c.destroy()
@@ -125,7 +125,7 @@ func (c *Container) Start() (err error) {
 	return nil
 }
 
-// destroy: destroys the container when jobReader is not empty
+// destroy - destroys the container when jobReader is not empty
 // destroys the container when jobWriter is not empty
 func (c *Container) destroy() (err error) {
 	if c.jobReader != nil {
@@ -146,7 +146,7 @@ func (c *Container) destroy() (err error) {
 	return
 }
 
-// init: checks and initializes the reader and writer jobs
+// init - checks and initializes the reader and writer jobs
 // An error will be reported if the names and parameters of the reader and writer in the configuration file do not exist
 // Additionally, failed initialization of the reader and writer jobs will also result in an error
 func (c *Container) init() (err error) {
@@ -196,7 +196,7 @@ func (c *Container) init() (err error) {
 	return
 }
 
-// prepare: prepares the reader and writer jobs
+// prepare - prepares the reader and writer jobs
 // An error will be reported if the preparation of the reader and writer jobs fails
 func (c *Container) prepare() (err error) {
 	if err = c.prepareReaderJob(); err != nil {
@@ -210,20 +210,20 @@ func (c *Container) prepare() (err error) {
 	return
 }
 
-// prepareReaderJob: prepares the reading job
+// prepareReaderJob - prepares the reading job
 func (c *Container) prepareReaderJob() error {
 	return c.jobReader.Prepare(c.ctx)
 }
 
-// prepareWriterJob: prepares the writing job
+// prepareWriterJob - prepares the writing job
 func (c *Container) prepareWriterJob() error {
 	return c.jobWriter.Prepare(c.ctx)
 }
 
-// split: splits the reader and writer jobs
+// split - splits the reader and writer jobs
 // First, the reading job is split into multiple tasks, and then the writing job is split into multiple tasks based on the results of the reading job split
 // Then, individual reading tasks, individual writing tasks, and transformers are combined into complete task groups due to the reader, writer, and channel model
-// When splitting, the ratio of readers to writers is 1:1, so the configurations of readers and writers can be integrated together here
+// When splitting, the ratio of readers to writers is 1 -1, so the configurations of readers and writers can be integrated together here
 func (c *Container) split() (err error) {
 	if err = c.adjustChannelNumber(); err != nil {
 		return
@@ -267,7 +267,7 @@ func (c *Container) split() (err error) {
 	return nil
 }
 
-// schedule: uses a scheduler to schedule the task groups into the execution queue
+// schedule - uses a scheduler to schedule the task groups into the execution queue
 func (c *Container) schedule() (err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.distributeTaskIntoTaskGroup()
@@ -336,7 +336,7 @@ func (c *Container) setStats(taskGroup *taskgroup.Container, i int) {
 	c.Metrics().Set("metrics."+strconv.Itoa(i), stats)
 }
 
-// post: post-notification
+// post - post-notification
 func (c *Container) post() (err error) {
 	if err = c.jobReader.Post(c.ctx); err != nil {
 		return err
@@ -349,7 +349,7 @@ func (c *Container) post() (err error) {
 	return
 }
 
-// mergeTaskConfigs: combines individual reading tasks, individual writing tasks, and transformers into complete task groups
+// mergeTaskConfigs - combines individual reading tasks, individual writing tasks, and transformers into complete task groups
 func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (taskConfigs []*config.JSON, err error) {
 	if len(readerConfs) != len(writerConfs) {
 		err = errors.New("the number of reader tasks are not equal to the number of writer tasks")
@@ -391,8 +391,8 @@ func (c *Container) mergeTaskConfigs(readerConfs, writerConfs []*config.JSON) (t
 	return
 }
 
-// distributeTaskIntoTaskGroup: fairly distributes tasks into corresponding task groups
-// Fairness is reflected in: it considers the load indicators for resource loads in tasks to perform a more balanced job allocation operation
+// distributeTaskIntoTaskGroup - fairly distributes tasks into corresponding task groups
+// Fairness is reflected in - it considers the load indicators for resource loads in tasks to perform a more balanced job allocation operation
 func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err error) {
 	var tasksConfigs []*config.JSON
 	tasksConfigs, err = c.Config().GetConfigArray(coreconst.DataxJobContent)
@@ -434,7 +434,7 @@ func (c *Container) distributeTaskIntoTaskGroup() (confs []*config.JSON, err err
 	return
 }
 
-// adjustChannelNumber: adapts the number of channels
+// adjustChannelNumber - adapts the number of channels
 // Generates the number of channels based on the size of the byte stream, the size of the record count, and the size of the channel count in sequence
 func (c *Container) adjustChannelNumber() error {
 	var needChannelNumberByByte int64 = math.MaxInt32
@@ -488,7 +488,7 @@ func (c *Container) adjustChannelNumber() error {
 		return nil
 	}
 
-	// if isChannelLimit := c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
+	// if isChannelLimit  -= c.Config().GetInt64OrDefaullt(coreconst.DataxJobSettingSpeedChannel, 0) > 0; isChannelLimit {
 	// // At this point, DataxJobSettingSpeedChannel must exist
 	// c.needChannelNumber, _ = c.Config().GetInt64(coreconst.DataxJobSettingSpeedChannel)
 	// 	log.Infof("DataX jobContainer %v set Channel-Number to %v channels.", c.jobID, c.needChannelNumber)
@@ -497,7 +497,7 @@ func (c *Container) adjustChannelNumber() error {
 	return errors.New("job speed should be setted")
 }
 
-// initReaderJob: initializes the reading job
+// initReaderJob - initializes the reading job
 // An error will be reported if the reading plugin name cannot find the reading job or if the initialization fails
 func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job reader.Job, err error) {
 	ok := false
@@ -518,7 +518,7 @@ func (c *Container) initReaderJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-// initWriterJob: initializes the writing job
+// initWriterJob - initializes the writing job
 // An error will be reported if the writing plugin name cannot find the writing job or if the initialization fails
 func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, writerConfig *config.JSON) (job writer.Job, err error) {
 	ok := false
@@ -539,7 +539,7 @@ func (c *Container) initWriterJob(collector plugin.JobCollector, readerConfig, w
 	return
 }
 
-// preHandle: for users, it is an empty shell, as readers and writers have not implemented the corresponding PreHandle logic
+// preHandle - for users, it is an empty shell, as readers and writers have not implemented the corresponding PreHandle logic
 func (c *Container) preHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPreHandlerPluginType) {
 		return
@@ -570,7 +570,7 @@ func (c *Container) preHandle() (err error) {
 	return
 }
 
-// postHandle: for users, it is an empty shell, as readers and writers have not implemented the corresponding PostHandle logic
+// postHandle - for users, it is an empty shell, as readers and writers have not implemented the corresponding PostHandle logic
 func (c *Container) postHandle() (err error) {
 	if !c.Config().Exists(coreconst.DataxJobPostHandlerPluginType) {
 		return
@@ -601,18 +601,18 @@ func (c *Container) postHandle() (err error) {
 	return
 }
 
-// doAssign: average distribution
-// The desired effect is demonstrated through an example:
-// Library a has tables: 0, 1, 2
-// Library a has tables: 3, 4
-// Library c has tables: 5, 6, 7
+// doAssign - average distribution
+// The desired effect is demonstrated through an example -
+// Library a has tables - 0, 1, 2
+// Library a has tables - 3, 4
+// Library c has tables - 5, 6, 7
 
 // If there are 4 taskGroups
-// The result after assignment would be:
-// taskGroup-0: 0, 4,
-// taskGroup-1: 3, 6,
-// taskGroup-2: 5, 2,
-// taskGroup-3: 1, 7
+// The result after assignment would be -
+// taskGroup-0 - 0, 4,
+// taskGroup-1 - 3, 6,
+// taskGroup-2 - 5, 2,
+// taskGroup-3 - 1, 7
 func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 	taskGroups := make([][]int, taskGroupNumber)
 	var taskMasks []string
@@ -641,7 +641,7 @@ func doAssign(taskIDMap map[string][]int, taskGroupNumber int) [][]int {
 }
 
 // parseAndGetResourceMarkAndTaskIDMap gets the mapping relationship between resource name and taskId(List)
-// according to the task configuration. (The load identification for resource load: task number)
+// according to the task configuration. (The load identification for resource load - task number)
 func parseAndGetResourceMarkAndTaskIDMap(tasksConfigs []*config.JSON) map[string][]int {
 	writerMap := make(map[string][]int)
 	readerMap := make(map[string][]int)

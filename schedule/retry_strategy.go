@@ -25,7 +25,7 @@ import (
 	"github.com/pingcap/errors"
 )
 
-// NewRetryStrategy: Generate a retry strategy based on the configuration file
+// NewRetryStrategy - Generate a retry strategy based on the configuration file
 func NewRetryStrategy(j RetryJudger, conf *config.JSON) (s RetryStrategy, err error) {
 	var retry *config.JSON
 	if ok := conf.Exists("retry"); !ok {
@@ -83,54 +83,54 @@ func NewRetryStrategy(j RetryJudger, conf *config.JSON) (s RetryStrategy, err er
 	return
 }
 
-// NTimesRetryConfig: Retry strategy with a fixed number of attempts
+// NTimesRetryConfig - Retry strategy with a fixed number of attempts
 type NTimesRetryConfig struct {
 	N    int            `json:"n"`
 	Wait time2.Duration `json:"wait"`
 }
 
-// ForeverRetryConfig: Permanent retry strategy
+// ForeverRetryConfig - Permanent retry strategy
 type ForeverRetryConfig struct {
 	Wait time2.Duration `json:"wait"`
 }
 
-// ExponentialRetryConfig: Exponential backoff retry strategy
+// ExponentialRetryConfig - Exponential backoff retry strategy
 type ExponentialRetryConfig struct {
 	Init time2.Duration `json:"init"`
 	Max  time2.Duration `json:"max"`
 }
 
-// RetryStrategy: Retry strategy interface or base class
+// RetryStrategy - Retry strategy interface or base class
 type RetryStrategy interface {
 	Next(err error, n int) (retry bool, wait time.Duration)
 }
 
-// RetryJudger: Retry decision-maker
+// RetryJudger - Retry decision-maker
 type RetryJudger interface {
 	ShouldRetry(err error) bool
 }
 
-// NoneRetryStrategy: No retry strategy
+// NoneRetryStrategy - No retry strategy
 type NoneRetryStrategy struct{}
 
-// NewNoneRetryStrategy: Create a strategy with no retries
+// NewNoneRetryStrategy - Create a strategy with no retries
 func NewNoneRetryStrategy() RetryStrategy {
 	return &NoneRetryStrategy{}
 }
 
-// Next: Whether to retry the next attempt and the waiting time for the next attempt
+// Next - Whether to retry the next attempt and the waiting time for the next attempt
 func (r *NoneRetryStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	return
 }
 
-// NTimesRetryStrategy: Retry strategy with a fixed number of attempts
+// NTimesRetryStrategy - Retry strategy with a fixed number of attempts
 type NTimesRetryStrategy struct {
 	j    RetryJudger
 	n    int
 	wait time.Duration
 }
 
-// NewNTimesRetryStrategy: Create a retry strategy with a fixed number of attempts
+// NewNTimesRetryStrategy - Create a retry strategy with a fixed number of attempts
 func NewNTimesRetryStrategy(j RetryJudger, n int, wait time.Duration) RetryStrategy {
 	return &NTimesRetryStrategy{
 		j:    j,
@@ -139,7 +139,7 @@ func NewNTimesRetryStrategy(j RetryJudger, n int, wait time.Duration) RetryStrat
 	}
 }
 
-// Next: Determine whether to retry the next attempt and the waiting time for the next attempt
+// Next - Determine whether to retry the next attempt and the waiting time for the next attempt
 func (r *NTimesRetryStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0
@@ -151,13 +151,13 @@ func (r *NTimesRetryStrategy) Next(err error, n int) (retry bool, wait time.Dura
 	return true, r.wait
 }
 
-// ForeverRetryStrategy: Permanent retry strategy with no maximum attempt limit
+// ForeverRetryStrategy - Permanent retry strategy with no maximum attempt limit
 type ForeverRetryStrategy struct {
 	j    RetryJudger
 	wait time.Duration
 }
 
-// NewForeverRetryStrategy: Create a permanent retry strategy based on a retry judge and retry interval
+// NewForeverRetryStrategy - Create a permanent retry strategy based on a retry judge and retry interval
 func NewForeverRetryStrategy(j RetryJudger, wait time.Duration) RetryStrategy {
 	return &ForeverRetryStrategy{
 		j:    j,
@@ -165,7 +165,7 @@ func NewForeverRetryStrategy(j RetryJudger, wait time.Duration) RetryStrategy {
 	}
 }
 
-// Next: Determine whether to retry the next attempt and the waiting time for the next attempt. In a permanent retry strategy
+// Next - Determine whether to retry the next attempt and the waiting time for the next attempt. In a permanent retry strategy
 func (r *ForeverRetryStrategy) Next(err error, _ int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0
@@ -174,7 +174,7 @@ func (r *ForeverRetryStrategy) Next(err error, _ int) (retry bool, wait time.Dur
 	return true, r.wait
 }
 
-// ExponentialStrategy: Exponential backoff retry strategy
+// ExponentialStrategy - Exponential backoff retry strategy
 type ExponentialStrategy struct {
 	j    RetryJudger
 	f    float64
@@ -182,7 +182,7 @@ type ExponentialStrategy struct {
 	max  float64
 }
 
-// NewExponentialRetryStrategy: Create an exponential backoff retry strategy based on a retry judge
+// NewExponentialRetryStrategy - Create an exponential backoff retry strategy based on a retry judge
 func NewExponentialRetryStrategy(j RetryJudger, init, max time.Duration) RetryStrategy {
 	rand.Seed(time.Now().UnixNano())
 	return &ExponentialStrategy{
@@ -193,7 +193,7 @@ func NewExponentialRetryStrategy(j RetryJudger, init, max time.Duration) RetrySt
 	}
 }
 
-// Next: Determine whether to retry the next attempt and the waiting time for the next attempt
+// Next - Determine whether to retry the next attempt and the waiting time for the next attempt
 func (r *ExponentialStrategy) Next(err error, n int) (retry bool, wait time.Duration) {
 	if !r.j.ShouldRetry(err) {
 		return false, 0

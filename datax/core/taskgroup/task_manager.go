@@ -18,44 +18,44 @@ import (
 	"github.com/Breeze0806/go-etl/schedule"
 )
 
-// taskManager: Task Manager
+// taskManager - Task Manager
 type taskManager struct {
 	manager *schedule.MappedTaskManager
 }
 
-// newTaskManager: Create a new Task Manager
+// newTaskManager - Create a new Task Manager
 func newTaskManager() *taskManager {
 	return &taskManager{
 		manager: schedule.NewTaskManager(),
 	}
 }
 
-// isEmpty: Check if the Task Manager is empty
+// isEmpty - Check if the Task Manager is empty
 func (t *taskManager) isEmpty() bool {
 	return t.manager.IsEmpty()
 }
 
-// size: The number of tasks, including pending and running tasks
+// size - The number of tasks, including pending and running tasks
 func (t *taskManager) size() int {
 	return t.manager.Size()
 }
 
-// removeRunAndPushRemain: Move a task from the running queue to the pending queue
+// removeRunAndPushRemain - Move a task from the running queue to the pending queue
 func (t *taskManager) removeRunAndPushRemain(te *taskExecer) {
 	t.manager.RemoveRunAndPushRemain(te)
 }
 
-// pushRemain: Add a task to the pending queue
+// pushRemain - Add a task to the pending queue
 func (t *taskManager) pushRemain(te *taskExecer) {
 	t.manager.PushRemain(te)
 }
 
-// removeRun: Remove a task from the running queue
+// removeRun - Remove a task from the running queue
 func (t *taskManager) removeRun(te *taskExecer) {
 	t.manager.RemoveRun(te)
 }
 
-// popRemainAndAddRun: Move a task from the pending queue to the running queue
+// popRemainAndAddRun - Move a task from the pending queue to the running queue
 func (t *taskManager) popRemainAndAddRun() (te *taskExecer, ok bool) {
 	var task schedule.MappedTask
 	task, ok = t.manager.PopRemainAndAddRun()

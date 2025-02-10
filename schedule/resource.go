@@ -14,12 +14,12 @@
 
 package schedule
 
-// Resource: Resource
+// Resource - Resource
 type Resource interface {
 	Close() error // Close and release resources
 }
 
-// MappedResource: Mappable resource
+// MappedResource - Mappable resource
 type MappedResource interface {
 	Resource
 

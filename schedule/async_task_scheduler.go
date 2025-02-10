@@ -32,7 +32,7 @@ type asyncTaskResult struct {
 	result chan error
 }
 
-// AsyncTaskScheduler: Asynchronous task scheduler
+// AsyncTaskScheduler - Asynchronous task scheduler
 type AsyncTaskScheduler struct {
 	tasks   chan *asyncTaskWrapper
 	results chan *asyncTaskResult
@@ -44,7 +44,7 @@ type AsyncTaskScheduler struct {
 	closed  int32
 }
 
-// NewAsyncTaskScheduler: Create an asynchronous task scheduler using the context ctx, the number of parallel workers numWorker, and the task channel size chanSize.
+// NewAsyncTaskScheduler - Create an asynchronous task scheduler using the context ctx, the number of parallel workers numWorker, and the task channel size chanSize.
 // Create an asynchronous task scheduler with the specified context
 func NewAsyncTaskScheduler(ctx context.Context,
 	numWorker, chanSize int) *AsyncTaskScheduler {
@@ -76,7 +76,7 @@ func NewAsyncTaskScheduler(ctx context.Context,
 	return a
 }
 
-// Push: Asynchronously execute a task.
+// Push - Asynchronously execute a task.
 func (a *AsyncTaskScheduler) Push(task AsyncTask) (err error) {
 	if goatomic.CompareAndSwapInt32(&a.closed, 1, 1) {
 		return ErrClosed
@@ -109,17 +109,17 @@ func (a *AsyncTaskScheduler) Push(task AsyncTask) (err error) {
 	return nil
 }
 
-// Size: The number of tasks currently in the asynchronous task scheduler.
+// Size - The number of tasks currently in the asynchronous task scheduler.
 func (a *AsyncTaskScheduler) Size() int32 {
 	return a.size.Load()
 }
 
-// Errors: Error listener for the asynchronous task scheduler.
+// Errors - Error listener for the asynchronous task scheduler.
 func (a *AsyncTaskScheduler) Errors() <-chan error {
 	return a.errors
 }
 
-// Close: Close the asynchronous task scheduler.
+// Close - Close the asynchronous task scheduler.
 func (a *AsyncTaskScheduler) Close() error {
 	if !goatomic.CompareAndSwapInt32(&a.closed, 0, 1) {
 		return ErrClosed
