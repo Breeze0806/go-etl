@@ -24,9 +24,9 @@ import (
 type Task interface {
 	Plugin
 
-	// Task Information Collector, todo: not currently used
+	// Task Information Collector, todo - not currently used
 	TaskCollector() TaskCollector
-	// Set Task Information Collector, todo: not currently used
+	// Set Task Information Collector, todo - not currently used
 	SetTaskCollector(collector TaskCollector)
 
 	// Job ID

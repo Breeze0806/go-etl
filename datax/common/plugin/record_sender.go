@@ -18,7 +18,7 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 )
 
-// RecordSender: Record Sender
+// RecordSender - Record Sender
 type RecordSender interface {
 	CreateRecord() (element.Record, error)  // Create Record
 	SendWriter(record element.Record) error // Send Record to Writer

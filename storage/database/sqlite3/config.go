@@ -16,6 +16,7 @@ package sqlite3
 
 import (
 	"encoding/json"
+
 	"github.com/Breeze0806/go-etl/config"
 )
 

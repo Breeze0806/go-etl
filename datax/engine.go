@@ -34,24 +34,24 @@ var (
 	ModelTaskGroup Model = "taskGroup" // Work by Task Group
 )
 
-// IsJob: whether to work by job
+// IsJob - whether to work by job
 func (m Model) IsJob() bool {
 	return m == ModelJob
 }
 
-// IsTaskGroup: whether to work by task group
+// IsTaskGroup - whether to work by task group
 func (m Model) IsTaskGroup() bool {
 	return m == ModelTaskGroup
 }
 
-// Engine: execution engine
+// Engine - execution engine
 type Engine struct {
 	core.Container
 	ctx  context.Context
 	conf *config.JSON
 }
 
-// NewEngine: create a new execution engine based on context ctx and JSON configuration conf
+// NewEngine - create a new execution engine based on context ctx and JSON configuration conf
 func NewEngine(ctx context.Context, conf *config.JSON) *Engine {
 	return &Engine{
 		ctx:  ctx,
@@ -59,7 +59,7 @@ func NewEngine(ctx context.Context, conf *config.JSON) *Engine {
 	}
 }
 
-// Start: start
+// Start - start
 func (e *Engine) Start() (err error) {
 	model := Model(e.conf.GetStringOrDefaullt(coreconst.DataxCoreContainerModel, string(ModelJob)))
 	switch {

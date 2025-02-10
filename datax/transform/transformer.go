@@ -16,15 +16,15 @@ package transform
 
 import "github.com/Breeze0806/go-etl/element"
 
-// Transformer: Transformer
+// Transformer - Transformer
 type Transformer interface {
 	DoTransform(element.Record) (element.Record, error)
 }
 
-// NilTransformer: Null Transformer
+// NilTransformer - Null Transformer
 type NilTransformer struct{}
 
-// DoTransform: Perform Transformation
+// DoTransform - Perform Transformation
 func (n *NilTransformer) DoTransform(record element.Record) (element.Record, error) {
 	return record, nil
 }
