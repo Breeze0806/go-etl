@@ -17,7 +17,7 @@ package plugin
 import "github.com/Breeze0806/go/encoding"
 
 // JobCollector - a work information collector used to collect the progress, error messages, and other information of the entire job.
-// toto - The monitoring module is currently not implemented, so the structure of this interface needs to be implemented later.
+// todo: The monitoring module is currently not implemented, so the structure of this interface needs to be implemented later.
 type JobCollector interface {
 	JSON() *encoding.JSON
 	JSONByKey(key string) *encoding.JSON
