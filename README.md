@@ -35,6 +35,8 @@ This data synchronization tool has the synchronization capability for the follow
 |              | Sqlite3            | √            | √          | [Read](datax/plugin/reader/sqlite3/README.md)、[Write](datax/plugin/writer/sqlite3/README.md) |
 | Unstructured Data Stream    | CSV                | √            | √          | [Read](datax/plugin/reader/csv/README.md)、[Write](datax/plugin/writer/csv/README.md) |
 |              | XLSX（excel）      | √            | √          | [Read](datax/plugin/reader/xlsx/README.md)、[Write](datax/plugin/writer/xlsx/README.md) |
+|              | Elasticsearch      | √            | √          | [Read](datax/plugin/reader/elasticsearch/README.md)、[Write](datax/plugin/writer/elasticsearch/README.md) |
+
 
 ### Getting Started
 

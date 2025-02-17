@@ -1,0 +1,1 @@
+# ElasticsearchWriter Plugin Documentation
