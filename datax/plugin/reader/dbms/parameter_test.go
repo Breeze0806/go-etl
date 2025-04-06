@@ -147,16 +147,22 @@ func Test_tableParam_Agrs(t *testing.T) {
 }
 
 func Test_queryParam_Query(t *testing.T) {
+	tab := NewMockTable(database.NewBaseTable("db", "schema", "table"))
+	tab.AddField(database.NewBaseField(1, "f1", NewMockFieldType(database.GoTypeInt64)))
+	tab.AddField(database.NewBaseField(2, "f2", NewMockFieldType(database.GoTypeInt64)))
+	tab.AddField(database.NewBaseField(3, "f3", NewMockFieldType(database.GoTypeInt64)))
+
 	type args struct {
 		in0 []element.Record
 	}
 	tests := []struct {
-		name    string
-		t       *MockTable
-		config  *BaseConfig
-		args    args
-		want    string
-		wantErr bool
+		name      string
+		t         *MockTable
+		notFollow bool
+		config    *BaseConfig
+		args      args
+		want      string
+		wantErr   bool
 	}{
 		{
 			name:   "1",
@@ -234,11 +240,29 @@ func Test_queryParam_Query(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name:      "7",
+			t:         tab,
+			notFollow: true,
+			config: &BaseConfig{
+				Column: []string{
+					"f1",
+					"f2",
+					"case when f4 is null then 1 else 2 end as f3",
+				},
+			},
+			args: args{
+				in0: nil,
+			},
+			want: "select f1,f2,case when f4 is null then 1 else 2 end as f3 from db.schema.table",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			for i, v := range tt.config.Column {
-				tt.t.AddField(database.NewBaseField(i, v, NewMockFieldType(database.GoTypeInt64)))
+			if !tt.notFollow {
+				for i, v := range tt.config.Column {
+					tt.t.AddField(database.NewBaseField(i, v, NewMockFieldType(database.GoTypeInt64)))
+				}
 			}
 			q := NewQueryParam(tt.config, tt.t, nil)
 			got, err := q.Query(tt.args.in0)

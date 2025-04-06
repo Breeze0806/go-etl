@@ -22,7 +22,7 @@
                         },
                         "username": "system",
                         "password": "oracle",
-                        "column": ["*"],
+                        "column": ["T_NUM","T_DATE","case when T_DATE is null or T_DATE > SYSDATE then 1 else 0 end as \"状态\""],
                         "where": ""
                     }
                 },
@@ -39,7 +39,7 @@
                         "username": "system",
                         "password": "oracle",
                         "writeMode": "insert",
-                        "column": ["*"],
+                        "column": ["T_NUM","T_DATE","T_INT"],
                         "preSql": [],
                         "batchTimeout": "1s",
                         "batchSize":1000

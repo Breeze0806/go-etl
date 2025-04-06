@@ -103,11 +103,22 @@ func (q *QueryParam) Query(_ []element.Record) (string, error) {
 	if len(q.Table().Fields()) == 0 {
 		return "", errors.NewNoStackError("column is empty")
 	}
+
+	canUseConfig := false
+	if len(q.Table().Fields()) == len(q.Config.GetColumns()) {
+		canUseConfig = true
+	}
+
 	for i, v := range q.Table().Fields() {
 		if i > 0 {
 			buf.WriteString(",")
 		}
-		buf.WriteString(v.Quoted())
+
+		col := v.Select()
+		if canUseConfig && v.Name() != q.Config.GetColumns()[i].GetName() {
+			col = q.Config.GetColumns()[i].GetName()
+		}
+		buf.WriteString(col)
 	}
 	buf.WriteString(" from ")
 	buf.WriteString(q.Table().Quoted())
