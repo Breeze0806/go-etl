@@ -36,64 +36,75 @@ go-etl将提供的etl能力如下：
 | 无结构流     | CSV                | √            | √          | [读](datax/plugin/reader/csv/README_zh-CN.md)、[写](datax/plugin/writer/csv/README_zh-CN.md) |
 |              | XLSX（excel）      | √            | √          | [读](datax/plugin/reader/xlsx/README_zh-CN.md)、[写](datax/plugin/writer/xlsx/README_zh-CN.md) |
 
-### 数据同步用户手册
+### 快速开始
 
-使用[go-etl数据同步用户手册](README_USER_zh-CN.md)开始数据同步
+#### 从获取二进制程序开始
 
-### 数据同步开发宝典
+可以在[最新发布版本](https://github.com/Breeze0806/go-etl/releases)下载到windows或者linux操作系统的64位版本二进制程序。
 
-参考[go-etl数据同步开发者文档](datax/README_zh-CN.md)来帮助开发
+使用方式参考[go-etl数据同步用户手册](README_USER_zh-CN.md)开始数据同步。
 
-### 数据同步工具编译
+#### 从源代码开始
 
-#### linux
+##### linux
 
-##### 编译依赖
+###### 编译依赖
 
 1. golang 1.20以及以上版本
 
-##### 构建
+###### 构建
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 make dependencies
 make release
 ```
 
-##### 去掉db2依赖
+###### 去掉db2依赖
 
 在编译前需要export IGNORE_PACKAGES=db2 
 
 ```bash
 export IGNORE_PACKAGES=db2
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 make dependencies
 make release
 ```
 
-#### windows
+##### windows
 
-##### 编译依赖
+###### 编译依赖
 
 1. 需要mingw-w64 with gcc 7.2.0以上的环境进行编译
 2. golang 1.20以及以上
 3. 最小编译环境为win7 
 
-##### 构建
+###### 构建
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 release.bat
 ```
 
-##### 去掉db2依赖
+###### 去掉db2依赖
 
 在编译前需要set IGNORE_PACKAGES=db2
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 set IGNORE_PACKAGES=db2
 release.bat
 ```
 
-
-#### 编译产物
+##### 编译产物
 
 ```
     +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
@@ -115,6 +126,38 @@ release.bat
 + bin下的是数据同步程序datax
 + exampales下是各场景的数据同步的配置文档
 + README_USER_zh-CN.md是中文用户使用手册
+
+#### 从编译docker镜像开始
+
+使用命令获取`go-etl`项目,版本是`go-etl`的v0.2.1,
+```bash
+git clone https://github.com/Breeze0806/go-etl.git
+cd go-etl
+git describe --abbrev=0 --tags
+```
+
+通过以下命令可以编译成镜像
+```bash
+docker build . -t go-etl:v0.2.1
+```
+
+启动容器
+
+```bash
+docker run -d --name etl go-etl:v0.2.1
+```
+
+进入容器
+
+```bash
+docker exec -it etl bash
+```
+
+但当前还不直接支持sqlite3，DB2，oracle的直接使用，这需要下载对应的odbc并配置环境变量
+
+### 数据同步开发宝典
+
+参考[go-etl数据同步开发者文档](datax/README_zh-CN.md)来帮助开发
 
 ## 模块简介
 ### datax

@@ -1,14 +1,14 @@
 # go-etl Data Synchronization User Manual
 
-go-etl's datax is a data synchronization tool that currently supports data synchronization between mainstream relational databases such as MySQL, Postgres, Oracle, SQL Server, DB2, and file formats like CSV and XLSX.
+go-etl's datax is a data synchronization tool that currently supports data synchronization between mainstream relational databases such as MySQL, Postgres, Oracle, SQL Server, DB2, Sqlite3, and file formats like CSV and XLSX.
 
-## 1 Where to Download
+## 1 How to Obtain
 
-You can download the 64-bit version of the binary program for Windows or Linux operating systems from the [latest release](https://github.com/Breeze0806/go-etl/releases).
+Refer to the [project documentation](README_zh-CN.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
 
 ## 2 Getting Started
 
-Obtain the datax binary program from the downloaded package. On Linux, as shown in the Makefile, export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib. This library can be downloaded from [ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli), otherwise it will not run.
+Acquire the DataX binary program or Docker image to begin usage. On Linux, as shown in the Makefile, export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib. This library can be downloaded from [ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli), otherwise it will not run.
 
 Additionally, for Oracle, you need to download the corresponding 64-bit version of the ODBC dependency from [Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html).
 

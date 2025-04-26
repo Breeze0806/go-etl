@@ -1,14 +1,14 @@
 # go-etl数据同步用户手册
 
-go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
+go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,Sqlite3,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
 
-## 1 从哪里下载
+## 1 如何获取
 
-可以在[最新发布版本](https://github.com/Breeze0806/go-etl/releases)下载到windows或者linux操作系统的64位版本二进制程序。
+参考[项目文档](README_zh-CN.md)，从获取二进制程序开始，从源代码开始或者从编译docker镜像开始。
 
 ## 2 如何开始
 
-从下载包中获得datax二进制程序，在linux下如Makefile所示export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
+获取datax二进制程序或docker镜像，在linux下如Makefile所示`export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib`，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
 
 另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
@@ -18,11 +18,11 @@ go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQ
 ```bash
 data -c config.json
 ```
--c 指定数据源配置文件
+`-c` 指定数据源配置文件
 
-当返回值是0，并且显示run success,表示执行成功
+当返回值是`0`，并且显示`run success`,表示执行成功
 
-当返回值是1，并且显示run fail,并告知执行失败的原因
+当返回值是`1`，并且显示`run fail`,并告知执行失败的原因
 
 #### 2.1.1 数据源配置文件
 
