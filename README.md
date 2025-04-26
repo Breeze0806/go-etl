@@ -39,62 +39,73 @@ This data synchronization tool has the synchronization capability for the follow
 
 ### Getting Started
 
+#### Run by obtaining the binary program
+
+You can download the 64-bit binary executable for Windows or Linux operating systems from the 
+[latest releases](https://github.com/Breeze0806/go-etl/releases)
+
 Start data synchronization with the [go-etl Data Synchronization User Manual](README_USER.md)
 
-### Data Synchronization Development Handbook
+#### Run by source code
 
-Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md) to assist with your development.
+##### Linux
 
-
-### Compile
-
-#### Linux
-
-##### Compilation dependencies
+###### Compilation dependencies
 
 1. golang 1.20 and later versions
 2. gcc 4.8 and later versions
 
-##### build
+###### build
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 make dependencies
 make release
 ```
 
-##### Removing DB2 dependency
+###### Removing DB2 dependency
 
 Before compilation, it is necessary to use `export IGNORE_PACKAGES=db2`
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 export IGNORE_PACKAGES=db2
 make dependencies
 make release
 ```
 
-#### windows
+##### windows
 
-##### Compilation Dependencies:
+###### Compilation Dependencies:
 
 1. Mingw-w64 with gcc 7.2.0 or higher is required for compilation.
 2. Golang version 1.20 or above is necessary.
 3. The minimum compilation environment is Windows 7.
 
-##### build
+###### build
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 release.bat
 ```
 
-##### Removing DB2 dependency
+###### Removing DB2 dependency
 
 Before compilation, it is necessary to use `set IGNORE_PACKAGES=db2`
 
 ```bash
+cd ${GO_PATH}\src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 set IGNORE_PACKAGES=db2
 release.bat
 ```
-
 
 #### Compilation output
 
@@ -118,6 +129,49 @@ release.bat
 + The bin directory houses the data synchronization program, named datax.
 + The examples directory includes configuration files for data synchronization in different scenarios.
 + README_USER is the user manual or guide in English.
+
+#### Run by docker
+
+To retrieve the `go-etl` project (version v0.2.1), follow these steps:
+
+```bash
+# Clone the repository
+git clone https://github.com/Breeze0806/go-etl.git
+cd go-etl
+
+# Verify the tag version
+git describe --abbrev=0 --tags
+```
+
+For Docker image compilation:
+
+```bash
+# Build Docker image
+docker build . -t go-etl:v0.2.1
+```
+
+To start the container:
+
+```bash
+# Run container in detached mode
+docker run -d --name etl go-etl:v0.2.1
+```
+
+To access the container shell:
+
+```bash
+# Enter the running container
+docker exec -it etl bash
+```
+
+Important Note:  
+Current version doesn't support direct usage of SQLite3, DB2, or Oracle databases. To enable these databases, you need to:  
+1. Download the corresponding ODBC drivers  
+2. Configure environment variables for database connections  
+
+### Data Synchronization Development Handbook
+
+Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md) to assist with your development.
 
 ## Module Introduction
 ### datax

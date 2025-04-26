@@ -14,28 +14,36 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 FROM base AS builder
-
-RUN wget -q -O - https://golang.google.cn/dl/go1.20.14.linux-amd64.tar.gz | tar -C /usr/local -xzf -
-
 ENV GOROOT="/usr/local/go"
 ENV PATH="${GOROOT}/bin:${PATH}"
 ENV GOPATH="/goproject"
 ENV PATH="${GOPATH}/bin:${PATH}"
-ENV GOPROXY="https://goproxy.cn,direct"
 ENV GO111MODULE="on"
+
+# if you located in China, you can use this proxy to speed up
+ENV GOPROXY="https://goproxy.cn,direct"
+
+# if you located in China and do not want to use DB2 as the data source, you can use this to disable download db2 odbc
 ENV IGNORE_PACKAGES="db2"
-RUN mkdir -p "$GOPATH/src/github.com/Breeze0806/go-etl" "$GOPATH/bin" "$GOPATH/pkg"
+
+#ENV GO_WEB_SITE="go.dev"
+# if you located in China, you can use golang mirror to speed up
+ENV GO_WEB_SITE="golang.google.cn"
+
+RUN wget -q -O - https://${GO_WEB_SITE}/dl/go1.20.14.linux-amd64.tar.gz | tar -C /usr/local -xzf - \
+    && mkdir -p "$GOPATH/src/github.com/Breeze0806/go-etl" "$GOPATH/bin" "$GOPATH/pkg"
+
 WORKDIR $GOPATH/src/github.com/Breeze0806/go-etl
 COPY . .
 
 RUN make dependencies \
     && make release \
-    && mv datax-$(git describe --abbrev=0 --tags)-linux-x86_64.tar.gz datax-no-db2-linux-x86_64.tar.gz
+    && mv datax-$(git describe --abbrev=0 --tags)-linux-x86_64.tar.gz datax-linux-x86_64.tar.gz
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM base AS production
 WORKDIR /opt
-COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/datax-no-db2-linux-x86_64.tar.gz .
-RUN tar zxvf datax-no-db2-linux-x86_64.tar.gz
+COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/datax-linux-x86_64.tar.gz .
+RUN tar zxvf datax-linux-x86_64.tar.gz
 ENTRYPOINT ["tail", "-f","/dev/null"]
