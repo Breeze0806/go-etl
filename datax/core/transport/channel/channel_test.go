@@ -123,7 +123,7 @@ func TestChannelWithRateLimit(t *testing.T) {
 		t.Errorf("TotalByte:%v want:%v", ch.StatsJSON().TotalByte, b*want)
 	}
 
-	if ch.StatsJSON().TotalRecord != int64(want+1) {
+	if ch.StatsJSON().TotalRecord != int64(want) {
 		t.Errorf("TotalRecord:%v want:%v", ch.StatsJSON().TotalRecord, want+1)
 	}
 }

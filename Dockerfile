@@ -43,7 +43,8 @@ RUN make dependencies \
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM base AS production
-WORKDIR /opt
+RUN mkdir -p /usr/local/go-etl/data
+WORKDIR /usr/local/go-etl
 COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/datax-linux-x86_64.tar.gz .
 RUN tar zxvf datax-linux-x86_64.tar.gz
 ENTRYPOINT ["tail", "-f","/dev/null"]

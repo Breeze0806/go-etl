@@ -147,14 +147,14 @@ For Docker image compilation:
 
 ```bash
 # Build Docker image
-docker build . -t go-etl:v0.2.1
+docker build . -t go-etl:v0.2.2
 ```
 
 To start the container:
 
 ```bash
 # Run container in detached mode
-docker run -d --name etl go-etl:v0.2.1
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
 ```
 
 To access the container shell:

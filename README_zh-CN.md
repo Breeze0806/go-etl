@@ -138,13 +138,13 @@ git describe --abbrev=0 --tags
 
 通过以下命令可以编译成镜像
 ```bash
-docker build . -t go-etl:v0.2.1
+docker build . -t go-etl:v0.2.2
 ```
 
 启动容器
 
 ```bash
-docker run -d --name etl go-etl:v0.2.1
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
 ```
 
 进入容器
