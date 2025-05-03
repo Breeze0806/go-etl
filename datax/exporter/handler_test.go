@@ -15,7 +15,10 @@
 package exporter
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
+	"reflect"
 	"testing"
 
 	"github.com/Breeze0806/go-etl/datax"
@@ -80,17 +83,20 @@ func (m *MockResponseWriter) WriteHeader(statusCode int) {
 }
 
 func TestHandler_ServeHTTP(t *testing.T) {
+	URL, _ := url.Parse("http://127.0.0.1:6080/metrics")
+	URLJson, _ := url.Parse("http://127.0.0.1:6080/metrics?t=json")
 	type args struct {
 		w http.ResponseWriter
 		r *http.Request
 	}
 	tests := []struct {
-		name string
-		h    *Handler
-		args args
+		name     string
+		h        *Handler
+		args     args
+		wantData []byte
 	}{
 		{
-			name: "1",
+			name: "exporter",
 			h: NewHandler(&datax.Engine{
 				Container: &MockContainer{},
 			}),
@@ -98,14 +104,79 @@ func TestHandler_ServeHTTP(t *testing.T) {
 				w: &MockResponseWriter{
 					header: make(http.Header),
 				},
-				r: &http.Request{},
+				r: &http.Request{
+					URL: URL,
+				},
 			},
+			wantData: []byte(`# HELP datax_channel_byte the number of bytes currently being synchronized in the channel
+# TYPE datax_channel_byte gauge
+datax_channel_byte{job_id="10230",task_group_id="0",task_id="0"} 1987
+datax_channel_byte{job_id="10230",task_group_id="0",task_id="1"} 4312
+# HELP datax_channel_record the number of records currently being synchronized in the channel
+# TYPE datax_channel_record gauge
+datax_channel_record{job_id="10230",task_group_id="0",task_id="0"} 123
+datax_channel_record{job_id="10230",task_group_id="0",task_id="1"} 311
+# HELP datax_channel_total_byte the total number of bytes synchronized
+# TYPE datax_channel_total_byte counter
+datax_channel_total_byte{job_id="10230",task_group_id="0",task_id="0"} 1.2345678e+07
+datax_channel_total_byte{job_id="10230",task_group_id="0",task_id="1"} 8.88887654321e+11
+# HELP datax_channel_total_record the total number of records synchronized
+# TYPE datax_channel_total_record counter
+datax_channel_total_record{job_id="10230",task_group_id="0",task_id="0"} 1.23456789e+08
+datax_channel_total_record{job_id="10230",task_group_id="0",task_id="1"} 9.8765432e+07
+`),
+		},
+		{
+			name: "json",
+			h: NewHandler(&datax.Engine{
+				Container: &MockContainer{},
+			}),
+			args: args{
+				w: &MockResponseWriter{
+					header: make(http.Header),
+				},
+				r: &http.Request{
+					URL: URLJson,
+				},
+			},
+			wantData: []byte(`{
+    "jobID": 10230,
+    "metrics": [
+        {
+            "taskGroupID": 0,
+            "metrics": [
+                {
+                    "taskID": 0,
+                    "channel": {
+                        "totalByte": 12345678,
+                        "totalRecord": 123456789,
+                        "byte": 1987,
+                        "record": 123
+                    }
+                },
+                {
+                    "taskID": 1,
+                    "channel": {
+                        "totalByte": 888887654321,
+                        "totalRecord": 98765432,
+                        "byte": 4312,
+                        "record": 311
+                    }
+                }
+            ]
+        }
+    ]
+}`),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.h.ServeHTTP(tt.args.w, tt.args.r)
-			t.Log(string((tt.args.w).(*MockResponseWriter).data))
+			data := (tt.args.w).(*MockResponseWriter).data
+			fmt.Println(string(data))
+			if !reflect.DeepEqual(data, tt.wantData) {
+				t.Errorf("Engine.Handler() data = %v, want %v", string(data), string(tt.wantData))
+			}
 		})
 	}
 }

@@ -39,18 +39,14 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	j := h.engine.Metrics().JSON()
 	var err error
 	if err = json.Unmarshal([]byte(j.String()), jm); err != nil {
-		log.Errorf("Unmarshal fail. err: %v, data: %v", err, j.String())
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Errorf("Unmarshal fail. err: %v, data: %v", err, j.String()).Error()))
+		writeResult(w, fmt.Errorf("MarshalIndent fail. err: %v, data: %v", err, *jm))
 		return
 	}
 
 	if r.URL.Query().Get("t") == "json" {
 		var data []byte
 		if data, err = json.MarshalIndent(jm, "", "    "); err != nil {
-			log.Errorf("MarshalIndent fail. err: %v, data: %v", err, *jm)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Errorf("MarshalIndent fail. err: %v, data: %v", err, *jm).Error()))
+			writeResult(w, fmt.Errorf("MarshalIndent fail. err: %v, data: %v", err, *jm))
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -66,4 +62,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	registry.MustRegister(jsonMetricCollector)
 	ph := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 	ph.ServeHTTP(w, r)
+}
+
+func writeResult(w http.ResponseWriter, err error) {
+	log.Errorf("%v", err)
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(err.Error()))
 }
