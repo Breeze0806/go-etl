@@ -566,12 +566,12 @@ release.bat
 ## 9. Debugging HTTP Interfaces
 
 ```bash
-datax -http :8443 -c examples/limit/config.json
+datax -http :6080 -c examples/limit/config.json
 ```
 
 ### 9.1 Accessing Current Debug Data
 
-Use a web browser to access `http://127.0.0.1:8443/debug/pprof` to retrieve debug information.
+Use a web browser to access `http://127.0.0.1:6080/debug/pprof` to retrieve debug information.
 
 ```
 /debug/pprof/

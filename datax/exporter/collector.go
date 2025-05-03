@@ -1,3 +1,17 @@
+// Copyright 2020 the go-etl Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package exporter
 
 import (
@@ -16,25 +30,25 @@ var (
 	PrometheusDescs = []*prometheus.Desc{
 		prometheus.NewDesc(
 			"datax_channel_total_byte",
-			"number of total byte which datax push into channel",
+			"the total number of bytes synchronized",
 			variableLabels,
 			nil,
 		),
 		prometheus.NewDesc(
 			"datax_channel_total_record",
-			"number of total record which datax push into channel",
+			"the total number of records synchronized",
 			variableLabels,
 			nil,
 		),
 		prometheus.NewDesc(
 			"datax_channel_byte",
-			"number of byte which datax now in channel",
+			"the number of bytes currently being synchronized in the channel",
 			variableLabels,
 			nil,
 		),
 		prometheus.NewDesc(
 			"datax_channel_record",
-			"number of record which datax now in channel ",
+			"the number of records currently being synchronized in the channel",
 			variableLabels,
 			nil,
 		),

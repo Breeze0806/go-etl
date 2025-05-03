@@ -1,0 +1,38 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "csvreader",
+                    "parameter": {
+                        "path":["split.csv","split1.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+                "writer":{
+                    "name": "xlsxwriter",
+                    "parameter": {
+                        "xlsxs":[
+                            {
+                                "path":"Book1.xlsx",
+                                "sheets":["Sheet1","Sheet2"]
+                            }
+                        ],
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ]
+    }
+}

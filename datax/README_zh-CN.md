@@ -569,11 +569,11 @@ release.bat
 ## 9. 调试http接口
 
 ```bash
-datax -http :8443 -c examples/limit/config.json
+datax -http :6080 -c examples/limit/config.json
 ```
 
 ### 9.1 获取当前调试数据
-使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
+使用浏览器访问http://127.0.0.1:6080/debug/pprof获取调试信息
 ```
 /debug/pprof/
 

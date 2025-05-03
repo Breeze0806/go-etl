@@ -14,16 +14,43 @@ Additionally, for Oracle, you need to download the corresponding 64-bit version 
 
 ### 2.1 Single-Task Data Synchronization
 
-Calling datax is straightforward; you can simply invoke it as follows:
+Invoking DataX is straightforward; you simply call it directly.
 
 ```bash
-data -c config.json
+datax -c config.json
 ```
--c specifies the data source configuration file.
 
-When the return value is 0 and it displays "run success," it indicates successful execution.
+- The `-c` flag specifies the data source configuration file.
 
-When the return value is 1 and it displays "run fail," it provides the reason for the failure.
+When the return value is `0` and the message `run success` is displayed at the end, it indicates that the execution was successful.
+
+When the return value is `1` and the message `run fail` is displayed at the end, along with the reason for the failure, it indicates that the execution failed.
+
+During runtime, the following output might be displayed:
+
+```bash
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=0) 18.97 MiB                                       [   =]                                        3.61 MiB/s-5s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=0) 1000000                                       [   =]                                        192145.7/s-5s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=0) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=0) 0                                                   [   =]                                                   0s
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=1) 18.97 MiB                                       [   =]                                        2.72 MiB/s-6s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=1) 1000000                                       [   =]                                        146067.9/s-6s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=1) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                                                   [   =]                                                   0s
+```
+
+The leading part of each line is the parameter name:
+
+- `datax_channel_total_byte`: The total number of bytes synchronized.
+- `datax_channel_total_record`: The total number of records synchronized.
+- `datax_channel_byte`: The number of bytes currently being synchronized in the channel.
+- `datax_channel_record`: The number of records currently being synchronized in the channel.
+
+The values within the parentheses, such as `job_id=1,task_group_id=0,task_id=0`, are used to identify the specific task:
+
+- `job_id`: The job id.
+- `task_group_id`: The task group id.
+- `task_id`: The task id.
 
 #### 2.1.1 Data Source Configuration File
 
@@ -453,7 +480,7 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
           wizard
   ```
 
-  -http adds a listening port, such as 8080. After enabling, access 127.0.0.1:8080/metrics to get real-time throughput.
+  -http adds a listening port, such as 6080. After enabling, access 127.0.0.1:6080/metrics to get real-time throughput.
 
   #### 2.3.2 View Version
 
@@ -467,21 +494,69 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
   v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 windows/amd64
   ```
 
-  #### 2.3.3 Enable Monitoring Port
+  #### 2.3.3 Start Monitoring Port
 
   ```bash
-  datax -http :8443 -c examples/limit/config.json
+  datax -http :6080 -c examples/limit/config.json
   ```
 
-  ##### 2.3.3.1 Get Current Monitoring Data
+  ##### 2.3.3.1 Retrieve Current Monitoring Data
 
-  Use a web browser to access http://127.0.0.1:8443/metrics to get the current monitoring data:
+  Access `http://127.0.0.1:6080/metrics` using a browser to obtain monitoring data similar to that provided by [Prometheus exporters](https://prometheus.io/docs/instrumenting/writing_exporters/).
 
+  ```bash
+  # HELP datax_channel_byte the number of bytes currently being synchronized in the channel
+  # TYPE datax_channel_byte gauge
+  datax_channel_byte{job_id="1",task_group_id="0",task_id="0"} 20480
+  datax_channel_byte{job_id="1",task_group_id="0",task_id="1"} 20500
+  # HELP datax_channel_record the number of records currently being synchronized in the channel
+  # TYPE datax_channel_record gauge
+  datax_channel_record{job_id="1",task_group_id="0",task_id="0"} 1024
+  datax_channel_record{job_id="1",task_group_id="0",task_id="1"} 1025
+  # HELP datax_channel_total_byte the total number of bytes synchronized
+  # TYPE datax_channel_total_byte counter
+  datax_channel_total_byte{job_id="1",task_group_id="0",task_id="0"} 2.75355e+06
+  datax_channel_total_byte{job_id="1",task_group_id="0",task_id="1"} 5.29381e+06
+  # HELP datax_channel_total_record the total number of records synchronized
+  # TYPE datax_channel_total_record counter
+  datax_channel_total_record{job_id="1",task_group_id="0",task_id="0"} 143233
+  datax_channel_total_record{job_id="1",task_group_id="0",task_id="1"} 270246
+  ```
+  
+  Additionally, you can access `http://127.0.0.1:6080/metrics?t=json` to obtain monitoring data in `JSON` format.
+  
   ```json
-  {"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
+  {
+      "jobID": 1,
+      "metrics": [
+          {
+              "taskGroupID": 0,
+              "metrics": [
+                  {
+                      "taskID": 0,
+                      "channel": {
+                          "totalByte": 7069190,
+                          "totalRecord": 359015,
+                          "byte": 20500,
+                          "record": 1025
+                      }
+                  },
+                  {
+                      "taskID": 1,
+                      "channel": {
+                          "totalByte": 13245910,
+                          "totalRecord": 667851,
+                          "byte": 20460,
+                          "record": 1023
+                      }
+                  }
+              ]
+          }
+      ]
+  }
   ```
-
-  * totalByte: Total number of bytes synchronized
-  * totalRecord: Total number of records synchronized
-  * byte: Number of bytes synchronized in the channel
-  * record: Number of records synchronized in the channel
+  
+  - `totalByte` corresponds to `datax_channel_total_byte`, representing the total number of bytes synchronized.
+  - `totalRecord` corresponds to `datax_channel_total_record`, representing the total number of records synchronized.
+  - `byte` corresponds to `datax_channel_byte`, representing the number of bytes currently being synchronized in the channel.
+  - `record` corresponds to `datax_channel_record`, representing the number of records currently being synchronized in the channel.

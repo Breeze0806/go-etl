@@ -117,7 +117,7 @@ func (c *Channel) Push(r element.Record) (n int, err error) {
 // Pop removes and returns a record from the Channel. If no records are present, it returns false.
 func (c *Channel) Pop() (r element.Record, ok bool) {
 	r, ok = c.records.PopFront()
-	if r != nil {
+	if r != nil && r.ByteSize() > 0 {
 		c.stats.reduce(r.ByteSize())
 	}
 	return

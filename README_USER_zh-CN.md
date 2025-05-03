@@ -20,9 +20,35 @@ data -c config.json
 ```
 `-c` 指定数据源配置文件
 
-当返回值是`0`，并且显示`run success`,表示执行成功
+当返回值是`0`，并且在最后显示`run success`,表示执行成功
 
-当返回值是`1`，并且显示`run fail`,并告知执行失败的原因
+当返回值是`1`，并且在最后显示`run fail`,并告知执行失败的原因
+
+运行时会输出
+
+```bash
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=0) 18.97 MiB                                       [   =]                                        3.61 MiB/s-5s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=0) 1000000                                       [   =]                                        192145.7/s-5s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=0) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=0) 0                                                   [   =]                                                   0s
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=1) 18.97 MiB                                       [   =]                                        2.72 MiB/s-6s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=1) 1000000                                       [   =]                                        146067.9/s-6s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=1) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                                                   [   =]                                                   0s
+```
+
+上述开头的部分的是参数名称
+
+- `datax_channel_total_byte`总共数据同步的字节数
+- `datax_channel_total_record`总共数据同步的记录数
+- `datax_channel_byte`,在通道里数据同步的字节数
+- `datax_channel_record`在通道里数据同步的记录数
+
+括号中的`job_id=1,task_group_id=0,task_id=0`能够标识那个任务
+
++ `job_id` 工作号
++ `task_group_id ` 任务组号
++ `task_id` 任务号
 
 #### 2.1.1 数据源配置文件
 
@@ -441,7 +467,7 @@ Usage of datax:
         wizard
 ```
 
--http 新增监听端口，如:8080, 开启后访问127.0.0.1:8080/metrics获取实时的吞吐量
+-http 新增监听端口，如:6080, 开启后访问127.0.0.1:6080/metrics获取实时的吞吐量
 
 #### 2.3.2 查看版本
 
@@ -457,18 +483,66 @@ v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go ver
 
 #### 2.3.3 开启监控端口
 ```bash
-datax -http :8443 -c examples/limit/config.json
+datax -http :6080 -c examples/limit/config.json
 ```
 
 ##### 2.3.3.1 获取当前监控数据
 
-使用浏览器访问http://127.0.0.1:8443/metrics获取当前监控数据
+使用浏览器访问http://127.0.0.1:6080/metrics获取类似[prometheus exporters](https://prometheus.io/docs/instrumenting/writing_exporters/)的监控数据
 
-```json
-{"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
+```bash
+# HELP datax_channel_byte the number of bytes currently being synchronized in the channel
+# TYPE datax_channel_byte gauge
+datax_channel_byte{job_id="1",task_group_id="0",task_id="0"} 20480
+datax_channel_byte{job_id="1",task_group_id="0",task_id="1"} 20500
+# HELP datax_channel_record the number of records currently being synchronized in the channel
+# TYPE datax_channel_record gauge
+datax_channel_record{job_id="1",task_group_id="0",task_id="0"} 1024
+datax_channel_record{job_id="1",task_group_id="0",task_id="1"} 1025
+# HELP datax_channel_total_byte the total number of bytes synchronized
+# TYPE datax_channel_total_byte counter
+datax_channel_total_byte{job_id="1",task_group_id="0",task_id="0"} 2.75355e+06
+datax_channel_total_byte{job_id="1",task_group_id="0",task_id="1"} 5.29381e+06
+# HELP datax_channel_total_record the total number of records synchronized
+# TYPE datax_channel_total_record counter
+datax_channel_total_record{job_id="1",task_group_id="0",task_id="0"} 143233
+datax_channel_total_record{job_id="1",task_group_id="0",task_id="1"} 270246
 ```
 
-- totalByte 总共数据同步的字节数
-- totalRecord 总共数据同步的记录数
-- byte 在通道里数据同步的字节数
-- record 在通道里数据同步的记录数
+另外使用http://127.0.0.1:6080/metrics?t=json也能获取`json`格式的监控数据
+
+```json
+{
+    "jobID": 1,
+    "metrics": [
+        {
+            "taskGroupID": 0,
+            "metrics": [
+                {
+                    "taskID": 0,
+                    "channel": {
+                        "totalByte": 7069190,
+                        "totalRecord": 359015,
+                        "byte": 20500,
+                        "record": 1025
+                    }
+                },
+                {
+                    "taskID": 1,
+                    "channel": {
+                        "totalByte": 13245910,
+                        "totalRecord": 667851,
+                        "byte": 20460,
+                        "record": 1023
+                    }
+                }
+            ]
+        }
+    ]
+}
+```
+
+- `totalByte` 即`datax_channel_total_byte`总共数据同步的字节数
+- `totalRecord` 即`datax_channel_total_record`总共数据同步的记录数
+- `byte` 即`datax_channel_byte`,在通道里数据同步的字节数
+- `record` 即`datax_channel_record`在通道里数据同步的记录数
