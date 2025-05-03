@@ -5,4 +5,4 @@ go generate ./...
 cd cmd\datax
 go build -ldflags="-s -w"
 cd ../..
-go run tools/datax/release/main.go
+::go run tools/datax/release/main.go

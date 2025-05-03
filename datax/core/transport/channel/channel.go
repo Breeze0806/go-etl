@@ -108,7 +108,9 @@ func (c *Channel) Push(r element.Record) (n int, err error) {
 			return 0, err
 		}
 	}
-	c.stats.increase(r.ByteSize())
+	if r.ByteSize() > 0 {
+		c.stats.increase(r.ByteSize())
+	}
 	return c.records.PushBack(r), nil
 }
 

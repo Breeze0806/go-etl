@@ -4,7 +4,7 @@ go-etl's datax is a data synchronization tool that currently supports data synch
 
 ## 1 How to Obtain
 
-Refer to the [project documentation](README_zh-CN.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
+Refer to the [project documentation](README.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
 
 ## 2 Getting Started
 
