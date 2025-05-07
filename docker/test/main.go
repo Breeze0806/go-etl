@@ -26,8 +26,8 @@ import (
 )
 
 func main() {
-	write(`split.csv`, 0)
-	write(`split1.csv`, 10000000)
+	write(`F:\data\etl\split.csv`, 0)
+	write(`F:\data\etl\split1.csv`, 10000000)
 }
 
 func write(filename string, start int) {
