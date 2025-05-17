@@ -13,12 +13,8 @@ services:
       - "5432:5432"
     volumes:
       - ${POSTGRES_SOURCE_PATH}:/var/lib/postgresql/data
+      - ./postgres/init-src.sql:/docker-entrypoint-initdb.d/init.sql
     command: postgres -c 'max_connections=100' -c 'shared_buffers=256MB' -c 'effective_cache_size=768MB' -c 'work_mem=16MB' -c 'maintenance_work_mem=128MB' -c 'random_page_cost=1.1' -c 'effective_io_concurrency=200' -c 'wal_buffers=16MB' -c 'default_statistics_target=100' -c 'constraint_exclusion=on' -c 'checkpoint_completion_target=0.9' -c 'fsync=on' -c 'synchronous_commit=on' -c 'full_page_writes=on' -c 'wal_level=replica' -c 'max_wal_size=1GB' -c 'min_wal_size=80MB' -c 'log_line_prefix=%m [%p] %q%u@%d ' -c 'log_statement=none' -c 'log_duration=off' -c 'log_lock_waits=on' -c 'log_temp_files=0' -c 'autovacuum=on' -c 'autovacuum_vacuum_scale_factor=0.2' -c 'autovacuum_analyze_scale_factor=0.1'
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user1 -d db1"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
     restart: unless-stopped
  
   postgres_dest:
@@ -33,15 +29,8 @@ services:
       - "5433:5432"
     volumes:
       - ${POSTGRES_DEST_PATH}:/var/lib/postgresql/data
+      - ./postgres/init-dest.sql:/docker-entrypoint-initdb.d/init.sql
     command: postgres -c 'max_connections=100' -c 'shared_buffers=256MB' -c 'effective_cache_size=768MB' -c 'work_mem=16MB' -c 'maintenance_work_mem=128MB' -c 'random_page_cost=1.1' -c 'effective_io_concurrency=200' -c 'wal_buffers=16MB' -c 'default_statistics_target=100' -c 'constraint_exclusion=on' -c 'checkpoint_completion_target=0.9' -c 'fsync=on' -c 'synchronous_commit=on' -c 'full_page_writes=on' -c 'wal_level=replica' -c 'max_wal_size=1GB' -c 'min_wal_size=80MB' -c 'log_line_prefix=%m [%p] %q%u@%d ' -c 'log_statement=none' -c 'log_duration=off' -c 'log_lock_waits=on' -c 'log_temp_files=0' -c 'autovacuum=on' -c 'autovacuum_vacuum_scale_factor=0.2' -c 'autovacuum_analyze_scale_factor=0.1'
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user2 -d db2"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    depends_on:
-      postgres_source:
-        condition: service_healthy
     restart: unless-stopped
 
   prometheus:
@@ -88,10 +77,6 @@ services:
     volumes:
       - ${ETL_PATH}:/usr/local/go-etl/data
     depends_on:
-      postgres_source:
-        condition: service_healthy
-      postgres_dest:
-        condition: service_healthy
       prometheus:
         condition: service_started
     restart: unless-stopped

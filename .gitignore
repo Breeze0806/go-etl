@@ -22,3 +22,7 @@ testdata
 *.swp
 tags
 *.csv
+docker/grafana
+docker/postgres/dest
+docker/postgres/src
+docker/prometheus

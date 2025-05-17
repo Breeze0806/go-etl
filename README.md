@@ -39,12 +39,38 @@ This data synchronization tool has the synchronization capability for the follow
 
 ### Getting Started
 
+#### Run by testing performance
+
+If you want to directly obtain performance-related information, you can deploy according to the [Prometheus Monitoring Deployment Manual](docker/README.md) to acquire relevant performance metrics and even performance visualization charts.
+
 #### Run by obtaining the binary program
 
 You can download the 64-bit binary executable for Windows or Linux operating systems from the 
 [latest releases](https://github.com/Breeze0806/go-etl/releases)
 
 Start data synchronization with the [go-etl Data Synchronization User Manual](README_USER.md)
+
+#### Run by obtaining the Docker image
+
+**Pull Docker Image**
+```bash
+docker pull go-etl:v0.2.2
+```
+
+**Start Container**
+```bash
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+```
+
+**Execute Command in Container**
+```bash
+docker exec -it etl bash
+```
+
+Important Note:  
+Current version doesn't support direct usage of SQLite3 or Oracle databases. To enable these databases, you need to:  
+1. Download the corresponding ODBC drivers  
+2. Configure environment variables for database connections  
 
 #### Run by source code
 

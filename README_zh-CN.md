@@ -38,11 +38,36 @@ go-etl将提供的etl能力如下：
 
 ### 快速开始
 
+#### 从测试性能开始
+
+如果你想直接想获取性能相关的信息，可以直接参考[prometheus监控部署手册](docker/README_zh-CN.md)去部署,来获取相关的性能参数，甚至性能图。
+
 #### 从获取二进制程序开始
 
 可以在[最新发布版本](https://github.com/Breeze0806/go-etl/releases)下载到windows或者linux操作系统的64位版本二进制程序。
 
 使用方式参考[go-etl数据同步用户手册](README_USER_zh-CN.md)开始数据同步。
+
+#### 从获取docker镜像开始
+
+获取docker镜像
+
+```bash
+docker pull go-etl:v0.2.2
+```
+
+启动容器
+
+```bash
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+```
+
+进入容器
+
+```bash
+docker exec -it etl bash
+```
+但当前还不直接支持sqlite3，oracle的直接使用，这需要下载对应的odbc并配置环境变量
 
 #### 从源代码开始
 
@@ -129,7 +154,7 @@ release.bat
 
 #### 从编译docker镜像开始
 
-使用命令获取`go-etl`项目,版本是`go-etl`的v0.2.1,
+使用命令获取`go-etl`项目,版本是`go-etl`的`v0.2.2`,
 ```bash
 git clone https://github.com/Breeze0806/go-etl.git
 cd go-etl

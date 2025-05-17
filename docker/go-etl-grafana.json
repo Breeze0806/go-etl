@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -100,9 +100,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "datax_channel_total_record{job=\"etl\"}",
@@ -120,7 +124,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -197,9 +201,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "datax_channel_total_byte{job=\"etl\"}",
@@ -217,7 +225,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -294,9 +302,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "rate(datax_channel_total_record{job=\"etl\"}[1m])",
@@ -314,7 +326,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -391,9 +403,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "rate(datax_channel_total_byte{job=\"etl\"}[1m])",
@@ -411,7 +427,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -487,9 +503,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
           "disableTextWrap": false,
           "editorMode": "builder",
           "expr": "datax_channel_record{job=\"etl\"}",
@@ -507,7 +527,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bel6gb69d6ubka"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -583,12 +603,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.6.1",
+      "pluginVersion": "12.0.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "bel6gb69d6ubka"
+            "uid": "${datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -610,7 +630,20 @@
   "schemaVersion": 41,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "text": "prometheus",
+          "value": "eem5kkvu0ao00b"
+        },
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
     "from": "now-5m",
@@ -620,5 +653,5 @@
   "timezone": "browser",
   "title": "go-etl",
   "uid": "del6gwxmnbojke",
-  "version": 11
+  "version": 13
 }
