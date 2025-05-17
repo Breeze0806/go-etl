@@ -59,7 +59,7 @@ docker pull go-etl:v0.2.2
 
 **Start Container**
 ```bash
-docker run -d -p 6080:6080 --name etl -v /data:/opt/data go-etl:v0.2.2
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
 ```
 
 **Execute Command in Container**
