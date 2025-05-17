@@ -16,7 +16,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -24,7 +27,13 @@ import (
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/datax"
+	"github.com/Breeze0806/go-etl/datax/exporter"
+
+	"github.com/fatih/color"
 	"github.com/gorilla/handlers"
+	"github.com/vbauerster/mpb/v8"
+	"github.com/vbauerster/mpb/v8/decor"
+	"golang.org/x/term"
 )
 
 type enveronment struct {
@@ -73,7 +82,7 @@ func (e *enveronment) initServer() *enveronment {
 	if e.addr != "" {
 		r := http.NewServeMux()
 		recoverHandler := handlers.RecoveryHandler(handlers.PrintRecoveryStack(true))
-		r.Handle("/metrics", newMetricHandler(e.engine))
+		r.Handle("/metrics", exporter.NewHandler(e.engine))
 		r.HandleFunc("/debug/pprof/", pprof.Index)
 		r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 		r.HandleFunc("/debug/pprof/profile", pprof.Profile)
@@ -101,8 +110,107 @@ func (e *enveronment) startEngine() *enveronment {
 		return e
 	}
 	go func() {
+		w, err := termWidth(os.Stdout)
+		if err != nil {
+			log.Errorf("termWidth fail. err: %v", err)
+		}
+		p := mpb.New(
+			mpb.WithOutput(color.Output),
+			mpb.WithWidth(w),
+			mpb.WithAutoRefresh(),
+		)
+
+		barMap := make(map[string]*mpb.Bar)
+		before := time.Now()
+		barBuilder := func() mpb.BarFillerBuilder {
+			s := mpb.SpinnerStyle("[    ]", "[   =]", "[  ==]", "[ ===]", "[====]", "[=== ]", "[==  ]", "[=   ]")
+			return s.Meta(func(s string) string {
+				return s
+			})
+		}
+
+		barFunc := func(taskKey string, value int64) {
+			var bar *mpb.Bar
+			ok := false
+			if bar, ok = barMap[taskKey]; !ok {
+				bar = p.New(-1, barBuilder(),
+					mpb.PrependDecorators(
+						decor.Name(taskKey, decor.WC{C: decor.DindentRight | decor.DextraSpace}),
+						decor.CurrentNoUnit("%v"),
+					),
+					mpb.AppendDecorators(
+						decor.EwmaSpeed(nil, "% .1f/s", 30),
+						decor.OnAbort(
+							decor.EwmaETA(decor.ET_STYLE_GO, 0), "done\n",
+						),
+					))
+				barMap[taskKey] = bar
+			}
+
+			bar.EwmaSetCurrent(value, time.Since(before))
+		}
+
+		barCurrentFunc := func(taskKey string, value int64) {
+			var bar *mpb.Bar
+			ok := false
+			if bar, ok = barMap[taskKey]; !ok {
+				bar = p.New(-1, barBuilder(),
+					mpb.PrependDecorators(
+						decor.Name(taskKey, decor.WC{C: decor.DindentRight | decor.DextraSpace}),
+						decor.CurrentNoUnit("%v"),
+					),
+					mpb.AppendDecorators(
+						decor.OnAbort(
+							decor.EwmaETA(decor.ET_STYLE_GO, 0), "done\n",
+						),
+					))
+				barMap[taskKey] = bar
+			}
+			bar.SetCurrent(value)
+		}
+
+		barByteFunc := func(taskKey string, value int64) {
+			var bar *mpb.Bar
+			ok := false
+			if bar, ok = barMap[taskKey]; !ok {
+				bar = p.New(-1, barBuilder(),
+					mpb.PrependDecorators(
+						decor.Name(taskKey, decor.WC{C: decor.DindentRight | decor.DextraSpace}),
+						decor.Current(decor.SizeB1024(0), "% .2f"),
+					),
+					mpb.AppendDecorators(
+						decor.EwmaSpeed(decor.SizeB1024(0), "% .2f", 30),
+						decor.OnAbort(
+							decor.EwmaETA(decor.ET_STYLE_GO, 0), "done\n",
+						),
+					))
+				barMap[taskKey] = bar
+			}
+			bar.EwmaSetCurrent(value, time.Since(before))
+		}
+
+		barByteCurrentFunc := func(taskKey string, value int64) {
+			var bar *mpb.Bar
+			ok := false
+			if bar, ok = barMap[taskKey]; !ok {
+				bar = p.New(-1, barBuilder(),
+					mpb.PrependDecorators(
+						decor.Name(taskKey, decor.WC{C: decor.DindentRight | decor.DextraSpace}),
+						decor.Current(decor.SizeB1024(0), "% .2f"),
+					),
+					mpb.AppendDecorators(
+						decor.OnAbort(
+							decor.EwmaETA(decor.ET_STYLE_GO, 0), "done\n",
+						),
+					))
+				barMap[taskKey] = bar
+			}
+			bar.SetCurrent(value)
+		}
+
 		statsTimer := time.NewTicker(1 * time.Second)
 		defer statsTimer.Stop()
+
 		exit := false
 		for {
 			select {
@@ -111,10 +219,35 @@ func (e *enveronment) startEngine() *enveronment {
 				exit = true
 			}
 			if e.engine.Container != nil {
-				fmt.Printf("%v\r", e.engine.Metrics().JSON())
+				jm := &exporter.JobMetric{}
+				j := e.engine.Metrics().JSON()
+				if err := json.Unmarshal([]byte(j.String()), jm); err != nil {
+					log.Errorf("Unmarshal fail. err: %v, data: %v", err, j.String())
+					continue
+				}
+
+				for _, vi := range jm.Metrics {
+					for _, vj := range vi.Metrics {
+						taskName := fmt.Sprintf("job_id=%v,task_group_id=%v,task_id=%v",
+							jm.JobID, vi.TaskGroupID, vj.TaskID)
+						taskKey := fmt.Sprintf("datax_channel_total_byte(%v)", taskName)
+						barByteFunc(taskKey, vj.Channel.TotalByte)
+						taskKey = fmt.Sprintf("datax_channel_total_record(%v)", taskName)
+						barFunc(taskKey, vj.Channel.TotalRecord)
+						taskKey = fmt.Sprintf("datax_channel_byte(%v)", taskName)
+						barByteCurrentFunc(taskKey, vj.Channel.Byte)
+						taskKey = fmt.Sprintf("datax_channel_record(%v)", taskName)
+						barCurrentFunc(taskKey, vj.Channel.Record)
+					}
+				}
+				before = time.Now()
 			}
 
 			if exit {
+				for _, bar := range barMap {
+					bar.Abort(false)
+				}
+				p.Wait()
 				return
 			}
 		}
@@ -132,4 +265,16 @@ func (e *enveronment) close() {
 	if e.cancel != nil {
 		e.cancel()
 	}
+}
+
+func termWidth(w io.Writer) (width int, err error) {
+	if f, ok := w.(*os.File); ok {
+		width, _, err = term.GetSize(int(f.Fd()))
+		if err == nil {
+			return width, nil
+		}
+	} else {
+		err = errors.New("output is not a *os.File")
+	}
+	return 0, err
 }

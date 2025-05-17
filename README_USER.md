@@ -26,6 +26,32 @@ When the return value is `0` and the message `run success` is displayed at the e
 
 When the return value is `1` and the message `run fail` is displayed at the end, along with the reason for the failure, it indicates that the execution failed.
 
+During runtime, the following output might be displayed:
+
+```bash
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=0) 18.97 MiB                                       [   =]                                        3.61 MiB/s-5s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=0) 1000000                                       [   =]                                        192145.7/s-5s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=0) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=0) 0                                                   [   =]                                                   0s
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=1) 18.97 MiB                                       [   =]                                        2.72 MiB/s-6s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=1) 1000000                                       [   =]                                        146067.9/s-6s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=1) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                                                   [   =]                                                   0s
+```
+
+The leading part of each line is the parameter name:
+
+- `datax_channel_total_byte`: The total number of bytes synchronized.
+- `datax_channel_total_record`: The total number of records synchronized.
+- `datax_channel_byte`: The number of bytes currently being synchronized in the channel.
+- `datax_channel_record`: The number of records currently being synchronized in the channel.
+
+The values within the parentheses, such as `job_id=1,task_group_id=0,task_id=0`, are used to identify the specific task:
+
+- `job_id`: The job id.
+- `task_group_id`: The task group id.
+- `task_id`: The task id.
+
 #### 2.1.1 Data Source Configuration File
 
 The data source configuration file is a JSON file that combines data sources. For example, to synchronize data from MySQL to Postgres:

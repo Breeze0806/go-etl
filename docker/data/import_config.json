@@ -1,0 +1,44 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 1,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "csvreader",
+                    "parameter": {
+                        "path":["data/split.csv","data/split1.csv"],
+                        "encoding":"utf-8",
+                        "delimiter":","
+                    }
+                },
+                "writer":{
+                    "name": "postgreswriter",
+                    "parameter": {
+                        "username": "user1",
+                        "password": "password1",
+                        "writeMode": "copyIn",
+                        "column": ["*"],
+                        "preSql": [],
+                        "connection":  {
+                                "url": "postgres://192.168.188.1:5432/db1?sslmode=disable&connect_timeout=2",
+                                "table": {
+                                    "schema":"source",
+                                    "name":"split"
+                                }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ]
+    }
+}
