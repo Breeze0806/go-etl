@@ -21,14 +21,14 @@ ENV PATH="${GOPATH}/bin:${PATH}"
 ENV GO111MODULE="on"
 
 # if you located in China, you can use this proxy to speed up
-ENV GOPROXY="https://goproxy.cn,direct"
+#ENV GOPROXY="https://goproxy.cn,direct"
 
 # if you located in China and do not want to use DB2 as the data source, you can use this to disable download db2 odbc
-ENV IGNORE_PACKAGES="db2"
+#ENV IGNORE_PACKAGES="db2"
 
-#ENV GO_WEB_SITE="go.dev"
+ENV GO_WEB_SITE="go.dev"
 # if you located in China, you can use golang mirror to speed up
-ENV GO_WEB_SITE="golang.google.cn"
+#ENV GO_WEB_SITE="golang.google.cn"
 
 RUN wget -q -O - https://${GO_WEB_SITE}/dl/go1.20.14.linux-amd64.tar.gz | tar -C /usr/local -xzf - \
     && mkdir -p "$GOPATH/src/github.com/Breeze0806/go-etl" "$GOPATH/bin" "$GOPATH/pkg"

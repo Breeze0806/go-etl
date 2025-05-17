@@ -29,7 +29,7 @@ import (
 )
 
 //go:generate go run main.go
-var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "[datax]")
+var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "")
 
 const (
 	readerCode = `package %v

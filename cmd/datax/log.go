@@ -20,14 +20,14 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
-var log = mylog.NewDefaultLogger(os.Stdout, mylog.DebugLevel, "[datax]")
+var log = mylog.NewDefaultLogger(os.Stdout, mylog.DebugLevel, "[go-etl]")
 
 func init() {
-	f, err := os.OpenFile("datax.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("go-etl.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
-	log = mylog.NewDefaultLogger(f, mylog.DebugLevel, "[datax]")
+	log = mylog.NewDefaultLogger(f, mylog.DebugLevel, "[go-etl]")
 }
 
 func initLog() {

@@ -110,13 +110,13 @@ release.bat
 #### Compilation output
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README.md
+    +---go-etl---|---plugin---+---reader--mysql---|--README.md
     |                        | .......
     |                        |
     |                        |---writer--mysql---|--README.md
     |                        | .......
     |
-    +---bin----datax
+    +---bin----go-etl
     +---exampales---+---csvpostgres----config.json
     |               |---db2------------config.json
     |               | .......
@@ -126,7 +126,7 @@ release.bat
 ```
 
 + The datax/plugin directory contains the documentation for various plugins.
-+ The bin directory houses the data synchronization program, named datax.
++ The bin directory houses the data synchronization program, named go-etl.
 + The examples directory includes configuration files for data synchronization in different scenarios.
 + README_USER is the user manual or guide in English.
 
@@ -147,14 +147,14 @@ For Docker image compilation:
 
 ```bash
 # Build Docker image
-docker build . -t go-etl:v0.2.1
+docker build . -t go-etl:v0.2.2
 ```
 
 To start the container:
 
 ```bash
 # Run container in detached mode
-docker run -d --name etl go-etl:v0.2.1
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
 ```
 
 To access the container shell:

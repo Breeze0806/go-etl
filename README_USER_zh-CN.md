@@ -1,6 +1,6 @@
 # go-etl数据同步用户手册
 
-go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,Sqlite3,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
+go-etl是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER,Sqlite3,DB2等主流关系型数据库以及csv，xlsx文件之间的数据同步。
 
 ## 1 如何获取
 
@@ -8,21 +8,21 @@ go-etl的datax是一个数据同步工具，目前支持MySQL,postgres,oracle,SQ
 
 ## 2 如何开始
 
-获取datax二进制程序或docker镜像，在linux下如Makefile所示`export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib`，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
+获取go-etl二进制程序或docker镜像，在linux下如Makefile所示`export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib`，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
 
 另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
 ### 2.1 单任务数据同步
-调用datax十分简单，只要直接调用它即可
+调用go-etl十分简单，只要直接调用它即可
 
 ```bash
-data -c config.json
+./go-etl -c config.json
 ```
 `-c` 指定数据源配置文件
 
-当返回值是`0`，并且显示`run success`,表示执行成功
+当返回值是`0`，并且在最后显示`run success`,表示执行成功
 
-当返回值是`1`，并且显示`run fail`,并告知执行失败的原因
+当返回值是`1`，并且在最后显示`run fail`,并告知执行失败的原因
 
 #### 2.1.1 数据源配置文件
 
@@ -106,7 +106,7 @@ data -c config.json
 - 开启同步mysql命令
 
 ```bash
-datax -c examples/mysql/config.json
+./go-etl -c examples/mysql/config.json
 ```
 
 ##### 2.1.2.2 使用postgres同步
@@ -115,7 +115,7 @@ datax -c examples/mysql/config.json
 - 开启同步postgres命令
 
 ```bash
-datax -c examples/postgres/config.json
+./go-etl -c examples/postgres/config.json
 ```
 
 ##### 2.1.2.3 使用db2同步
@@ -127,7 +127,7 @@ datax -c examples/postgres/config.json
 - 开启同步命令
 
 ```bash
-datax -c examples/db2/config.json
+./go-etl -c examples/db2/config.json
 ```
 
 ##### 2.1.2.4 使用oracle同步
@@ -140,7 +140,7 @@ Oracle Instant Client 19不再支持windows7
 - 开启同步命令
 
 ```bash
-datax -c examples/oracle/config.json
+./go-etl -c examples/oracle/config.json
 ```
 
 ##### 2.1.2.5 使用sql server同步
@@ -149,7 +149,7 @@ datax -c examples/oracle/config.json
 - 开启同步sql server命令
 
 ```bash
-datax -c examples/sqlserver/config.json
+./go-etl -c examples/sqlserver/config.json
 ```
 
 ##### 2.1.2.6 使用csv同步到postgres
@@ -158,16 +158,16 @@ datax -c examples/sqlserver/config.json
 - 开启同步命令
 
 ```bash
-datax -c examples/csvpostgres/config.json
+./go-etl -c examples/csvpostgres/config.json
 ```
 
 ##### 2.1.2.7 使用xlsx同步到postgres
 
-- 使用cmd/examples/datax/csvpostgres/init.sql初始化数据库**用于测试**
+- 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**
 - 开启同步命令
 
 ```bash
-datax -c examples/xlsxpostgres/config.json
+./go-etl -c examples/xlsxpostgres/config.json
 ```
 
 ##### 2.1.2.8 使用postgres同步csv
@@ -176,7 +176,7 @@ datax -c examples/xlsxpostgres/config.json
 - 开启同步命令
 
 ```bash
-datax -c examples/postgrescsv/config.json
+./go-etl -c examples/postgrescsv/config.json
 ```
 
 ##### 2.1.2.9 使用postgres同步xlsx
@@ -185,7 +185,7 @@ datax -c examples/postgrescsv/config.json
 - 开启同步命令
 
 ```bash
-datax -c examples/postgresxlsx/config.json
+./go-etl -c examples/postgresxlsx/config.json
 ```
 
 ##### 2.1.2.10 与 sqlite3 同步
@@ -240,7 +240,7 @@ ignoreOneByOneError 是否忽略一个个重试错误
 ##### 2.1.3.3 测试数据
 
 ```bash
-datax -c examples/global/config.json
+./go-etl -c examples/global/config.json
 ```
 
 #### 2.1.4 使用切分键
@@ -257,12 +257,12 @@ go run main.go
 - 同步至mysql数据库
 ```bash
 cd ../..
-datax -c examples/split/csv.json
+./go-etl -c examples/split/csv.json
 ```
 - 修改examples/split/config.json的split的key为id,dt,str
 - mysql数据库切分同步整形，日期，字符串类型
 ```bash
-datax -c examples/split/config.json
+./go-etl -c examples/split/config.json
 ```
 
 #### 2.1.5 使用preSql和postSql
@@ -275,7 +275,7 @@ preSql和postSql分别是写入数据前和写入数据后的sql语句组
 2.在写入数据后，将原表删除，将临时表重名为新表
 
 ```bash
-datax -c examples/prePostSql/config.json
+./go-etl -c examples/prePostSql/config.json
 ```
 
 #### 2.1.6 流控配置
@@ -301,7 +301,7 @@ datax -c examples/prePostSql/config.json
 cd cmd/datax/examples/limit
 go run main.go
 cd ../..
-datax -c examples/limit/config.json
+./go-etl -c examples/limit/config.json
 ```
 
 #### 2.1.7 querySql配置
@@ -312,7 +312,7 @@ datax -c examples/limit/config.json
 ##### 2.1.7.1 querySql配置测试
 
 ```bash
-datax -c examples/querySql/config.json
+./go-etl -c examples/querySql/config.json
 ```
 
 ### 2.2 多任务数据同步
@@ -391,7 +391,7 @@ path[table],path[table]
 ##### 2.2.1.3 批量生成数据配置集和执行脚本
 
 ```bash
-datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
+./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
 ```
 -c 指定数据源配置文件 -w 指定源目的配置向导文件。
 
@@ -417,7 +417,7 @@ run.sh
 可以运行cmd/datax/testData的测试数据
 ```bash
 cd cmd/datax
-datax -c testData/xlsx.json -w testData/wizard.csv 
+./go-etl -c testData/xlsx.json -w testData/wizard.csv 
 ```
 结果会在testData下生成wizard.csv行数的配置文件，分别以xlsx1.json,xlsx2.json,...,xlsx[n].json的配置集。
 
@@ -426,13 +426,13 @@ datax -c testData/xlsx.json -w testData/wizard.csv
 #### 2.3.1 帮助命令
 
 ```
-datax -h
+./go-etl -h
 ```
 
 帮助显示
 
 ```bash
-Usage of datax:
+Usage of go-etl:
   -c string
         config (default "config.json")
   -http string
@@ -441,12 +441,12 @@ Usage of datax:
         wizard
 ```
 
--http 新增监听端口，如:8080, 开启后访问127.0.0.1:8080/metrics获取实时的吞吐量
+-http 新增监听端口，如:6080, 开启后访问127.0.0.1:6080/metrics获取实时的吞吐量
 
 #### 2.3.2 查看版本
 
 ```bash
-datax version
+./go-etl version
 ```
 
 显示`版本号`(git commit:  `git提交号`） complied by go version `go版本号`
@@ -457,18 +457,66 @@ v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go ver
 
 #### 2.3.3 开启监控端口
 ```bash
-datax -http :8443 -c examples/limit/config.json
+./go-etl -http :6080 -c examples/limit/config.json
 ```
 
 ##### 2.3.3.1 获取当前监控数据
 
-使用浏览器访问http://127.0.0.1:8443/metrics获取当前监控数据
+使用浏览器访问http://127.0.0.1:6080/metrics获取类似[prometheus exporters](https://prometheus.io/docs/instrumenting/writing_exporters/)的监控数据
 
-```json
-{"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
+```bash
+# HELP datax_channel_byte the number of bytes currently being synchronized in the channel
+# TYPE datax_channel_byte gauge
+datax_channel_byte{job_id="1",task_group_id="0",task_id="0"} 20480
+datax_channel_byte{job_id="1",task_group_id="0",task_id="1"} 20500
+# HELP datax_channel_record the number of records currently being synchronized in the channel
+# TYPE datax_channel_record gauge
+datax_channel_record{job_id="1",task_group_id="0",task_id="0"} 1024
+datax_channel_record{job_id="1",task_group_id="0",task_id="1"} 1025
+# HELP datax_channel_total_byte the total number of bytes synchronized
+# TYPE datax_channel_total_byte counter
+datax_channel_total_byte{job_id="1",task_group_id="0",task_id="0"} 2.75355e+06
+datax_channel_total_byte{job_id="1",task_group_id="0",task_id="1"} 5.29381e+06
+# HELP datax_channel_total_record the total number of records synchronized
+# TYPE datax_channel_total_record counter
+datax_channel_total_record{job_id="1",task_group_id="0",task_id="0"} 143233
+datax_channel_total_record{job_id="1",task_group_id="0",task_id="1"} 270246
 ```
 
-- totalByte 总共数据同步的字节数
-- totalRecord 总共数据同步的记录数
-- byte 在通道里数据同步的字节数
-- record 在通道里数据同步的记录数
+另外使用http://127.0.0.1:6080/metrics?t=json也能获取`json`格式的监控数据
+
+```json
+{
+    "jobID": 1,
+    "metrics": [
+        {
+            "taskGroupID": 0,
+            "metrics": [
+                {
+                    "taskID": 0,
+                    "channel": {
+                        "totalByte": 7069190,
+                        "totalRecord": 359015,
+                        "byte": 20500,
+                        "record": 1025
+                    }
+                },
+                {
+                    "taskID": 1,
+                    "channel": {
+                        "totalByte": 13245910,
+                        "totalRecord": 667851,
+                        "byte": 20460,
+                        "record": 1023
+                    }
+                }
+            ]
+        }
+    ]
+}
+```
+
+- `totalByte` 即`datax_channel_total_byte`总共数据同步的字节数
+- `totalRecord` 即`datax_channel_total_record`总共数据同步的记录数
+- `byte` 即`datax_channel_byte`,在通道里数据同步的字节数
+- `record` 即`datax_channel_record`在通道里数据同步的记录数

@@ -107,13 +107,13 @@ release.bat
 ##### 编译产物
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
+    +---go-etl---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
     |                        |---writer--mysql---|--README_zh-CN.md
     |                        | .......
     |
-    +---bin----datax
+    +---bin----go-etl
     +---exampales---+---csvpostgres----config.json
     |               |---db2------------config.json
     |               | .......
@@ -122,8 +122,8 @@ release.bat
 
 ```
 
-+ datax/plugin下是各插件的文档
-+ bin下的是数据同步程序datax
++ go-etl/plugin下是各插件的文档
++ bin下的是数据同步程序go-etl
 + exampales下是各场景的数据同步的配置文档
 + README_USER_zh-CN.md是中文用户使用手册
 
@@ -138,13 +138,13 @@ git describe --abbrev=0 --tags
 
 通过以下命令可以编译成镜像
 ```bash
-docker build . -t go-etl:v0.2.1
+docker build . -t go-etl:v0.2.2
 ```
 
 启动容器
 
 ```bash
-docker run -d --name etl go-etl:v0.2.1
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
 ```
 
 进入容器

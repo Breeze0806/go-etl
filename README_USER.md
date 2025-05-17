@@ -1,29 +1,30 @@
 # go-etl Data Synchronization User Manual
 
-go-etl's datax is a data synchronization tool that currently supports data synchronization between mainstream relational databases such as MySQL, Postgres, Oracle, SQL Server, DB2, Sqlite3, and file formats like CSV and XLSX.
+go-etl is a data synchronization tool that currently supports data synchronization between mainstream relational databases such as MySQL, Postgres, Oracle, SQL Server, DB2, Sqlite3, and file formats like CSV and XLSX.
 
 ## 1 How to Obtain
 
-Refer to the [project documentation](README_zh-CN.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
+Refer to the [project documentation](README.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
 
 ## 2 Getting Started
 
-Acquire the DataX binary program or Docker image to begin usage. On Linux, as shown in the Makefile, export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib. This library can be downloaded from [ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli), otherwise it will not run.
+Acquire the go-etl binary program or Docker image to begin usage. On Linux, as shown in the Makefile, export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib. This library can be downloaded from [ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli), otherwise it will not run.
 
 Additionally, for Oracle, you need to download the corresponding 64-bit version of the ODBC dependency from [Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html).
 
 ### 2.1 Single-Task Data Synchronization
 
-Calling datax is straightforward; you can simply invoke it as follows:
+Invoking go-etl is straightforward; you simply call it directly.
 
 ```bash
-data -c config.json
+./go-etl -c config.json
 ```
--c specifies the data source configuration file.
 
-When the return value is 0 and it displays "run success," it indicates successful execution.
+- The `-c` flag specifies the data source configuration file.
 
-When the return value is 1 and it displays "run fail," it provides the reason for the failure.
+When the return value is `0` and the message `run success` is displayed at the end, it indicates that the execution was successful.
+
+When the return value is `1` and the message `run fail` is displayed at the end, along with the reason for the failure, it indicates that the execution failed.
 
 #### 2.1.1 Data Source Configuration File
 
@@ -106,7 +107,7 @@ Note: On Linux, as indicated in the Makefile, export `LD_LIBRARY_PATH=${DB2HOME}
 * Start the MySQL synchronization command:
 
 ```bash
-datax -c examples/mysql/config.json
+./go-etl -c examples/mysql/config.json
 ```
 
 ##### 2.1.2.2 Synchronizing with PostgreSQL
@@ -115,7 +116,7 @@ datax -c examples/mysql/config.json
 * Start the PostgreSQL synchronization command:
 
 ```bash
-datax -c examples/postgres/config.json
+./go-etl -c examples/postgres/config.json
 ```
 
 ##### 2.1.2.3 Synchronizing with DB2
@@ -127,7 +128,7 @@ datax -c examples/postgres/config.json
 * Start the synchronization command:
 
 ```bash
-datax -c examples/db2/config.json
+./go-etl -c examples/db2/config.json
 ```
 
 ##### 2.1.2.4 Synchronizing with Oracle
@@ -139,7 +140,7 @@ datax -c examples/db2/config.json
 * Start the synchronization command:
 
 ```bash
-datax -c examples/oracle/config.json
+./go-etl -c examples/oracle/config.json
 ```
 
 ##### 2.1.2.5 Synchronizing with SQL Server
@@ -148,7 +149,7 @@ datax -c examples/oracle/config.json
 * Start the SQL Server synchronization command:
 
 ```bash
-datax -c examples/sqlserver/config.json
+./go-etl -c examples/sqlserver/config.json
 ```
 
 ##### 2.1.2.6 Synchronizing CSV to PostgreSQL
@@ -157,16 +158,16 @@ datax -c examples/sqlserver/config.json
 * Start the synchronization command:
 
 ```bash
-datax -c examples/csvpostgres/config.json
+./go-etl -c examples/csvpostgres/config.json
 ```
 
 ##### 2.1.2.7 Synchronizing XLSX to PostgreSQL
 
-* Initialize the database using `cmd/examples/datax/csvpostgres/init.sql` **for testing purposes** (Note: The path may need correction as it seems inconsistent with other examples)
+* Initialize the database using `cmd/datax/examples/csvpostgres/init.sql` **for testing purposes** (Note: The path may need correction as it seems inconsistent with other examples)
 * Start the synchronization command:
 
 ```bash
-datax -c examples/xlsxpostgres/config.json
+./go-etl -c examples/xlsxpostgres/config.json
 ```
 
 ##### 2.1.2.8 Synchronizing PostgreSQL to CSV
@@ -175,7 +176,7 @@ datax -c examples/xlsxpostgres/config.json
 * Start the synchronization command:
 
 ```bash
-datax -c examples/postgrescsv/config.json
+./go-etl -c examples/postgrescsv/config.json
 ```
 
 ##### 2.1.2.9 Synchronizing PostgreSQL to XLSX
@@ -184,7 +185,7 @@ datax -c examples/postgrescsv/config.json
 * Start the synchronization command:
 
 ```bash
-datax -c examples/postgresxlsx/config.json
+./go-etl -c examples/postgresxlsx/config.json
 ```
 
 ##### 2.1.2.10 Synchronizing with sqlite3
@@ -196,7 +197,7 @@ datax -c examples/postgresxlsx/config.json
 * Start the sqlite3 synchronization command:
 
 ```bash
-datax -c examples/sqlite3/config.json
+./go-etl -c examples/sqlite3/config.json
 ```
 
 ##### 2.1.2.11 Other Synchronization Examples
@@ -247,7 +248,7 @@ In addition to the above examples, all data sources listed in the go-etl feature
 ##### 2.1.3.3 Test Data
 
 ```bash
-datax -c examples/global/config.json
+./go-etl -c examples/global/config.json
 ```
 
 #### 2.1.4 Using Split Keys
@@ -268,14 +269,14 @@ go run main.go
 
 ```bash
 cd ../..
-datax -c examples/split/csv.json
+./go-etl -c examples/split/csv.json
 ```
 
 * Modify `examples/split/config.json` to set the split key as `id,dt,str`
 * Synchronize MySQL data with integer, date, and string types using the split key
 
 ```bash
-datax -c examples/split/config.json
+./go-etl -c examples/split/config.json
 ```
 
 #### 2.1.5 Using preSql and postSql
@@ -289,7 +290,7 @@ In this example, a full import is used:
 2. After writing data, the original table is deleted, and the temporary table is renamed to the new table.
 
 ```bash
-datax -c examples/prePostSql/config.json
+./go-etl -c examples/prePostSql/config.json
 ```
 
 #### 2.1.6 Flow Control Configuration
@@ -318,7 +319,7 @@ Previously, the `byte` and `record` configurations for speed did not take effect
 cd cmd/datax/examples/limit
 go run main.go
 cd ../..
-datax -c examples/limit/config.json
+./go-etl -c examples/limit/config.json
 ```
 
 #### 2.1.7 querySql Configuration
@@ -399,7 +400,7 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
   ##### 2.2.1.3 Batch Generation of Data Configuration Sets and Execution Scripts
 
   ```bash
-  datax -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
+  ./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
   ```
 
   -c specifies the data source configuration file, and -w specifies the source-destination configuration wizard file.
@@ -428,7 +429,7 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
 
   ```bash
   cd cmd/datax
-  datax -c testData/xlsx.json -w testData/wizard.csv 
+  ./go-etl -c testData/xlsx.json -w testData/wizard.csv 
   ```
 
   The result will generate a set of configuration files in the testData directory, with the number of rows in the wizard.csv file. The configuration sets will be named as xlsx1.json, xlsx2.json, ..., xlsx[n].json.
@@ -438,13 +439,13 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
   #### 2.3.1 Help Command
 
   ```
-  datax -h
+ ./go-etl -h
   ```
 
   Help display:
 
   ```bash
-  Usage of datax:
+  Usage of go-etl:
     -c string
           config (default "config.json")
     -http string
@@ -453,12 +454,12 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
           wizard
   ```
 
-  -http adds a listening port, such as 8080. After enabling, access 127.0.0.1:8080/metrics to get real-time throughput.
+  -http adds a listening port, such as 6080. After enabling, access 127.0.0.1:6080/metrics to get real-time throughput.
 
   #### 2.3.2 View Version
 
   ```bash
-  datax version
+  ./go-etl version
   ```
 
   Display: `version number` (git commit: `git commit number`) compiled by go version `go version number`
@@ -467,21 +468,69 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
   v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 windows/amd64
   ```
 
-  #### 2.3.3 Enable Monitoring Port
+  #### 2.3.3 Start Monitoring Port
 
   ```bash
-  datax -http :8443 -c examples/limit/config.json
+./go-etl -http :6080 -c examples/limit/config.json
   ```
 
-  ##### 2.3.3.1 Get Current Monitoring Data
+  ##### 2.3.3.1 Retrieve Current Monitoring Data
 
-  Use a web browser to access http://127.0.0.1:8443/metrics to get the current monitoring data:
+  Access `http://127.0.0.1:6080/metrics` using a browser to obtain monitoring data similar to that provided by [Prometheus exporters](https://prometheus.io/docs/instrumenting/writing_exporters/).
 
+  ```bash
+  # HELP datax_channel_byte the number of bytes currently being synchronized in the channel
+  # TYPE datax_channel_byte gauge
+  datax_channel_byte{job_id="1",task_group_id="0",task_id="0"} 20480
+  datax_channel_byte{job_id="1",task_group_id="0",task_id="1"} 20500
+  # HELP datax_channel_record the number of records currently being synchronized in the channel
+  # TYPE datax_channel_record gauge
+  datax_channel_record{job_id="1",task_group_id="0",task_id="0"} 1024
+  datax_channel_record{job_id="1",task_group_id="0",task_id="1"} 1025
+  # HELP datax_channel_total_byte the total number of bytes synchronized
+  # TYPE datax_channel_total_byte counter
+  datax_channel_total_byte{job_id="1",task_group_id="0",task_id="0"} 2.75355e+06
+  datax_channel_total_byte{job_id="1",task_group_id="0",task_id="1"} 5.29381e+06
+  # HELP datax_channel_total_record the total number of records synchronized
+  # TYPE datax_channel_total_record counter
+  datax_channel_total_record{job_id="1",task_group_id="0",task_id="0"} 143233
+  datax_channel_total_record{job_id="1",task_group_id="0",task_id="1"} 270246
+  ```
+  
+  Additionally, you can access `http://127.0.0.1:6080/metrics?t=json` to obtain monitoring data in `JSON` format.
+  
   ```json
-  {"jobID":1,"metrics":[{"taskGroupID":0,"metrics":[{"taskID":0,"channel":{"totalByte":2461370,"totalRecord":128624,"byte":3820,"record":191}}]}]}
+  {
+      "jobID": 1,
+      "metrics": [
+          {
+              "taskGroupID": 0,
+              "metrics": [
+                  {
+                      "taskID": 0,
+                      "channel": {
+                          "totalByte": 7069190,
+                          "totalRecord": 359015,
+                          "byte": 20500,
+                          "record": 1025
+                      }
+                  },
+                  {
+                      "taskID": 1,
+                      "channel": {
+                          "totalByte": 13245910,
+                          "totalRecord": 667851,
+                          "byte": 20460,
+                          "record": 1023
+                      }
+                  }
+              ]
+          }
+      ]
+  }
   ```
-
-  * totalByte: Total number of bytes synchronized
-  * totalRecord: Total number of records synchronized
-  * byte: Number of bytes synchronized in the channel
-  * record: Number of records synchronized in the channel
+  
+  - `totalByte` corresponds to `datax_channel_total_byte`, representing the total number of bytes synchronized.
+  - `totalRecord` corresponds to `datax_channel_total_record`, representing the total number of records synchronized.
+  - `byte` corresponds to `datax_channel_byte`, representing the number of bytes currently being synchronized in the channel.
+  - `record` corresponds to `datax_channel_record`, representing the number of records currently being synchronized in the channel.

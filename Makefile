@@ -19,8 +19,8 @@ dependencies:
 	@echo "IGNORE_PACKAGES: ${IGNORE_PACKAGES}"
 ifneq ($(DB2_CONTAIN), $(DB2_PACKAGE))
 	@echo "Installing db2 lib..."
-	git clone -b v0.4.5 --depth=1 https://github.com/ibmdb/go_ibm_db $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db
-	cd $(go env GOPATH)/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
+	git clone -b v0.4.5 --depth=1 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
+	cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
 endif
 	@echo "Installing test dependencies..."
 	go mod tidy
@@ -45,9 +45,12 @@ cover:
 
 .PHONY: release
 release:
-	@go generate ./...
-	@cd cmd/datax && go build -ldflags="-s -w" && cd ../..
-	@go run tools/datax/release/main.go
+	@echo "Generate..."
+	go generate ./...
+	@echo "Build... ${CGO_CFLAGS} ${CGO_LDFLAGS}"
+	cd cmd/datax && go build -ldflags="-s -w" && cd ../..
+	@echo "Release..."
+	go run tools/datax/release/main.go
 .PHONY: doc
 doc:
 	@godoc -http=:6080
