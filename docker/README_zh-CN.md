@@ -103,7 +103,7 @@ go run main.go
 2. 在源postgres导入数据
 
 ```bash
-docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
+docker exec -it etl /opt/release/bin/go-etl -http :6080 -c /opt/data/import_config.json
 ```
 
 3. 修改`config.json`,将其中的`192.168.188.1`替换成你主机的任一网卡地址
@@ -111,7 +111,7 @@ docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 4. 将源postgres的数据同步到目标postgres
 
 ```bash
-docker exec -it etl release/bin/go-etl -http :6080 -c data/config.json
+docker exec -it etl /opt/release/bin/go-etl -http :6080 -c /opt/data/config.json
 ```
 
 ### 3.2 在prometheus查看

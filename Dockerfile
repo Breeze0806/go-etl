@@ -44,11 +44,10 @@ RUN make dependencies \
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM base AS production
-ENV LD_LIBRARY_PATH=/opt/clidriver/lib
-WORKDIR /opt
 RUN mkdir -p /opt/clidriver
-COPY --from=builder /goproject/src/github.com/ibmdb/clidriver ./clidriver
-COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/go-etl-linux-x86_64.tar.gz .
+COPY --from=builder /goproject/src/github.com/ibmdb/clidriver /opt/clidriver
+ENV LD_LIBRARY_PATH=/opt/clidriver/lib
+COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/go-etl-linux-x86_64.tar.gz /opt
 RUN tar zxvf go-etl-linux-x86_64.tar.gz \
     && rm -f go-etl-linux-x86_64.tar.gz
 ENTRYPOINT ["tail", "-f","/dev/null"]

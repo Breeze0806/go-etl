@@ -75,7 +75,7 @@ services:
     ports:
       - "6080:6080"
     volumes:
-      - ${ETL_PATH}:/usr/local/go-etl/data
+      - ${ETL_PATH}:/opt/data
     depends_on:
       prometheus:
         condition: service_started
