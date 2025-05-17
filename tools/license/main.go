@@ -27,7 +27,7 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
-var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "[datax]")
+var log mylog.Logger = mylog.NewDefaultLogger(os.Stdout, mylog.ErrorLevel, "")
 var licenseHeader = `// Copyright 2020 the go-etl Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

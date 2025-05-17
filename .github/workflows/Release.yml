@@ -1,0 +1,73 @@
+name: Release workflow for tagged versions
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - "v*.*.*" # Push events to matching v*, i.e. v0.2.19, v0.2.14a
+
+jobs:
+  # Prevents race conditions by creating the release only once before uploads.
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-ubuntu:
+    needs: create-release
+    strategy:
+      matrix:
+        param: ["","-no-db2"]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: docker
+        run: |    
+          rm -f Dockerfile
+          mv Dockerfile.release${{ matrix.param }} Dockerfile
+      - name: release
+        run: |
+          docker build . -t go-etl:latest
+          docker run -d --name etl go-etl:latest
+          docker cp etl:/goproject/src/github.com/Breeze0806/go-etl/go-etl-${{ github.ref_name }}-linux-x86_64.tar.gz go-etl-${{ github.ref_name }}-linux-x86_64${{ matrix.param }}.tar.gz
+      - name: Upload go-etl binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            go-etl-${{ github.ref_name }}-linux-x86_64${{ matrix.param }}.tar.gz
+  
+  release-windows:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+    - name: Install MinGW64
+      shell: powershell
+      run: |
+        Start-Process "C:\msys64\usr\bin\pacman.exe" -ArgumentList @("-S", "--noconfirm", "mingw-w64-clang-x86_64-gcc-compat", "mingw-w64-clang-x86_64-clang") -NoNewWindow -Wait
+        echo "C:\msys64\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo "C:\msys64\clang64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.20'
+    - name: Pre-Build
+      run: git fetch --prune --unshallow
+    - name: Build
+      shell: cmd
+      run: |
+        release.bat
+    - name: Upload go-etl binary
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          go-etl-${{ github.ref_name }}-windows-x86_64.zip       

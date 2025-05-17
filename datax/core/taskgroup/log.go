@@ -20,7 +20,7 @@ import (
 	mylog "github.com/Breeze0806/go/log"
 )
 
-var log mylog.Logger = mylog.NewDefaultLogger(os.Stderr, 3, "[datax]")
+var log mylog.Logger = mylog.NewDefaultLogger(os.Stderr, 3, "")
 
 func init() {
 	mylog.RegisterInitFuncs(func() {

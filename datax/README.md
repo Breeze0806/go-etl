@@ -544,13 +544,13 @@ release.bat
 ### 8.3 Compilation Output
 
 ```
-+---datax---|---plugin---+---reader--mysql---|--README.md
++---go-etl---|---plugin---+---reader--mysql---|--README.md
 |                        | .......
 |                        |
 |                        |---writer--mysql---|--README.md
 |                        | .......
 |
-+---bin----datax
++---bin----go-etl
 +---examples---+---csvpostgres----config.json
 |               |---db2------------config.json
 |               | .......
@@ -558,20 +558,20 @@ release.bat
 +---README_USER.md
 ```
 
-* The `datax/plugin` directory contains documentation for each plugin.
-* The `bin` directory contains the data synchronization program `datax`.
+* The `go-etl/plugin` directory contains documentation for each plugin.
+* The `bin` directory contains the data synchronization program `go-etl`.
 * The `examples` directory contains configuration files for various data synchronization scenarios.
 * `README_USER.md` is the user manual.
 
 ## 9. Debugging HTTP Interfaces
 
 ```bash
-datax -http :8443 -c examples/limit/config.json
+./go-etl -http :6080 -c examples/limit/config.json
 ```
 
 ### 9.1 Accessing Current Debug Data
 
-Use a web browser to access `http://127.0.0.1:8443/debug/pprof` to retrieve debug information.
+Use a web browser to access `http://127.0.0.1:6080/debug/pprof` to retrieve debug information.
 
 ```
 /debug/pprof/

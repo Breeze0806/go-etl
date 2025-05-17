@@ -547,13 +547,13 @@ release.bat
 ### 8.3 编译产物
 
 ```
-    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
+    +---go-etl---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
     |                        |---writer--mysql---|--README_zh-CN.md
     |                        | .......
     |
-    +---bin----datax
+    +---bin----go-etl
     +---exampales---+---csvpostgres----config.json
     |               |---db2------------config.json
     |               | .......
@@ -561,19 +561,19 @@ release.bat
     +---README_USER_zh-CN.md
 
 ```
-+ datax/plugin下是各插件的文档
-+ bin下的是数据同步程序datax
++ go-etl/plugin下是各插件的文档
++ bin下的是数据同步程序dgo-etl
 + exampales下是各场景的数据同步的配置文档
 + README_USER_zh-CN.md是用户使用手册
 
 ## 9. 调试http接口
 
 ```bash
-datax -http :8443 -c examples/limit/config.json
+./go-etl -http :6080 -c examples/limit/config.json
 ```
 
 ### 9.1 获取当前调试数据
-使用浏览器访问http://127.0.0.1:8443/debug/pprof获取调试信息
+使用浏览器访问http://127.0.0.1:6080/debug/pprof获取调试信息
 ```
 /debug/pprof/
 

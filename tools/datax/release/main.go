@@ -31,7 +31,7 @@ import (
 
 var (
 	sourceUserPath = "datax/"
-	destUserPath   = "release/datax/"
+	destUserPath   = "release/go-etl/"
 
 	sourceExamplePath = "cmd/datax/examples"
 	destExamplePath   = "release/examples"
@@ -89,14 +89,14 @@ func main() {
 	tagVersion = strings.ReplaceAll(tagVersion, "\n", "")
 	os.MkdirAll("release/bin", os.ModePerm)
 	if runtime.GOOS == "windows" {
-		os.Rename("cmd/datax/datax.exe", "release/bin/datax.exe")
-		if err = zipDir("release", "datax-"+tagVersion+"-windows-x86_64.zip"); err != nil {
+		os.Rename("cmd/datax/datax.exe", "release/bin/go-etl.exe")
+		if err = zipDir("release", "go-etl-"+tagVersion+"-windows-x86_64.zip"); err != nil {
 			fmt.Printf("uzipDir fail. error: %v\n", err)
 			os.Exit(1)
 		}
 	} else if runtime.GOOS == "linux" {
-		os.Rename("cmd/datax/datax", "release/bin/datax")
-		if err = tarDir("release", "datax-"+tagVersion+"-linux-x86_64.tar.gz"); err != nil {
+		os.Rename("cmd/datax/datax", "release/bin/go-etl")
+		if err = tarDir("release", "go-etl-"+tagVersion+"-linux-x86_64.tar.gz"); err != nil {
 			fmt.Printf("tarDir fail. error: %v\n", err)
 			os.Exit(1)
 		}
