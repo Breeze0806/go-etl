@@ -1,6 +1,7 @@
 FROM debian:stable-backports AS base
 
-RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+# if you located in China, you can use aliyun mirrors to speed up
+#RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -43,10 +44,11 @@ RUN make dependencies \
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM base AS production
-WORKDIR /opt
-RUN mkdir -p /opt/clidriver
+RUN mkdir -p /usr/local/go-etl/clidriver
+WORKDIR /usr/local/go-etl
 COPY --from=builder /goproject/src/github.com/ibmdb/clidriver ./clidriver
-ENV LD_LIBRARY_PATH=/opt/clidriver
+ENV LD_LIBRARY_PATH="/usr/local/go-etl/clidriver/lib"
 COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/go-etl-linux-x86_64.tar.gz .
-RUN tar zxvf go-etl-linux-x86_64.tar.gz
+RUN tar zxvf go-etl-linux-x86_64.tar.gz \
+    && rm -f go-etl-linux-x86_64.tar.gz
 ENTRYPOINT ["tail", "-f","/dev/null"]

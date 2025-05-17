@@ -1,13 +1,30 @@
-# go-etl prometheus docker
+# go-etl监控prometheus部署
 
 ## 1 部署prometheus环境
 
-```bash
+### 1.1 启动prometheus环境
+
+将`prometheus.yml`的`192.168.188.1`替换成你主机的任一网卡地址
+
+```yml
+global:
+  scrape_interval: 1s
+
+scrape_configs:
+  - job_name: 'etl'
+    static_configs:
+      - targets: ['192.168.188.1:6080']
+    metrics_path: '/metrics'
+```
+
+使用docker命令启动
+
+```bahs
 cd docker
 docker compose up -d
 ```
 
-### 1.1 查看go-etl容器
+查看go-etl相关容器
 
 
 ```bash
@@ -46,7 +63,7 @@ password2
 
 ### 2.1 在postgres建表
 
-1. 连接postgres_source执行SQL
+1. 连接`postgres_source`，如果没有发现表`source.split`，请执行SQL
 ```sql
 CREATE SCHEMA source;
 
@@ -57,7 +74,7 @@ CREATE TABLE source.split (
 );
 ```
 
-2. 连接postgres_dest执行SQL
+2. 连接`postgres_dest，如果没有发现表`dest.split`，请执行SQL
 ```sql
 CREATE SCHEMA dest;
 
@@ -81,12 +98,18 @@ go run main.go
 
 ### 3.1 运行etl
 
-1. 在源postgres导入数据
+1. 修改`import_config.json`,将其中的`192.168.188.1`替换成你主机的任一网卡地址
+
+2. 在源postgres导入数据
+
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 ```
 
-2. 将源postgres的数据同步到目标postgres
+3. 修改`config.json`,将其中的`192.168.188.1`替换成你主机的任一网卡地址
+
+4. 将源postgres的数据同步到目标postgres
+
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/config.json
 ```
@@ -126,5 +149,29 @@ rate(datax_channel_total_byte{job="etl"}[30s])
 ```
 
 ### 3.3 导入grafana的配置
+以下是在 Grafana 中添加 Prometheus 数据源的详细步骤：
 
-在http://127.0.0.1:3000导入`go-etl-grafana.json`
+#### 3.3.1 登录 Grafana
+打开浏览器访问 Grafana 地址（默认 `http://127.0.0.1:3000`），使用管理员账号登录（默认用户名/密码：`admin/admin`）。
+
+#### 3.3.2 进入数据源配置页面
+1. 点击左侧菜单栏的 **⚙️ Configuration（齿轮图标）**。
+2. 选择 **Data Sources**。
+
+#### 3.3.3 添加 Prometheus 数据源
+1. 点击 **Add data source**。
+2. 在搜索框中输入 `Prometheus`，选择 **Prometheus** 数据源类型。
+
+#### 3.3.4 配置 Prometheus 连接
+- **HTTP Settings**:
+  - **URL**: 填写 Prometheus 地址  
+    - 本地部署：`http://192.168.188.1:9090`,`192.168.188.1`是你主机的任一网卡的地址
+
+#### 3.3.5 保存并测试
+1. 点击底部 **Save & test**。
+2. 看到 **Data source is working** 提示表示成功。
+
+3.3.6 验证数据源
+
+1. 先点击**Dashboards**，再点击**New**，然后点击**Import**，选择`go-etl-grafana.json`导入
+2. 点击**datasource**，选择`Prometheus`
