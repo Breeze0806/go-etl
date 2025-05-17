@@ -4,7 +4,6 @@ cmd/datax/*.log
 cmd/datax/run.*
 cmd/datax/version.go
 cmd/datax/tools/testData/config
-cmd/datax/examples/**/*.csv
 datax/plugin/plugin.go
 datax/plugin/reader/**/plugin.go
 datax/plugin/writer/**/plugin.go
@@ -22,3 +21,4 @@ release/*
 testdata
 *.swp
 tags
+*.csv

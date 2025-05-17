@@ -24,6 +24,32 @@ go-etl是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER
 
 当返回值是`1`，并且在最后显示`run fail`,并告知执行失败的原因
 
+运行时会输出
+
+```bash
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=0) 18.97 MiB                                       [   =]                                        3.61 MiB/s-5s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=0) 1000000                                       [   =]                                        192145.7/s-5s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=0) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=0) 0                                                   [   =]                                                   0s
+datax_channel_total_byte(job_id=1,task_group_id=0,task_id=1) 18.97 MiB                                       [   =]                                        2.72 MiB/s-6s
+datax_channel_total_record(job_id=1,task_group_id=0,task_id=1) 1000000                                       [   =]                                        146067.9/s-6s
+datax_channel_byte(job_id=1,task_group_id=0,task_id=1) 0.00 b                                                 [   =]                                                  0s
+datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                                                   [   =]                                                   0s
+```
+
+上述开头的部分的是参数名称
+
+- `datax_channel_total_byte`总共数据同步的字节数
+- `datax_channel_total_record`总共数据同步的记录数
+- `datax_channel_byte`,在通道里数据同步的字节数
+- `datax_channel_record`在通道里数据同步的记录数
+
+括号中的`job_id=1,task_group_id=0,task_id=0`能够标识那个任务
+
++ `job_id` 工作号
++ `task_group_id ` 任务组号
++ `task_id` 任务号
+
 #### 2.1.1 数据源配置文件
 
 数据源配置文件是json文件，使用数据源相互组合，如从mysql同步到postgres中

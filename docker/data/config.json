@@ -1,0 +1,62 @@
+{
+    "core" : {
+        "container": {
+            "job":{
+                "id": 2,
+                "sleepInterval":100
+            }
+        }
+    },
+    "job":{
+        "content":[
+            {
+                "reader":{
+                    "name": "postgresreader",
+                    "parameter": {
+                        "username": "user1",
+                        "password": "password1",
+                        "column": ["*"],
+                        "connection":  {
+                                "url": "postgres://192.168.188.1:5432/db1?sslmode=disable&connect_timeout=2",
+                                "table": {
+                                    "schema":"source",
+                                    "name":"split"
+                                }
+                            },
+                        "split" : {
+                            "key":"id"
+                        },    
+                        "where": ""
+                    }
+                },
+                "writer":{
+                    "name": "postgreswriter",
+                    "parameter": {
+                        "username": "user2",
+                        "password": "password2",
+                        "writeMode": "copyIn",
+                        "column": ["*"],
+                        "preSql": [],
+                        "connection":  {
+                            "url": "postgres://192.168.188.1:5433/db2?sslmode=disable&connect_timeout=2",
+                            "table": {
+                                "schema":"dest",
+                                "name":"split"
+                            }
+                         },
+                        "batchTimeout": "1s",
+                        "batchSize":1000
+                    }
+                },
+               "transformer":[]
+            }
+        ],
+        "setting":{
+            "speed":{
+                "byte":0,
+                "record":1024,
+                "channel":4
+            }
+        }
+    }
+}

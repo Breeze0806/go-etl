@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 1s
+
+scrape_configs:
+  - job_name: 'etl'
+    static_configs:
+      - targets: ['192.168.188.1:6080']
+    metrics_path: '/metrics'
