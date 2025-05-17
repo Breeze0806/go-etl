@@ -1,6 +1,7 @@
 FROM debian:stable-backports AS base
 
-RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+# if you located in China, you can use aliyun mirrors to speed up
+#RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
