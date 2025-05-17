@@ -70,7 +70,7 @@ services:
     restart: unless-stopped
 
   etl:
-    image: go-etl:v0.2.2
+    image: breeze0806/go-etl:v0.2.2
     container_name: etl
     ports:
       - "6080:6080"
