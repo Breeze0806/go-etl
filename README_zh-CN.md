@@ -67,7 +67,6 @@ docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.
 ```bash
 docker exec -it etl bash
 ```
-但当前还不直接支持sqlite3，oracle的直接使用，这需要下载对应的odbc并配置环境变量
 
 #### 从源代码开始
 

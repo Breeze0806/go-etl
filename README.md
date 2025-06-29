@@ -190,11 +190,6 @@ To access the container shell:
 docker exec -it etl bash
 ```
 
-Important Note:  
-Current version doesn't support direct usage of SQLite3, DB2, or Oracle databases. To enable these databases, you need to:  
-1. Download the corresponding ODBC drivers  
-2. Configure environment variables for database connections  
-
 ### Data Synchronization Development Handbook
 
 Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md) to assist with your development.

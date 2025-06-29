@@ -11,6 +11,8 @@ RUN apt-get update && \
         software-properties-common \
         git \
         build-essential \
+        unzip \
+        libaio1 \
         && \
     rm -rf /var/lib/apt/lists/*
 
@@ -44,10 +46,16 @@ RUN make dependencies \
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM base AS production
-RUN mkdir -p /usr/local/go-etl/clidriver
+ENV LD_LIBRARY_PATH="/usr/local/go-etl/ibmdb/clidriver/lib:/usr/local/go-etl/oracle/instantclient_21_18:/usr/local/go-etl/sqlite3/sqlite-tools-linux-x64-3500200"
+RUN mkdir -p /usr/local/go-etl/ibmdb /usr/local/go-etl/oracle /usr/local/go-etl/sqlite3
 WORKDIR /usr/local/go-etl
-COPY --from=builder /goproject/src/github.com/ibmdb/clidriver ./clidriver
-ENV LD_LIBRARY_PATH="/usr/local/go-etl/clidriver/lib"
+COPY --from=builder /goproject/src/github.com/ibmdb/clidriver ./ibmdb/clidriver
+RUN wget https://download.oracle.com/otn_software/linux/instantclient/2118000/instantclient-basiclite-linux.x64-21.18.0.0.0dbru.zip && \
+    unzip instantclient-basiclite-linux.x64-21.18.0.0.0dbru.zip -d oracle && \
+    rm instantclient-basiclite-linux.x64-21.18.0.0.0dbru.zip
+RUN wget https://www.sqlite.org/2025/sqlite-tools-linux-x64-3500200.zip && \
+    unzip sqlite-tools-linux-x64-3500200.zip -d sqlite3 &&  \
+    rm  sqlite-tools-linux-x64-3500200.zip
 COPY --from=builder /goproject/src/github.com/Breeze0806/go-etl/go-etl-linux-x86_64.tar.gz .
 RUN tar zxvf go-etl-linux-x86_64.tar.gz \
     && rm -f go-etl-linux-x86_64.tar.gz

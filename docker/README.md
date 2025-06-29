@@ -4,19 +4,6 @@
 
 ### 1.1 Start Prometheus Environment
 
-Replace `192.168.188.1` in `prometheus.yml` with your host's network interface IP:
-
-```yml
-global:
-  scrape_interval: 1s
-
-scrape_configs:
-  - job_name: 'etl'
-    static_configs:
-      - targets: ['192.168.188.1:6080']
-    metrics_path: '/metrics'
-```
-
 Start using Docker:
 
 ```bash
@@ -97,14 +84,14 @@ go run main.go
 
 ### 3.1 Run ETL Jobs
 
-1. Modify `import_config.json`, replace `192.168.188.1` with your host IP.
+1. Modify `import_config.json`.
 
 2. Import data to source PostgreSQL:
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 ```
 
-3. Modify `config.json`, replace `192.168.188.1` with your host IP.
+3. Modify `config.json`P.
 
 4. Sync data to destination PostgreSQL:
 ```bash
@@ -149,7 +136,7 @@ Open browser: `http://127.0.0.1:3000` (default credentials: `admin/admin`).
 1. Click **⚙️ Configuration (gear icon)** → **Data Sources**.
 2. Click **Add data source** → Search for **Prometheus**.
 3. Configure:
-   - **HTTP → URL**: `http://192.168.188.1:9090` (replace with your IP)
+   - **HTTP → URL**: `http://etl:9090` (replace with your IP)
 4. Click **Save & Test**.
 
 #### 3.3.3 Import Dashboard
