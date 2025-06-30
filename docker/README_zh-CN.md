@@ -91,9 +91,7 @@ go run main.go
 docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 ```
 
-2. 修改`config.json`,将其中的`192.168.0.13`替换成你主机的任一网卡地址
-
-3. 将源postgres的数据同步到目标postgres
+2. 将源postgres的数据同步到目标postgres
 
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/config.json

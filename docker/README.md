@@ -84,16 +84,12 @@ go run main.go
 
 ### 3.1 Run ETL Jobs
 
-1. Modify `import_config.json`.
-
-2. Import data to source PostgreSQL:
+1. Import data to source PostgreSQL:
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 ```
 
-3. Modify `config.json`P.
-
-4. Sync data to destination PostgreSQL:
+2. Sync data to destination PostgreSQL:
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/config.json
 ```

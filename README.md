@@ -8,6 +8,7 @@
 [![Coverage Status][cov-img]][cov]
 [![GoDoc][doc-img]][doc]
 [![Mentioned in Awesome Go][awesome-img]][awesome]
+[![Docker Version][docker-img]][docker]
 
 English | [简体中文](README_zh-CN.md)
 
@@ -84,7 +85,7 @@ Current version doesn't support direct usage of SQLite3 or Oracle databases. To 
 ###### build
 
 ```bash
-cd ${GO_PATH}\src
+cd ${GO_PATH}/src
 git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
 cd github.com/Breeze0806/go-etl
 make dependencies
@@ -96,7 +97,7 @@ make release
 Before compilation, it is necessary to use `export IGNORE_PACKAGES=db2`
 
 ```bash
-cd ${GO_PATH}\src
+cd ${GO_PATH}/src
 git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
 cd github.com/Breeze0806/go-etl
 export IGNORE_PACKAGES=db2
@@ -276,3 +277,5 @@ go run tools/license/main.go
 [cov]: https://codecov.io/gh/Breeze0806/go-etl
 [awesome-img]:https://awesome.re/mentioned-badge.svg
 [awesome]:https://github.com/avelino/awesome-go
+[docker-img]:https://img.shields.io/docker/v/breeze0806/go-etl?sort=semver&logo=docker&logoColor=white&label=Docker&color=blue
+[docker]:https://hub.docker.com/r/breeze0806/go-etl
