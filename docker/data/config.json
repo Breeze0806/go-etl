@@ -17,7 +17,7 @@
                         "password": "password1",
                         "column": ["*"],
                         "connection":  {
-                                "url": "postgres://192.168.188.1:5432/db1?sslmode=disable&connect_timeout=2",
+                                "url": "postgres://postgres_source:5432/db1?sslmode=disable&connect_timeout=2",
                                 "table": {
                                     "schema":"source",
                                     "name":"split"
@@ -38,7 +38,7 @@
                         "column": ["*"],
                         "preSql": [],
                         "connection":  {
-                            "url": "postgres://192.168.188.1:5433/db2?sslmode=disable&connect_timeout=2",
+                            "url": "postgres://postgres_dest:5433/db2?sslmode=disable&connect_timeout=2",
                             "table": {
                                 "schema":"dest",
                                 "name":"split"

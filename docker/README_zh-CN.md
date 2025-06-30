@@ -4,19 +4,6 @@
 
 ### 1.1 启动prometheus环境
 
-将`prometheus.yml`的`192.168.188.1`替换成你主机的任一网卡地址
-
-```yml
-global:
-  scrape_interval: 1s
-
-scrape_configs:
-  - job_name: 'etl'
-    static_configs:
-      - targets: ['192.168.188.1:6080']
-    metrics_path: '/metrics'
-```
-
 使用docker命令启动
 
 ```bahs
@@ -98,17 +85,13 @@ go run main.go
 
 ### 3.1 运行etl
 
-1. 修改`import_config.json`,将其中的`192.168.188.1`替换成你主机的任一网卡地址
-
-2. 在源postgres导入数据
+1. 在源postgres导入数据
 
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/import_config.json
 ```
 
-3. 修改`config.json`,将其中的`192.168.188.1`替换成你主机的任一网卡地址
-
-4. 将源postgres的数据同步到目标postgres
+2. 将源postgres的数据同步到目标postgres
 
 ```bash
 docker exec -it etl release/bin/go-etl -http :6080 -c data/config.json
@@ -165,7 +148,7 @@ rate(datax_channel_total_byte{job="etl"}[30s])
 #### 3.3.4 配置 Prometheus 连接
 - **HTTP Settings**:
   - **URL**: 填写 Prometheus 地址  
-    - 本地部署：`http://192.168.188.1:9090`,`192.168.188.1`是你主机的任一网卡的地址
+    - 本地部署：`http://etl:9090`
 
 #### 3.3.5 保存并测试
 1. 点击底部 **Save & test**。
