@@ -1,0 +1,44 @@
+{
+  "core": {
+    "container": {
+      "job": {
+        "id": 1,
+        "sleepInterval": 100
+      }
+    }
+  },
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "mongodbreader",
+          "parameter": {
+            "column": [],
+            "connection": {
+              "address": "127.0.0.1:50004",
+              "username": "root",
+              "password": "root123",
+              "table": {
+                "db": "test",
+                "collection": "test"
+              }
+            }
+          }
+        },
+        "writer": {
+          "name": "csvwriter",
+          "parameter": {
+            "path":["a.txt"],
+            "encoding":"utf-8",
+            "delimiter":",",
+            "batchSize":1000,
+            "batchTimeout":"1s",
+            "column": []
+          }
+        },
+        "transformer":[]
+      }
+
+    ]
+  }
+}

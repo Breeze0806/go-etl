@@ -1,0 +1,15 @@
+{
+  "name": "mongodbreader",
+  "parameter": {
+    "column": [],
+    "connection": {
+      "address": "127.0.0.1:50004",
+      "username": "root",
+      "password": "root123",
+      "table": {
+        "db": "testdb",
+        "collection": "local"
+      }
+    }
+  }
+}
