@@ -41,6 +41,5 @@ func NewConfig(conf *config.JSON) (c *Config, err error) {
 // FormatDSN generates data source connection information
 func (c *Config) FormatDSN() (dsn string, err error) {
 	dsn = fmt.Sprintf("dm://%s:%s@%s", c.Username, c.Password, c.URL)
-	fmt.Println(dsn)
 	return dsn, nil
 }

@@ -48,7 +48,7 @@ release:
 	@echo "Generate..."
 	go generate ./...
 	@echo "Build... ${CGO_CFLAGS} ${CGO_LDFLAGS}"
-	cd cmd/datax && go build -ldflags="-s -w" && cd ../..
+	cd cmd/datax && go build -ldflags='-s -w -extldflags "-static"' && cd ../..
 	@echo "Release..."
 	go run tools/datax/release/main.go
 .PHONY: doc

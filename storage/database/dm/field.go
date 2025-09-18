@@ -89,7 +89,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		f.goType = database.GoTypeBool
 	case "TINYINT", "SMALLINT", "INT", "BIGINT":
 		f.goType = database.GoTypeInt64
-	case "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC":
+	case "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC", "NUMBER":
 		f.goType = database.GoTypeString // DECIMAL使用字符串以保证精度
 	case "CHAR", "VARCHAR", "VARCHAR2", "TEXT", "CLOB":
 		f.goType = database.GoTypeString
@@ -125,7 +125,6 @@ func NewScanner(f *Field) *Scanner {
 func (s *Scanner) Scan(src any) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
-	fmt.Println(s.f.Type().DatabaseTypeName(), src)
 	switch s.f.Type().DatabaseTypeName() {
 	case "BIT", "BOOLEAN":
 		switch data := src.(type) {
@@ -136,16 +135,21 @@ func (s *Scanner) Scan(src any) (err error) {
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBool)
 		}
+
 	case "TINYINT", "SMALLINT", "INT", "BIGINT":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBigIntColumnValue()
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
+		case string:
+			if cv, err = element.NewBigIntColumnValueFromString(data); err != nil {
+				return
+			}
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
-	case "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC":
+	case "FLOAT", "DOUBLE", "DECIMAL", "NUMERIC", "NUMBER":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilDecimalColumnValue()
@@ -161,7 +165,6 @@ func (s *Scanner) Scan(src any) (err error) {
 			if cv, err = element.NewDecimalColumnValueFromString(data); err != nil {
 				return
 			}
-
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
 		}

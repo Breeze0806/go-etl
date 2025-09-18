@@ -473,7 +473,6 @@ func TestScanner_Scan(t *testing.T) {
 			if tt.conf != nil {
 				tt.s.f.SetConfig(tt.conf)
 			}
-
 			if err := tt.s.Scan(tt.args.src); (err != nil) != tt.wantErr {
 				t.Errorf("Scanner.Scan() error = %v, wantErr %v", err, tt.wantErr)
 				return
