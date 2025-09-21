@@ -20,13 +20,14 @@ import (
 	"math"
 	"math/big"
 	"strconv"
-	"strings"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
-var _IntZero = big.NewInt(0)
-var _IntTen = big.NewInt(10)
+var _IntZero = apd.NewBigInt(0)
+var _IntTen = apd.NewBigInt(10)
+var _IntFive = apd.NewBigInt(5)
+var _DecimalZero = apd.New(0, 0)
 var _StrZero = "0"
 var _DefaultNumberConverter NumberConverter = &Converter{}
 
@@ -53,7 +54,7 @@ type BigIntNumber interface {
 	Int64() (int64, error)
 	Decimal() DecimalNumber
 	CloneBigInt() BigIntNumber
-	AsBigInt() *big.Int
+	AsBigInt() *apd.BigInt
 }
 
 // DecimalNumber   High-precision decimal
@@ -63,7 +64,7 @@ type DecimalNumber interface {
 	Float64() (float64, error)
 	BigInt() BigIntNumber
 	CloneDecimal() DecimalNumber
-	AsDecimal() decimal.Decimal
+	AsDecimal() *apd.Decimal
 }
 
 // Int64   64-bit integer
@@ -116,13 +117,13 @@ func (i *Int64) CloneDecimal() DecimalNumber {
 }
 
 // AsBigInt   Convert to high-precision integer
-func (i *Int64) AsBigInt() *big.Int {
-	return big.NewInt(i.value)
+func (i *Int64) AsBigInt() *apd.BigInt {
+	return apd.NewBigInt(i.value)
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (i *Int64) AsDecimal() decimal.Decimal {
-	return decimal.NewFromInt(i.value)
+func (i *Int64) AsDecimal() *apd.Decimal {
+	return apd.New(i.value, 0)
 }
 
 // Uint64  ungined 64-bit integer
@@ -178,19 +179,19 @@ func (i *Uint64) CloneDecimal() DecimalNumber {
 }
 
 // AsBigInt   Convert to high-precision integer
-func (i *Uint64) AsBigInt() (bi *big.Int) {
-	bi = new(big.Int).SetUint64(i.value)
+func (i *Uint64) AsBigInt() (bi *apd.BigInt) {
+	bi = new(apd.BigInt).SetUint64(i.value)
 	return
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (i *Uint64) AsDecimal() decimal.Decimal {
-	return decimal.NewFromUint64(i.value)
+func (i *Uint64) AsDecimal() *apd.Decimal {
+	return apd.NewWithBigInt(i.AsBigInt(), 0)
 }
 
 // BigInt   Big integer
 type BigInt struct {
-	value *big.Int
+	value *apd.BigInt
 }
 
 // Bool   Convert to boolean
@@ -208,7 +209,7 @@ func (b *BigInt) Int64() (int64, error) {
 
 // Float64   Convert to 64-bit floating-point number
 func (b *BigInt) Float64() (v float64, err error) {
-	f := new(big.Float).SetInt(b.value)
+	f := new(big.Float).SetInt(b.value.MathBigInt())
 	if v, _ = f.Float64(); math.Abs(v) > math.MaxFloat64 {
 		v = 0.0
 		err = errors.New("element: BigIntStr to float64 fail for out of range")
@@ -235,25 +236,25 @@ func (b *BigInt) String() string {
 // CloneBigInt   Clone high-precision integer
 func (b *BigInt) CloneBigInt() BigIntNumber {
 	return &BigInt{
-		value: new(big.Int).Set(b.value),
+		value: new(apd.BigInt).Set(b.value),
 	}
 }
 
 // CloneDecimal   Clone high-precision decimal
 func (b *BigInt) CloneDecimal() DecimalNumber {
 	return &BigInt{
-		value: new(big.Int).Set(b.value),
+		value: new(apd.BigInt).Set(b.value),
 	}
 }
 
 // AsBigInt   Convert to high-precision integer
-func (b *BigInt) AsBigInt() *big.Int {
+func (b *BigInt) AsBigInt() *apd.BigInt {
 	return b.value
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (b *BigInt) AsDecimal() decimal.Decimal {
-	return decimal.NewFromBigInt(b.value, 0)
+func (b *BigInt) AsDecimal() *apd.Decimal {
+	return apd.NewWithBigInt(b.AsBigInt(), 0)
 }
 
 // BigIntStr   High-precision integer string
@@ -312,15 +313,14 @@ func (b *BigIntStr) CloneDecimal() DecimalNumber {
 }
 
 // AsBigInt   Convert to high-precision integer
-func (b *BigIntStr) AsBigInt() *big.Int {
-	v, _ := new(big.Int).SetString(b.value, 10)
+func (b *BigIntStr) AsBigInt() *apd.BigInt {
+	v, _ := new(apd.BigInt).SetString(b.value, 10)
 	return v
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (b *BigIntStr) AsDecimal() decimal.Decimal {
-	v, _ := new(big.Int).SetString(b.value, 10)
-	return decimal.NewFromBigInt(v, 0)
+func (b *BigIntStr) AsDecimal() *apd.Decimal {
+	return apd.NewWithBigInt(b.AsBigInt(), 0)
 }
 
 // DecimalStr   High-precision decimal string
@@ -348,7 +348,6 @@ func (d *DecimalStr) Float64() (v float64, err error) {
 // BigInt   Convert to high-precision integer
 func (d *DecimalStr) BigInt() BigIntNumber {
 	return convertBigInt(d.value[:d.intLen]).(BigIntNumber)
-
 }
 
 // Decimal   Convert to high-precision decimal
@@ -370,23 +369,23 @@ func (d *DecimalStr) CloneDecimal() DecimalNumber {
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (d *DecimalStr) AsDecimal() decimal.Decimal {
+func (d *DecimalStr) AsDecimal() *apd.Decimal {
 	intString := d.value
 	if d.intLen+1 < len(d.value) {
 		intString = d.value[:d.intLen] + d.value[d.intLen+1:]
 	}
-	v, _ := new(big.Int).SetString(intString, 10)
-	return decimal.NewFromBigInt(v, int32(-len(d.value)+d.intLen+1))
+	v, _ := new(apd.BigInt).SetString(intString, 10)
+	return apd.NewWithBigInt(v, int32(-len(d.value)+d.intLen+1))
 }
 
 // Decimal   High-precision decimal
 type Decimal struct {
-	value decimal.Decimal
+	value *apd.Decimal
 }
 
 // Bool   Convert to boolean
 func (d *Decimal) Bool() (bool, error) {
-	return d.value.Cmp(decimal.Zero) != 0, nil
+	return d.value.Cmp(_DecimalZero) != 0, nil
 }
 
 // Float64   Convert to 64-bit floating-point number
@@ -400,11 +399,13 @@ func (d *Decimal) Float64() (float64, error) {
 
 // BigInt   Convert to high-precision integer
 func (d *Decimal) BigInt() BigIntNumber {
-	exp := d.value.Exponent()
-	value := d.value.Coefficient()
-
+	exp := d.value.Exponent
+	value := &d.value.Coeff
+	if d.value.Negative {
+		value = value.Neg(value)
+	}
 	diff := math.Abs(-float64(exp))
-	expScale := new(big.Int).Exp(_IntTen, big.NewInt(int64(diff)), nil)
+	expScale := new(apd.BigInt).Exp(_IntTen, apd.NewBigInt(int64(diff)), nil)
 	if 0 > exp {
 		value = value.Quo(value, expScale)
 	} else if 0 < exp {
@@ -423,18 +424,19 @@ func (d *Decimal) Decimal() DecimalNumber {
 
 // Decimal   Convert to string
 func (d *Decimal) String() string {
-	return d.value.String()
+	s, _ := convertDecimal(d.value.Text('f'))
+	return s.String()
 }
 
 // CloneDecimal   Clone high-precision decimal
 func (d *Decimal) CloneDecimal() DecimalNumber {
 	return &Decimal{
-		value: d.value.Copy(),
+		value: d.value.Set(d.value),
 	}
 }
 
 // AsDecimal   Convert to high-precision decimal
-func (d *Decimal) AsDecimal() decimal.Decimal {
+func (d *Decimal) AsDecimal() *apd.Decimal {
 	return d.value
 }
 
@@ -444,35 +446,35 @@ type OldConverter struct{}
 // ConvertBigIntFromInt   Convert to decimal from integer
 func (c *OldConverter) ConvertBigIntFromInt(i int64) (num BigIntNumber) {
 	return &BigInt{
-		value: big.NewInt(i),
+		value: apd.NewBigInt(i),
 	}
 }
 
 // ConvertBigIntFromUint   Convert to decimal from unsigned integer
 func (c *OldConverter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
 	return &BigInt{
-		value: new(big.Int).SetUint64(i),
+		value: new(apd.BigInt).SetUint64(i),
 	}
 }
 
 // ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
 func (c *OldConverter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
 	return &Decimal{
-		value: decimal.NewFromFloat32(f),
+		value: NewFromFloat32(f),
 	}
 }
 
 // ConvertDecimalFromFloat   Convert to decimal from floating-point number
 func (c *OldConverter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
 	return &Decimal{
-		value: decimal.NewFromFloat(f),
+		value: NewFromFloat(f),
 	}
 }
 
 // ConvertDecimal   Convert string to decimal
 func (c *OldConverter) ConvertDecimal(s string) (num DecimalNumber, err error) {
-	var d decimal.Decimal
-	if d, err = decimal.NewFromString(s); err != nil {
+	var d *apd.Decimal
+	if d, _, err = apd.NewFromString(s); err != nil {
 		return
 	}
 	num = &Decimal{
@@ -483,7 +485,7 @@ func (c *OldConverter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 
 // ConvertBigInt   Convert string to integer
 func (c *OldConverter) ConvertBigInt(s string) (num BigIntNumber, err error) {
-	b, ok := new(big.Int).SetString(s, 10)
+	b, ok := new(apd.BigInt).SetString(s, 10)
 	if !ok {
 		err = errors.New("number is not int")
 		return
@@ -514,20 +516,30 @@ func (c *Converter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
 // ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
 func (c *Converter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
 	return &Decimal{
-		value: decimal.NewFromFloat32(f),
+		value: NewFromFloat32(f),
 	}
 }
 
 // ConvertDecimalFromFloat   Convert to decimal from floating-point number
 func (c *Converter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
 	return &Decimal{
-		value: decimal.NewFromFloat(f),
+		value: NewFromFloat(f),
 	}
 }
 
 // ConvertDecimal   Convert string to decimal
 func (c *Converter) ConvertDecimal(s string) (num DecimalNumber, err error) {
-	eIndex := strings.IndexAny(s, "Ee")
+	eIndex := -1
+	for i, r := range s {
+		if r == 'E' || r == 'e' {
+			if eIndex > -1 {
+				return nil, fmt.Errorf("can't convert %s to decimal: multiple 'E' characters found", s)
+			}
+			eIndex = i
+			continue
+		}
+	}
+
 	if eIndex == -1 {
 		return convertDecimal(s)
 	}
@@ -541,12 +553,12 @@ func (c *Converter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 		return nil, fmt.Errorf("can't convert %s to decimal: fractional part too long", s)
 	}
 	exp := expInt
-	var dValue *big.Int
+	var dValue *apd.BigInt
 	switch data := num.(type) {
 	case *Int64:
-		dValue = big.NewInt(data.value)
+		dValue = apd.NewBigInt(data.value)
 	case *BigIntStr:
-		dValue, _ = new(big.Int).SetString(data.value, 10)
+		dValue, _ = new(apd.BigInt).SetString(data.value, 10)
 	case *DecimalStr:
 		intString := data.value
 		if data.intLen+1 < len(data.value) {
@@ -556,9 +568,9 @@ func (c *Converter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 		}
 		if len(intString) <= 18 {
 			parsed64, _ := strconv.ParseInt(intString, 10, 64)
-			dValue = big.NewInt(parsed64)
+			dValue = apd.NewBigInt(parsed64)
 		} else {
-			dValue, _ = new(big.Int).SetString(intString, 10)
+			dValue, _ = new(apd.BigInt).SetString(intString, 10)
 		}
 	}
 
@@ -567,7 +579,7 @@ func (c *Converter) ConvertDecimal(s string) (num DecimalNumber, err error) {
 		return nil, fmt.Errorf("can't convert %s to decimal: fractional part too long", s)
 	}
 	return &Decimal{
-		value: decimal.NewFromBigInt(dValue, int32(exp)),
+		value: apd.NewWithBigInt(dValue, int32(exp)),
 	}, nil
 }
 

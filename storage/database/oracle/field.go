@@ -17,12 +17,12 @@ package oracle
 import (
 	"database/sql/driver"
 	"fmt"
-	"math/big"
 	"strconv"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/cockroachdb/apd/v3"
 	"github.com/godror/godror"
 )
 
@@ -154,7 +154,7 @@ func (s *Scanner) Scan(src any) (err error) {
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
 		case uint64:
-			cv = element.NewBigIntColumnValue(new(big.Int).SetUint64(data))
+			cv = element.NewBigIntColumnValue(new(apd.BigInt).SetUint64(data))
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}

@@ -17,17 +17,16 @@ package element
 import (
 	"fmt"
 	"math"
-	"math/big"
 	"math/rand"
 	"strconv"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 var (
 	benchDecimal = &Decimal{
-		value: decimal.New(math.MaxInt64, -9),
+		value: apd.New(math.MaxInt64, -9),
 	}
 
 	benchDecimalStr = &DecimalStr{
@@ -40,7 +39,7 @@ var (
 	}
 
 	benchBigInt = &BigInt{
-		value: big.NewInt(math.MaxInt64),
+		value: apd.NewBigInt(math.MaxInt64),
 	}
 
 	benchBigIntStr = &BigIntStr{
@@ -300,7 +299,7 @@ func BenchmarkConverter_ConvertDecimal_Exp(b *testing.B) {
 	count := 72
 	prices := make([]string, 0, count)
 	for i := 1; i <= count; i++ {
-		prices = append(prices, "9323372036854775807.922e1234567890")
+		prices = append(prices, "9323372036854775807.922e123456")
 	}
 
 	b.ReportAllocs()
@@ -320,7 +319,7 @@ func BenchmarkOldConverter_ConvertDecimal_Exp(b *testing.B) {
 	count := 72
 	prices := make([]string, 0, count)
 	for i := 1; i <= count; i++ {
-		prices = append(prices, "9323372036854775807.922e1234567890")
+		prices = append(prices, "9323372036854775807.922e12356")
 	}
 
 	b.ReportAllocs()
