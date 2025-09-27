@@ -19,6 +19,7 @@ import (
 	"database/sql/driver"
 	"net"
 
+	"gitee.com/chunanyong/dm"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/pingcap/errors"
 )
@@ -71,5 +72,6 @@ func (t *Table) ShouldRetry(err error) bool {
 
 // ShouldOneByOne specifies whether to retry one operation at a time.
 func (t *Table) ShouldOneByOne(err error) bool {
-	return false
+	_, ok := errors.Cause(err).(*dm.DmError)
+	return ok
 }

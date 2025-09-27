@@ -18,5 +18,4 @@
     "batchTimeout": "1s",
     "batchSize": 1000
   }
-},
 }
