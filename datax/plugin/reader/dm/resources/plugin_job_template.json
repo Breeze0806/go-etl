@@ -1,0 +1,16 @@
+{
+  "name": "dmreader",
+  "parameter": {
+    "username": "",
+    "password": "",
+    "column": [],
+    "connection": {
+      "url": "",
+      "table": {
+        "db": "",
+        "name": ""
+      }
+    },
+    "where": ""
+  }
+}

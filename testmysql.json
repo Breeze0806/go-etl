@@ -1,0 +1,40 @@
+{
+  "core": {
+    "container": {
+      "job": {
+        "id": 1,
+        "sleepInterval": 100
+      }
+    }
+  },
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "dmreader",
+          "parameter": {
+            "username": "SYSDBA",
+            "password": "Hbsp@2025*",
+            "column": ["*"],
+            "connection":  {
+              "url": "117.50.211.96:12001",
+              "table": {
+                "db":"SWAP",
+                "name":"DI_REG_BASEINFO"
+              }
+            },
+            "where": ""
+          }
+        },
+        "writer": {
+          "name": "jsonswriter",
+          "parameter": {
+            "path":["a.jsons"]
+          }
+        },
+        "transformer":[]
+      }
+
+    ]
+  }
+}

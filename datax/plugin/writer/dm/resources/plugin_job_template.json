@@ -1,0 +1,22 @@
+{
+  "name": "dmwriter",
+  "parameter": {
+    "username": "",
+    "password": "",
+    "column": [
+      "*"
+    ],
+    "preSql": [],
+    "writeMode": "insert",
+    "connection": {
+      "url": "",
+      "table": {
+        "db": "",
+        "name": ""
+      }
+    },
+    "batchTimeout": "1s",
+    "batchSize": 1000
+  }
+},
+}
