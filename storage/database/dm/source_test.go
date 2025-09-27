@@ -88,7 +88,7 @@ func TestSource_ConnectName(t *testing.T) {
 		{
 			name: "1",
 			s:    s.(*Source),
-			want: "dm://username:password@ip:port?schema=database",
+			want: "dm://username:password@ip:port",
 		},
 	}
 	for _, tt := range tests {
@@ -113,7 +113,7 @@ func TestSource_Key(t *testing.T) {
 		{
 			name: "1",
 			s:    s.(*Source),
-			want: "dm://username:password@ip:port?schema=database",
+			want: "dm://username:password@ip:port",
 		},
 	}
 	for _, tt := range tests {
