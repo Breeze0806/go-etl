@@ -16,13 +16,12 @@ package element
 
 import (
 	"math"
-	"math/big"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 type testDecimalStr struct {
@@ -278,8 +277,8 @@ func TestOldConverter_ConvertDecimal(t *testing.T) {
 		if err != nil {
 			t.Errorf("error while parsing %s", s)
 		} else if d.String() != x.exact {
-			t.Errorf("%s expected value %s(%v), got %s(%v)",
-				s, x.exact, len(x.exact), d.(*DecimalStr).value, len(x.exact))
+			t.Errorf("%s expected value %s(%v), got %+v(%v)",
+				s, x.exact, len(x.exact), *(d.(*Decimal).value), len(x.exact))
 		}
 	}
 
@@ -533,14 +532,14 @@ func TestInt64_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name string
 		i    *Int64
-		want *big.Int
+		want *apd.BigInt
 	}{
 		{
 			name: "1",
 			i: &Int64{
 				value: math.MaxInt64,
 			},
-			want: big.NewInt(math.MaxInt64),
+			want: apd.NewBigInt(math.MaxInt64),
 		},
 	}
 	for _, tt := range tests {
@@ -556,7 +555,7 @@ func TestInt64_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		i    *Int64
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
@@ -585,14 +584,14 @@ func TestBigInt_Bool(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: true,
 		},
 		{
 			name: "2",
 			b: &BigInt{
-				value: big.NewInt(0),
+				value: apd.NewBigInt(0),
 			},
 			want: false,
 		},
@@ -621,21 +620,21 @@ func TestBigInt_Int64(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: math.MaxInt64,
 		},
 		{
 			name: "2",
 			b: &BigInt{
-				value: big.NewInt(0),
+				value: apd.NewBigInt(0),
 			},
 			want: 0,
 		},
 		{
 			name: "3",
 			b: &BigInt{
-				value: testBigIntFromString(testDecimalFormString("1e1000").String()),
+				value: testBigIntFromString(testDecimalFormString("1e1000").Text('f')),
 			},
 			wantErr: true,
 		},
@@ -664,21 +663,21 @@ func TestBigInt_Float64(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			wantV: 9.223372036854776e+18,
 		},
 		{
 			name: "2",
 			b: &BigInt{
-				value: big.NewInt(0),
+				value: apd.NewBigInt(0),
 			},
 			wantV: 0.0,
 		},
 		{
 			name: "3",
 			b: &BigInt{
-				value: testBigIntFromString(testDecimalFormString("1e1000").String()),
+				value: testBigIntFromString(testDecimalFormString("1e1000").Text('f')),
 			},
 			wantErr: true,
 		},
@@ -706,10 +705,10 @@ func TestBigInt_BigInt(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 		},
 	}
@@ -731,10 +730,10 @@ func TestBigInt_Decimal(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 		},
 	}
@@ -756,10 +755,10 @@ func TestBigInt_CloneDecimal(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 		},
 	}
@@ -781,7 +780,7 @@ func TestBigInt_String(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: strconv.FormatInt(math.MaxInt64, 10),
 		},
@@ -804,10 +803,10 @@ func TestBigInt_CloneBigInt(t *testing.T) {
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 			want: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 		},
 	}
@@ -924,10 +923,10 @@ func TestBigIntStr_BigInt(t *testing.T) {
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 			want: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 		},
 	}
@@ -949,10 +948,10 @@ func TestBigIntStr_Decimal(t *testing.T) {
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 			want: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 		},
 	}
@@ -974,10 +973,10 @@ func TestBigIntStr_CloneBigInt(t *testing.T) {
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 			want: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 		},
 	}
@@ -999,10 +998,10 @@ func TestBigIntStr_CloneDecimal(t *testing.T) {
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 			want: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
 		},
 	}
@@ -1019,14 +1018,14 @@ func TestBigIntStr_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BigIntStr
-		want *big.Int
+		want *apd.BigInt
 	}{
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
-			want: new(big.Int).SetUint64(math.MaxUint16),
+			want: new(apd.BigInt).SetUint64(math.MaxUint16),
 		},
 	}
 	for _, tt := range tests {
@@ -1042,14 +1041,14 @@ func TestBigIntStr_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BigIntStr
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
 			b: &BigIntStr{
-				value: new(big.Int).SetUint64(math.MaxUint16).String(),
+				value: new(apd.BigInt).SetUint64(math.MaxUint16).String(),
 			},
-			want: testDecimalFormString(new(big.Int).SetUint64(math.MaxUint16).String()),
+			want: testDecimalFormString(new(apd.BigInt).SetUint64(math.MaxUint16).String()),
 		},
 	}
 	for _, tt := range tests {
@@ -1146,11 +1145,11 @@ func TestDecimalStr_BigInt(t *testing.T) {
 		{
 			name: "1",
 			d: &DecimalStr{
-				value:  testDecimalFormString("1.797693134862315708145274237317043567981e+308").String() + ".123",
+				value:  testDecimalFormString("1.797693134862315708145274237317043567981e+308").Text('f') + ".123",
 				intLen: 309,
 			},
 			want: &BigIntStr{
-				value: testDecimalFormString("1.797693134862315708145274237317043567981e+308").String(),
+				value: testDecimalFormString("1.797693134862315708145274237317043567981e+308").Text('f'),
 			},
 		},
 		{
@@ -1231,21 +1230,21 @@ func TestDecimalStr_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		d    *DecimalStr
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
 			d: &DecimalStr{
-				value:  testDecimalFormString("1.797693134862315708145274237317043567981e+308").String() + ".123",
+				value:  testDecimalFormString("1.797693134862315708145274237317043567981e+308").Text('f') + ".123",
 				intLen: 309,
 			},
-			want: testDecimalFormString(testDecimalFormString("1.797693134862315708145274237317043567981e+308").String() + ".123"),
+			want: testDecimalFormString(testDecimalFormString("1.797693134862315708145274237317043567981e+308").Text('f') + ".123"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.d.AsDecimal(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DecimalStr.AsDecimal() = %v, want %v", got, tt.want)
+			if got := tt.d.AsDecimal(); got.Cmp(tt.want) != 0 {
+				t.Errorf("DecimalStr.AsDecimal() = %v, want %v", *got, *(tt.want))
 			}
 		})
 	}
@@ -1261,14 +1260,14 @@ func TestDecimal_Bool(t *testing.T) {
 		{
 			name: "1",
 			d: &Decimal{
-				value: decimal.Zero,
+				value: _DecimalZero,
 			},
 			want: false,
 		},
 		{
 			name: "2",
 			d: &Decimal{
-				value: decimal.NewFromFloat(1e32),
+				value: NewFromFloat(1e32),
 			},
 			want: true,
 		},
@@ -1304,7 +1303,7 @@ func TestDecimal_Float64(t *testing.T) {
 		{
 			name: "2",
 			d: &Decimal{
-				value: decimal.NewFromFloat(math.MaxFloat64),
+				value: NewFromFloat(math.MaxFloat64),
 			},
 			want: math.MaxFloat64,
 		},
@@ -1335,7 +1334,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("123456232542542525.525254252524"),
 			},
 			want: &BigInt{
-				value: big.NewInt(123456232542542525),
+				value: apd.NewBigInt(123456232542542525),
 			},
 		},
 		{
@@ -1344,7 +1343,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("-123456232542542525.525254252524"),
 			},
 			want: &BigInt{
-				value: big.NewInt(-123456232542542525),
+				value: apd.NewBigInt(-123456232542542525),
 			},
 		},
 		{
@@ -1353,7 +1352,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("0.00122323123"),
 			},
 			want: &BigInt{
-				value: big.NewInt(0),
+				value: apd.NewBigInt(0),
 			},
 		},
 		{
@@ -1362,7 +1361,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("123450000"),
 			},
 			want: &BigInt{
-				value: big.NewInt(123450000),
+				value: apd.NewBigInt(123450000),
 			},
 		},
 
@@ -1372,7 +1371,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("1.00122323123"),
 			},
 			want: &BigInt{
-				value: big.NewInt(1),
+				value: apd.NewBigInt(1),
 			},
 		},
 		{
@@ -1381,7 +1380,7 @@ func TestDecimal_BigInt(t *testing.T) {
 				value: testDecimalFormString("12345.67e-3"),
 			},
 			want: &BigInt{
-				value: big.NewInt(12),
+				value: apd.NewBigInt(12),
 			},
 		},
 	}
@@ -1413,7 +1412,7 @@ func TestDecimal_Decimal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.d.Decimal(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Decimal.Decimal() = %v, want %v", got, tt.want)
+				t.Errorf("*apd.Decimal() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -1448,7 +1447,7 @@ func TestDecimal_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		d    *Decimal
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
@@ -1494,14 +1493,14 @@ func TestBigInt_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		b    *BigInt
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
 			b: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
-			want: decimal.NewFromInt(math.MaxInt64),
+			want: apd.New(math.MaxInt64, 0),
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1645,7 +1644,7 @@ func TestOldConverter_ConvertBigIntFromInt(t *testing.T) {
 				i: math.MaxInt64,
 			},
 			wantNum: &BigInt{
-				value: big.NewInt(math.MaxInt64),
+				value: apd.NewBigInt(math.MaxInt64),
 			},
 		},
 	}
@@ -1673,7 +1672,7 @@ func TestOldConverter_ConvertDecimalFromFloat(t *testing.T) {
 				f: math.MaxFloat64,
 			},
 			wantNum: &Decimal{
-				value: decimal.NewFromFloat(math.MaxFloat64),
+				value: NewFromFloat(math.MaxFloat64),
 			},
 		},
 	}
@@ -1729,7 +1728,7 @@ func TestConverter_ConvertDecimalFromFloat(t *testing.T) {
 				f: math.MaxFloat64,
 			},
 			wantNum: &Decimal{
-				value: decimal.NewFromFloat(math.MaxFloat64),
+				value: NewFromFloat(math.MaxFloat64),
 			},
 		},
 	}
@@ -1976,17 +1975,17 @@ func TestUint64_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name   string
 		i      *Uint64
-		wantBi *big.Int
+		wantBi *apd.BigInt
 	}{
 		{
 			name:   "1",
 			i:      &Uint64{value: math.MaxInt64 + 1},
-			wantBi: new(big.Int).SetUint64(math.MaxInt64 + 1),
+			wantBi: new(apd.BigInt).SetUint64(math.MaxInt64 + 1),
 		},
 		{
 			name:   "2",
 			i:      &Uint64{value: math.MaxUint64},
-			wantBi: new(big.Int).SetUint64(math.MaxUint64),
+			wantBi: new(apd.BigInt).SetUint64(math.MaxUint64),
 		},
 	}
 	for _, tt := range tests {
@@ -2002,17 +2001,17 @@ func TestUint64_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name string
 		i    *Uint64
-		want decimal.Decimal
+		want *apd.Decimal
 	}{
 		{
 			name: "1",
 			i:    &Uint64{value: math.MaxInt64 + 1},
-			want: decimal.NewFromUint64(math.MaxInt64 + 1),
+			want: apd.NewWithBigInt(new(apd.BigInt).SetUint64(math.MaxInt64+1), 0),
 		},
 		{
 			name: "2",
 			i:    &Uint64{value: math.MaxUint64},
-			want: decimal.NewFromUint64(math.MaxUint64),
+			want: apd.NewWithBigInt(new(apd.BigInt).SetUint64(math.MaxUint64), 0),
 		},
 	}
 	for _, tt := range tests {
@@ -2041,7 +2040,7 @@ func TestOldConverter_ConvertBigIntFromUint(t *testing.T) {
 				i: math.MaxUint64,
 			},
 			wantNum: &BigInt{
-				value: new(big.Int).SetUint64(math.MaxUint64),
+				value: new(apd.BigInt).SetUint64(math.MaxUint64),
 			},
 		},
 	}
@@ -2071,7 +2070,7 @@ func TestOldConverter_ConvertDecimalFromFloat32(t *testing.T) {
 				f: math.MaxFloat32,
 			},
 			wantNum: &Decimal{
-				value: decimal.NewFromFloat32(math.MaxFloat32),
+				value: NewFromFloat32(math.MaxFloat32),
 			},
 		},
 	}
@@ -2131,7 +2130,7 @@ func TestConverter_ConvertDecimalFromFloat32(t *testing.T) {
 				f: math.MaxFloat32,
 			},
 			wantNum: &Decimal{
-				value: decimal.NewFromFloat32(math.MaxFloat32),
+				value: NewFromFloat32(math.MaxFloat32),
 			},
 		},
 	}

@@ -15,12 +15,11 @@
 package element
 
 import (
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 func TestNilBoolColumnValue_Type(t *testing.T) {
@@ -126,18 +125,18 @@ func TestBoolColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		b       *BoolColumnValue
-		want    *big.Int
+		want    *apd.BigInt
 		wantErr bool
 	}{
 		{
 			name: "true",
 			b:    NewBoolColumnValue(true).(*BoolColumnValue),
-			want: big.NewInt(1),
+			want: apd.NewBigInt(1),
 		},
 		{
 			name: "false",
 			b:    NewBoolColumnValue(false).(*BoolColumnValue),
-			want: big.NewInt(0),
+			want: apd.NewBigInt(0),
 		},
 	}
 	for _, tt := range tests {
@@ -158,18 +157,18 @@ func TestBoolColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		b       *BoolColumnValue
-		want    decimal.Decimal
+		want    *apd.Decimal
 		wantErr bool
 	}{
 		{
 			name: "true",
 			b:    NewBoolColumnValue(true).(*BoolColumnValue),
-			want: decimal.New(1, 0),
+			want: apd.New(1, 0),
 		},
 		{
 			name: "false",
 			b:    NewBoolColumnValue(false).(*BoolColumnValue),
-			want: decimal.Zero,
+			want: _DecimalZero,
 		},
 	}
 	for _, tt := range tests {

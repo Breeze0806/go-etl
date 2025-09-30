@@ -15,12 +15,11 @@
 package element
 
 import (
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 func TestNilStringColumnValue_Type(t *testing.T) {
@@ -182,7 +181,7 @@ func TestStringColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *StringColumnValue
-		want    *big.Int
+		want    *apd.BigInt
 		wantErr bool
 	}{
 		{
@@ -234,7 +233,7 @@ func TestStringColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *StringColumnValue
-		want    decimal.Decimal
+		want    *apd.Decimal
 		wantErr bool
 	}{
 		{
@@ -285,7 +284,7 @@ func TestStringColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("StringColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && got.String() != tt.want.String() {
+			if !tt.wantErr && got.String() != tt.want.Text('f') {
 				t.Errorf("StringColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

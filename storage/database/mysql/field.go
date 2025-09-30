@@ -20,7 +20,6 @@ import (
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"github.com/shopspring/decimal"
 )
 
 var (
@@ -200,7 +199,7 @@ func (s *Scanner) Scan(src any) (err error) {
 				return
 			}
 		case float32:
-			cv = element.NewDecimalColumnValue(decimal.NewFromFloat32(data))
+			cv = element.NewDecimalColumnValue(element.NewFromFloat32(data))
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		default:

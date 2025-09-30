@@ -16,8 +16,9 @@ package element
 
 import (
 	"fmt"
-	"math/big"
 	"time"
+
+	"github.com/cockroachdb/apd/v3"
 )
 
 // NilBigIntColumnValue - Null value for a big integer column
@@ -64,10 +65,10 @@ func NewBigIntColumnValueFromUint64(v uint64) ColumnValue {
 }
 
 // NewBigIntColumnValue - Create a big integer column value from a big.Int v
-func NewBigIntColumnValue(v *big.Int) ColumnValue {
+func NewBigIntColumnValue(v *apd.BigInt) ColumnValue {
 	return &BigIntColumnValue{
 		val: &BigInt{
-			value: new(big.Int).Set(v),
+			value: v,
 		},
 	}
 }

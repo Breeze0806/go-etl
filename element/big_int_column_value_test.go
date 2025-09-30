@@ -16,12 +16,11 @@ package element
 
 import (
 	"math"
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 func TestNewNilBigIntColumnValue(t *testing.T) {
@@ -106,7 +105,7 @@ func TestNewBigIntColumnValueFromInt64(t *testing.T) {
 
 func TestNewBigIntColumnValueFromBigInt(t *testing.T) {
 	type args struct {
-		v *big.Int
+		v *apd.BigInt
 	}
 	tests := []struct {
 		name string
@@ -116,30 +115,30 @@ func TestNewBigIntColumnValueFromBigInt(t *testing.T) {
 		{
 			name: "Zero",
 			args: args{
-				v: big.NewInt(0),
+				v: apd.NewBigInt(0),
 			},
-			want: NewBigIntColumnValue(big.NewInt(0)),
+			want: NewBigIntColumnValue(apd.NewBigInt(0)),
 		},
 		{
 			name: "FromMaxInt",
 			args: args{
-				v: big.NewInt(math.MaxInt64),
+				v: apd.NewBigInt(math.MaxInt64),
 			},
-			want: NewBigIntColumnValue(big.NewInt(math.MaxInt64)),
+			want: NewBigIntColumnValue(apd.NewBigInt(math.MaxInt64)),
 		},
 		{
 			name: "MinInt",
 			args: args{
-				v: big.NewInt(math.MinInt64),
+				v: apd.NewBigInt(math.MinInt64),
 			},
-			want: NewBigIntColumnValue(big.NewInt(math.MinInt64)),
+			want: NewBigIntColumnValue(apd.NewBigInt(math.MinInt64)),
 		},
 		{
 			name: "MaxUint",
 			args: args{
-				v: new(big.Int).SetUint64(math.MaxUint64),
+				v: new(apd.BigInt).SetUint64(math.MaxUint64),
 			},
-			want: NewBigIntColumnValue(new(big.Int).SetUint64(math.MaxUint64)),
+			want: NewBigIntColumnValue(new(apd.BigInt).SetUint64(math.MaxUint64)),
 		},
 	}
 	for _, tt := range tests {
@@ -164,45 +163,45 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 		{
 			name: "Zero",
 			args: args{
-				v: big.NewInt(0).String(),
+				v: apd.NewBigInt(0).String(),
 			},
-			want: NewBigIntColumnValue(big.NewInt(0)),
+			want: NewBigIntColumnValue(apd.NewBigInt(0)),
 		},
 		{
 			name: "MaxInt",
 			args: args{
-				v: big.NewInt(math.MaxInt64).String(),
+				v: apd.NewBigInt(math.MaxInt64).String(),
 			},
-			want: NewBigIntColumnValue(big.NewInt(math.MaxInt64)),
+			want: NewBigIntColumnValue(apd.NewBigInt(math.MaxInt64)),
 		},
 		{
 			name: "MinInt",
 			args: args{
-				v: big.NewInt(math.MinInt64).String(),
+				v: apd.NewBigInt(math.MinInt64).String(),
 			},
-			want: NewBigIntColumnValue(big.NewInt(math.MinInt64)),
+			want: NewBigIntColumnValue(apd.NewBigInt(math.MinInt64)),
 		},
 		{
 			name: "MaxUint",
 			args: args{
-				v: new(big.Int).SetUint64(math.MaxUint64).String(),
+				v: new(apd.BigInt).SetUint64(math.MaxUint64).String(),
 			},
-			want: NewBigIntColumnValue(new(big.Int).SetUint64(math.MaxUint64)),
+			want: NewBigIntColumnValue(new(apd.BigInt).SetUint64(math.MaxUint64)),
 		},
 		{
 			name: "NegUint",
 			args: args{
-				v: "-" + new(big.Int).SetUint64(math.MaxUint64).String(),
+				v: "-" + new(apd.BigInt).SetUint64(math.MaxUint64).String(),
 			},
-			want: NewBigIntColumnValue(new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64))),
+			want: NewBigIntColumnValue(new(apd.BigInt).Neg(new(apd.BigInt).SetUint64(math.MaxUint64))),
 		},
 
 		{
 			name: "NegUint1",
 			args: args{
-				v: "-0000" + new(big.Int).SetUint64(math.MaxUint64).String(),
+				v: "-0000" + new(apd.BigInt).SetUint64(math.MaxUint64).String(),
 			},
-			want: NewBigIntColumnValue(new(big.Int).Neg(new(big.Int).SetUint64(math.MaxUint64))),
+			want: NewBigIntColumnValue(new(apd.BigInt).Neg(new(apd.BigInt).SetUint64(math.MaxUint64))),
 		},
 		{
 			name: "BigInt1",
@@ -219,7 +218,7 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 		{
 			name: "UnValidNumber",
 			args: args{
-				v: new(big.Int).SetUint64(math.MaxUint64).String() + ".00000",
+				v: new(apd.BigInt).SetUint64(math.MaxUint64).String() + ".00000",
 			},
 			wantErr: true,
 		},
@@ -227,14 +226,14 @@ func TestNewBigIntColumnValueFromString(t *testing.T) {
 		{
 			name: "UnValidNumber1",
 			args: args{
-				v: new(big.Int).SetUint64(math.MaxUint64).String() + "abc",
+				v: new(apd.BigInt).SetUint64(math.MaxUint64).String() + "abc",
 			},
 			wantErr: true,
 		},
 		{
 			name: "UnValidNumber2",
 			args: args{
-				v: new(big.Int).SetUint64(math.MaxUint64).String() + "e19",
+				v: new(apd.BigInt).SetUint64(math.MaxUint64).String() + "e19",
 			},
 			wantErr: true,
 		},
@@ -318,7 +317,7 @@ func TestBigIntColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		b       *BigIntColumnValue
-		want    *big.Int
+		want    *apd.BigInt
 		wantErr bool
 	}{
 		{
@@ -336,7 +335,7 @@ func TestBigIntColumnValue_AsBigInt(t *testing.T) {
 		{
 			name: "3",
 			b:    NewBigIntColumnValueFromInt64(-123456789123456789).(*BigIntColumnValue),
-			want: big.NewInt(-123456789123456789),
+			want: apd.NewBigInt(-123456789123456789),
 		},
 	}
 	for _, tt := range tests {
@@ -357,32 +356,32 @@ func TestBigIntColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		b       *BigIntColumnValue
-		want    decimal.Decimal
+		want    *apd.Decimal
 		wantErr bool
 	}{
 		{
 			name:    "1",
 			b:       NewBigIntColumnValueFromInt64(0).(*BigIntColumnValue),
-			want:    decimal.Zero,
+			want:    _DecimalZero,
 			wantErr: false,
 		},
 		{
 			name:    "2",
 			b:       NewBigIntColumnValueFromInt64(1).(*BigIntColumnValue),
-			want:    decimal.NewFromInt(1),
+			want:    apd.New(1, 0),
 			wantErr: false,
 		},
 
 		{
 			name:    "3",
 			b:       NewBigIntColumnValueFromInt64(123456789123456789).(*BigIntColumnValue),
-			want:    decimal.NewFromInt(123456789123456789),
+			want:    apd.New(123456789123456789, 0),
 			wantErr: false,
 		},
 		{
 			name:    "4",
 			b:       NewBigIntColumnValueFromInt64(-123456789123456789).(*BigIntColumnValue),
-			want:    decimal.NewFromInt(-123456789123456789),
+			want:    apd.New(-123456789123456789, 0),
 			wantErr: false,
 		},
 		{
@@ -417,7 +416,7 @@ func TestBigIntColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("BigIntColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.AsDecimal().Equal(tt.want) {
+			if got.AsDecimal().Cmp(tt.want) != 0 {
 				t.Errorf("BigIntColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})

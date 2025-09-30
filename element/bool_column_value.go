@@ -16,10 +16,7 @@ package element
 
 import (
 	"fmt"
-	"math/big"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 // NilBoolColumnValue represents an empty Boolean column value
@@ -71,17 +68,17 @@ func (b *BoolColumnValue) AsBool() (bool, error) {
 // AsBigInt converts it to a big integer, where true becomes 1 and false becomes 0
 func (b *BoolColumnValue) AsBigInt() (BigIntNumber, error) {
 	if b.val {
-		return NewBigIntColumnValue(big.NewInt(1)).AsBigInt()
+		return &Int64{value: 1}, nil
 	}
-	return NewBigIntColumnValue(big.NewInt(0)).AsBigInt()
+	return &Int64{value: 0}, nil
 }
 
 // AsDecimal converts it to a high-precision decimal number, where true becomes 1.0 and false becomes 0.0
 func (b *BoolColumnValue) AsDecimal() (DecimalNumber, error) {
 	if b.val {
-		return NewDecimalColumnValue(decimal.New(1, 0)).AsDecimal()
+		return &Int64{value: 1}, nil
 	}
-	return NewDecimalColumnValue(decimal.New(0, 1)).AsDecimal()
+	return &Int64{value: 0}, nil
 }
 
 // AsString converts it to a string, where true becomes true and false becomes false
