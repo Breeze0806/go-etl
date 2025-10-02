@@ -215,3 +215,83 @@ func TestNewFromFloatWithExponent(t *testing.T) {
 		}
 	}
 }
+
+func TestNewFromFloat32(t *testing.T) {
+	type args struct {
+		value float32
+	}
+	tests := []struct {
+		name string
+		args args
+		want *apd.Decimal
+	}{
+		{
+			name: "Zero",
+			args: args{
+				value: 0,
+			},
+			want: _DecimalZero,
+		},
+		{
+			name: "BigFloat",
+			args: args{
+				value: math.MaxFloat32,
+			},
+			want: apd.New(34028235, 31),
+		},
+		{
+			name: "-BigFloat",
+			args: args{
+				value: -math.MaxFloat32,
+			},
+			want: apd.New(-34028235, 31),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewFromFloat32(tt.args.value); got.Cmp(tt.want) != 0 {
+				t.Errorf("NewFromFloat32() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_NNewFromFloat(t *testing.T) {
+	type args struct {
+		val float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want *apd.Decimal
+	}{
+		{
+			name: "Zero",
+			args: args{
+				val: 0,
+			},
+			want: _DecimalZero,
+		},
+		{
+			name: "BigFloat",
+			args: args{
+				val: math.MaxFloat64,
+			},
+			want: apd.New(17976931348623157, 292),
+		},
+		{
+			name: "-BigFloat",
+			args: args{
+				val: -math.MaxFloat64,
+			},
+			want: apd.New(-17976931348623157, 292),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewFromFloat(tt.args.val); got.Cmp(tt.want) != 0 {
+				t.Errorf("newFromFloat() = %+v, want %+v", *got, *(tt.want))
+			}
+		})
+	}
+}
