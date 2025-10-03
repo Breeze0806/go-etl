@@ -100,6 +100,14 @@ Describes the DM table information.
 
 Currently, DMReader supports most DM types, but there are still some individual types that are not supported. Please check your types carefully.
 
+| go-etl Type | Dameng Data Type |
+| --- | --- |
+| bool  |bit |
+| bigInt | BIGINT, INT, INTEGER, SMALLINT,TINYINT,BYTE |
+| decimal | DOUBLE，DOUBLE PRECISION, REAL, DECIMAL，NUMERIC,NUMBER  |
+| string | VARCHAR, CHAR, TEXT, LONG,CLOB，LONGVARCHAR   |
+| time | DATE, TIME, DATETIME,TIMESTAMP |
+| bytes | BLOB, VARBINARY, IMAGE, LONGVARBINARY  |
 ## Performance Report
 
 To be tested.

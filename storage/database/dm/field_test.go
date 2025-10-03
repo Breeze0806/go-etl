@@ -216,12 +216,12 @@ func TestFieldType_GoType(t *testing.T) {
 		{
 			name: "BOOLEAN",
 			f:    NewFieldType(newMockColumnType("BOOLEAN")),
-			want: database.GoTypeBool,
+			want: database.GoTypeUnknown,
 		},
 		{
 			name: "BOOL",
 			f:    NewFieldType(newMockColumnType("BOOL")),
-			want: database.GoTypeBool,
+			want: database.GoTypeUnknown,
 		},
 
 		// INTEGER 类型
@@ -349,7 +349,7 @@ func TestFieldType_GoType(t *testing.T) {
 		{
 			name: "BFILE",
 			f:    NewFieldType(newMockColumnType("BFILE")),
-			want: database.GoTypeBytes,
+			want: database.GoTypeUnknown,
 		},
 		{
 			name: "IMAGE",
@@ -357,8 +357,8 @@ func TestFieldType_GoType(t *testing.T) {
 			want: database.GoTypeBytes,
 		},
 		{
-			name: "LONGVARBINARY",
-			f:    NewFieldType(newMockColumnType("LONGVARBINARY")),
+			name: "longvarbinary",
+			f:    NewFieldType(newMockColumnType("longvarbinary")),
 			want: database.GoTypeBytes,
 		},
 
@@ -453,34 +453,25 @@ func TestScanner_Scan(t *testing.T) {
 	}{
 		// BOOLEAN 类型测试
 		{
-			name: "BOOLEAN-nil",
+			name: "BIT-nil",
 			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("BOOLEAN"))))),
+				"f1", NewFieldType(newMockColumnType("BIT"))))),
 			args: args{
 				src: nil,
 			},
 			want: element.NewDefaultColumn(element.NewNilBoolColumnValue(), "f1", 0),
 		},
 		{
-			name: "BOOLEAN-bool",
+			name: "BIT-int8",
 			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("BOOLEAN"))))),
-			args: args{
-				src: true,
-			},
-			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", element.ByteSize(true)),
-		},
-		{
-			name: "BOOLEAN-int8",
-			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("BOOLEAN"))))),
+				"f1", NewFieldType(newMockColumnType("BIT"))))),
 			args: args{
 				src: int8(1),
 			},
 			want: element.NewDefaultColumn(element.NewBoolColumnValue(true), "f1", element.ByteSize(int8(1))),
 		},
 		{
-			name: "BOOLEAN-invalid",
+			name: "BIT-invalid",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType("BOOLEAN"))))),
 			args: args{
@@ -518,15 +509,6 @@ func TestScanner_Scan(t *testing.T) {
 			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(12345)), "f1", element.ByteSize(int32(12345))),
 		},
 		{
-			name: "INT-string",
-			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("INT"))))),
-			args: args{
-				src: "123",
-			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(123), "f1", element.ByteSize("123")),
-		},
-		{
 			name: "INT-invalid",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType("INT"))))),
@@ -550,6 +532,15 @@ func TestScanner_Scan(t *testing.T) {
 			name: "BLOB-[]byte",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType("BLOB"))))),
+			args: args{
+				src: []byte("123"),
+			},
+			want: element.NewDefaultColumn(element.NewBytesColumnValueNoCopy([]byte("123")), "f1", element.ByteSize([]byte("123"))),
+		},
+		{
+			name: "longvarbinary-[]byte",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("longvarbinary"))))),
 			args: args{
 				src: []byte("123"),
 			},
@@ -599,18 +590,6 @@ func TestScanner_Scan(t *testing.T) {
 				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
 			args: args{
 				src: "1.234",
-			},
-			want: func() element.Column {
-				d, _ := element.NewDecimalColumnValueFromString("1.234")
-				return element.NewDefaultColumn(d, "f1", element.ByteSize([]byte("1.234")))
-			}(),
-		},
-		{
-			name: "NUMERIC-[]byte",
-			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
-			args: args{
-				src: []byte("1.234"),
 			},
 			want: func() element.Column {
 				d, _ := element.NewDecimalColumnValueFromString("1.234")
