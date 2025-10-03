@@ -1,0 +1,54 @@
+{
+  "core": {
+    "container": {
+      "job": {
+        "id": 1,
+        "sleepInterval": 100
+      }
+    }
+  },
+  "job": {
+    "content": [
+      {
+        "reader": {
+          "name": "dmreader",
+          "parameter": {
+            "username": "test:",
+            "password": "test:",
+            "column": [
+              "*"
+            ],
+            "connection": {
+              "url": "192.168.15.130:5236",
+              "table": {
+                "db": "source",
+                "name": "type_table"
+              }
+            },
+            "where": ""
+          }
+        },
+        "writer":{
+          "name": "dmwriter",
+          "parameter": {
+            "username": "test:",
+            "password": "test:",
+            "column": ["*"],
+            "writeMode": "insert",
+            "preSql": [],
+            "connection":  {
+              "url": "192.168.15.130:5236",
+              "table": {
+                "db":"destination",
+                "name":"type_table"
+              }
+            },
+            "batchTimeout": "1s",
+            "batchSize":1000
+          }
+        },
+        "transformer": []
+      }
+    ]
+  }
+}
