@@ -234,7 +234,7 @@ Note: On Linux, as indicated in the Makefile, export `LD_LIBRARY_PATH=${DB2HOME}
 ./go-etl -c examples/dm/config.json
 ```
 
-##### 2.1.2.11 Other Synchronization Examples
+##### 2.1.2.12 Other Synchronization Examples
 
 In addition to the above examples, all data sources listed in the go-etl features can be used interchangeably. Configurations can be set up for data sources such as MySQL to PostgreSQL, MySQL to Oracle, Oracle to DB2, etc.
 
