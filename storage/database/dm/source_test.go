@@ -1,24 +1,47 @@
 // Copyright 2020 the go-etl Authors.
+
 //
+
 // Licensed under the Apache License, Version 2.0 (the "License");
+
 // you may not use this file except in compliance with the License.
+
 // You may obtain a copy of the License at
+
 //
+
 // http://www.apache.org/licenses/LICENSE-2.0
+
 //
+
 // Unless required by applicable law or agreed to in writing, software
+
 // distributed under the License is distributed on an "AS IS" BASIS,
+
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
 // See the License for the specific language governing permissions and
+
 // limitations under the License.
 
 package dm
 
 import (
+	"reflect"
 	"testing"
 
+	_ "gitee.com/chunanyong/dm"
+	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
+
+func testJSONFromString(s string) *config.JSON {
+	json, err := config.NewJSONFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return json
+}
 
 func TestDialect_Source(t *testing.T) {
 	type args struct {
@@ -120,6 +143,72 @@ func TestSource_Key(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.s.Key(); got != tt.want {
 				t.Errorf("Source.Key() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSource_Table(t *testing.T) {
+	type args struct {
+		b *database.BaseTable
+	}
+	tests := []struct {
+		name string
+		s    *Source
+		args args
+		want database.Table
+	}{
+		{
+			name: "1",
+			s: &Source{
+				dsn: "11111xxx",
+			},
+			args: args{
+				b: database.NewBaseTable("db", "schema", "table"),
+			},
+			want: NewTable(database.NewBaseTable("db", "schema", "table")),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.Table(tt.args.b); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Source.Table() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewSource(t *testing.T) {
+	type args struct {
+		bs *database.BaseSource
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantS   database.Source
+		wantErr bool
+	}{
+		{
+			name: "1",
+			args: args{
+				bs: database.NewBaseSource(testJSONFromString(`{
+		"url": "ip:port",
+		"username": 1,
+		"password": "password"
+	}`)),
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotS, err := NewSource(tt.args.bs)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewSource() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotS, tt.wantS) {
+				t.Errorf("NewSource() = %v, want %v", gotS, tt.wantS)
 			}
 		})
 	}

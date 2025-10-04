@@ -16,9 +16,12 @@ package dm
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"net"
 	"reflect"
 	"testing"
 
+	"gitee.com/chunanyong/dm"
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
@@ -80,29 +83,126 @@ func TestTable_AddField(t *testing.T) {
 		})
 	}
 }
-
 func TestTable_ExecParam(t *testing.T) {
 	type args struct {
 		mode   string
 		txOpts *sql.TxOptions
 	}
 	tests := []struct {
-		name   string
-		args   args
-		want   database.Parameter
-		wantOk bool
+		name  string
+		tr    *Table
+		args  args
+		want  database.Parameter
+		want1 bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("", "schema", "table")),
+			args: args{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			table := NewTable(database.NewBaseTable("schema", "", "table"))
-			got, gotOk := table.ExecParam(tt.args.mode, tt.args.txOpts)
+			got, got1 := tt.tr.ExecParam(tt.args.mode, tt.args.txOpts)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Table.ExecParam() got = %v, want %v", got, tt.want)
 			}
-			if gotOk != tt.wantOk {
-				t.Errorf("Table.ExecParam() gotOk = %v, want %v", gotOk, tt.wantOk)
+			if got1 != tt.want1 {
+				t.Errorf("Table.ExecParam() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldRetry(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: true,
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.OpError{},
+			},
+			want: true,
+		},
+		{
+			name: "4",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &net.AddrError{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldRetry(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldRetry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTable_ShouldOneByOne(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		tr   *Table
+		args args
+		want bool
+	}{
+		{
+			name: "1",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: nil,
+			},
+		},
+		{
+			name: "2",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: driver.ErrBadConn,
+			},
+			want: false,
+		},
+		{
+			name: "3",
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				err: &dm.DmError{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
+				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}

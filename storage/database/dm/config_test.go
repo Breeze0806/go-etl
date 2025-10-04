@@ -36,6 +36,17 @@ func TestConfig(t *testing.T) {
 				conf: testJSON(),
 			},
 		},
+		{
+			name: "2",
+			args: args{
+				conf: testJSONFromString(`{
+					"url" : 1,
+					"username" : "1",
+					"password": "1"
+				}`),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -49,13 +60,9 @@ func TestConfig(t *testing.T) {
 }
 
 func testJSON() *config.JSON {
-	conf, err := config.NewJSONFromString(`{
+	return testJSONFromString(`{
 		"url": "ip:port",
 		"username": "username",
 		"password": "password"
 	}`)
-	if err != nil {
-		panic(err)
-	}
-	return conf
 }

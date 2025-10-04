@@ -25,6 +25,52 @@ import (
 	"github.com/Breeze0806/go-etl/storage/database"
 )
 
+type mockFieldType struct {
+	name string
+}
+
+func newMockFieldType(name string) *mockFieldType {
+	return &mockFieldType{
+		name: name,
+	}
+}
+
+func (m *mockFieldType) Name() string {
+	return ""
+}
+
+func (m *mockFieldType) ScanType() reflect.Type {
+	return nil
+}
+
+func (m *mockFieldType) Length() (length int64, ok bool) {
+	return
+}
+
+func (m *mockFieldType) DecimalSize() (precision, scale int64, ok bool) {
+	return
+}
+
+func (m *mockFieldType) Nullable() (nullable, ok bool) {
+	return
+}
+
+func (m *mockFieldType) DatabaseTypeName() string {
+	return m.name
+}
+
+func (m *mockFieldType) IsSupported() bool {
+	return true
+}
+
+func mustDecimalColumnValueFromString(s string) element.ColumnValue {
+	c, err := element.NewDecimalColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
 type mockColumnType struct {
 	name string
 }
@@ -473,7 +519,7 @@ func TestScanner_Scan(t *testing.T) {
 		{
 			name: "BIT-invalid",
 			s: NewScanner(NewField(database.NewBaseField(0,
-				"f1", NewFieldType(newMockColumnType("BOOLEAN"))))),
+				"f1", NewFieldType(newMockColumnType("BIT"))))),
 			args: args{
 				src: "invalid",
 			},
@@ -507,6 +553,24 @@ func TestScanner_Scan(t *testing.T) {
 				src: int32(12345),
 			},
 			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(12345)), "f1", element.ByteSize(int32(12345))),
+		},
+		{
+			name: "INT-int16",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("INT"))))),
+			args: args{
+				src: int16(12345),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(12345)), "f1", element.ByteSize(int16(12345))),
+		},
+		{
+			name: "INT-int8",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("INT"))))),
+			args: args{
+				src: int8(123),
+			},
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromInt64(int64(123)), "f1", element.ByteSize(int8(123))),
 		},
 		{
 			name: "INT-invalid",
@@ -605,7 +669,15 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
+		{
+			name: "NUMERIC-invalid",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType("NUMERIC"))))),
+			args: args{
+				src: 0,
+			},
+			wantErr: true,
+		},
 		// REAL 类型测试
 		{
 			name: "REAL-nil",
@@ -672,7 +744,15 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			wantErr: true,
 		},
-
+		{
+			name: "CHARTrim",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("CHAR")))),
+			conf: testJSONFromString(`{"trimChar":true}`),
+			args: args{
+				src: "    abc   ",
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("abc"), "test", element.ByteSize("    abc   ")),
+		},
 		// DATE 类型测试
 		{
 			name: "DATE-nil",
