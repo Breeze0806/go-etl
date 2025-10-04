@@ -17,7 +17,6 @@ package element
 import (
 	"math"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/cockroachdb/apd/v3"
@@ -259,7 +258,7 @@ func TestInt64_AsDecimal(t *testing.T) {
 			i: &Int64{
 				value: math.MaxInt64,
 			},
-			want: testDecimalFormString(strconv.FormatInt(math.MaxInt64, 10)),
+			want: testDecimalFormString(FormatInt64(math.MaxInt64)),
 		},
 	}
 	for _, tt := range tests {

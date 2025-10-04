@@ -54,7 +54,7 @@ func (i *Int64) Decimal() DecimalNumber {
 
 // Decimal   Convert to string
 func (i *Int64) String() string {
-	return formatInt64(i.value)
+	return FormatInt64(i.value)
 }
 
 // CloneBigInt   Clone high-precision integer
@@ -116,7 +116,7 @@ func (i *Uint64) Decimal() DecimalNumber {
 
 // Decimal   Convert to string
 func (i *Uint64) String() string {
-	return formatUInt64(i.value)
+	return FormatUInt64(i.value)
 }
 
 // CloneBigInt   Clone high-precision integer
@@ -176,6 +176,20 @@ func (i *Uint64) AsDecimal() *apd.Decimal {
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // """
 
+func FormatInt64(i int64) (s string) {
+	if 0 <= i && i < nSmalls {
+		return small(int(i))
+	}
+	return formatBits(uint64(i), i < 0)
+}
+
+func FormatUInt64(i uint64) (s string) {
+	if i < nSmalls {
+		return small(int(i))
+	}
+	return formatBits(uint64(i), false)
+}
+
 const maxUInt63 = 1 << 63
 
 const smallsString = "00010203040506070809" +
@@ -200,20 +214,6 @@ func small(i int) string {
 		return digits[i : i+1]
 	}
 	return smallsString[i*2 : i*2+2]
-}
-
-func formatInt64(i int64) (s string) {
-	if 0 <= i && i < nSmalls {
-		return small(int(i))
-	}
-	return formatBits(uint64(i), i < 0)
-}
-
-func formatUInt64(i uint64) (s string) {
-	if i < nSmalls {
-		return small(int(i))
-	}
-	return formatBits(uint64(i), i < 0)
 }
 
 func formatBits(u uint64, neg bool) (s string) {

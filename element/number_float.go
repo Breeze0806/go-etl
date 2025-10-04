@@ -39,7 +39,7 @@ func (f *Float64) Float64() (v float64, err error) {
 // BigInt   Convert to high-precision integer
 func (f *Float64) BigInt() BigIntNumber {
 	d := Decimal{
-		value: newApdDecimalFromFloat(f.value),
+		value: NewApdDecimalFromFloat(f.value),
 	}
 	return d.BigInt()
 }
@@ -51,7 +51,7 @@ func (f *Float64) Decimal() DecimalNumber {
 
 // String   Convert to string
 func (f *Float64) String() string {
-	return newApdDecimalFromFloat(f.value).Text('f')
+	return NewApdDecimalFromFloat(f.value).Text('f')
 }
 
 // CloneDecimal   Clone high-precision decimal
@@ -63,7 +63,7 @@ func (f *Float64) CloneDecimal() DecimalNumber {
 
 // AsDecimal   Convert to high-precision decimal
 func (f *Float64) AsDecimal() *apd.Decimal {
-	return newApdDecimalFromFloat(f.value)
+	return NewApdDecimalFromFloat(f.value)
 }
 
 // - Based on https://github.com/shopspring/decimal, which has the following license:
@@ -91,7 +91,7 @@ func (f *Float64) AsDecimal() *apd.Decimal {
 // THE SOFTWARE.
 // """
 
-// newApdDecimalFromFloat converts a float64 to Decimal.
+// NewApdDecimalFromFloat converts a float64 to Decimal.
 //
 // The converted number will contain the number of significant digits that can be
 // represented in a float with reliable roundtrip.
@@ -101,14 +101,14 @@ func (f *Float64) AsDecimal() *apd.Decimal {
 // For slightly faster conversion, use NewFromFloatWithExponent where you can specify the precision in absolute terms.
 //
 // NOTE: this will panic on NaN, +/-inf
-func newApdDecimalFromFloat(value float64) *apd.Decimal {
+func NewApdDecimalFromFloat(value float64) *apd.Decimal {
 	if value == 0 {
 		return new(apd.Decimal).Set(_DecimalZero)
 	}
 	return newFromFloat(value, math.Float64bits(value), &float64info)
 }
 
-// newApdDecimalFromFloat32 converts a float32 to Decimal.
+// NewApdDecimalFromFloat32 converts a float32 to Decimal.
 //
 // The converted number will contain the number of significant digits that can be
 // represented in a float with reliable roundtrip.
@@ -118,7 +118,7 @@ func newApdDecimalFromFloat(value float64) *apd.Decimal {
 // For slightly faster conversion, use NewFromFloatWithExponent where you can specify the precision in absolute terms.
 //
 // NOTE: this will panic on NaN, +/-inf
-func newApdDecimalFromFloat32(value float32) *apd.Decimal {
+func NewApdDecimalFromFloat32(value float32) *apd.Decimal {
 	if value == 0 {
 		return new(apd.Decimal).Set(_DecimalZero)
 	}

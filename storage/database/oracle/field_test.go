@@ -24,7 +24,6 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"github.com/cockroachdb/apd/v3"
 	"github.com/godror/godror"
 )
 
@@ -308,7 +307,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValue(new(apd.BigInt).SetUint64(uint64(math.MaxUint64))),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromUint64(uint64(math.MaxUint64)),
 				"f1", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{

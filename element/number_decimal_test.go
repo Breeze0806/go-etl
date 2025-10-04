@@ -17,7 +17,6 @@ package element
 import (
 	"math"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/cockroachdb/apd/v3"
@@ -118,8 +117,8 @@ func TestDecimalStr_BigInt(t *testing.T) {
 		{
 			name: "2",
 			d: &DecimalStr{
-				value:  strconv.FormatInt(math.MaxInt64, 10),
-				intLen: len(strconv.FormatInt(math.MaxInt64, 10)),
+				value:  FormatInt64(math.MaxInt64),
+				intLen: len(FormatInt64(math.MaxInt64)),
 			},
 			want: &Int64{
 				value: math.MaxInt64,
@@ -228,7 +227,7 @@ func TestDecimal_Bool(t *testing.T) {
 		{
 			name: "2",
 			d: &Decimal{
-				value: newApdDecimalFromFloat(1e32),
+				value: NewApdDecimalFromFloat(1e32),
 			},
 			want: true,
 		},
@@ -264,7 +263,7 @@ func TestDecimal_Float64(t *testing.T) {
 		{
 			name: "2",
 			d: &Decimal{
-				value: newApdDecimalFromFloat(math.MaxFloat64),
+				value: NewApdDecimalFromFloat(math.MaxFloat64),
 			},
 			want: math.MaxFloat64,
 		},

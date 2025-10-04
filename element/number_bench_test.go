@@ -30,7 +30,7 @@ var (
 	}
 
 	benchDecimalStr = &DecimalStr{
-		value:  strconv.FormatInt(math.MaxInt64, 10),
+		value:  FormatInt64(math.MaxInt64),
 		intLen: 9,
 	}
 	benchFloat64 = &Float64{
@@ -46,7 +46,7 @@ var (
 	}
 
 	benchBigIntStr = &BigIntStr{
-		value: strconv.FormatInt(math.MaxInt64, 10),
+		value: FormatInt64(math.MaxInt64),
 	}
 )
 
@@ -111,7 +111,7 @@ func BenchmarkConverter_ConvertBigInt_Int64(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		in := strconv.FormatInt(in[i], 10)
+		in := FormatInt64(in[i])
 		_, _ = testNumConverter.ConvertBigInt(in)
 	}
 }
@@ -125,7 +125,7 @@ func BenchmarkOldConverter_ConvertBigInt_Int64(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		in := strconv.FormatInt(in[i], 10)
+		in := FormatInt64(in[i])
 		_, _ = testOldNumConverter.ConvertBigInt(in)
 	}
 }
@@ -171,7 +171,7 @@ func BenchmarkConverter_ConvertDecimal_Int64(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		in := strconv.FormatInt(in[i], 10)
+		in := FormatInt64(in[i])
 		_, _ = testNumConverter.ConvertDecimal(in)
 	}
 }
@@ -185,7 +185,7 @@ func BenchmarkOldConverter_ConvertDecimal_Int64(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		in := strconv.FormatInt(in[i], 10)
+		in := FormatInt64(in[i])
 		_, _ = testOldNumConverter.ConvertDecimal(in)
 	}
 }

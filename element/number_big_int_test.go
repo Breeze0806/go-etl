@@ -17,7 +17,6 @@ package element
 import (
 	"math"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/cockroachdb/apd/v3"
@@ -229,7 +228,7 @@ func TestBigInt_String(t *testing.T) {
 			b: &BigInt{
 				value: apd.NewBigInt(math.MaxInt64),
 			},
-			want: strconv.FormatInt(math.MaxInt64, 10),
+			want: FormatInt64(math.MaxInt64),
 		},
 	}
 	for _, tt := range tests {

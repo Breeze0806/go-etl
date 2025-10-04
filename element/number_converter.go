@@ -55,14 +55,14 @@ func (c *OldConverter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
 // ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
 func (c *OldConverter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
 	return &Decimal{
-		value: newApdDecimalFromFloat32(f),
+		value: NewApdDecimalFromFloat32(f),
 	}
 }
 
 // ConvertDecimalFromFloat   Convert to decimal from floating-point number
 func (c *OldConverter) ConvertDecimalFromFloat(f float64) (num DecimalNumber) {
 	return &Decimal{
-		value: newApdDecimalFromFloat(f),
+		value: NewApdDecimalFromFloat(f),
 	}
 }
 
@@ -111,7 +111,7 @@ func (c *Converter) ConvertBigIntFromUint(i uint64) (num BigIntNumber) {
 // ConvertDecimalFromFloat32   Convert to decimal from 32-bit loating-point number
 func (c *Converter) ConvertDecimalFromFloat32(f float32) (num DecimalNumber) {
 	return &Decimal{
-		value: newApdDecimalFromFloat32(f),
+		value: NewApdDecimalFromFloat32(f),
 	}
 }
 

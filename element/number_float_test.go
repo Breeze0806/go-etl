@@ -92,7 +92,7 @@ type Inp struct {
 func TestNewApdDecimalFromFloat(t *testing.T) {
 	for _, x := range testTable {
 		s := x.short
-		d := newApdDecimalFromFloat(x.float)
+		d := NewApdDecimalFromFloat(x.float)
 		dn, _ := convertDecimal(d.Text('f'))
 		if dn.String() != s {
 			t.Errorf("expected %s, got %s (float: %v) (%s, %d)",
@@ -109,7 +109,7 @@ func TestNewApdDecimalFromFloat(t *testing.T) {
 
 	for _, n := range shouldPanicOn {
 		var d *apd.Decimal
-		if !didPanic(func() { d = newApdDecimalFromFloat(n) }) {
+		if !didPanic(func() { d = NewApdDecimalFromFloat(n) }) {
 			t.Fatalf("Expected panic when creating a Decimal from %v, got %v instead", n, d.String())
 		}
 	}
@@ -193,7 +193,7 @@ func TestNewApdDecimalFromFloatRandom(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		got := newApdDecimalFromFloat(in)
+		got := NewApdDecimalFromFloat(in)
 		if want.Cmp(got) != 0 {
 			t.Errorf("in: %v, expected %s (%s, %d), got %s (%s, %d) ",
 				in, want.String(), want.Coeff.String(), want.Exponent,
@@ -208,7 +208,7 @@ func TestNewApdDecimalFromFloatQuick(t *testing.T) {
 		if werr != nil {
 			return true
 		}
-		got := newApdDecimalFromFloat(f)
+		got := NewApdDecimalFromFloat(f)
 		return got.Cmp(want) == 0
 	}, &quick.Config{})
 	if err != nil {
@@ -230,7 +230,7 @@ func TestNewApdDecimalFromFloat32Random(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		got := newApdDecimalFromFloat32(in)
+		got := NewApdDecimalFromFloat32(in)
 		if want.Cmp(got) != 0 {
 			t.Errorf("in: %v, expected %s (%s, %d), got %s (%s, %d) ",
 				in, want.String(), want.Coeff.String(), want.Exponent,
@@ -245,7 +245,7 @@ func TestNewApdDecimalFromFloat32Quick(t *testing.T) {
 		if werr != nil {
 			return true
 		}
-		got := newApdDecimalFromFloat32(f)
+		got := NewApdDecimalFromFloat32(f)
 		return got.Cmp(want) == 0
 	}, &quick.Config{})
 	if err != nil {
@@ -373,7 +373,7 @@ func TestNewApdDecimalFromFloat32(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newApdDecimalFromFloat32(tt.args.value); got.Cmp(tt.want) != 0 {
+			if got := NewApdDecimalFromFloat32(tt.args.value); got.Cmp(tt.want) != 0 {
 				t.Errorf("NewApdDecimalFromFloat32() = %v, want %v", got, tt.want)
 			}
 		})
@@ -413,7 +413,7 @@ func Test_NNewApdDecimalFromFloat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newApdDecimalFromFloat(tt.args.val); got.Cmp(tt.want) != 0 {
+			if got := NewApdDecimalFromFloat(tt.args.val); got.Cmp(tt.want) != 0 {
 				t.Errorf("newFromFloat() = %+v, want %+v", *got, *(tt.want))
 			}
 		})
