@@ -222,21 +222,7 @@ Oracle Instant Client 19不再支持windows7
 * 在 `examples/sqlite3/config.json` 文件中，`url` 表示 sqlite3 数据库文件的路径。在 Windows 系统上，它可以是 `E:\sqlite3\test.db`，而在 Linux 系统上，它可以是 `/sqlite3/test.db`。
 * 启动 sqlite3 同步命令：
 
-```bash
-./go-etl -c examples/sqlite3/config.json
-```
-
-##### 2.1.2.11 与 达梦数据库 同步
-
-* 使用 `cmd/datax/examples/dm/init.sql` 初始化数据库**用于测试**
-* 开启同步达梦数据库命令
-
-```bash
-./go-etl -c examples/dm/config.json
-```
-
-
-##### 2.1.2.12 其他同步例子
+##### 2.1.2.11 其他同步例子
 
 除了上述例子外，在go-etl特性中所列出的数据源都可以交叉使用，还配置例如mysql到postgresql数据源，mysql到oracle,oracle到db2等等，
 

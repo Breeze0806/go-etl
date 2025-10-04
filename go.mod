@@ -3,7 +3,6 @@ module github.com/Breeze0806/go-etl
 go 1.20
 
 require (
-	gitee.com/chunanyong/dm v1.8.20
 	github.com/Breeze0806/go v0.0.0-20241007070500-6a4893c38b81
 	github.com/cockroachdb/apd/v3 v3.2.1
 	github.com/fatih/color v1.18.0
@@ -37,7 +36,6 @@ require (
 	github.com/godror/knownpb v0.1.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
-	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
