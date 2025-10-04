@@ -54,7 +54,7 @@ func testBigIntFromString(v string) *apd.BigInt {
 func testBigIntColumnValueFromString(v string) *BigIntColumnValue {
 	c, err := NewBigIntColumnValueFromString(v)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("val: %v err: %w", v, err))
 	}
 	return c.(*BigIntColumnValue)
 }
@@ -62,7 +62,7 @@ func testBigIntColumnValueFromString(v string) *BigIntColumnValue {
 func testDecimalFormString(v string) *apd.Decimal {
 	d, _, err := apd.NewFromString(v)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("val: %v err: %w", v, err))
 	}
 	return d
 }
@@ -70,7 +70,7 @@ func testDecimalFormString(v string) *apd.Decimal {
 func testDecimalColumnValueFormString(v string) ColumnValue {
 	d, err := NewDecimalColumnValueFromString(v)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("val: %v err: %w", v, err))
 	}
 	return d
 }

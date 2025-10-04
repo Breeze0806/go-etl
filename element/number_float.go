@@ -21,7 +21,77 @@ import (
 	"github.com/cockroachdb/apd/v3"
 )
 
-// NewFromFloat converts a float64 to Decimal.
+// Float64   Floating point number
+type Float64 struct {
+	value float64
+}
+
+// Bool   Convert to boolean
+func (f *Float64) Bool() (bool, error) {
+	return f.value != 0, nil
+}
+
+// Float64   Convert to 64-bit floating-point number
+func (f *Float64) Float64() (v float64, err error) {
+	return f.value, nil
+}
+
+// BigInt   Convert to high-precision integer
+func (f *Float64) BigInt() BigIntNumber {
+	d := Decimal{
+		value: newApdDecimalFromFloat(f.value),
+	}
+	return d.BigInt()
+}
+
+// Decimal   Convert to high-precision decimal
+func (f *Float64) Decimal() DecimalNumber {
+	return f
+}
+
+// String   Convert to string
+func (f *Float64) String() string {
+	return newApdDecimalFromFloat(f.value).Text('f')
+}
+
+// CloneDecimal   Clone high-precision decimal
+func (f *Float64) CloneDecimal() DecimalNumber {
+	return &Float64{
+		value: f.value,
+	}
+}
+
+// AsDecimal   Convert to high-precision decimal
+func (f *Float64) AsDecimal() *apd.Decimal {
+	return newApdDecimalFromFloat(f.value)
+}
+
+// - Based on https://github.com/shopspring/decimal, which has the following license:
+// """
+// The MIT License (MIT)
+
+// Copyright (c) 2015 Spring, Inc.
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// """
+
+// newApdDecimalFromFloat converts a float64 to Decimal.
 //
 // The converted number will contain the number of significant digits that can be
 // represented in a float with reliable roundtrip.
@@ -31,14 +101,14 @@ import (
 // For slightly faster conversion, use NewFromFloatWithExponent where you can specify the precision in absolute terms.
 //
 // NOTE: this will panic on NaN, +/-inf
-func NewFromFloat(value float64) *apd.Decimal {
+func newApdDecimalFromFloat(value float64) *apd.Decimal {
 	if value == 0 {
 		return new(apd.Decimal).Set(_DecimalZero)
 	}
 	return newFromFloat(value, math.Float64bits(value), &float64info)
 }
 
-// NewFromFloat32 converts a float32 to Decimal.
+// newApdDecimalFromFloat32 converts a float32 to Decimal.
 //
 // The converted number will contain the number of significant digits that can be
 // represented in a float with reliable roundtrip.
@@ -48,7 +118,7 @@ func NewFromFloat(value float64) *apd.Decimal {
 // For slightly faster conversion, use NewFromFloatWithExponent where you can specify the precision in absolute terms.
 //
 // NOTE: this will panic on NaN, +/-inf
-func NewFromFloat32(value float32) *apd.Decimal {
+func newApdDecimalFromFloat32(value float32) *apd.Decimal {
 	if value == 0 {
 		return new(apd.Decimal).Set(_DecimalZero)
 	}

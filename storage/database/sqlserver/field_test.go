@@ -447,7 +447,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				float32(123456789.1),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValue(element.NewFromFloat32(float32(123456789.1))), "f1", element.ByteSize(123456789.1)),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat32(float32(123456789.1)), "f1", element.ByteSize(123456789.1)),
 		},
 		{
 			name: "FLOAT",

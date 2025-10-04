@@ -133,29 +133,31 @@ The main implementations are Converter (the current implementation method) and O
 
 
 ```plaintext
-BenchmarkConverter_ConvertFromBigInt-32                         226329429                5.401 ns/op           8 B/op          0 allocs/op
-BenchmarkOldConverter_ConvertFromBigInt-32                      240448532                4.990 ns/op           8 B/op          0 allocs/op
-BenchmarkConverter_ConvertDecimalFromloat-32                     3988190               291.1 ns/op            40 B/op          1 allocs/op
-BenchmarkOldConverter_ConvertDecimalFromFloat-32                 4168242               291.4 ns/op            40 B/op          1 allocs/op
-BenchmarkConverter_ConvertBigInt_Int64-32                       14787248                70.15 ns/op           39 B/op          2 allocs/op
-BenchmarkOldConverter_ConvertBigInt_Int64-32                    15966193                74.89 ns/op           63 B/op          3 allocs/op
-BenchmarkCoventor_ConvertBigInt_large_number-32                    91987             12365 ns/op           21888 B/op        504 allocs/op
-BenchmarkOldCoventor_ConvertBigInt_large_number-32                 52315             22634 ns/op           25344 B/op        648 allocs/op
-BenchmarkConverter_ConvertDecimal_Int64-32                      13033434                93.35 ns/op           39 B/op          2 allocs/op
-BenchmarkOldConverter_ConvertDecimal_Int64-32                    9295983               119.8 ns/op            71 B/op          3 allocs/op
-BenchmarkConverter_ConvertDecimal_Float64-32                     4487421               245.7 ns/op           226 B/op          7 allocs/op
-BenchmarkOldConverter_ConvertDecimal_Float64-32                  2865326               402.9 ns/op           270 B/op          8 allocs/op
-BenchmarkConverter_ConvertDecimal-32                              333262              3554 ns/op            2280 B/op        144 allocs/op
-BenchmarkOldConverter_ConvertDecimal-32                           155054              7547 ns/op            3424 B/op        216 allocs/op
-BenchmarkConverter_ConvertDecimal_large_number-32                 148202              7316 ns/op            5184 B/op        144 allocs/op
-BenchmarkOldConverter_ConvertDecimal_large_number-32               39111             30970 ns/op           29376 B/op        720 allocs/op
-BenchmarkConverter_ConvertDecimal_Exp-32                           42799             26644 ns/op           20736 B/op        720 allocs/op
-BenchmarkOldConverter_ConvertDecimal_Exp-32                        48175             24180 ns/op           17280 B/op        576 allocs/op
-BenchmarkDecimal_Decmial_String-32                              10089399               113.5 ns/op           112 B/op          4 allocs/op
-BenchmarkDecimal_DecmialStr_String-32                           1000000000               0.2732 ns/op          0 B/op          0 allocs/op
-BenchmarkDecimal_Int64_String-32                                51729240                23.84 ns/op           24 B/op          1 allocs/op
-BenchmarkDecimal_BigInt_String-32                               16380150                61.93 ns/op           48 B/op          2 allocs/op
-BenchmarkDecimal_BigIntStr_String-32                            1000000000               0.1894 ns/op          0 B/op          0 allocs/op
+go test -bench=.
+BenchmarkConverter_ConvertBigIntFromInt-32                      1000000000               0.1849 ns/op          0 B/op          0 allocs/op
+BenchmarkOldConverter_ConvertBigIntFromInt-32                   1000000000               0.4963 ns/op          0 B/op          0 allocs/op
+BenchmarkConverter_ConvertDecimalFromloat-32                    1000000000               0.1903 ns/op          0 B/op          0 allocs/op
+BenchmarkOldConverter_ConvertDecimalFromFloat-32                 4170295               292.9 ns/op            32 B/op          1 allocs/op
+BenchmarkConverter_ConvertBigInt_Int64-32                       18324470                61.40 ns/op           31 B/op          2 allocs/op
+BenchmarkOldConverter_ConvertBigInt_Int64-32                    14466127                73.18 ns/op           55 B/op          3 allocs/op
+BenchmarkCoventor_ConvertBigInt_large_number-32                   138158              8414 ns/op           11520 B/op        288 allocs/op
+BenchmarkOldCoventor_ConvertBigInt_large_number-32                 51420             22713 ns/op           25344 B/op        648 allocs/op
+BenchmarkConverter_ConvertDecimal_Int64-32                      12897178                83.36 ns/op           31 B/op          2 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Int64-32                    9517863               117.4 ns/op            63 B/op          3 allocs/op
+BenchmarkConverter_ConvertDecimal_Float64-32                     5664470               204.9 ns/op           147 B/op          5 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Float64-32                  2939163               403.6 ns/op           262 B/op          8 allocs/op
+BenchmarkConverter_ConvertDecimal-32                              328171              3620 ns/op            2280 B/op        144 allocs/op
+BenchmarkOldConverter_ConvertDecimal-32                           131666              7630 ns/op            3424 B/op        216 allocs/op
+BenchmarkConverter_ConvertDecimal_large_number-32                 164592              7290 ns/op            5184 B/op        144 allocs/op
+BenchmarkOldConverter_ConvertDecimal_large_number-32               36433             31969 ns/op           29376 B/op        720 allocs/op
+BenchmarkConverter_ConvertDecimal_Exp-32                           41289             27639 ns/op           20736 B/op        720 allocs/op
+BenchmarkOldConverter_ConvertDecimal_Exp-32                        49203             24741 ns/op           17280 B/op        576 allocs/op
+BenchmarkDecimal_Decmial_String-32                               8836029               119.8 ns/op           112 B/op          4 allocs/op
+BenchmarkDecimal_DecmialStr_String-32                           1000000000               0.2572 ns/op          0 B/op          0 allocs/op
+BenchmarkDecimal_Float64_String-32                               3808023               300.3 ns/op            88 B/op          3 allocs/op
+BenchmarkDecimal_Int64_String-32                                52006051                22.84 ns/op           24 B/op          1 allocs/op
+BenchmarkDecimal_BigInt_String-32                               16544946                63.10 ns/op           48 B/op          2 allocs/op
+BenchmarkDecimal_BigIntStr_String-32                            1000000000               0.2596 ns/op          0 B/op          0 allocs/op
 ```
 Additionally, if any issues arise, you can revert to the old implementation by modifying the `_DefaultNumberConverter` value in `number.go`.
 

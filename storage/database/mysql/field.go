@@ -85,7 +85,6 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	switch f.DatabaseTypeName() {
 	// Due to the existence of non-negative integers, directly converting them to the corresponding int type would result in conversion errors.
 	// TIME has negative values and cannot be converted normally, while YEAR is TINYINT.
-	// todo: test YEAR
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT",
 		"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT",
 		"TEXT", "LONGTEXT", "MEDIUMTEXT", "TINYTEXT", "CHAR", "VARCHAR",
@@ -137,7 +136,6 @@ func (s *Scanner) Scan(src any) (err error) {
 	byteSize := element.ByteSize(src)
 
 	switch s.f.Type().DatabaseTypeName() {
-	// todo: test year
 	case "MEDIUMINT", "INT", "BIGINT", "SMALLINT", "TINYINT", "YEAR",
 		"UNSIGNED INT", "UNSIGNED BIGINT", "UNSIGNED SMALLINT", "UNSIGNED TINYINT":
 		switch data := src.(type) {
@@ -199,7 +197,7 @@ func (s *Scanner) Scan(src any) (err error) {
 				return
 			}
 		case float32:
-			cv = element.NewDecimalColumnValue(element.NewFromFloat32(data))
+			cv = element.NewDecimalColumnValueFromFloat32(data)
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		default:

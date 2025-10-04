@@ -17,6 +17,7 @@ package element
 import (
 	"math"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"testing"
 	"testing/quick"
@@ -24,15 +25,74 @@ import (
 	"github.com/cockroachdb/apd/v3"
 )
 
+func TestFloat64_Bool(t *testing.T) {
+	tests := []struct {
+		name    string
+		f       *Float64
+		want    bool
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			f:       &Float64{value: 1.0},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name:    "0",
+			f:       &Float64{value: 0.0},
+			want:    false,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.f.Bool()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Float64.Bool() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Float64.Bool() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// - Based on https://github.com/shopspring/decimal, which has the following license:
+// """
+// The MIT License (MIT)
+
+// Copyright (c) 2015 Spring, Inc.
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+// """
+
 type Inp struct {
 	float float64
 	exp   int32
 }
 
-func TestNewFromFloat(t *testing.T) {
+func TestNewApdDecimalFromFloat(t *testing.T) {
 	for _, x := range testTable {
 		s := x.short
-		d := NewFromFloat(x.float)
+		d := newApdDecimalFromFloat(x.float)
 		dn, _ := convertDecimal(d.Text('f'))
 		if dn.String() != s {
 			t.Errorf("expected %s, got %s (float: %v) (%s, %d)",
@@ -49,13 +109,77 @@ func TestNewFromFloat(t *testing.T) {
 
 	for _, n := range shouldPanicOn {
 		var d *apd.Decimal
-		if !didPanic(func() { d = NewFromFloat(n) }) {
+		if !didPanic(func() { d = newApdDecimalFromFloat(n) }) {
 			t.Fatalf("Expected panic when creating a Decimal from %v, got %v instead", n, d.String())
 		}
 	}
 }
 
-func TestNewFromFloatRandom(t *testing.T) {
+func TestFloat64_Float64(t *testing.T) {
+	tests := []struct {
+		name    string
+		f       *Float64
+		wantV   float64
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			f:       &Float64{value: 1.23456789},
+			wantV:   1.23456789,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotV, err := tt.f.Float64()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Float64.Float64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotV != tt.wantV {
+				t.Errorf("Float64.Float64() = %v, want %v", gotV, tt.wantV)
+			}
+		})
+	}
+}
+
+func TestFloat64_BigInt(t *testing.T) {
+	tests := []struct {
+		name string
+		f    *Float64
+		want BigIntNumber
+	}{
+		{
+			name: "+",
+			f:    &Float64{value: 21323121.23456789},
+			want: &BigInt{value: apd.NewBigInt(21323121)},
+		},
+		{
+			name: "-",
+			f:    &Float64{value: -21323121.23456789},
+			want: &BigInt{value: apd.NewBigInt(-21323121)},
+		},
+		{
+			name: "max",
+			f:    &Float64{value: math.MaxFloat64},
+			want: &BigInt{value: testBigIntFromString("179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")},
+		},
+		{
+			name: "0",
+			f:    &Float64{value: 1e-9},
+			want: &BigInt{value: apd.NewBigInt(0)},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.BigInt(); got.AsBigInt().Cmp(tt.want.AsBigInt()) != 0 {
+				t.Errorf("Float64.BigInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewApdDecimalFromFloatRandom(t *testing.T) {
 	n := 0
 	rng := rand.New(rand.NewSource(0xdead1337))
 	for {
@@ -69,7 +193,7 @@ func TestNewFromFloatRandom(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		got := NewFromFloat(in)
+		got := newApdDecimalFromFloat(in)
 		if want.Cmp(got) != 0 {
 			t.Errorf("in: %v, expected %s (%s, %d), got %s (%s, %d) ",
 				in, want.String(), want.Coeff.String(), want.Exponent,
@@ -78,13 +202,13 @@ func TestNewFromFloatRandom(t *testing.T) {
 	}
 }
 
-func TestNewFromFloatQuick(t *testing.T) {
+func TestNewApdDecimalFromFloatQuick(t *testing.T) {
 	err := quick.Check(func(f float64) bool {
 		want, _, werr := apd.NewFromString(strconv.FormatFloat(f, 'f', -1, 64))
 		if werr != nil {
 			return true
 		}
-		got := NewFromFloat(f)
+		got := newApdDecimalFromFloat(f)
 		return got.Cmp(want) == 0
 	}, &quick.Config{})
 	if err != nil {
@@ -92,7 +216,7 @@ func TestNewFromFloatQuick(t *testing.T) {
 	}
 }
 
-func TestNewFromFloat32Random(t *testing.T) {
+func TestNewApdDecimalFromFloat32Random(t *testing.T) {
 	n := 0
 	rng := rand.New(rand.NewSource(0xdead1337))
 	for {
@@ -106,7 +230,7 @@ func TestNewFromFloat32Random(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		got := NewFromFloat32(in)
+		got := newApdDecimalFromFloat32(in)
 		if want.Cmp(got) != 0 {
 			t.Errorf("in: %v, expected %s (%s, %d), got %s (%s, %d) ",
 				in, want.String(), want.Coeff.String(), want.Exponent,
@@ -115,13 +239,13 @@ func TestNewFromFloat32Random(t *testing.T) {
 	}
 }
 
-func TestNewFromFloat32Quick(t *testing.T) {
+func TestNewApdDecimalFromFloat32Quick(t *testing.T) {
 	err := quick.Check(func(f float32) bool {
 		want, _, werr := apd.NewFromString(strconv.FormatFloat(float64(f), 'f', -1, 32))
 		if werr != nil {
 			return true
 		}
-		got := NewFromFloat32(f)
+		got := newApdDecimalFromFloat32(f)
 		return got.Cmp(want) == 0
 	}, &quick.Config{})
 	if err != nil {
@@ -148,7 +272,7 @@ func didPanic(f func()) bool {
 
 }
 
-func TestNewFromFloatWithExponent(t *testing.T) {
+func TestNewApdDecimalFromFloatWithExponent(t *testing.T) {
 
 	// some tests are taken from here https://www.cockroachlabs.com/blog/rounding-implementations-in-go/
 	tests := map[Inp]string{
@@ -216,7 +340,7 @@ func TestNewFromFloatWithExponent(t *testing.T) {
 	}
 }
 
-func TestNewFromFloat32(t *testing.T) {
+func TestNewApdDecimalFromFloat32(t *testing.T) {
 	type args struct {
 		value float32
 	}
@@ -249,14 +373,14 @@ func TestNewFromFloat32(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewFromFloat32(tt.args.value); got.Cmp(tt.want) != 0 {
-				t.Errorf("NewFromFloat32() = %v, want %v", got, tt.want)
+			if got := newApdDecimalFromFloat32(tt.args.value); got.Cmp(tt.want) != 0 {
+				t.Errorf("NewApdDecimalFromFloat32() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_NNewFromFloat(t *testing.T) {
+func Test_NNewApdDecimalFromFloat(t *testing.T) {
 	type args struct {
 		val float64
 	}
@@ -289,8 +413,51 @@ func Test_NNewFromFloat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewFromFloat(tt.args.val); got.Cmp(tt.want) != 0 {
+			if got := newApdDecimalFromFloat(tt.args.val); got.Cmp(tt.want) != 0 {
 				t.Errorf("newFromFloat() = %+v, want %+v", *got, *(tt.want))
+			}
+		})
+	}
+}
+
+func TestFloat64_Decimal(t *testing.T) {
+	f := &Float64{value: 0}
+	tests := []struct {
+		name string
+		f    *Float64
+		want DecimalNumber
+	}{
+		{
+			name: "0",
+			f:    f,
+			want: f,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.Decimal(); got != tt.want {
+				t.Errorf("DecimalStr.Decimal() = %p, want %p", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFloat64_CloneDecimal(t *testing.T) {
+	tests := []struct {
+		name string
+		f    *Float64
+		want DecimalNumber
+	}{
+		{
+			name: "0",
+			f:    &Float64{value: 0},
+			want: &Float64{value: 0},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.CloneDecimal(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DecimalStr.Decimal() = %v, want %v", got, tt.want)
 			}
 		})
 	}
