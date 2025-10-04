@@ -16,13 +16,12 @@ package element
 
 import (
 	"math"
-	"math/big"
 	"reflect"
 	"strconv"
 	"testing"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 func TestNewNilDecimalColumnValue(t *testing.T) {
@@ -120,7 +119,7 @@ func TestNewDecimalColumnValueFromFloat(t *testing.T) {
 			args: args{
 				f: 0.00000012345,
 			},
-			want: NewDecimalColumnValue(decimal.New(12345, -11)),
+			want: NewDecimalColumnValue(apd.New(12345, -11)),
 		},
 
 		{
@@ -128,7 +127,7 @@ func TestNewDecimalColumnValueFromFloat(t *testing.T) {
 			args: args{
 				f: -0.00000012345,
 			},
-			want: NewDecimalColumnValue(decimal.New(-12345, -11)),
+			want: NewDecimalColumnValue(apd.New(-12345, -11)),
 		},
 	}
 	for _, tt := range tests {
@@ -142,7 +141,7 @@ func TestNewDecimalColumnValueFromFloat(t *testing.T) {
 
 func TestNewDecimalColumnValue(t *testing.T) {
 	type args struct {
-		d decimal.Decimal
+		d *apd.Decimal
 	}
 	tests := []struct {
 		name string
@@ -152,7 +151,7 @@ func TestNewDecimalColumnValue(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				d: decimal.New(12345, -11),
+				d: apd.New(12345, -11),
 			},
 			want: NewDecimalColumnValueFromFloat(0.00000012345),
 		},
@@ -217,28 +216,28 @@ func TestNewDecimalColumnValueFromString(t *testing.T) {
 			args: args{
 				s: "-1232000000000000",
 			},
-			want: NewDecimalColumnValue(decimal.New(-1232, 12)),
+			want: NewDecimalColumnValue(apd.New(-1232, 12)),
 		},
 		{
 			name: "2",
 			args: args{
 				s: "1232000000000000",
 			},
-			want: NewDecimalColumnValue(decimal.New(1232, 12)),
+			want: NewDecimalColumnValue(apd.New(1232, 12)),
 		},
 		{
 			name: "2.23e10",
 			args: args{
 				s: "2.23e10",
 			},
-			want: NewDecimalColumnValue(decimal.New(223, 8)),
+			want: NewDecimalColumnValue(apd.New(223, 8)),
 		},
 		{
 			name: "2.23e10",
 			args: args{
 				s: "2.23e-10",
 			},
-			want: NewDecimalColumnValue(decimal.New(223, -12)),
+			want: NewDecimalColumnValue(apd.New(223, -12)),
 		},
 		{
 			name: "abc",
@@ -277,7 +276,7 @@ func TestDecimalColumnValue_Type(t *testing.T) {
 	}{
 		{
 			name: "1",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			want: TypeDecimal,
 		},
 	}
@@ -299,7 +298,7 @@ func TestDecimalColumnValue_AsBool(t *testing.T) {
 	}{
 		{
 			name: "zero1",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			want: false,
 		},
 		{
@@ -341,40 +340,40 @@ func TestDecimalColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		d       *DecimalColumnValue
-		want    *big.Int
+		want    *apd.BigInt
 		wantErr bool
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
-			want: big.NewInt(0),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
+			want: apd.NewBigInt(0),
 		},
 
 		{
 			name: "1",
 			d:    testDecimalColumnValueFormString("123450000").(*DecimalColumnValue),
-			want: big.NewInt(123450000),
+			want: apd.NewBigInt(123450000),
 		},
 
 		{
 			name: "2",
 			d:    testDecimalColumnValueFormString("1.00122323123").(*DecimalColumnValue),
-			want: big.NewInt(1),
+			want: apd.NewBigInt(1),
 		},
 		{
 			name: "3",
 			d:    testDecimalColumnValueFormString("123456232542542525.525254252524").(*DecimalColumnValue),
-			want: big.NewInt(123456232542542525),
+			want: apd.NewBigInt(123456232542542525),
 		},
 		{
 			name: "4",
 			d:    testDecimalColumnValueFormString("0.00122323123").(*DecimalColumnValue),
-			want: big.NewInt(0),
+			want: apd.NewBigInt(0),
 		},
 		{
 			name: "5",
 			d:    testDecimalColumnValueFormString("-123456232542542525.525254252524").(*DecimalColumnValue),
-			want: big.NewInt(-123456232542542525),
+			want: apd.NewBigInt(-123456232542542525),
 		},
 	}
 	for _, tt := range tests {
@@ -395,13 +394,13 @@ func TestDecimalColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		d       *DecimalColumnValue
-		want    decimal.Decimal
+		want    *apd.Decimal
 		wantErr bool
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
-			want: decimal.Zero,
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
+			want: _DecimalZero,
 		},
 
 		{
@@ -443,7 +442,7 @@ func TestDecimalColumnValue_AsDecimal(t *testing.T) {
 				t.Errorf("DecimalColumnValue.AsDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.AsDecimal().Equal(tt.want) {
+			if got.AsDecimal().Cmp(tt.want) != 0 {
 				t.Errorf("DecimalColumnValue.AsDecimal() = %v, want %v", got, tt.want)
 			}
 		})
@@ -459,7 +458,7 @@ func TestDecimalColumnValue_AsString(t *testing.T) {
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			want: "0",
 		},
 
@@ -518,7 +517,7 @@ func TestDecimalColumnValue_AsBytes(t *testing.T) {
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			want: []byte("0"),
 		},
 
@@ -577,7 +576,7 @@ func TestDecimalColumnValue_AsTime(t *testing.T) {
 	}{
 		{
 			name:    "zero",
-			d:       NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:       NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			wantErr: true,
 		},
 	}
@@ -603,7 +602,7 @@ func TestDecimalColumnValue_String(t *testing.T) {
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
 			want: "0",
 		},
 
@@ -656,8 +655,8 @@ func TestDecimalColumnValue_Clone(t *testing.T) {
 	}{
 		{
 			name: "zero",
-			d:    NewDecimalColumnValue(decimal.Zero).(*DecimalColumnValue),
-			want: NewDecimalColumnValue(decimal.Zero),
+			d:    NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
+			want: NewDecimalColumnValue(_DecimalZero),
 		},
 	}
 	for _, tt := range tests {

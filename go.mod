@@ -5,6 +5,7 @@ go 1.20
 require (
 	gitee.com/chunanyong/dm v1.8.20
 	github.com/Breeze0806/go v0.0.0-20241007070500-6a4893c38b81
+	github.com/cockroachdb/apd/v3 v3.2.1
 	github.com/fatih/color v1.18.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/godror/godror v0.44.0
@@ -16,7 +17,6 @@ require (
 	github.com/microsoft/go-mssqldb v1.7.2
 	github.com/pingcap/errors v0.11.4
 	github.com/prometheus/client_golang v1.20.5
-	github.com/shopspring/decimal v1.4.0
 	github.com/vbauerster/mpb/v8 v8.9.3
 	github.com/vjeantet/jodaTime v1.0.1-0.20230228221016-e7adbb78e1de
 	github.com/xuri/excelize/v2 v2.8.1

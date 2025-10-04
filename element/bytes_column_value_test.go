@@ -15,12 +15,11 @@
 package element
 
 import (
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 func TestNilBytesColumnValue_Type(t *testing.T) {
@@ -208,7 +207,7 @@ func TestBytesColumnValue_AsBigInt(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *BytesColumnValue
-		want    *big.Int
+		want    *apd.BigInt
 		wantErr bool
 	}{
 		{
@@ -260,7 +259,7 @@ func TestBytesColumnValue_AsDecimal(t *testing.T) {
 	tests := []struct {
 		name    string
 		s       *BytesColumnValue
-		want    decimal.Decimal
+		want    *apd.Decimal
 		wantErr bool
 	}{
 		{

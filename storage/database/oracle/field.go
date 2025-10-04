@@ -17,7 +17,6 @@ package oracle
 import (
 	"database/sql/driver"
 	"fmt"
-	"math/big"
 	"strconv"
 	"time"
 
@@ -154,7 +153,7 @@ func (s *Scanner) Scan(src any) (err error) {
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
 		case uint64:
-			cv = element.NewBigIntColumnValue(new(big.Int).SetUint64(data))
+			cv = element.NewBigIntColumnValueFromUint64(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
@@ -212,9 +211,9 @@ func (s *Scanner) Scan(src any) (err error) {
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		case int64:
-			s = strconv.FormatInt(data, 10)
+			s = element.FormatInt64(data)
 		case uint64:
-			s = strconv.FormatUint(data, 10)
+			s = element.FormatUInt64(data)
 		case bool:
 			s = "0"
 			if data {

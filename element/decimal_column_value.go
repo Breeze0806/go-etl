@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/cockroachdb/apd/v3"
 )
 
 // NilDecimalColumnValue represents a null value for a high-precision decimal column.
@@ -65,7 +65,7 @@ func NewDecimalColumnValueFromFloat(f float64) ColumnValue {
 }
 
 // NewDecimalColumnValue creates a high-precision decimal column value from a high-precision decimal value.
-func NewDecimalColumnValue(d decimal.Decimal) ColumnValue {
+func NewDecimalColumnValue(d *apd.Decimal) ColumnValue {
 	return &DecimalColumnValue{
 		val: &Decimal{
 			value: d,

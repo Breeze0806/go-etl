@@ -17,13 +17,13 @@ package dbms
 import (
 	"context"
 	"database/sql"
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/cockroachdb/apd/v3"
 )
 
 type MockFieldTypeWithGoType struct {
@@ -55,7 +55,7 @@ func TestSplitRange_fetchColumn(t *testing.T) {
 			args: args{
 				"1234567890",
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(1234567890)), "", 0),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(1234567890)), "", 0),
 		},
 		{
 			name: "2",
@@ -139,7 +139,7 @@ func Test_newConvertor(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				min: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(1234567890)), "", 0),
+				min: element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(1234567890)), "", 0),
 			},
 			want: &bigIntConvertor{},
 		},
@@ -218,7 +218,7 @@ func Test_bigIntConvertor_splitConfig(t *testing.T) {
 
 func Test_bigIntConvertor_fromBigInt(t *testing.T) {
 	type args struct {
-		bi *big.Int
+		bi *apd.BigInt
 	}
 	tests := []struct {
 		name  string
@@ -230,7 +230,7 @@ func Test_bigIntConvertor_fromBigInt(t *testing.T) {
 			name: "1",
 			b:    &bigIntConvertor{},
 			args: args{
-				bi: big.NewInt(1234567890),
+				bi: apd.NewBigInt(1234567890),
 			},
 			wantV: "1234567890",
 		},
@@ -252,16 +252,16 @@ func Test_bigIntConvertor_toBigInt(t *testing.T) {
 		name    string
 		b       *bigIntConvertor
 		args    args
-		wantBi  *big.Int
+		wantBi  *apd.BigInt
 		wantErr bool
 	}{
 		{
 			name: "1",
 			b:    &bigIntConvertor{},
 			args: args{
-				c: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(1234567890)), "", 0),
+				c: element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(1234567890)), "", 0),
 			},
-			wantBi: big.NewInt(1234567890),
+			wantBi: apd.NewBigInt(1234567890),
 		},
 		{
 			name: "2",
@@ -314,7 +314,7 @@ func Test_stringConvertor_splitConfig(t *testing.T) {
 
 func Test_stringConvertor_fromBigInt(t *testing.T) {
 	type args struct {
-		bi *big.Int
+		bi *apd.BigInt
 	}
 	tests := []struct {
 		name  string
@@ -326,7 +326,7 @@ func Test_stringConvertor_fromBigInt(t *testing.T) {
 			name: "1",
 			s:    &stringConvertor{},
 			args: args{
-				bi: big.NewInt(1601891),
+				bi: apd.NewBigInt(1601891),
 			},
 			wantV: "abc",
 		},
@@ -348,7 +348,7 @@ func Test_stringConvertor_toBigInt(t *testing.T) {
 		name    string
 		s       *stringConvertor
 		args    args
-		wantBi  *big.Int
+		wantBi  *apd.BigInt
 		wantErr bool
 	}{
 		{
@@ -357,7 +357,7 @@ func Test_stringConvertor_toBigInt(t *testing.T) {
 			args: args{
 				c: element.NewDefaultColumn(element.NewStringColumnValue("abc"), "", 0),
 			},
-			wantBi: big.NewInt(1601891),
+			wantBi: apd.NewBigInt(1601891),
 		},
 		{
 			name: "2",
@@ -543,7 +543,7 @@ func Test_timeConvertor_splitConfig(t *testing.T) {
 
 func Test_timeConvertor_fromBigInt(t *testing.T) {
 	type args struct {
-		bi *big.Int
+		bi *apd.BigInt
 	}
 	tests := []struct {
 		name  string
@@ -560,7 +560,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(44925),
+				bi: apd.NewBigInt(44925),
 			},
 			wantV: time.Date(2023, 1, 1, 0, 0, 0, 0,
 				time.UTC).Format(element.DefaultTimeFormat[:10]),
@@ -574,7 +574,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(64693357),
+				bi: apd.NewBigInt(64693357),
 			},
 			wantV: time.Date(2023,
 				1, 1, 22, 37, 0, 0, time.UTC).Format(element.DefaultTimeFormat[:16]),
@@ -588,7 +588,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(3881601431),
+				bi: apd.NewBigInt(3881601431),
 			},
 			wantV: time.Date(2023,
 				1, 1, 22, 37, 11, 0, time.UTC).Format(element.DefaultTimeFormat[:19]),
@@ -602,7 +602,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(3881601431999),
+				bi: apd.NewBigInt(3881601431999),
 			},
 			wantV: time.Date(2023,
 				1, 1, 22, 37, 11, 999000000, time.UTC).Format(element.DefaultTimeFormat[:23]),
@@ -616,7 +616,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(3881601431999999),
+				bi: apd.NewBigInt(3881601431999999),
 			},
 			wantV: time.Date(2023,
 				1, 1, 22, 37, 11, 999999000, time.UTC).Format(element.DefaultTimeFormat[:26]),
@@ -630,7 +630,7 @@ func Test_timeConvertor_fromBigInt(t *testing.T) {
 				min: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			},
 			args: args{
-				bi: big.NewInt(3881601431999999999),
+				bi: apd.NewBigInt(3881601431999999999),
 			},
 			wantV: time.Date(2023,
 				1, 1, 22, 37, 11, 999999999, time.UTC).Format(element.DefaultTimeFormat[:29]),
@@ -653,7 +653,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 		name    string
 		tr      *timeConvertor
 		args    args
-		wantBi  *big.Int
+		wantBi  *apd.BigInt
 		wantErr bool
 	}{
 		{
@@ -668,7 +668,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 0, 0, 0, 0, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(44925),
+			wantBi: apd.NewBigInt(44925),
 		},
 		{
 			name: "min",
@@ -682,7 +682,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 22, 37, 0, 0, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(64693357),
+			wantBi: apd.NewBigInt(64693357),
 		},
 		{
 			name: "s",
@@ -696,7 +696,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 22, 37, 11, 0, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(3881601431),
+			wantBi: apd.NewBigInt(3881601431),
 		},
 		{
 			name: "ms",
@@ -710,7 +710,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 22, 37, 11, 999000000, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(3881601431999),
+			wantBi: apd.NewBigInt(3881601431999),
 		},
 		{
 			name: "us",
@@ -724,7 +724,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 22, 37, 11, 999999000, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(3881601431999999),
+			wantBi: apd.NewBigInt(3881601431999999),
 		},
 		{
 			name: "ns",
@@ -738,7 +738,7 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 				c: element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2023,
 					1, 1, 22, 37, 11, 999999999, time.UTC)), "", 0),
 			},
-			wantBi: big.NewInt(3881601431999999999),
+			wantBi: apd.NewBigInt(3881601431999999999),
 		},
 		{
 			name: "layout",
@@ -798,83 +798,83 @@ func Test_timeConvertor_toBigInt(t *testing.T) {
 
 func Test_doSplit(t *testing.T) {
 	type args struct {
-		left  *big.Int
-		right *big.Int
+		left  *apd.BigInt
+		right *apd.BigInt
 		num   int
 	}
 	tests := []struct {
 		name        string
 		args        args
-		wantResults []*big.Int
+		wantResults []*apd.BigInt
 	}{
 		{
 			name: "1",
 			args: args{
-				left:  big.NewInt(12),
-				right: big.NewInt(21),
+				left:  apd.NewBigInt(12),
+				right: apd.NewBigInt(21),
 				num:   5,
 			},
-			wantResults: []*big.Int{
-				big.NewInt(12),
-				big.NewInt(14),
-				big.NewInt(16),
-				big.NewInt(18),
-				big.NewInt(20),
-				big.NewInt(21),
+			wantResults: []*apd.BigInt{
+				apd.NewBigInt(12),
+				apd.NewBigInt(14),
+				apd.NewBigInt(16),
+				apd.NewBigInt(18),
+				apd.NewBigInt(20),
+				apd.NewBigInt(21),
 			},
 		},
 		{
 			name: "2",
 			args: args{
-				left:  big.NewInt(12),
-				right: big.NewInt(12),
+				left:  apd.NewBigInt(12),
+				right: apd.NewBigInt(12),
 				num:   5,
 			},
-			wantResults: []*big.Int{
-				big.NewInt(12),
-				big.NewInt(12),
+			wantResults: []*apd.BigInt{
+				apd.NewBigInt(12),
+				apd.NewBigInt(12),
 			},
 		},
 		{
 			name: "3",
 			args: args{
-				left:  big.NewInt(21),
-				right: big.NewInt(12),
+				left:  apd.NewBigInt(21),
+				right: apd.NewBigInt(12),
 				num:   5,
 			},
-			wantResults: []*big.Int{
-				big.NewInt(12),
-				big.NewInt(14),
-				big.NewInt(16),
-				big.NewInt(18),
-				big.NewInt(20),
-				big.NewInt(21),
+			wantResults: []*apd.BigInt{
+				apd.NewBigInt(12),
+				apd.NewBigInt(14),
+				apd.NewBigInt(16),
+				apd.NewBigInt(18),
+				apd.NewBigInt(20),
+				apd.NewBigInt(21),
 			},
 		},
 		{
 			name: "4",
 			args: args{
-				left:  big.NewInt(22),
-				right: big.NewInt(19),
+				left:  apd.NewBigInt(22),
+				right: apd.NewBigInt(19),
 				num:   11,
 			},
-			wantResults: []*big.Int{
-				big.NewInt(19),
-				big.NewInt(20),
-				big.NewInt(21),
-				big.NewInt(22),
+			wantResults: []*apd.BigInt{
+				apd.NewBigInt(19),
+				apd.NewBigInt(20),
+				apd.NewBigInt(21),
+				apd.NewBigInt(22),
 			},
 		},
 		{
 			name: "5",
 			args: args{
-				left:  big.NewInt(22),
-				right: big.NewInt(19),
+				left:  apd.NewBigInt(22),
+				right: apd.NewBigInt(19),
 				num:   1,
 			},
-			wantResults: []*big.Int{
-				big.NewInt(19),
-				big.NewInt(22),
+			wantResults: []*apd.BigInt{
+				apd.NewBigInt(19),
+				apd.NewBigInt(22),
 			},
 		},
 	}
@@ -905,8 +905,8 @@ func Test_split(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "", 0),
-				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(50003)), "", 0),
+				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(10000)), "", 0),
+				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(50003)), "", 0),
 				num:        4,
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
 			},
@@ -940,8 +940,8 @@ func Test_split(t *testing.T) {
 		{
 			name: "2",
 			args: args{
-				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "", 0),
-				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(50003)), "", 0),
+				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(10000)), "", 0),
+				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(50003)), "", 0),
 				num:        0,
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
 			},
@@ -950,7 +950,7 @@ func Test_split(t *testing.T) {
 		{
 			name: "3",
 			args: args{
-				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "", 0),
+				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(10000)), "", 0),
 				max:        nil,
 				num:        4,
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
@@ -961,7 +961,7 @@ func Test_split(t *testing.T) {
 			name: "4",
 			args: args{
 				min:        nil,
-				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(50003)), "", 0),
+				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(50003)), "", 0),
 				num:        4,
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
 			},
@@ -1000,8 +1000,8 @@ func Test_split(t *testing.T) {
 		{
 			name: "8",
 			args: args{
-				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "", 0),
-				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(50003)), "", 0),
+				min:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(10000)), "", 0),
+				max:        element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(50003)), "", 0),
 				num:        1,
 				splitField: NewMockField(database.NewBaseField(0, "f1", NewMockFieldType(database.GoTypeInt64)), NewMockFieldType(database.GoTypeInt64)),
 			},
@@ -1056,7 +1056,7 @@ func TestSplitConfig_fetchMin(t *testing.T) {
 					NewMockFieldType(database.GoTypeInt64)),
 					NewMockFieldType(database.GoTypeInt64)),
 			},
-			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(100000)),
+			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(100000)),
 				"f1", 0),
 		},
 		{
@@ -1119,7 +1119,7 @@ func TestSplitConfig_fetchMax(t *testing.T) {
 					NewMockFieldType(database.GoTypeInt64)),
 					NewMockFieldType(database.GoTypeInt64)),
 			},
-			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(100000)),
+			wantC: element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(100000)),
 				"f1", 0),
 		},
 		{

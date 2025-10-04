@@ -16,7 +16,6 @@ package taskgroup
 
 import (
 	"context"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +24,7 @@ import (
 	coreconst "github.com/Breeze0806/go-etl/datax/common/config/core"
 	"github.com/Breeze0806/go-etl/datax/core"
 	"github.com/Breeze0806/go-etl/datax/core/statistics/container"
+	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/schedule"
 	"github.com/pingcap/errors"
 )
@@ -239,7 +239,7 @@ func (c *Container) startTaskExecer(te *taskExecer) (err error) {
 }
 
 func (c *Container) setStats(te *taskExecer) {
-	key := "metrics." + strconv.FormatInt(te.taskID, 10)
+	key := "metrics." + element.FormatInt64(te.taskID)
 	stats := te.Stats()
 
 	c.Metrics().Set(key, stats)

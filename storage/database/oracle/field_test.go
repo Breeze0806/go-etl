@@ -17,7 +17,6 @@ package oracle
 import (
 	"database/sql/driver"
 	"math"
-	"math/big"
 	"reflect"
 	"testing"
 	"time"
@@ -26,7 +25,6 @@ import (
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
 	"github.com/godror/godror"
-	"github.com/shopspring/decimal"
 )
 
 type mockColumnType struct {
@@ -309,7 +307,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: uint64(math.MaxUint64),
 			},
-			want: element.NewDefaultColumn(element.NewBigIntColumnValue(new(big.Int).SetUint64(uint64(math.MaxUint64))),
+			want: element.NewDefaultColumn(element.NewBigIntColumnValueFromUint64(uint64(math.MaxUint64)),
 				"f1", element.ByteSize(uint64(math.MaxUint64))),
 		},
 		{
@@ -470,8 +468,8 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: float32(8.23),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValue(
-				decimal.NewFromFloat32(float32(8.23))), "f1", element.ByteSize(float32(8.23))),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat32(float32(8.23)),
+				"f1", element.ByteSize(float32(8.23))),
 		},
 		{
 			name: "DOUBLE float64",
