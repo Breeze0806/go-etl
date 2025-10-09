@@ -100,7 +100,14 @@ DMReader通过使用dbmsreader中定义的查询流程调用go-etl自定义的st
 ### 类型转换
 
 目前DMReader支持大部分达梦数据库类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
-
+| go-etl 类型 | 达梦数据库类型 |
+| --- | --- |
+| bool  |bit |
+| bigInt | BIGINT, INT, INTEGER, SMALLINT,TINYINT,BYTE |
+| decimal | DOUBLE，DOUBLE PRECISION, REAL, DECIMAL，NUMERIC,NUMBER  |
+| string | VARCHAR, CHAR, TEXT, LONG,CLOB，LONGVARCHAR   |
+| time | DATE, TIME, DATETIME,TIMESTAMP |
+| bytes | BLOB, VARBINARY, IMAGE, LONGVARBINARY  |
 ## 性能报告
 
 待测试

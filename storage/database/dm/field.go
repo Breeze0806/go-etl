@@ -16,6 +16,7 @@ package dm
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
@@ -83,8 +84,8 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 	f := &FieldType{
 		BaseFieldType: database.NewBaseFieldType(typ),
 	}
-	switch f.DatabaseTypeName() {
-	case "BIT", "BOOLEAN", "BOOL":
+	switch strings.ToUpper(f.DatabaseTypeName()) {
+	case "BIT":
 		f.goType = database.GoTypeBool
 	case "INTEGER", "INT", "BIGINT", "TINYINT", "SMALLINT", "BYTE":
 		f.goType = database.GoTypeInt64
@@ -92,7 +93,7 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		f.goType = database.GoTypeString // DECIMAL使用字符串以保证精度
 	case "CHAR", "CHARACTER", "VARCHAR", "TEXT", "CLOB", "LONGVARCHAR":
 		f.goType = database.GoTypeString
-	case "BINARY", "VARBINARY", "BLOB", "BFILE", "IMAGE", "LONGVARBINARY":
+	case "BINARY", "VARBINARY", "BLOB", "IMAGE", "LONGVARBINARY":
 		f.goType = database.GoTypeBytes
 	case "DATE", "TIME", "DATETIME", "TIMESTAMP":
 		f.goType = database.GoTypeTime
@@ -127,13 +128,11 @@ func NewScanner(f *Field) *Scanner {
 func (s *Scanner) Scan(src any) (err error) {
 	var cv element.ColumnValue
 	byteSize := element.ByteSize(src)
-	switch s.f.Type().DatabaseTypeName() {
-	case "BIT", "BOOLEAN", "BOOL":
+	switch strings.ToUpper(s.f.Type().DatabaseTypeName()) {
+	case "BIT":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBoolColumnValue()
-		case bool:
-			cv = element.NewBoolColumnValue(data)
 		case int8:
 			cv = element.NewBoolColumnValue(data != 0)
 		default:
@@ -152,10 +151,6 @@ func (s *Scanner) Scan(src any) (err error) {
 			cv = element.NewBigIntColumnValueFromInt64(int64(data))
 		case int64:
 			cv = element.NewBigIntColumnValueFromInt64(data)
-		case string:
-			if cv, err = element.NewBigIntColumnValueFromString(data); err != nil {
-				return
-			}
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeBigInt)
 		}
@@ -167,10 +162,6 @@ func (s *Scanner) Scan(src any) (err error) {
 			cv = element.NewDecimalColumnValueFromFloat32(data)
 		case float64:
 			cv = element.NewDecimalColumnValueFromFloat(data)
-		case []byte:
-			if cv, err = element.NewDecimalColumnValueFromString(string(data)); err != nil {
-				return
-			}
 		case string:
 			if cv, err = element.NewDecimalColumnValueFromString(data); err != nil {
 				return
@@ -184,14 +175,14 @@ func (s *Scanner) Scan(src any) (err error) {
 			cv = element.NewNilStringColumnValue()
 		case string:
 			switch s.f.Type().DatabaseTypeName() {
-			case "CHAR", "NCHAR":
+			case "CHAR":
 				data = s.f.TrimStringChar(data)
 			}
 			cv = element.NewStringColumnValue(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeString)
 		}
-	case "BINARY", "VARBINARY", "BLOB", "BFILE", "IMAGE", "LONGVARBINARY":
+	case "BINARY", "VARBINARY", "BLOB", "IMAGE", "LONGVARBINARY":
 		switch data := src.(type) {
 		case nil:
 			cv = element.NewNilBytesColumnValue()

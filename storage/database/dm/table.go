@@ -63,8 +63,6 @@ func (t *Table) ShouldRetry(err error) bool {
 	switch cause := errors.Cause(err).(type) {
 	case net.Error:
 		return true
-	case *net.OpError:
-		return true
 	default:
 		return cause == driver.ErrBadConn
 	}

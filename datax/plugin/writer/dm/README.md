@@ -125,7 +125,14 @@ Describes the DM table information.
 ### Type Conversion
 
 Currently, DMWriter supports most DM data types, but there may be some unsupported types. Please check your data types carefully.
-
+| go-etl Type | Dameng Data Type |
+| --- | --- |
+| bool  |bit |
+| bigInt | BIGINT, INT, INTEGER, SMALLINT,TINYINT,BYTE |
+| decimal | DOUBLE，DOUBLE PRECISION, REAL, DECIMAL，NUMERIC,NUMBER  |
+| string | VARCHAR, CHAR, TEXT, LONG,CLOB，LONGVARCHAR   |
+| time | DATE, TIME, DATETIME,TIMESTAMP |
+| bytes | BLOB, VARBINARY, IMAGE, LONGVARBINARY  |
 ## Performance Report
 
 To be tested.
