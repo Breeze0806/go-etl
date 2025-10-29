@@ -15,9 +15,8 @@
 package exporter
 
 import (
-	"strconv"
-
 	"github.com/Breeze0806/go-etl/datax/core/taskgroup"
+	"github.com/Breeze0806/go-etl/element"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -76,11 +75,11 @@ func (mc JSONMetricCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (mc JSONMetricCollector) Collect(ch chan<- prometheus.Metric) {
-	jobID := strconv.FormatInt(mc.Metric.JobID, 10)
+	jobID := element.FormatInt64(mc.Metric.JobID)
 	for _, vi := range mc.Metric.Metrics {
-		taskGroupID := strconv.FormatInt(vi.TaskGroupID, 10)
+		taskGroupID := element.FormatInt64(vi.TaskGroupID)
 		for _, vj := range vi.Metrics {
-			taskID := strconv.FormatInt(vj.TaskID, 10)
+			taskID := element.FormatInt64(vj.TaskID)
 			ch <- prometheus.MustNewConstMetric(
 				PrometheusDescs[0],
 				prometheus.CounterValue,

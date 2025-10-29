@@ -15,8 +15,9 @@
 package schedule
 
 import (
-	"strconv"
 	"time"
+
+	"github.com/Breeze0806/go-etl/element"
 )
 
 type mockTask struct {
@@ -60,5 +61,5 @@ type mockMappedTask struct {
 }
 
 func (m *mockMappedTask) Key() string {
-	return strconv.FormatInt(m.taskID, 10)
+	return element.FormatInt64(m.taskID)
 }

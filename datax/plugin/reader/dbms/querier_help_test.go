@@ -18,13 +18,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"math/big"
 	"reflect"
 	"strconv"
 
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/cockroachdb/apd/v3"
 )
 
 type MockFieldType struct {
@@ -151,12 +151,12 @@ func (m *MockQuerier) FetchRecord(ctx context.Context,
 		if m.FetchMinErr != nil {
 			return m.FetchMinErr
 		}
-		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(10000)), "f1", 0))
+		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(10000)), "f1", 0))
 	case *MaxParam:
 		if m.FetchMaxErr != nil {
 			return m.FetchMaxErr
 		}
-		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(big.NewInt(30000)), "f1", 0))
+		r.Add(element.NewDefaultColumn(element.NewBigIntColumnValue(apd.NewBigInt(30000)), "f1", 0))
 	}
 	return handler.OnRecord(r)
 }

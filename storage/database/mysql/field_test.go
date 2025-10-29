@@ -24,7 +24,6 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
-	"github.com/shopspring/decimal"
 )
 
 type mockFieldType struct {
@@ -606,7 +605,7 @@ func TestScanner_Scan(t *testing.T) {
 			args: args{
 				src: float32(1.234),
 			},
-			want: element.NewDefaultColumn(element.NewDecimalColumnValue(decimal.NewFromFloat32(float32(1.234))),
+			want: element.NewDefaultColumn(element.NewDecimalColumnValueFromFloat32(float32(1.234)),
 				"test", element.ByteSize(float32(1.234))),
 		},
 		{

@@ -17,11 +17,11 @@ package dbms
 import (
 	"context"
 	"fmt"
-	"math/big"
 	"time"
 
 	"github.com/Breeze0806/go-etl/element"
 	"github.com/Breeze0806/go-etl/storage/database"
+	"github.com/cockroachdb/apd/v3"
 	"github.com/pingcap/errors"
 )
 
@@ -129,7 +129,7 @@ func (s SplitRange) rightColumn(key string) (element.Column, error) {
 func (s SplitRange) fetchColumn(key string, value string) (element.Column, error) {
 	switch element.ColumnType(s.Type) {
 	case element.TypeBigInt:
-		bi, ok := new(big.Int).SetString(value, 10)
+		bi, ok := new(apd.BigInt).SetString(value, 10)
 		if !ok {
 			return nil, errors.Errorf("column(%v) value is not %v", key, element.TypeBigInt)
 		}
@@ -159,7 +159,7 @@ func split(min, max element.Column, num int,
 		return
 	}
 
-	var left, right *big.Int
+	var left, right *apd.BigInt
 	var c convertor
 
 	c, err = newConvertor(min, timeAccuracy)
@@ -216,8 +216,8 @@ func newConvertor(min element.Column, timeAccuracy string) (convertor, error) {
 
 type convertor interface {
 	splitConfig() (typ string, layout string)
-	fromBigInt(bi *big.Int) (v string)
-	toBigInt(c element.Column) (bi *big.Int, err error)
+	fromBigInt(bi *apd.BigInt) (v string)
+	toBigInt(c element.Column) (bi *apd.BigInt, err error)
 }
 
 type bigIntConvertor struct{}
@@ -226,11 +226,11 @@ func (b *bigIntConvertor) splitConfig() (typ string, layout string) {
 	return element.TypeBigInt.String(), ""
 }
 
-func (b *bigIntConvertor) fromBigInt(bi *big.Int) (v string) {
+func (b *bigIntConvertor) fromBigInt(bi *apd.BigInt) (v string) {
 	return bi.String()
 }
 
-func (b *bigIntConvertor) toBigInt(c element.Column) (bi *big.Int, err error) {
+func (b *bigIntConvertor) toBigInt(c element.Column) (bi *apd.BigInt, err error) {
 	var v element.BigIntNumber
 	if v, err = c.AsBigInt(); err != nil {
 		err = errors.Wrap(err, "AsBigInt fail")
@@ -246,11 +246,11 @@ func (s *stringConvertor) splitConfig() (typ string, layout string) {
 	return element.TypeString.String(), ""
 }
 
-func (s *stringConvertor) fromBigInt(bi *big.Int) (v string) {
+func (s *stringConvertor) fromBigInt(bi *apd.BigInt) (v string) {
 	return bigint2String(bi, 128)
 }
 
-func (s *stringConvertor) toBigInt(c element.Column) (bi *big.Int, err error) {
+func (s *stringConvertor) toBigInt(c element.Column) (bi *apd.BigInt, err error) {
 	var v string
 	if v, err = c.AsString(); err != nil {
 		err = errors.Wrap(err, "AsString fail")
@@ -259,24 +259,24 @@ func (s *stringConvertor) toBigInt(c element.Column) (bi *big.Int, err error) {
 	return string2Bigint(v, 128)
 }
 
-func string2Bigint(s string, radix int64) (res *big.Int, err error) {
-	res = big.NewInt(0)
-	radixBigInt := big.NewInt(radix)
+func string2Bigint(s string, radix int64) (res *apd.BigInt, err error) {
+	res = apd.NewBigInt(0)
+	radixBigInt := apd.NewBigInt(radix)
 	for _, r := range s {
 		if r < 0x0000 || r >= 0x0080 {
 			return nil, errors.Errorf("split only can support ASCII. string[%s] is not ASCII string", s)
 		}
-		res = new(big.Int).Add(big.NewInt(int64(r)), new(big.Int).Mul(res, radixBigInt))
+		res = new(apd.BigInt).Add(apd.NewBigInt(int64(r)), new(apd.BigInt).Mul(res, radixBigInt))
 	}
 	return res, nil
 }
 
-func bigint2String(res *big.Int, radix int64) string {
+func bigint2String(res *apd.BigInt, radix int64) string {
 	var data []byte
-	radixBigInt := big.NewInt(radix)
-	zero := big.NewInt(0)
-	for quotient := new(big.Int).Set(res); quotient.Cmp(zero) > 0; quotient = new(big.Int).Div(quotient, radixBigInt) {
-		remainder := new(big.Int).Mod(quotient, radixBigInt)
+	radixBigInt := apd.NewBigInt(radix)
+	zero := apd.NewBigInt(0)
+	for quotient := new(apd.BigInt).Set(res); quotient.Cmp(zero) > 0; quotient = new(apd.BigInt).Div(quotient, radixBigInt) {
+		remainder := new(apd.BigInt).Mod(quotient, radixBigInt)
 		data = append(data, byte(remainder.Int64()))
 	}
 	for i := 0; i < len(data)/2; i++ {
@@ -334,12 +334,12 @@ func (t *timeConvertor) splitConfig() (typ string, layout string) {
 	return element.TypeTime.String(), t.layout.layout
 }
 
-func (t *timeConvertor) fromBigInt(bi *big.Int) (v string) {
+func (t *timeConvertor) fromBigInt(bi *apd.BigInt) (v string) {
 	ti := t.min.Add(time.Duration(bi.Int64()) * t.layout.unit())
 	return ti.Format(t.layout.layout)
 }
 
-func (t *timeConvertor) toBigInt(c element.Column) (bi *big.Int, err error) {
+func (t *timeConvertor) toBigInt(c element.Column) (bi *apd.BigInt, err error) {
 	var v time.Time
 	if t.layout.unit() == 0 {
 		return nil, errors.Errorf("time layout(%v) is not valid", t.layout.layout)
@@ -354,12 +354,12 @@ func (t *timeConvertor) toBigInt(c element.Column) (bi *big.Int, err error) {
 		return
 	}
 
-	return big.NewInt(int64(d / t.layout.unit())), nil
+	return apd.NewBigInt(int64(d / t.layout.unit())), nil
 }
 
-func doSplit(left *big.Int, right *big.Int, num int) (results []*big.Int) {
+func doSplit(left *apd.BigInt, right *apd.BigInt, num int) (results []*apd.BigInt) {
 	if left.Cmp(right) == 0 {
-		results = []*big.Int{left, right}
+		results = []*apd.BigInt{left, right}
 		return
 	}
 
@@ -367,21 +367,21 @@ func doSplit(left *big.Int, right *big.Int, num int) (results []*big.Int) {
 		left, right = right, left
 	}
 
-	gap := new(big.Int).Sub(right, left)
-	step := new(big.Int).Div(gap, big.NewInt(int64(num)))
-	remainder := new(big.Int).Mod(gap, big.NewInt(int64(num)))
-	if step.Cmp(big.NewInt(0)) == 0 {
+	gap := new(apd.BigInt).Sub(right, left)
+	step := new(apd.BigInt).Div(gap, apd.NewBigInt(int64(num)))
+	remainder := new(apd.BigInt).Mod(gap, apd.NewBigInt(int64(num)))
+	if step.Cmp(apd.NewBigInt(0)) == 0 {
 		num = int(remainder.Int64())
 	}
 
 	results = append(results, left)
-	var lowerBound *big.Int
-	upperBound := new(big.Int).Set(left)
+	var lowerBound *apd.BigInt
+	upperBound := new(apd.BigInt).Set(left)
 	for i := 1; i < num; i++ {
-		lowerBound = new(big.Int).Set(upperBound)
-		upperBound = new(big.Int).Add(lowerBound, step)
-		if remainder.Cmp(big.NewInt(int64(i))) >= 0 {
-			upperBound = new(big.Int).Add(upperBound, big.NewInt(1))
+		lowerBound = new(apd.BigInt).Set(upperBound)
+		upperBound = new(apd.BigInt).Add(lowerBound, step)
+		if remainder.Cmp(apd.NewBigInt(int64(i))) >= 0 {
+			upperBound = new(apd.BigInt).Add(upperBound, apd.NewBigInt(1))
 		}
 		results = append(results, upperBound)
 	}
