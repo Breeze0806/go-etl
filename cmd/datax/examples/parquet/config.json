@@ -1,0 +1,29 @@
+{
+  "core" : {
+    "container": {
+      "job":{
+        "id": 1,
+        "sleepInterval":100
+      }
+    }
+  },
+  "job":{
+    "content":[
+      {
+        "reader":{
+          "name": "parquetreader",
+          "parameter": {
+            "path":["json_schema.parquet"]
+          }
+        },
+        "writer":{
+          "name": "parquetwriter",
+          "parameter": {
+            "path":["json_schema1.parquet"]
+          }
+        },
+        "transformer":[]
+      }
+    ]
+  }
+}

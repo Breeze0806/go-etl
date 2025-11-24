@@ -18,41 +18,38 @@ import (
 	"context"
 
 	"github.com/Breeze0806/go-etl/config"
-	"github.com/Breeze0806/go-etl/datax/plugin/writer/file"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
 	"github.com/pingcap/errors"
 )
 
-// Job parquet写入工作
+// Job - A unit of work to be performed
 type Job struct {
 	*file.Job
+
 	conf *Config
 }
 
-// NewJob 创建parquet写入工作
+// NewJob - Creates a new instance of a Job
 func NewJob() *Job {
 	return &Job{
 		Job: file.NewJob(),
 	}
 }
 
-// Init 初始化
+// Init - Initializes the Job, setting up any required resources or states
 func (j *Job) Init(ctx context.Context) (err error) {
 	j.conf, err = NewConfig(j.PluginJobConf())
-
-	return errors.Wrapf(err, "NewConfig fail. val: %v", j.PluginJobConf())
+	return errors.Wrapf(err, "NewConfig fail. val: %v", j.PluginConf())
 }
 
-// Destroy 销毁
-func (j *Job) Destroy(ctx context.Context) (err error) {
-	return nil
-}
-
-// Split 切分
+// Split - Divides the Job into smaller sub-tasks or sub-jobs for parallel processing or distribution
 func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, err error) {
-	for _, f := range j.conf.Path {
+	for _, v := range j.conf.Path {
 		conf, _ := config.NewJSONFromString("{}")
-		conf.Set("path", f)
+		conf.Set("path", v)
+		conf.Set("columns", j.conf.Columns)
+		conf.Set("content", []string{""})
 		configs = append(configs, conf)
 	}
-	return configs, nil
+	return
 }

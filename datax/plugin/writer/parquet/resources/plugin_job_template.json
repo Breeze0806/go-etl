@@ -1,6 +1,17 @@
 {
 	"name": "parquetwriter",
 	"parameter": {
-      "path":["",""]
+      "path":["json_schema.parquet"],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "name"
+        },
+        {
+          "name": "age"
+        }
+      ]
     }
 }

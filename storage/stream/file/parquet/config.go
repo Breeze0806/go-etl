@@ -14,5 +14,61 @@
 
 package parquet
 
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/Breeze0806/go-etl/config"
+	"github.com/Breeze0806/go-etl/element"
+)
+
+type InConfig struct {
+	Columns []Column `json:"column"`
+}
 type OutConfig struct {
+	Columns []Column `json:"column"`
+}
+
+func NewOutConfig(conf *config.JSON) (c *OutConfig, err error) {
+	c = &OutConfig{}
+	err = json.Unmarshal([]byte(conf.String()), c)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range c.Columns {
+		if err = v.validate(); err != nil {
+			return nil, err
+		}
+	}
+	return c, nil
+}
+
+type Column struct {
+	Type string
+	Name string
+}
+
+func NewInConfig(conf *config.JSON) (c *InConfig, err error) {
+	c = &InConfig{}
+	err = json.Unmarshal([]byte(conf.String()), c)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range c.Columns {
+		if err = v.validate(); err != nil {
+			return nil, err
+		}
+	}
+	return c, nil
+}
+
+func (c *Column) validate() error {
+	switch element.ColumnType(c.Type) {
+	case element.TypeBool, element.TypeBigInt,
+		element.TypeDecimal, element.TypeString,
+		element.TypeTime:
+	default:
+		return fmt.Errorf("unsupported column type: %s", c.Type)
+	}
+	return nil
 }
