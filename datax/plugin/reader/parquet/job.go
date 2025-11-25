@@ -47,7 +47,7 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	for _, v := range j.conf.Path {
 		conf, _ := config.NewJSONFromString("{}")
 		conf.Set("path", v)
-		conf.Set("columns", j.conf.Columns)
+		conf.Set("column", j.conf.Columns)
 		conf.Set("content.0", j.conf.InConfig)
 		configs = append(configs, conf)
 	}

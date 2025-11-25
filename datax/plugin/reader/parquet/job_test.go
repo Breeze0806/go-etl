@@ -49,7 +49,7 @@ func TestJob_Split(t *testing.T) {
 				ctx: context.TODO(),
 			},
 			wantConfigs: []*config.JSON{
-				testJSONFromString(`{"path":"file1","columns":null,"content":[""]}`),
+				testJSONFromString(`{"path":"file1","column":null,"content":[{"column":null}]}`),
 			},
 		},
 		{
@@ -59,8 +59,8 @@ func TestJob_Split(t *testing.T) {
 				ctx: context.TODO(),
 			},
 			wantConfigs: []*config.JSON{
-				testJSONFromString(`{"path":"file1","columns":null,"content":[""]}`),
-				testJSONFromString(`{"path":"file2","columns":null,"content":[""]}`),
+				testJSONFromString(`{"path":"file1","column":null,"content":[{"column":null}]}`),
+				testJSONFromString(`{"path":"file2","column":null,"content":[{"column":null}]}`),
 			},
 		},
 	}

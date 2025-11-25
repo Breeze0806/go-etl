@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/Breeze0806/go-etl/config"
+	"github.com/Breeze0806/go-etl/storage/stream/file/parquet"
 )
 
 func TestNewConfig(t *testing.T) {
@@ -34,17 +35,18 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "Valid config with path array",
 			args: args{
-				conf: testJSONFromString(`{"path":["/tmp/test.parquet"],"column":[{"name":"id","type":"INT32"},{"name":"name","type":"BYTE_ARRAY"}]}`),
+				conf: testJSONFromString(`{"path":["/tmp/test.parquet"],"column":[{"name":"id"},{"name":"name"}]}`),
 			},
 			want: &Config{
-				Path: []string{"/tmp/test.parquet"},
+				Path:   []string{"/tmp/test.parquet"},
+				Column: []parquet.Column{{Name: "id"}, {Name: "name"}},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Valid config with single path",
 			args: args{
-				conf: testJSONFromString(`{"path":"/tmp/test.parquet","column":[{"name":"id","type":"INT32"},{"name":"name","type":"BYTE_ARRAY"}]}`),
+				conf: testJSONFromString(`{"path":"/tmp/test.parquet","column":[{"name":"id"},{"name":"name"}]}`),
 			},
 			want:    nil,
 			wantErr: true,
@@ -52,12 +54,10 @@ func TestNewConfig(t *testing.T) {
 		{
 			name: "Missing path",
 			args: args{
-				conf: testJSONFromString(`{"column":[{"name":"id","type":"INT32"}]}`),
+				conf: testJSONFromString(`{"column":[{"name":"id"}]}`),
 			},
-			want: &Config{
-				Path: nil,
-			},
-			wantErr: false,
+			want:    nil,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
