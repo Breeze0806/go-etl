@@ -1,28 +1,32 @@
 {
-  "core" : {
+  "core": {
     "container": {
-      "job":{
+      "job": {
         "id": 1,
-        "sleepInterval":100
+        "sleepInterval": 100
       }
     }
   },
-  "job":{
-    "content":[
+  "job": {
+    "content": [
       {
-        "reader":{
+        "reader": {
           "name": "parquetreader",
           "parameter": {
-            "path":["json_schema.parquet"]
+            "path": [
+              "json_schema.parquet"
+            ]
           }
         },
-        "writer":{
+        "writer": {
           "name": "parquetwriter",
           "parameter": {
-            "path":["json_schema1.parquet"]
+            "path": [
+              "json_schema1.parquet"
+            ]
           }
         },
-        "transformer":[]
+        "transformer": []
       }
     ]
   }

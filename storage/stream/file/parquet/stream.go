@@ -96,10 +96,13 @@ func (r *Rows) Close() error {
 func (r *Rows) Scan() (columns []element.Column, err error) {
 	columns = make([]element.Column, 0)
 	for k, v := range r.rowData {
-		if _, ok := r.columns[k]; !ok {
-			// 过滤掉不在columns中的字段
-			continue
+		if len(r.columns) != 0 {
+			if _, ok := r.columns[k]; !ok {
+				// 过滤掉不在columns中的字段
+				continue
+			}
 		}
+
 		c, err := r.FieldToColumn(k, v)
 		if err != nil {
 			return nil, err
@@ -184,6 +187,7 @@ func NewRows(f *reader.ParquetReader, nameMap NameMap, c *config.JSON) (rows *Ro
 	for _, col := range conf.Columns {
 		rows.columns[col.Name] = col
 	}
+
 	return
 }
 
@@ -264,8 +268,10 @@ func (w *Writer) Write(record element.Record) (err error) {
 		if err != nil {
 			return err
 		}
-		if _, ok := w.columns[col.Name()]; !ok {
-			continue
+		if len(w.columns) != 0 {
+			if _, ok := w.columns[col.Name()]; !ok {
+				continue
+			}
 		}
 		switch col.Type() {
 		case element.TypeBigInt:
@@ -444,6 +450,5 @@ func normalizeStructToMap(item interface{}) interface{} {
 		}
 		return result
 	}
-
 	return item
 }

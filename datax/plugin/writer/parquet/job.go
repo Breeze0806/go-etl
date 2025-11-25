@@ -52,6 +52,8 @@ func (j *Job) Split(ctx context.Context, number int) (configs []*config.JSON, er
 	for _, f := range j.conf.Path {
 		conf, _ := config.NewJSONFromString("{}")
 		conf.Set("path", f)
+		conf.Set("content", j.conf.SingleConfig)
+		conf.Set("content.batchTimeout", j.conf.GetBatchTimeout().String())
 		configs = append(configs, conf)
 	}
 	return configs, nil

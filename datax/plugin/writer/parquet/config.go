@@ -30,7 +30,9 @@ type SingleConfig struct {
 
 // Config csv input configuration - Configuration settings for reading or processing data from a CSV file.
 type Config struct {
-	Path []string `json:"path"`
+	SingleConfig
+	Path   []string `json:"path"`
+	Column []string `json:"column"`
 }
 
 // NewConfig - A function or method that retrieves CSV input configuration settings from a JSON configuration file (conf).
