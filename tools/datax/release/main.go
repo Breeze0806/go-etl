@@ -31,7 +31,7 @@ import (
 
 var (
 	sourceUserPath = "datax/"
-	destUserPath   = "release/go-etl/"
+	destUserPath   = "release/datax/"
 
 	sourceExamplePath = "cmd/datax/examples"
 	destExamplePath   = "release/examples"

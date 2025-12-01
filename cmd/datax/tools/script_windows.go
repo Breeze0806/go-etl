@@ -15,7 +15,7 @@
 package tools
 
 func generateScript(source string) string {
-	return "datax -c " + source
+	return "go-etl -c " + source
 }
 
 func ext() string {

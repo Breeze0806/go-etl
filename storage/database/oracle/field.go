@@ -52,12 +52,9 @@ func (f *Field) Quoted() string {
 func (f *Field) BindVar(i int) string {
 	// Fix the time format error ORA-01861: literal does not match format string
 	switch f.FieldType().DatabaseTypeName() {
-	case "DATE":
-		return "to_date(:" + strconv.Itoa(i) + ",'yyyy-mm-dd hh24:mi:ss')"
 	case "TIMESTAMP", "TIMESTAMP WITH TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE":
 		return "to_timestamp(:" + strconv.Itoa(i) + ",'yyyy-mm-dd hh24:mi:ss.ff9')"
 	}
-
 	return ":" + strconv.Itoa(i)
 }
 
@@ -276,6 +273,11 @@ func (v *Valuer) Value() (value driver.Value, err error) {
 			return nil, nil
 		}
 		return v.c.AsBytes()
+	case "DATE":
+		if v.c.IsNil() {
+			return time.Time{}, nil
+		}
+		return v.c.AsTime()
 	}
 	// In Oracle, inserting an empty string is actually treated as nil, corresponding to NULL
 	if v.c.IsNil() {
