@@ -29,7 +29,7 @@ This data synchronization tool has the synchronization capability for the follow
 
 | Type         | Data Source             | Reader | Writer| Document                                                        |
 | ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
-| Relational Database | MySQL/Mariadb/Tidb | √            | √          | [Read](datax/plugin/reader/mysql/README.md)、[Write](datax/plugin/writer/mysql/README.md) |
+| Relational Database | MySQL/Mariadb/Tidb/TDSQL MySQL | √            | √          | [Read](datax/plugin/reader/mysql/README.md)、[Write](datax/plugin/writer/mysql/README.md) |
 |              | Postgres/Greenplum | √            | √          | [Read](datax/plugin/reader/postgres/README.md)、[Write](datax/plugin/writer/postgres/README.md) |
 |              | DB2 LUW            | √            | √          | [Read](datax/plugin/reader/db2/README.md)、[Write](datax/plugin/writer/db2/README.md) |
 |              | SQL Server            | √            | √          | [Read](datax/plugin/reader/sqlserver/README.md)、[Write](datax/plugin/writer/sqlserver/README.md) |
@@ -56,23 +56,18 @@ Start data synchronization with the [go-etl Data Synchronization User Manual](RE
 
 **Pull Docker Image**
 ```bash
-docker pull go-etl:v0.2.2
+docker pull go-etl:v0.2.3
 ```
 
 **Start Container**
 ```bash
-docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
 **Execute Command in Container**
 ```bash
 docker exec -it etl bash
 ```
-
-Important Note:  
-Current version doesn't support direct usage of SQLite3 or Oracle databases. To enable these databases, you need to:  
-1. Download the corresponding ODBC drivers  
-2. Configure environment variables for database connections  
 
 #### Run by source code
 

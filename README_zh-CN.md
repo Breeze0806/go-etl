@@ -28,7 +28,7 @@ go-etl将提供的etl能力如下：
 
 | 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
 | ------------ | ------------------ | ------------ | ---------- | ------------------------------------------------------------ |
-| 关系型数据库 | MySQL/Mariadb/Tidb | √            | √          | [读](datax/plugin/reader/mysql/README_zh-CN.md)、[写](datax/plugin/writer/mysql/README_zh-CN.md) |
+| 关系型数据库 | MySQL/Mariadb/Tidb/TDSQL MySQL | √            | √          | [读](datax/plugin/reader/mysql/README_zh-CN.md)、[写](datax/plugin/writer/mysql/README_zh-CN.md) |
 |              | Postgres/Greenplum | √            | √          | [读](datax/plugin/reader/postgres/README_zh-CN.md)、[写](datax/plugin/writer/postgres/README_zh-CN.md) |
 |              | DB2 LUW            | √            | √          | [读](datax/plugin/reader/db2/README_zh-CN.md)、[写](datax/plugin/writer/db2/README_zh-CN.md) |
 |              | SQL Server            | √            | √          | [读](datax/plugin/reader/sqlserver/README_zh-CN.md)、[写](datax/plugin/writer/sqlserver/README_zh-CN.md) |
@@ -55,13 +55,13 @@ go-etl将提供的etl能力如下：
 获取docker镜像
 
 ```bash
-docker pull go-etl:v0.2.2
+docker pull go-etl:v0.2.3
 ```
 
 启动容器
 
 ```bash
-docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
 进入容器
