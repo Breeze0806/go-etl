@@ -10,6 +10,7 @@ export GO15VENDOREXPERIMENT=1
 export GO111MODULE=on
 export CGO_CFLAGS=-I${IBM_DB_HOME}/include
 export CGO_LDFLAGS=-L${IBM_DB_HOME}/lib
+export IBM_DB_DOWNLOAD_URL=https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli/v11.5.6/linuxx64_odbc_cli.tar.gz
 
 .PHONY: all
 all: lint release test
