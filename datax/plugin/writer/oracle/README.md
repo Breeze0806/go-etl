@@ -159,8 +159,8 @@ Currently, only the UTF-8 character set is supported.
 Here's an example:
 
 * On Linux, set the environment variable like this: `export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Also, note that you need to install `libaio`.
-* On Windows, update the system path like this: `set path=%path%;%GOPATH%\oracle\instantclient_21_1`.
-Note: Oracle Instant Client 19 is no longer supported on Windows 7.
+* Note that on Windows, you can use the command: set path=%path%;%GOPATH%\oracle\instantclient_21_1.Oracle Instant Client 19 no longer supports Windows 7. In addition, you need to install [Oracle Instant Client and the corresponding Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows).
+
 
 2. How to eliminate `godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
 
@@ -188,3 +188,6 @@ perSessionTimezone=1
 
 
 connection parameter, to force checking the time zone for each session (and not cache it per DB).
+
+3. Why is the writing of time formats so slow?
+Currently, the OracleWriter converts time formats by using the to_date or to_timestamp functions instead of the bind variable method, which results in relatively slow writing of time formats.

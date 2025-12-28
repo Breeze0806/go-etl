@@ -171,7 +171,8 @@ Oracle Instant Client 19不再支持windows7
 - 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
 
 - 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
-  Oracle Instant Client 19不再支持windows7
+Oracle Instant Client 19不再支持windows7，另外，需要安装[Oracle Instant Client以及对应的Visual Studio redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows)
+
 
 2.如何消除`godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
 
@@ -196,3 +197,7 @@ perSessionTimezone=1
 ```
 
 以强制每次会话都检查时区（而不是每个数据库只缓存一次）。
+
+3.写入时间格式为何这么慢？
+
+目前OracleWriter写入时间格式是通过函数to_date或者to_timestamp转换的，而不是通过绑定变量的方式，因此写入时间格式会比较慢。

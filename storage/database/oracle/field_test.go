@@ -105,7 +105,7 @@ func TestField_BindVar(t *testing.T) {
 		want string
 	}{
 		{
-			name: "1",
+			name: "Other",
 			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType(""))),
 			args: args{
 				i: 1,
@@ -113,12 +113,20 @@ func TestField_BindVar(t *testing.T) {
 			want: ":1",
 		},
 		{
-			name: "2",
+			name: "TIMESTAMP",
 			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("TIMESTAMP"))),
 			args: args{
 				i: 1,
 			},
 			want: "to_timestamp(:1,'yyyy-mm-dd hh24:mi:ss.ff9')",
+		},
+		{
+			name: "DATE",
+			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
+			args: args{
+				i: 1,
+			},
+			want: "to_date(:1,'yyyy-mm-dd hh24:mi:ss')",
 		},
 	}
 	for _, tt := range tests {
@@ -604,18 +612,6 @@ func TestValuer_Value(t *testing.T) {
 			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("BOOLEAN"))),
 				element.NewDefaultColumn(element.NewStringColumnValue("we"), "f2", 0)),
 			wantErr: true,
-		},
-		{
-			name: "9",
-			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
-				element.NewDefaultColumn(element.NewTimeColumnValue(time.Date(2025, 12, 1, 23, 47, 11, 21, time.UTC)), "f2", 0)),
-			want: driver.Value(time.Date(2025, 12, 1, 23, 47, 11, 21, time.UTC)),
-		},
-		{
-			name: "10",
-			v: NewValuer(NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
-				element.NewDefaultColumn(element.NewNilTimeColumnValue(), "f2", 0)),
-			want: driver.Value(time.Time{}),
 		},
 	}
 	for _, tt := range tests {

@@ -12,6 +12,9 @@ go-etl是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER
 
 另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
 
+注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
+Oracle Instant Client 19不再支持windows7，另外，需要安装[Oracle Instant Client以及对应的Visual Studio redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows)
+
 ### 2.1 单任务数据同步
 调用go-etl十分简单，只要直接调用它即可
 
