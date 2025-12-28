@@ -12,6 +12,9 @@ Acquire the go-etl binary program or Docker image to begin usage. On Linux, as s
 
 Additionally, for Oracle, you need to download the corresponding 64-bit version of the ODBC dependency from [Oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html).
 
+Note that on Windows, you can use the command: set path=%path%;%GOPATH%\oracle\instantclient_21_1.Oracle Instant Client 19 no longer supports Windows 7. In addition, you need to install [Oracle Instant Client and the corresponding Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows).
+
+
 ### 2.1 Single-Task Data Synchronization
 
 Invoking go-etl is straightforward; you simply call it directly.

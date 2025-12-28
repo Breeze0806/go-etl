@@ -179,7 +179,7 @@ OracleReader通过使用dbmsreader中定义的查询流程调用go-etl自定义�
 - 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
 
 - 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
-Oracle Instant Client 19不再支持windows7
+Oracle Instant Client 19不再支持windows7，另外，需要安装[Oracle Instant Client以及对应的Visual Studio redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows)
 
 2.如何消除`godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
 

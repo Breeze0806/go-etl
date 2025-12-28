@@ -14,7 +14,7 @@
                     "name": "oraclereader",
                     "parameter": {
                         "connection":  {
-                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
+                            "url": "connectString=\"127.0.0.1:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
                             "table": {
                                 "schema":"TEST",
                                 "name":"SRC"
@@ -22,7 +22,7 @@
                         },
                         "username": "system",
                         "password": "oracle",
-                        "column": ["T_NUM","T_DATE","case when T_DATE is null or T_DATE > SYSDATE then 1 else 0 end as \"状态\""],
+                        "column": ["*"],
                         "where": ""
                     }
                 },
@@ -30,7 +30,7 @@
                     "name": "oraclewriter",
                     "parameter": {
                         "connection":  {
-                            "url": "connectString=\"192.168.15.130:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
+                            "url": "connectString=\"127.0.0.1:1521/xe\" heterogeneousPool=false standaloneConnection=true perSessionTimezone=1 timezone=\"Asia/Shanghai\"",
                             "table": {
                                 "schema":"TEST",
                                 "name":"DEST"
@@ -39,7 +39,7 @@
                         "username": "system",
                         "password": "oracle",
                         "writeMode": "insert",
-                        "column": ["T_NUM","T_DATE","T_INT"],
+                        "column": ["*"],
                         "preSql": [],
                         "batchTimeout": "1s",
                         "batchSize":1000

@@ -46,7 +46,7 @@ func (t *TableParam) Query(_ []element.Record) (string, error) {
 	return "select * from test", nil
 }
 
-func (t *TableParam) Agrs(_ []element.Record) ([]interface{}, error) {
+func (t *TableParam) Agrs(_ []element.Record) ([]any, error) {
 	return nil, nil
 }
 

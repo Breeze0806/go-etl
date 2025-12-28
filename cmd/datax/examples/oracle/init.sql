@@ -1,5 +1,6 @@
 create user test IDENTIFIED BY test;
 grant connect, resource TO test;
+ALTER USER TEST QUOTA UNLIMITED ON USERS;
 
 CREATE TABLE TEST.SRC (
 	T_NUM NUMBER,

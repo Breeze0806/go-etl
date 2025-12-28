@@ -175,7 +175,7 @@ Currently, only the UTF-8 character set is supported.
 Example configurations:
 
 * Note that on Linux, you may need to set an environment variable like `export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Additionally, you may need to install `libaio`.
-* On Windows, you may need to set a path variable like `set path=%path%;%GOPATH%\oracle\instantclient_21_1`. Please note that Oracle Instant Client 19 no longer supports Windows 7.
+* Note that on Windows, you can use the command: set path=%path%;%GOPATH%\oracle\instantclient_21_1.Oracle Instant Client 19 no longer supports Windows 7. In addition, you need to install [Oracle Instant Client and the corresponding Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows).
 
 2. How to eliminate `godor WARNING: discrepancy between SESSIONTIMEZONE and SYSTIMESTAMP`
 

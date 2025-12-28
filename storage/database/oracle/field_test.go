@@ -105,7 +105,7 @@ func TestField_BindVar(t *testing.T) {
 		want string
 	}{
 		{
-			name: "1",
+			name: "Other",
 			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType(""))),
 			args: args{
 				i: 1,
@@ -113,20 +113,20 @@ func TestField_BindVar(t *testing.T) {
 			want: ":1",
 		},
 		{
-			name: "2",
-			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
-			args: args{
-				i: 1,
-			},
-			want: "to_date(:1,'yyyy-mm-dd hh24:mi:ss')",
-		},
-		{
-			name: "3",
+			name: "TIMESTAMP",
 			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("TIMESTAMP"))),
 			args: args{
 				i: 1,
 			},
 			want: "to_timestamp(:1,'yyyy-mm-dd hh24:mi:ss.ff9')",
+		},
+		{
+			name: "DATE",
+			f:    NewField(database.NewBaseField(0, "f1", newMockColumnType("DATE"))),
+			args: args{
+				i: 1,
+			},
+			want: "to_date(:1,'yyyy-mm-dd hh24:mi:ss')",
 		},
 	}
 	for _, tt := range tests {
