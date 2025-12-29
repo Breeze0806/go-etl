@@ -155,7 +155,7 @@ release.bat
 
 #### Run by docker
 
-To retrieve the `go-etl` project (version v0.2.1), follow these steps:
+To retrieve the `go-etl` project (version v0.2.3), follow these steps:
 
 ```bash
 # Clone the repository
@@ -170,14 +170,14 @@ For Docker image compilation:
 
 ```bash
 # Build Docker image
-docker build . -t go-etl:v0.2.2
+docker build . -t go-etl:v0.2.3
 ```
 
 To start the container:
 
 ```bash
 # Run container in detached mode
-docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
 To access the container shell:

@@ -155,7 +155,7 @@ release.bat
 
 #### 从编译docker镜像开始
 
-使用命令获取`go-etl`项目,版本是`go-etl`的`v0.2.2`,
+使用命令获取`go-etl`项目,版本是`go-etl`的`v0.2.3`,
 ```bash
 git clone https://github.com/Breeze0806/go-etl.git
 cd go-etl
@@ -164,13 +164,13 @@ git describe --abbrev=0 --tags
 
 通过以下命令可以编译成镜像
 ```bash
-docker build . -t go-etl:v0.2.2
+docker build . -t go-etl:v0.2.3
 ```
 
 启动容器
 
 ```bash
-docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.2
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
 进入容器

@@ -3,7 +3,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - "v*.*.*" # Push events to matching v*, i.e. v0.2.19, v0.2.14a
+      - "v*.*.*" # Push events to matching v*, i.e.v0.1.1
 
 jobs:
   # Prevents race conditions by creating the release only once before uploads.
