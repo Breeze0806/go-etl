@@ -152,13 +152,13 @@ func main() {
 		os.RemoveAll(packPath)
 	}
 
-	if err := os.Mkdir(packPath, 0664); err != nil {
+	if err := os.Mkdir(packPath, 0755); err != nil {
 		log.Errorf("mkdir %v fail. err: %v", packPath, err)
 		return
 	}
 
 	resourcePath := filepath.Join(packPath, "resources")
-	if err := os.Mkdir(resourcePath, 0664); err != nil {
+	if err := os.Mkdir(resourcePath, 0755); err != nil {
 		log.Errorf("mkdir %v fail. err: %v", packPath, err)
 		return
 	}
