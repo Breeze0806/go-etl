@@ -21,6 +21,7 @@ create table "source"."type_table"(
     "t_date" date,
     "t_time" time,
     "t_time_tz" time with time zone,
+    "t_uuid" uuid,
     PRIMARY KEY("t_bigserial")
 );
 
@@ -30,14 +31,14 @@ VALUES (1,1,1,NULL
 ,NULL,NULL,NULL
 ,NULL,NULL,NULL
 ,NULL,NULL,NULL
-,NULL,NULL,NULL);
+,NULL,NULL,NULL.NULL);
 INSERT into "source"."type_table" VALUES
 (9223372036854775807,2147483647,32767,true
 ,-32768, -2147483648,-9223372036854775808
 ,12323273.345,2.34567e30,123456789123430.67
 ,123456789123430.67,'中文12as;','中文12as;'
 ,'中文12as;','2021-10-31 16:16:16.123','2021-10-31 16:16:16.123'
-,'2021-10-31','16:16:16.123','16:16:16.123');
+,'2021-10-31','16:16:16.123','16:16:16.123','f47ac10b-58cc-4372-a567-0e02b2c3d479');
 
 create table "destination"."type_table"(
     "t_bigserial" bigserial not NULL,

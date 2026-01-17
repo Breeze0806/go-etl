@@ -31,6 +31,7 @@
                     "parameter": {
                         "username": "user2",
                         "password": "password2",
+                        "writeMode": "upsert",
                         "column": ["*"],
                         "preSql": [],
                         "connection":  {
@@ -40,6 +41,7 @@
                                     "name":"type_table"
                                 }
                          },
+                        "upsertSql":"on conflict (t_bigserial) do update set t_smallserial=excluded.t_smallserial",
                         "batchTimeout": "1s",
                         "batchSize":1000
                     }

@@ -126,6 +126,9 @@ func (b *BaseConfig) GetBaseTable() *database.BaseTable {
 
 // GetWriteMode - Retrieve the write mode.
 func (b *BaseConfig) GetWriteMode() string {
+	if b.WriteMode == "" {
+		return database.WriteModeInsert
+	}
 	return b.WriteMode
 }
 

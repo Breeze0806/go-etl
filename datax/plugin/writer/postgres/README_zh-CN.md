@@ -18,6 +18,10 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 
 - `copy in ...` 与 insert into 行为一致，速度比insert into方式迅速。出于性能考虑，将数据缓冲到内存 中，当 内存累计到预定阈值时，才发起写入请求。
 
+**或者**
+
+- `on conflict ... do update set ...` 允许你在插入数据时处理冲突情况。当插入的数据违反唯一约束（如主键或唯一索引）时，可以选择更新现有记录而不是抛出错误
+
 ## 功能说明
 
 ### 配置样例
@@ -109,7 +113,7 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 
 #### writeMode
 
-- 描述：写入模式，insert代表insert into方式写入数据，copyIn代表copy in方式写入数据。
+- 描述：写入模式，`insert`代表`insert into`方式写入数据，`copyIn`代表`copy in`方式写入数据, `upsert`代表`insert into ... on conflict ... do update set ...` 方式写入数据。
 - 必选：否
 - 默认值: insert
 
@@ -137,6 +141,12 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 - 必选：否
 - 默认值: 无
 
+#### upsertSql
+
+- 描述 主要用于配置`upsert`的`on conflict ... do update set ...` 语句
+- 必选：否
+- 默认值: 无
+
 ### 类型转换
 
 目前PostgresWriter支持大部分Postgres类型，但也存在部分个别类型没有支持的情况，请注意检查你的类型。
@@ -148,7 +158,7 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 | bool         | boolen                                                   |
 | bigInt       | bigint, bigserial, integer, smallint, serial,smallserial |
 | decimal      | double precision, decimal, numeric, real                 |
-| string       | varchar, text                                            |
+| string       | varchar, text, uuid                                     |
 | time         | date, time, timestamp                                    |
 | bytes        | char                                                     |
 
@@ -162,3 +172,6 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 目前仅支持utf8字符集
 
 ## FAQ
+1. upsert 模式支持 postgres 9.6+ 版本，支持哪些 PostgreSQL 和 Greenplum 版本？
+   - PostgreSQL: upsert 功能（`INSERT ... ON CONFLICT ... DO UPDATE SET`）在 PostgreSQL 9.5+ 中引入，但 go-etl 特别要求 PostgreSQL 9.6+ 以获得稳定的 upsert 操作，因为 9.6 版本对此功能进行了改进和完善。
+   - Greenplum: 由于 Greenplum 基于 PostgreSQL 构建，upsert 功能在基于 PostgreSQL 12.12 的 Greenplum 7.x 及更高版本中受支持。

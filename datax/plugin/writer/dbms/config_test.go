@@ -23,6 +23,7 @@ import (
 	"github.com/Breeze0806/go-etl/config"
 	dbmsreader "github.com/Breeze0806/go-etl/datax/plugin/reader/dbms"
 	"github.com/Breeze0806/go-etl/schedule"
+	"github.com/Breeze0806/go-etl/storage/database"
 )
 
 func testBaseConfig(conf *config.JSON) (bc *BaseConfig) {
@@ -324,6 +325,44 @@ func TestNewBaseConfig(t *testing.T) {
 			}
 			if !reflect.DeepEqual(gotC, tt.wantC) {
 				t.Errorf("NewBaseConfig() = %v, want %v", gotC, tt.wantC)
+			}
+		})
+	}
+}
+
+func TestBaseConfig_GetWriteMode(t *testing.T) {
+	type args struct {
+		conf *config.JSON
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "1",
+			args: args{
+				conf: testJSONFromString(`{"writeMode":""}`),
+			},
+			want: database.WriteModeInsert,
+		},
+		{
+			name: "2",
+			args: args{
+				conf: testJSONFromString(`{"writeMode":"copyIn"}`),
+			},
+			want: "copyIn",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b, err := NewBaseConfig(tt.args.conf)
+			if err != nil {
+				t.Fatalf("could not construct receiver type: %v", err)
+			}
+			got := b.GetWriteMode()
+			if got != tt.want {
+				t.Errorf("GetWriteMode() = %v, want %v", got, tt.want)
 			}
 		})
 	}

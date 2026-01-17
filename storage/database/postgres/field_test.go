@@ -441,15 +441,33 @@ func TestScanner_Scan(t *testing.T) {
 		},
 
 		{
-			name: "9",
+			name: "uuid",
 			s: NewScanner(NewField(database.NewBaseField(0,
 				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_uuid]))))),
 			args: args{
-				src: "1",
+				src: []byte("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+			},
+			want: element.NewDefaultColumn(element.NewStringColumnValue("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+				"f1", element.ByteSize("f47ac10b-58cc-4372-a567-0e02b2c3d479")),
+		},
+		{
+			name: "uuidnil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_uuid]))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilStringColumnValue(), "f1", 0),
+		},
+		{
+			name: "uuiderr",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T_uuid]))))),
+			args: args{
+				src: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
 			},
 			wantErr: true,
 		},
-
 		{
 			name: "10nil",
 			s: NewScanner(NewField(database.NewBaseField(0,

@@ -25,6 +25,7 @@ import (
 
 var execModeMap = map[string]string{
 	database.WriteModeInsert: dbms.ExecModeNormal,
+	postgres.WriteModeUpsert: dbms.ExecModeNormal,
 	postgres.WriteModeCopyIn: dbms.ExecModeStmtTx,
 }
 

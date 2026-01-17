@@ -28,6 +28,7 @@ import (
 
 // WriteModeCopyIn represents the copy in write mode.
 const WriteModeCopyIn = "copyIn"
+const WriteModeUpsert = "upsert"
 
 // Table represents a PostgreSQL table.
 type Table struct {
@@ -63,6 +64,8 @@ func (t *Table) ExecParam(mode string, txOpts *sql.TxOptions) (database.Paramete
 	switch mode {
 	case WriteModeCopyIn:
 		return NewCopyInParam(t, txOpts), true
+	case WriteModeUpsert:
+		return NewUpsetParam(t, txOpts), true
 	}
 	return nil, false
 }
@@ -122,4 +125,30 @@ func (ci *CopyInParam) Agrs(records []element.Record) (valuers []any, err error)
 		}
 	}
 	return
+}
+
+// UpsetParam represents the parameters for the copy in operation.
+type UpsetParam struct {
+	*database.InsertParam
+}
+
+// NewUpsetParam creates copy-in parameters based on the table and transaction options (txOps).
+func NewUpsetParam(t database.Table, txOpts *sql.TxOptions) *UpsetParam {
+	return &UpsetParam{
+		InsertParam: database.NewInsertParam(t, txOpts),
+	}
+}
+
+// Query generates a batch of copy in SQL statements for insertion.
+func (ci *UpsetParam) Query(records []element.Record) (query string, err error) {
+	query, err = ci.InsertParam.Query(records)
+	if err != nil {
+		return "", err
+	}
+	var upsertSQL string
+	upsertSQL, err = ci.Table().(*Table).Config().GetString("upsertSql")
+	if err != nil {
+		return "", err
+	}
+	return query + " " + upsertSQL, nil
 }

@@ -157,7 +157,7 @@ Below is a list of type conversions that PostgresReader performs for Postgres ty
 | bool        | boolean                                                   |
 | bigInt      | bigint, bigserial, integer, smallint, serial, smallserial |
 | decimal     | double precision, decimal, numeric, real                 |
-| string      | varchar, text                                            |
+| string      | varchar, text, uuid                                   |
 | time        | date, time, timestamp                                    |
 | bytes       | char                                                     |
 
