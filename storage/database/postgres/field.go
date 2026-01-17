@@ -101,6 +101,8 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		f.goType = database.GoTypeTime
 	case oid.TypeName[oid.T_bpchar]:
 		f.goType = database.GoTypeString
+	case oid.TypeName[oid.T_uuid]:
+		f.goType = database.GoTypeString
 	}
 	return f
 }
@@ -206,6 +208,15 @@ func (s *Scanner) Scan(src any) (err error) {
 			}
 		default:
 			return fmt.Errorf("src is %v(%T), but type is %v", src, src, element.TypeDecimal)
+		}
+	case oid.TypeName[oid.T_uuid]:
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilStringColumnValue()
+		case []byte:
+			cv = element.NewStringColumnValue(string(data))
+		default:
+			return fmt.Errorf("src is %v(%T),but not %v", src, src, element.TypeBytes)
 		}
 	default:
 		return fmt.Errorf("src is %v(%T), but db type is %v", src, src, s.f.Type().DatabaseTypeName())

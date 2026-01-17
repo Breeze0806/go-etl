@@ -17,6 +17,7 @@ package postgres
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"net"
 	"reflect"
 	"testing"
@@ -311,7 +312,7 @@ func TestTable_ExecParam(t *testing.T) {
 		want1 bool
 	}{
 		{
-			name: "1",
+			name: WriteModeCopyIn,
 			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
 			args: args{
 				mode:   WriteModeCopyIn,
@@ -322,14 +323,24 @@ func TestTable_ExecParam(t *testing.T) {
 		},
 
 		{
-			name: "2",
+			name: "INSERT",
 			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
 			args: args{
-				mode:   "xxxx",
+				mode:   "INSERT",
 				txOpts: nil,
 			},
 			want:  nil,
 			want1: false,
+		},
+		{
+			name: WriteModeUpsert,
+			tr:   NewTable(database.NewBaseTable("db", "schema", "table")),
+			args: args{
+				mode:   WriteModeUpsert,
+				txOpts: nil,
+			},
+			want:  NewUpsetParam(NewTable(database.NewBaseTable("db", "schema", "table")), nil),
+			want1: true,
 		},
 	}
 	for _, tt := range tests {
@@ -440,6 +451,97 @@ func TestTable_ShouldOneByOne(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.tr.ShouldOneByOne(tt.args.err); got != tt.want {
 				t.Errorf("Table.ShouldOneByOne() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUpsetParam_Query(t *testing.T) {
+	type input struct {
+		t      *Table
+		fields []database.Field
+		txOpts *sql.TxOptions
+		config map[string]interface{} // 配置upsertSQL
+	}
+
+	type args struct {
+		records []element.Record
+	}
+
+	tests := []struct {
+		name      string
+		input     input
+		args      args
+		wantQuery string
+		wantErr   bool
+	}{
+		{
+			name: "upsert with on conflict",
+			input: input{
+				t: NewTable(database.NewBaseTable("db", "schema", "table")),
+				fields: []database.Field{
+					NewField(database.NewBaseField(0,
+						"id", NewFieldType(newMockColumnType(oid.TypeName[oid.T_int8])))),
+					NewField(database.NewBaseField(0,
+						"name", NewFieldType(newMockColumnType(oid.TypeName[oid.T_varchar])))),
+				},
+				config: map[string]interface{}{
+					"upsertSql": "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name",
+				},
+				txOpts: nil,
+			},
+			args: args{
+				records: nil, // records参数不会影响Query方法的结果
+			},
+			wantQuery: `insert into "schema"."table"("id","name") values ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name`,
+			wantErr:   false,
+		},
+		{
+			name: "no upsertSql config - should error",
+			input: input{
+				t: NewTable(database.NewBaseTable("db", "schema", "table")),
+				fields: []database.Field{
+					NewField(database.NewBaseField(0,
+						"id", NewFieldType(newMockColumnType(oid.TypeName[oid.T_int8])))),
+					NewField(database.NewBaseField(0,
+						"name", NewFieldType(newMockColumnType(oid.TypeName[oid.T_varchar])))),
+				},
+				config: map[string]interface{}{}, // 空配置，没有upsertSQL
+				txOpts: nil,
+			},
+			args: args{
+				records: nil,
+			},
+			wantQuery: "",
+			wantErr:   true, // 因为配置中没有upsertSQL会导致错误
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 设置字段
+			for _, v := range tt.input.fields {
+				tt.input.t.AppendField(v)
+			}
+
+			// 设置配置
+			if tt.input.config != nil {
+				// 将map转换为JSON字符串并设置到表的配置中
+				jsonConfig, err := json.Marshal(tt.input.config)
+				if err != nil {
+					t.Fatalf("Failed to create JSON config: %v", err)
+				}
+				tt.input.t.SetConfig(testJSONFromString(string(jsonConfig)))
+			}
+
+			ci := NewUpsetParam(tt.input.t, tt.input.txOpts)
+			got, gotErr := ci.Query(tt.args.records)
+			if (gotErr != nil) != tt.wantErr {
+				t.Errorf("UpsetParam.Query() error = %v, wantErr %v", gotErr, tt.wantErr)
+				return
+			}
+			if got != tt.wantQuery {
+				t.Errorf("UpsetParam.Query() = %v, want %v", got, tt.wantQuery)
 			}
 		})
 	}

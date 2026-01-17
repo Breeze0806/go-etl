@@ -18,6 +18,10 @@ Based on your configured `writeMode`, it generates either:
 
 - `copy in ...` which behaves similarly to insert into but offers faster performance. For optimal performance, data is buffered in memory and written only when the memory reaches a predefined threshold.
 
+**or**
+
+- `insert into ... on conflict ... do update set ...` which allows you to handle conflicts when inserting data. If the inserted data violates a unique constraint (such as a primary key or unique index), you can choose to update the existing record instead of throwing an error.
+ 
 ## Functionality Description
 
 ### Configuration Example
@@ -108,7 +112,7 @@ Describes the Postgres table information.
 
 #### writeMode
 
-- Description: Write mode. "insert" represents writing data using the insert into method, while "copyIn" represents writing data using the copy in method.
+- Description: Write mode. "insert" represents writing data using the `insert into` method, "copyIn" represents writing data using the `copy in` method, "upsert" represents writing data using the `insert into ... on conflict ... do update set ... `method.
 - Required: No
 - Default: insert
 
@@ -136,6 +140,12 @@ Describes the Postgres table information.
 - Required: No
 - Default: None
 
+#### upsertSql
+
+- Description: Primarily used to configure the `on conflict ... do update set ...` statement in the `upsert` mode.
+- Required: No
+- Default: None
+
 ### Type Conversion
 
 Currently, PostgresWriter supports most Postgres types, but there may be some individual types that are not supported. Please check your types accordingly.
@@ -147,7 +157,7 @@ Below is a conversion table for PostgresWriter with regards to Postgres types:
 | bool | boolean |
 | bigInt | bigint, bigserial, integer, smallint, serial, smallserial |
 | decimal | double precision, decimal, numeric, real |
-| string | varchar, text |
+| string | varchar, text, uuid  |
 | time | date, time, timestamp |
 | bytes | char |
 
@@ -163,4 +173,6 @@ Currently, only the utf8 character set is supported.
 
 ## FAQ
 
-(Frequently Asked Questions section to be added if applicable.)
+1. upsert mode support postgres 9.6+ version， What PostgreSQL and Greenplum versions are supported for upsert mode?
+   - PostgreSQL: The upsert functionality (`INSERT ... ON CONFLICT ... DO UPDATE SET`) is supported in PostgreSQL 9.5+, but go-etl specifically requires PostgreSQL 9.6+ for stable upsert operations due to improvements made in version 9.6.
+   - Greenplum: Since Greenplum is based on PostgreSQL, upsert functionality is supported starting from Greenplum 7.x and later versions that are built on PostgreSQL 12.12.

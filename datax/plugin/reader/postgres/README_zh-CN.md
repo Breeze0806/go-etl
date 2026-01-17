@@ -158,7 +158,7 @@ PostgresReader通过使用dbmsreader中定义的查询流程调用go-etl自定�
 | bool         | boolen                                                   |
 | bigInt       | bigint, bigserial, integer, smallint, serial,smallserial |
 | decimal      | double precision, decimal, numeric, real                 |
-| string       | varchar, text                                            |
+| string       | varchar, text, uuid                                      |
 | time         | date, time, timestamp                                    |
 | bytes        | char                                                     |
 
