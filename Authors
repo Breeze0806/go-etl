@@ -8,13 +8,33 @@ current code of go-etl.
 (Please keep both lists sorted alphabetically.)
 
 Breeze0806
+Shane-XB-Qian
 
 This list can be obtained at any time with the following script:
 
-find src test -type f \
-| while read i; do \
-  git blame -t $i 2>/dev/null; \
-  done \
-| sed 's/^[0-9a-f]\{8\} [^(]*(\([^)]*\) [-+0-9 ]\{14,\}).*/\1/;s/ *$//' \
-| awk '{a[$0]++; t++} END{for(n in a) if (a[n]*100.0/t > 0.5) print n}' \
-| sort
+Linux:
+
+#!/usr/bin/env bash
+
+find . -type f -name "*.go" \
+    | while read i; do
+        git blame -t "$i" 2>/dev/null
+    done \
+    | sed 's/^[0-9a-f]\{8\} [^(]*(\([^)]*\) [-+0-9 ]\{14,\}).*/\1/;s/ *$//' \
+    | grep -v "^breeze$" \
+    | awk '{a[$0]++; t++} END{for(n in a) if (a[n]*100.0/t > 0.5) print n}' \
+    | sort
+
+
+Windows
+
+@echo off
+git blame --line-porcelain . 2>nul | findstr "author " | findstr /v "^author-mail" | findstr /v "^author-time" | findstr /v "^author-tz" | findstr /r "author .*" > "%temp%\authors_raw.txt"
+for /f "tokens=2 delims= " %%a in ('type "%temp%\authors_raw.txt" ^| sort ^| uniq -c ^| sort /r') do (
+    set "count=%%a"
+    set "author=%%b %%c %%d %%e"
+    if !count! geq 5 (
+        echo !author!: !count!
+    )
+)
+del "%temp%\authors_raw.txt" 2>nul

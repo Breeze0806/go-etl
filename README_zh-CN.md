@@ -40,17 +40,15 @@ go-etl将提供的etl能力如下：
 
 ### 快速开始
 
-#### 从测试性能开始
+#### 3分钟入门
 
-如果你想直接想获取性能相关的信息，可以直接参考[prometheus监控部署手册](docker/README_zh-CN.md)去部署,来获取相关的性能参数，甚至性能图。
-
-#### 从获取二进制程序开始
+##### 从二进制程序开始
 
 可以在[最新发布版本](https://github.com/Breeze0806/go-etl/releases)下载到windows或者linux操作系统的64位版本二进制程序。
 
 使用方式参考[go-etl数据同步用户手册](README_USER_zh-CN.md)开始数据同步。
 
-#### 从获取docker镜像开始
+##### 从docker镜像开始
 
 获取docker镜像
 
@@ -70,6 +68,10 @@ docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.
 docker exec -it etl bash
 ```
 
+#### 从测试性能开始
+
+如果你想直接想获取性能相关的信息，可以直接参考[prometheus监控部署手册](docker/README_zh-CN.md)去部署,来获取相关的性能参数，甚至性能图。
+
 #### 从源代码开始
 
 ##### linux
@@ -77,6 +79,7 @@ docker exec -it etl bash
 ###### 编译依赖
 
 1. golang 1.20以及以上版本
+2. gcc 4.8以及以上版本
 
 ###### 构建
 
@@ -131,9 +134,8 @@ release.bat
 ```
 
 ##### 编译产物
-
 ```
-    +---go-etl---|---plugin---+---reader--mysql---|--README_zh-CN.md
+    +---datax---|---plugin---+---reader--mysql---|--README_zh-CN.md
     |                        | .......
     |                        |
     |                        |---writer--mysql---|--README_zh-CN.md
@@ -145,15 +147,13 @@ release.bat
     |               | .......
     |
     +---README_USER_zh-CN.md
-
 ```
-
-+ go-etl/plugin下是各插件的文档
++ datax/plugin下是各插件的文档
 + bin下的是数据同步程序go-etl
 + exampales下是各场景的数据同步的配置文档
 + README_USER_zh-CN.md是中文用户使用手册
 
-#### 从编译docker镜像开始
+#### 从编译镜像开始
 
 使用命令获取`go-etl`项目,版本是`go-etl`的`v0.2.3`,
 ```bash
@@ -248,6 +248,24 @@ go generate ./...
 ```bash
 go run tools/license/main.go
 ```
+
+## 贡献
+
+欢迎贡献！请阅读[贡献指南](CONTRIBUTING_zh-CN.md)了解如何为本项目做出贡献。
+
+### 贡献方式
+
+- 报告 Bug 和问题
+- 提出新功能建议
+- 提交 Pull Request
+- 完善文档
+- 分享使用案例
+
+### 获取帮助
+
+- 查看[项目文档](README_zh-CN.md)
+- 查看[用户手册](README_USER_zh-CN.md)
+- 提交 GitHub Issue 讨论
 
 [lang-img]:https://img.shields.io/badge/Language-Go-blue.svg
 [lang]:https://golang.org/

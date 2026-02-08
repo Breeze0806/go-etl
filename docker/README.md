@@ -121,24 +121,38 @@ datax_channel_total_byte
 rate(datax_channel_total_byte{job="etl"}[30s])
 ```
 
-### 3.3 Configure Grafana Dashboard
+### 3.3 Import Grafana Configuration
 
-#### 3.3.1 Login Grafana
+The following are detailed steps for adding a Prometheus data source in Grafana:
 
-Open browser: `http://127.0.0.1:3000` (default credentials: `admin/admin`).
+#### 3.3.1 Login to Grafana
 
-#### 3.3.2 Configure Data Source
+Open your browser and access the Grafana address (default `http://127.0.0.1:3000`), and log in with the administrator account (default username/password: `admin/admin`).
 
-1. Click **⚙️ Configuration (gear icon)** → **Data Sources**.
-2. Click **Add data source** → Search for **Prometheus**.
-3. Configure:
-   - **HTTP → URL**: `http://etl:9090` (replace with your IP)
-4. Click **Save & Test**.
+#### 3.3.2 Go to Data Source Configuration Page
 
-#### 3.3.3 Import Dashboard
+1. Click on **⚙️ Configuration (gear icon)** in the left sidebar.
+2. Select **Data Sources**.
 
-1. Click **Dashboards → New → Import**.
-2. Upload `go-etl-grafana.json`.
-3. Select **Prometheus** as data source.
+#### 3.3.3 Add Prometheus Data Source
+
+1. Click **Add data source**.
+2. Enter `Prometheus` in the search box and select the **Prometheus** data source type.
+
+#### 3.3.4 Configure Prometheus Connection
+
+- **HTTP Settings**:
+  - **URL**: Enter the Prometheus address
+    - For local deployment: `http://etl:9090`
+
+#### 3.3.5 Save and Test
+
+1. Click **Save & test** at the bottom.
+2. The message **Data source is working** indicates success.
+
+#### 3.3.6 Verify Data Source
+
+1. First click **Dashboards**, then click **New**, and then click **Import**, select `go-etl-grafana.json` to import.
+2. Click **datasource** and select `Prometheus`.
 
 This completes the monitoring setup for go-etl with Prometheus and Grafana.
