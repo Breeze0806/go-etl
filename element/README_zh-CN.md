@@ -21,7 +21,7 @@ type Record interface {
 
 ## 数据类型转化
 
-go-etl支持六种内部数据类型：
+go-etl支持七种内部数据类型：
 
 - `bigInt`：定点数(int64、int32、int16、int8、BigInt等)。
 - `decimal`：浮点数(float32、float64、BigDecimal(无限精度)等)。
@@ -29,8 +29,9 @@ go-etl支持六种内部数据类型：
 - `time`：日期类型。
 - `bool`：布尔值。
 - `bytes`：二进制，可以存放诸如MP3等非结构化数据。
+- `json`：JSON类型，用于存储和处理JSON数据。
 
-对应地，有`TimeColumnValue`、`BigIntColumnValue`、`DecimalColumnValue`、`BytesColumnValue`、`StringColumnValue`和`BoolColumnValue`六种`ColumnValue`的实现。
+对应地，有`TimeColumnValue`、`BigIntColumnValue`、`DecimalColumnValue`、`BytesColumnValue`、`StringColumnValue`、`BoolColumnValue`和`JsonColumnValue`七种`ColumnValue`的实现。
 
 这些`ColumnValue`提供一系列以`as`开头的数据类型转换转换方法。
 
@@ -47,6 +48,7 @@ type ColumnValue interface {
 	AsString() (string, error)           //转化为字符串
 	AsBytes() ([]byte, error)            //转化为字节流
 	AsTime() (time.Time, error)          // 转化为时间
+	AsJSON() (JSON, error)               //转化为JSON
 }
 ```
 
@@ -79,6 +81,7 @@ DataX的内部类型在实现上会选用不同的golang类型：
 | bytes    | []byte          |                                   |
 | string   | string          |                                   |
 | bool     | bool            |                                   |
+| json     | encoding.JSON   | 包装来自github.com/Breeze0806/go/encoding包的encoding.JSON |
 
 
 + 目前的实现方式
@@ -91,8 +94,11 @@ DataX的内部类型在实现上会选用不同的golang类型：
 | bytes    | []byte          |                                   |
 | string   | string          |                                   |
 | bool     | bool            |                                   |
+| json     | DefaultJSON     | 包装encoding.JSON以实现element.JSON接口 |
 
 这两种实现方式之间的差距主要在数值方面做出了调整，通过以下接口进行了整合：
+
+### Number接口
 ```golang
 //NumberConverter 数字转化器
 type NumberConverter interface {
@@ -158,15 +164,42 @@ BenchmarkDecimal_BigIntStr_String-32                            1000000000      
 ```
 另外，如果遇到问题可以通过修改number.go中_DefaultNumberConverter的取值回到老的实现方式
 
+### JSON接口
+
+```go
+// JSON JSON接口
+type JSON interface {
+	ToString() string
+	ToBytes() []byte
+	Clone() JSON
+}
+// JSONConverter JSON转换器接口
+type JSONConverter interface {
+	ConvertFromString(s string) (json JSON, err error)
+	ConvertFromBytes(b []byte) (json JSON, err error)
+}
+```
+
+`JSON`接口提供将JSON值转换为字符串和字节的方法，以及克隆JSON值的功能。
+
+`JSONConverter`提供将字符串和字节转换为JSON值的功能。
+
+JSON类型实现包装了`github.com/Breeze0806/go/encoding`包，以提供强大的JSON解析和操作能力。
+
+### 类型转换关系表
+
 类型之间相互转换的关系如下：
 
-| from\to | time                                             | bigInt                               | decimal                       | bytes                                          | string                                         | bool                                                         |
-| ------- | ------------------------------------------------ | ------------------------------------ | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------ |
-| time    | -                                                | 不支持                               | 不支持                        | 支持指定时间格式的转化（一般支持默认时间格式） | 支持指定时间格式的转化（一般支持默认时间格式） | 不支持                                                       |
-| bigInt  | 不支持                                           | -                                    | 支持                          | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             |
-| decimal | 不支持                                           | 取整，直接截取整数部分               | -                             | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             |
-| bytes   | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | -                                              | 支持                                           | 支持"1"," t", "T", "TRUE", "true", "True"转化为true，"0", "f"," F", "FALSE", "false", "False"转化为false |
-| string  | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | 支持                                           | -                                              | 支持"1", "t", "T", "TRUE", "true", "True"转化为"true"，"0", "f", "F", "FALSE", "false", "False"转化为false |
-| bool    | 不支持                                           | ture转化为1，false转化为0            | ture转化为1.0，false转化为0.0 | true转化为"true"，false转化为"false"           | true转化为"true"，false转化为"false"           | -                                                            |
+| from\to | time                                             | bigInt                               | decimal                       | bytes                                          | string                                         | bool                                                         | json                                                           |
+| ------- | ------------------------------------------------ | ------------------------------------ | ----------------------------- | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| time    | -                                                | 不支持                               | 不支持                        | 支持指定时间格式的转化（一般支持默认时间格式） | 支持指定时间格式的转化（一般支持默认时间格式） | 不支持                                                       | 不支持                                                       |
+| bigInt  | 不支持                                           | -                                    | 支持                          | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             | 不支持                                                       |
+| decimal | 不支持                                           | 取整，直接截取整数部分               | -                             | 支持                                           | 支持                                           | 支持非0的转化成ture,0转化成false                             | 不支持                                                       |
+| bytes   | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | -                                              | 支持                                           | 支持"1"," t", "T", "TRUE", "true", "True"转化为true，"0", "f"," F", "FALSE", "false", "False"转化为false | 支持（解析为JSON）                                     |
+| string  | 仅支持指定时间格式的转化（一般支持默认时间格式） | 实数型以及科学性计数法字符串会被取整 | 实数型以及科学性计数法字符串  | 支持                                           | -                                              | 支持"1", "t", "T", "TRUE", "true", "True"转化为"true"，"0", "f", "F", "FALSE", "false", "False"转化为"false" | 支持（解析为JSON）                                     |
+| bool    | 不支持                                           | ture转化为1，false转化为0            | ture转化为1.0，false转化为0.0 | true转化为"true"，false转化为"false"           | true转化为"true"，false转化为"false"           | -                                                            | 不支持                                                       |
+| json    | 不支持                                           | 不支持                               | 不支持                        | 支持（输出为JSON字节）                               | 支持（输出为JSON字符串）                               | 不支持                                                   | -                                                            |
 
-**注：默认时间格式为2006-01-02 15:04:05.999999999Z07:00**
+**注：默认时间格式为`2006-01-02 15:04:05.999999999Z07:00`**
+
+此表提供了time、bigInt、decimal、bytes、string、bool和json不同格式之间数据类型转换的概述，包括支持哪些转换、不支持哪些转换，以及与每个转换相关的特定行为或限制。

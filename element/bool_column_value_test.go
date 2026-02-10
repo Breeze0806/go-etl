@@ -397,3 +397,35 @@ func TestBoolColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestBoolColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		b       *BoolColumnValue
+		want    JSON
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			b:       NewBoolColumnValue(true).(*BoolColumnValue),
+			wantErr: true,
+		},
+		{
+			name:    "2",
+			b:       NewBoolColumnValue(false).(*BoolColumnValue),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BoolColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BoolColumnValue.AsJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

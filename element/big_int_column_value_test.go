@@ -769,3 +769,40 @@ func TestNewBigIntColumnValueFromUint64(t *testing.T) {
 		})
 	}
 }
+
+func TestBigIntColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		b       *BigIntColumnValue
+		want    JSON
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			b:       NewBigIntColumnValueFromInt64(123456).(*BigIntColumnValue),
+			wantErr: true,
+		},
+		{
+			name:    "2",
+			b:       NewBigIntColumnValueFromInt64(0).(*BigIntColumnValue),
+			wantErr: true,
+		},
+		{
+			name:    "3",
+			b:       NewBigIntColumnValueFromInt64(-999999).(*BigIntColumnValue),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BigIntColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("BigIntColumnValue.AsJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

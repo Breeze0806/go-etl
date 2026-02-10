@@ -132,6 +132,11 @@ func (b *BytesColumnValue) AsTime() (t time.Time, err error) {
 	return
 }
 
+// AsJSON - Convert to JSON
+func (b *BytesColumnValue) AsJSON() (JSON, error) {
+	return _DefaultJSONConverter.ConvertFromBytes(b.val)
+}
+
 func (b *BytesColumnValue) String() string {
 	return string(b.val)
 }
