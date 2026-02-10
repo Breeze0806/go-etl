@@ -1,0 +1,17 @@
+{
+	"name": "parquetreader",
+	"parameter": {
+      "path":["json_schema.parquet"],
+      "columns": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "name"
+        },
+        {
+          "name": "age"
+        }
+      ]
+	}
+}
