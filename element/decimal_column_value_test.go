@@ -761,3 +761,35 @@ func TestNewDecimalColumnValueFromFloat32(t *testing.T) {
 		})
 	}
 }
+
+func TestDecimalColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		d       *DecimalColumnValue
+		want    JSON
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			d:       NewDecimalColumnValueFromFloat(123.456).(*DecimalColumnValue),
+			wantErr: true,
+		},
+		{
+			name:    "2",
+			d:       NewDecimalColumnValue(_DecimalZero).(*DecimalColumnValue),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.d.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DecimalColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DecimalColumnValue.AsJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

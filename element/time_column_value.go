@@ -107,6 +107,11 @@ func (t *TimeColumnValue) AsTime() (time.Time, error) {
 	return t.val, nil
 }
 
+// AsJSON Converts to a JSON string
+func (t *TimeColumnValue) AsJSON() (JSON, error) {
+	return nil, NewTransformErrorFormColumnTypes(t.Type(), TypeJSON, fmt.Errorf(" val: %v", t.String()))
+}
+
 func (t *TimeColumnValue) String() string {
 	return t.val.Format(DefaultTimeFormat)
 }
