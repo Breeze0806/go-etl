@@ -41,18 +41,15 @@ This data synchronization tool has the synchronization capability for the follow
 
 ### Getting Started
 
-#### Run by testing performance
+#### Quick Start (3 Minutes)
 
-If you want to directly obtain performance-related information, you can deploy according to the [Prometheus Monitoring Deployment Manual](docker/README.md) to acquire relevant performance metrics and even performance visualization charts.
+##### Start from Binary Program
 
-#### Run by obtaining the binary program
+You can download the 64-bit binary executable for Windows or Linux operating systems from the [latest releases](https://github.com/Breeze0806/go-etl/releases).
 
-You can download the 64-bit binary executable for Windows or Linux operating systems from the 
-[latest releases](https://github.com/Breeze0806/go-etl/releases)
+Start data synchronization with the [go-etl Data Synchronization User Manual](README_USER.md).
 
-Start data synchronization with the [go-etl Data Synchronization User Manual](README_USER.md)
-
-#### Run by obtaining the Docker image
+##### Start from Docker Image
 
 **Pull Docker Image**
 ```bash
@@ -64,21 +61,30 @@ docker pull go-etl:v0.2.3
 docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
-**Execute Command in Container**
+**Enter Container**
 ```bash
 docker exec -it etl bash
 ```
 
-#### Run by source code
+**Execute Sync in Container**
+```bash
+docker exec -it etl release/bin/go-etl -c data/config.json
+```
+
+#### Start from Performance Testing
+
+If you want to directly obtain performance-related information, you can deploy according to the [Prometheus Monitoring Deployment Manual](docker/README.md) to acquire relevant performance metrics and even performance visualization charts.
+
+#### Start from Source Code
 
 ##### Linux
 
-###### Compilation dependencies
+###### Compilation Dependencies
 
 1. golang 1.20 and later versions
 2. gcc 4.8 and later versions
 
-###### build
+###### Build
 
 ```bash
 cd ${GO_PATH}/src
@@ -88,28 +94,28 @@ make dependencies
 make release
 ```
 
-###### Removing DB2 dependency
+###### Removing DB2 Dependency
 
-Before compilation, it is necessary to use `export IGNORE_PACKAGES=db2`
+Before compilation, it is necessary to use `export IGNORE_PACKAGES=db2` 
 
 ```bash
-cd ${GO_PATH}/src
-git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
-cd github.com/Breeze0806/go-etl
 export IGNORE_PACKAGES=db2
+cd ${GO_PATH}/src
+git clone https://github.com/Breeze0806/go-etl.git "github.com/Breeze0806/go-etl"
+cd github.com/Breeze0806/go-etl
 make dependencies
 make release
 ```
 
-##### windows
+##### Windows
 
-###### Compilation Dependencies:
+###### Compilation Dependencies
 
-1. Mingw-w64 with gcc 7.2.0 or higher is required for compilation.
-2. Golang version 1.20 or above is necessary.
+1. A MinGW-w64 environment with GCC 7.2.0 or higher is required for compilation.
+2. golang 1.20 and later versions
 3. The minimum compilation environment is Windows 7.
 
-###### build
+###### Build
 
 ```bash
 cd ${GO_PATH}\src
@@ -118,7 +124,7 @@ cd github.com/Breeze0806/go-etl
 release.bat
 ```
 
-###### Removing DB2 dependency
+###### Removing DB2 Dependency
 
 Before compilation, it is necessary to use `set IGNORE_PACKAGES=db2`
 
@@ -130,10 +136,10 @@ set IGNORE_PACKAGES=db2
 release.bat
 ```
 
-#### Compilation output
+##### Compilation Output
 
 ```
-    +---go-etl---|---plugin---+---reader--mysql---|--README.md
+    +---datax---|---plugin---+---reader--mysql---|--README.md
     |                        | .......
     |                        |
     |                        |---writer--mysql---|--README.md
@@ -145,115 +151,162 @@ release.bat
     |               | .......
     |
     +---README_USER.md
-
 ```
 
 + The datax/plugin directory contains the documentation for various plugins.
 + The bin directory houses the data synchronization program, named go-etl.
 + The examples directory includes configuration files for data synchronization in different scenarios.
-+ README_USER is the user manual or guide in English.
++ README_USER.md is the user manual or guide in English.
 
-#### Run by docker
+#### Start from Compiled Docker Image
 
-To retrieve the `go-etl` project (version v0.2.3), follow these steps:
+Use the following commands to get the `go-etl` project (version `v0.2.3`):
 
 ```bash
-# Clone the repository
 git clone https://github.com/Breeze0806/go-etl.git
 cd go-etl
-
-# Verify the tag version
 git describe --abbrev=0 --tags
 ```
 
-For Docker image compilation:
+Build the Docker image with the following command:
 
 ```bash
-# Build Docker image
 docker build . -t go-etl:v0.2.3
 ```
 
-To start the container:
+Start the container:
 
 ```bash
-# Run container in detached mode
 docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data go-etl:v0.2.3
 ```
 
-To access the container shell:
+Enter the container:
 
 ```bash
-# Enter the running container
 docker exec -it etl bash
 ```
 
-### Data Synchronization Development Handbook
+Note that currently, sqlite3, DB2, and Oracle are not directly supported and require downloading the corresponding ODBC and configuring environment variables.
+
+#### Batch Sync
+
+Use a wizard CSV file to batch sync multiple tables.
+
+**1. Create data source config `config.json`** - same as single sync
+
+**2. Create wizard file `wizard.csv`** - each row defines a source-target table pair:
+```csv
+source_table,target_table
+table1,table1_copy
+table2,table2_copy
+```
+
+**3. Generate batch configs and run script:**
+
+**Linux:**
+```bash
+./go-etl -c config.json -w wizard.csv; ./run.sh
+```
+
+**Windows:**
+```powershell
+.\go-etl.exe -c config.json -w wizard.csv; run.bat
+```
+
+**Docker:**
+```bash
+docker exec -it etl release/bin/go-etl -c data/config.json -w data/wizard.csv; docker exec -it etl bash run.sh
+```
+
+### Data Synchronization Development Guide
 
 Refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md) to assist with your development.
 
 ## Module Introduction
+
 ### datax
 
-This package will provide an interface similar to Alibaba's [DataX](https://github.com/alibaba/DataX) to implement an offline data synchronization framework in the Go programming language. The framework will enable users to perform data synchronization tasks efficiently and reliably, leveraging the power and flexibility of the Go language. It may include features such as pluggable data sources and destinations, support for various data formats, and robust error handling mechanisms.
+This package provides an interface similar to Alibaba's [DataX](https://github.com/alibaba/DataX) to implement an offline data synchronization framework in Go.
 
 ```
-readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(riter)  
+readerPlugin(reader)—> Framework(Exchanger+Transformer) ->writerPlugin(writer)  
 ```
 
-The system is built using a Framework + plugin architecture. In this design, the reading and writing of data sources are abstracted into Reader/Writer plugins, which are integrated into the overall synchronization framework.
+Built using a Framework + plugin architecture. Data source reading and writing are abstracted into Reader/Writer plugins and integrated into the overall synchronization framework.
 
-+ Reader: The Reader module is responsible for data acquisition. It collects data from the source and sends it to the Framework.
-+ Writer: The Writer module handles data writing. It continuously retrieves data from the Framework and writes it to the destination.
-+ Framework: The Framework serves as the connection between the Reader and Writer. It functions as a data transmission channel, handling core technical aspects such as buffering, flow control, concurrency, and data transformation.
-This architecture allows for flexibility and scalability, as new data sources and destinations can be easily added by developing new Reader and Writer plugins, respectively.
++ Reader: The Reader is the data acquisition module, responsible for collecting data from the data source and sending it to the Framework.
++ Writer: The Writer is the data writing module, responsible for continuously fetching data from the Framework and writing it to the destination.
++ Framework: The Framework connects the reader and writer, serving as a data transmission channel, and handles core technical aspects such as buffering, flow control, concurrency, and data transformation.
 
-For detailed information, please refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md). This documentation provides guidance on how to use the go-etl framework for data synchronization, including information on its architecture, plugin system, and how to develop custom Reader and Writer plugins.
+For detailed information, please refer to the [go-etl Data Synchronization Developer Documentation](datax/README.md).
 
 ### element
-Currently, the data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions](element/README.md). This documentation provides details on the supported data types, their usage, and how to perform conversions between different types within the go-etl framework.
+
+The data types and data type conversions in go-etl have been implemented. For more information, please refer to the [go-etl Data Type Descriptions](element/README.md).
 
 ### storage
 
 #### database
 
-We have now implemented basic integration for databases, abstracting the database dialect (Dialect) interface. For specific implementation details, please refer to the [Database Storage Developer Guide](storage/database/README.md). This guide provides information on how to work with different database dialects within the framework, allowing for flexible and extensible database support.
+Basic integration for databases has been implemented, abstracting the database dialect (Dialect) interface. For specific implementation details, please refer to the [Database Storage Developer Guide](storage/database/README.md).
 
-#### Stream
+#### stream
 
 Primarily used for parsing byte streams, such as files, message queues, Elasticsearch, etc. The byte stream format can be CSV, JSON, XML, etc.
 
-##### File
+##### file
 
 Focused on file parsing, including CSV, Excel, etc. It abstracts the InputStream and OutputStream interfaces. For specific implementation details, refer to the [Developer Guide for Tabular File Storage](storage/stream/file/README.md).
 
-### Tools
+### tools
 
 A collection of utilities for compilation, adding licenses, etc.
 
-#### DataX
+#### datax
 
-##### Build
+##### build
 
 ```bash
 go generate ./...
 ```
-This is the build command used to register developer-created reader and writer plugins into the program's code. Additionally, this command inserts compilation information, such as software version, Git version, Go compiler version, and compilation time, into the command line tool.
 
-##### Plugin
+Release command used to register developer-created reader and writer plugins into the program's code.
 
-A plugin template creation tool for data sources. It's used to create a new reader or writer template, in conjunction with the build command, to reduce the developer's workload.
+Additionally, this command inserts compilation information such as software version, Git version, Go compiler version, and compilation time into the command line.
 
-##### Release
+##### plugin
+
+A plugin template creation tool for data sources. It's used to create a new reader or writer template, in conjunction with the release command, to reduce the developer's workload.
+
+##### release
 
 A packaging tool for the data synchronization program and user documentation.
 
-#### License
+#### license
 
 Automatically adds a license to Go code files and formats the code using `gofmt -s -w`.
 
 ```bash
 go run tools/license/main.go
 ```
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to contribute to this project.
+
+### Ways to Contribute
+
+- Report bugs and issues
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+- Share your use cases
+
+### Getting Help
+
+- Check the [Documentation](README.md)
+- Check the [User Manual](README_USER.md)
+- Submit a GitHub Issue for discussion
 
 [lang-img]:https://img.shields.io/badge/Language-Go-blue.svg
 [lang]:https://golang.org/

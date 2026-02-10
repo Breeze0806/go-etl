@@ -8,13 +8,8 @@ current code of go-etl.
 (Please keep both lists sorted alphabetically.)
 
 Breeze0806
+RogueCultivators
 
 This list can be obtained at any time with the following script:
 
-find src test -type f \
-| while read i; do \
-  git blame -t $i 2>/dev/null; \
-  done \
-| sed 's/^[0-9a-f]\{8\} [^(]*(\([^)]*\) [-+0-9 ]\{14,\}).*/\1/;s/ *$//' \
-| awk '{a[$0]++; t++} END{for(n in a) if (a[n]*100.0/t > 0.5) print n}' \
-| sort
+sh authors.sh

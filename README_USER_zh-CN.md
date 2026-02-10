@@ -6,21 +6,42 @@ go-etl是一个数据同步工具，目前支持MySQL,postgres,oracle,SQL SERVER
 
 参考[项目文档](README_zh-CN.md)，从获取二进制程序开始，从源代码开始或者从编译docker镜像开始。
 
+你可以从Docker Hub获取go-etl Docker镜像：
+
+```bash
+docker pull breeze0806/go-etl:latest
+```
+
 ## 2 如何开始
 
-获取go-etl二进制程序或docker镜像，在linux下如Makefile所示`export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib`，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行。
-
-另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖，也可以在**QQ群185188648**群共享中中下载到。
+获取go-etl二进制程序或docker镜像，在linux下如Makefile所示`export LD_LIBRARY_PATH=/home/ibmdb/clidriver/lib`，这个库从[ibm db2](https://public.dhe.ibm.com/ibmdl/export/pub/software/data/db2/drivers/odbc_cli)下载，否则无法运行，另外oracle需要下载[oracle](https://www.oracle.com/database/technologies/instant-client/downloads.html)下载到对应64位版本odbc依赖。这些也可以在**QQ群185188648**群共享中下载到。
 
 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
 Oracle Instant Client 19不再支持windows7，另外，需要安装[Oracle Instant Client以及对应的Visual Studio redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows)
 
+- 对于Docker使用，运行容器：
+```bash
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data breeze0806/go-etl:latest
+```
+
 ### 2.1 单任务数据同步
 调用go-etl十分简单，只要直接调用它即可
 
+**Windows**
+```cmd
+.\go-etl.exe -c config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c config.json
 ```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/config.json
+```
+
 `-c` 指定数据源配置文件
 
 当返回值是`0`，并且在最后显示`run success`,表示执行成功
@@ -111,7 +132,6 @@ datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                      
     }
 }
 ```
-
 `reader`和`writer`的配置如下：
 
 | 类型         | 数据源             | Reader（读） | Writer(写) | 文档                                                         |
@@ -132,112 +152,257 @@ datax_channel_record(job_id=1,task_group_id=0,task_id=1) 0                      
 ##### 2.1.2.1 使用mysql同步
 
 - 使用cmd/datax/examples/mysql/init.sql初始化数据库**用于测试**
-- 开启同步mysql命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\mysql\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/mysql/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/mysql/config.json
 ```
 
 ##### 2.1.2.2 使用postgres同步
 
 - 使用cmd/datax/examples/postgres/init.sql初始化数据库**用于测试**
-- 开启同步postgres命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\postgres\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/postgres/config.json
 ```
 
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgres/config.json
+```
+
 ##### 2.1.2.3 使用db2同步
 
-- 注意使用前请下载相应的db2的odbc库，如linux的make dependencies和release.bat
-- 注意在linux下如Makefile所示export LD_LIBRARY_PATH=${DB2HOME}/lib
-- 注意在windows下如release.bat所示set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin
 - 使用cmd/datax/examples/db2/init.sql初始化数据库**用于测试**
-- 开启同步命令
 
+**Windows**
+- 下载相应的db2 ODBC库
+```cmd
+git clone -b v0.4.5 --depth=1 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
+cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
+```
+- 执行命令：
+```cmd
+set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin && .\go-etl.exe -c examples\db2\config.json
+```
+
+**Linux**
+- 下载相应的db2 ODBC库，如linux的make dependencies和release.bat
+- 执行命令：
 ```bash
-./go-etl -c examples/db2/config.json
+export LD_LIBRARY_PATH=${DB2HOME}/lib && ./go-etl -c examples/db2/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/db2/config.json
 ```
 
 ##### 2.1.2.4 使用oracle同步
 
-- 注意使用前请下载相应的[Oracle Instant Client]( https://www.oracle.com/database/technologies/instant-client/downloads.html)，例如，连接oracle 11g最好下载12.x版本。
-- 注意在linux下如export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH，另需要安装libaio
-- 注意在windows下如set path=%path%;%GOPATH%\oracle\instantclient_21_1，
-Oracle Instant Client 19不再支持windows7
 - 使用cmd/datax/examples/oracle/init.sql初始化数据库**用于测试**
-- 开启同步命令
 
+**Windows**
+- 下载相应的[Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html)。例如，连接Oracle 11g最好下载12.x版本。
+- Oracle Instant Client 19不再支持Windows 7。此外，你需要安装[Oracle Instant Client和对应的Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows)。
+- 执行命令：
+```cmd
+set path=%path%;%GOPATH%\oracle\instantclient_21_1 && .\go-etl.exe -c examples\oracle\config.json
+```
+
+**Linux**
+- 下载相应的[Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html)。例如，连接Oracle 11g最好下载12.x版本。另外需要安装libaio。
+- 执行命令：
 ```bash
-./go-etl -c examples/oracle/config.json
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH && ./go-etl -c examples/oracle/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/oracle/config.json
 ```
 
 ##### 2.1.2.5 使用sql server同步
 
 - 使用cmd/datax/examples/sqlserver/init.sql初始化数据库**用于测试**
-- 开启同步sql server命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\sqlserver\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/sqlserver/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/sqlserver/config.json
 ```
 
 ##### 2.1.2.6 使用csv同步到postgres
 
 - 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**
-- 开启同步命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\csvpostgres\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/csvpostgres/config.json
 ```
 
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/csvpostgres/config.json
+```
+
 ##### 2.1.2.7 使用xlsx同步到postgres
 
-- 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**
-- 开启同步命令
+- 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**（注：路径可能需要修正，因为与其他示例不一致）
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\xlsxpostgres\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/xlsxpostgres/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/xlsxpostgres/config.json
 ```
 
 ##### 2.1.2.8 使用postgres同步csv
 
 - 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**
-- 开启同步命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\postgrescsv\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/postgrescsv/config.json
 ```
 
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgrescsv/config.json
+```
+
 ##### 2.1.2.9 使用postgres同步xlsx
 
-- 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**
-- 开启同步命令
+- 使用cmd/datax/examples/csvpostgres/init.sql初始化数据库**用于测试**（注：初始化脚本可能不是专门针对XLSX同步的）
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\postgresxlsx\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/postgresxlsx/config.json
 ```
 
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgresxlsx/config.json
+```
+
 ##### 2.1.2.10 与 sqlite3 同步
 
-* 在使用前，请下载相应的[SQLite驱动](https://www.sqlite.org/download.html). 
-* 注意：在 Windows 系统上，设置 `path=%path%;/opt/sqlite/sqlite3.dll`。
+* 在使用前，
 * 使用 `cmd/datax/examples/sqlite3/init.sql` **用于测试目的** 初始化数据库
-* 在 `examples/sqlite3/config.json` 文件中，`url` 表示 sqlite3 数据库文件的路径。在 Windows 系统上，它可以是 `E:\sqlite3\test.db`，而在 Linux 系统上，它可以是 `/sqlite3/test.db`。
-* 启动 sqlite3 同步命令：
+* 在 `examples/sqlite3/config.json` 文件中，`url` 表示 sqlite3 数据库文件的路径。在 Windows 系统上，它可以是 `E:\sqlite3\test.db`，而在 Linux 系统上，它可以是 `/sqlite3/test.db`
 
+**Windows**
+- 从[SQLite下载页面](https://www.sqlite.org/download.html)下载相应的SQLite。
+- 执行命令：
+```cmd
+set path=%path%;D:\sqlite && .\go-etl.exe -c examples\sqlite3\config.json
+```
+
+**Linux**
+- 从[SQLite下载页面](https://www.sqlite.org/download.html)下载相应的SQLite。
+- 执行命令：
 ```bash
-./go-etl -c examples/sqlite3/config.json
+export  path=$path;/usr/local/sqlite && ./go-etl -c examples/sqlite3/config.json
+```
+
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/sqlite3/config.json
 ```
 
 ##### 2.1.2.11 与 达梦数据库 同步
 
 * 使用 `cmd/datax/examples/dm/init.sql` 初始化数据库**用于测试**
-* 开启同步达梦数据库命令
 
+**Windows**
+- 执行命令：
+```cmd
+.\go-etl.exe -c examples\dm\config.json
+```
+
+**Linux**
+- 执行命令：
 ```bash
 ./go-etl -c examples/dm/config.json
 ```
 
+**Docker**
+- 执行命令：
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/dm/config.json
+```
 
 ##### 2.1.2.12 其他同步例子
 
@@ -292,18 +457,43 @@ ignoreOneByOneError 是否忽略一个个重试错误
 
 ##### 2.1.4.1 测试方式
 - 使用程序生成mysql数据产生split.csv
+
+**Windows**
+```cmd
+cd cmd/datax/examples/split
+go run main.go
+```
+
+**Linux**
 ```bash
 cd cmd/datax/examples/split
 go run main.go
 ```
+
 - 使用init.sql建表
 - 同步至mysql数据库
+
+**Windows**
+```cmd
+cd ../..
+.\go-etl.exe -c examples/split/csv.json
+```
+
+**Linux**
 ```bash
 cd ../..
 ./go-etl -c examples/split/csv.json
 ```
+
 - 修改examples/split/config.json的split的key为id,dt,str
 - mysql数据库切分同步整形，日期，字符串类型
+
+**Windows**
+```cmd
+.\go-etl.exe -c examples/split/config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c examples/split/config.json
 ```
@@ -317,8 +507,19 @@ preSql和postSql分别是写入数据前和写入数据后的sql语句组
 1.写入数据前先建立了一个临时表
 2.在写入数据后，将原表删除，将临时表重名为新表
 
+**Windows**
+```cmd
+.\go-etl.exe -c examples/prePostSql/config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c examples/prePostSql/config.json
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/prePostSql/config.json
 ```
 
 #### 2.1.6 流控配置
@@ -335,11 +536,21 @@ preSql和postSql分别是写入数据前和写入数据后的sql语句组
                 "channel":4
             }
         }
-    }
-}    
+    }    
+}
 ```
 ##### 2.1.6.1 流控测试
 - 使用程序生成src.csv,发起流控测试
+
+**Windows**
+```cmd
+cd cmd/datax/examples/limit
+go run main.go
+cd ../..
+.\go-etl.exe -c examples/limit/config.json
+```
+
+**Linux**
 ```bash
 cd cmd/datax/examples/limit
 go run main.go
@@ -347,16 +558,14 @@ cd ../..
 ./go-etl -c examples/limit/config.json
 ```
 
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/limit/config.json
+```
+
 #### 2.1.7 querySql配置
 
 数据库读取器使用querySql去查询数据库
-
-
-##### 2.1.7.1 querySql配置测试
-
-```bash
-./go-etl -c examples/querySql/config.json
-```
 
 ### 2.2 多任务数据同步
 
@@ -433,47 +642,99 @@ path[table],path[table]
 
 ##### 2.2.1.3 批量生成数据配置集和执行脚本
 
-```bash
-./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
+**Windows**
+```cmd
+.\go-etl.exe -c tools/testData/xlsx.json -w tools/testData/wizard.csv
 ```
+
+**Linux**
+```bash
+./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/tools/testData/xlsx.json -w data/tools/testData/wizard.csv
+```
+
 -c 指定数据源配置文件 -w 指定源目的配置向导文件。
 
 执行结果会在数据源配置文件目录文件生成源目的配置向导文件行数的配置集，分别以指定数据源配置文件1.json,指定数据源配置文件2.json,...,指定数据源配置文件[n].json的配置集。
 
 另外，在当前目录会生成执行脚本run.bat或者run.sh。
 
-##### 2.2.1.4 批量生成数据配置集和执行脚本
+##### 2.2.1.4 批量执行生成的数据配置集
 
-###### windows
-
-```bash
+**Windows**
+```cmd
 run.bat
 ```
 
-linux
-
+**Linux**
 ```bash
 run.sh
 ```
 
+**Docker**
+```bash
+docker exec -it etl release/bin/run.sh
+```
+
 #### 2.2.2 测试结果
 可以运行cmd/datax/testData的测试数据
+
+**Windows**
+```cmd
+cd cmd/datax
+.\go-etl.exe -c testData/xlsx.json -w testData/wizard.csv
+```
+
+**Linux**
 ```bash
 cd cmd/datax
-./go-etl -c testData/xlsx.json -w testData/wizard.csv 
+./go-etl -c testData/xlsx.json -w testData/wizard.csv
 ```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/cmd/datax/testData/xlsx.json -w data/cmd/datax/testData/wizard.csv
+```
+
 结果会在testData下生成wizard.csv行数的配置文件，分别以xlsx1.json,xlsx2.json,...,xlsx[n].json的配置集。
 
 ### 2.3 数据同步帮助手册
 
 #### 2.3.1 帮助命令
 
+**Windows**
+```cmd
+.\go-etl.exe -h
 ```
+
+**Linux**
+```bash
 ./go-etl -h
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -h
 ```
 
 帮助显示
 
+**Windows**
+```cmd
+Usage of go-etl:
+  -c string
+        config (default "config.json")
+  -http string
+        http
+  -w string
+        wizard
+```
+
+**Linux**
 ```bash
 Usage of go-etl:
   -c string
@@ -488,19 +749,48 @@ Usage of go-etl:
 
 #### 2.3.2 查看版本
 
+**Windows**
+```cmd
+.\go-etl.exe version
+```
+
+**Linux**
 ```bash
 ./go-etl version
 ```
 
-显示`版本号`(git commit:  `git提交号`） complied by go version `go版本号`
-
+**Docker**
 ```bash
-v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) complied by go version go1.16.5 windows/amd64
+docker exec -it etl release/bin/go-etl version
+```
+
+显示`版本号`(git commit:  `git提交号`） compiled by go version `go版本号`
+
+**Windows**
+```cmd
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 windows/amd64
+```
+
+**Linux**
+```bash
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 linux/amd64
 ```
 
 #### 2.3.3 开启监控端口
+
+**Windows**
+```cmd
+.\go-etl.exe -http :6080 -c examples\limit\config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -http :6080 -c examples/limit/config.json
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -http :6080 -c data/examples/limit/config.json
 ```
 
 ##### 2.3.3.1 获取当前监控数据

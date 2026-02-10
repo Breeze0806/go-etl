@@ -1,0 +1,19 @@
+name: authors
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/authors.yml'
+      - 'authors.sh'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: show authors
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pre-show
+        run: sudo git fetch --prune --unshallow
+      - name: show
+        run: sudo sh authors.sh

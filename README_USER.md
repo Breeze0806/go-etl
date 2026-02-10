@@ -4,7 +4,13 @@ go-etl is a data synchronization tool that currently supports data synchronizati
 
 ## 1 How to Obtain
 
-Refer to the [project documentation](README.md) for instructions on obtaining the binary program, starting from source code compilation, or building from Docker images.
+Refer to the [project documentation](README.md) for instructions on obtaining the binary program or starting from source code compilation.
+
+You can obtain the go-etl Docker image from Docker Hub:
+
+```bash
+docker pull breeze0806/go-etl:latest
+```
 
 ## 2 Getting Started
 
@@ -14,13 +20,29 @@ Additionally, for Oracle, you need to download the corresponding 64-bit version 
 
 Note that on Windows, you can use the command: set path=%path%;%GOPATH%\oracle\instantclient_21_1.Oracle Instant Client 19 no longer supports Windows 7. In addition, you need to install [Oracle Instant Client and the corresponding Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows).
 
+For Docker usage, run the container:
+```bash
+docker run -d -p 6080:6080 --name etl -v /data:/usr/local/go-etl/data breeze0806/go-etl:latest
+```
+
 
 ### 2.1 Single-Task Data Synchronization
 
 Invoking go-etl is straightforward; you simply call it directly.
 
+**Windows**
+```cmd
+.\go-etl.exe -c config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c config.json
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/config.json
 ```
 
 - The `-c` flag specifies the data source configuration file.
@@ -133,108 +155,256 @@ Note: On Linux, as indicated in the Makefile, export `LD_LIBRARY_PATH=${DB2HOME}
 ##### 2.1.2.1 Synchronizing with MySQL
 
 * Initialize the database using `cmd/datax/examples/mysql/init.sql` **for testing purposes**
-* Start the MySQL synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\mysql\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/mysql/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/mysql/config.json
 ```
 
 ##### 2.1.2.2 Synchronizing with PostgreSQL
 
 * Initialize the database using `cmd/datax/examples/postgres/init.sql` **for testing purposes**
-* Start the PostgreSQL synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\postgres\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/postgres/config.json
 ```
 
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgres/config.json
+```
+
 ##### 2.1.2.3 Synchronizing with DB2
 
-* Before use, download the corresponding DB2 ODBC library, e.g., `make dependencies` and `release.bat` for Linux
-* Note: On Linux, as indicated in the Makefile, export `LD_LIBRARY_PATH=${DB2HOME}/lib`
-* Note: On Windows, as indicated in `release.bat`, set `path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin`
 * Initialize the database using `cmd/datax/examples/db2/init.sql` **for testing purposes**
-* Start the synchronization command:
 
+**Windows**
+- Download the corresponding DB2 ODBC library
+```cmd
+git clone -b v0.4.5 --depth=1 https://github.com/ibmdb/go_ibm_db ${GOPATH}/src/github.com/ibmdb/go_ibm_db
+cd ${GOPATH}/src/github.com/ibmdb/go_ibm_db/installer && go run setup.go
+```
+- Execution command:
+```cmd
+set path=%path%;%GOPATH%\src\github.com\ibmdb\go_ibm_db\clidriver\bin && .\go-etl.exe -c examples\db2\config.json
+```
+
+**Linux**
+- Download the corresponding DB2 ODBC library, e.g., `make dependencies` and `release.bat` for Linux
+- Execution command:
 ```bash
-./go-etl -c examples/db2/config.json
+export LD_LIBRARY_PATH=${DB2HOME}/lib && ./go-etl -c examples/db2/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/db2/config.json
 ```
 
 ##### 2.1.2.4 Synchronizing with Oracle
 
-* Before use, download the corresponding [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html). For example, it is recommended to download version 12.x to connect to Oracle 11g.
-* Note: On Linux, export `LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH`. Additionally, install `libaio`.
-* Note: On Windows, set `path=%path%;%GOPATH%\oracle\instantclient_21_1`. Oracle Instant Client 19 no longer supports Windows 7.
 * Initialize the database using `cmd/datax/examples/oracle/init.sql` **for testing purposes**
-* Start the synchronization command:
 
+**Windows**
+- Download the corresponding [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html). For example, it is recommended to download version 12.x to connect to Oracle 11g.
+- Oracle Instant Client 19 no longer supports Windows 7. In addition, you need to install [Oracle Instant Client and the corresponding Visual Studio Redistributable](https://odpi-c.readthedocs.io/en/latest/user_guide/installation.html#windows).
+- Execution command:
+```cmd
+set path=%path%;%GOPATH%\oracle\instantclient_21_1 && .\go-etl.exe -c examples\oracle\config.json
+```
+
+**Linux**
+- - Download the corresponding [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html). For example, it is recommended to download version 12.x to connect to Oracle 11g. Additionally, install `libaio`.
+- Execution command:
 ```bash
-./go-etl -c examples/oracle/config.json
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_1:$LD_LIBRARY_PATH && ./go-etl -c examples/oracle/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/oracle/config.json
 ```
 
 ##### 2.1.2.5 Synchronizing with SQL Server
 
 * Initialize the database using `cmd/datax/examples/sqlserver/init.sql` **for testing purposes**
-* Start the SQL Server synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\sqlserver\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/sqlserver/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/sqlserver/config.json
 ```
 
 ##### 2.1.2.6 Synchronizing CSV to PostgreSQL
 
 * Initialize the database using `cmd/datax/examples/csvpostgres/init.sql` **for testing purposes**
-* Start the synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\csvpostgres\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/csvpostgres/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/csvpostgres/config.json
 ```
 
 ##### 2.1.2.7 Synchronizing XLSX to PostgreSQL
 
 * Initialize the database using `cmd/datax/examples/csvpostgres/init.sql` **for testing purposes** (Note: The path may need correction as it seems inconsistent with other examples)
-* Start the synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\xlsxpostgres\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/xlsxpostgres/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/xlsxpostgres/config.json
 ```
 
 ##### 2.1.2.8 Synchronizing PostgreSQL to CSV
 
 * Initialize the database using `cmd/datax/examples/csvpostgres/init.sql` **for testing purposes**
-* Start the synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\postgrescsv\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/postgrescsv/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgrescsv/config.json
 ```
 
 ##### 2.1.2.9 Synchronizing PostgreSQL to XLSX
 
 * Initialize the database using `cmd/datax/examples/csvpostgres/init.sql` **for testing purposes** (Note: The initialization script may not be specific to XLSX synchronization)
-* Start the synchronization command:
 
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\postgresxlsx\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/postgresxlsx/config.json
 ```
 
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/postgresxlsx/config.json
+```
+
 ##### 2.1.2.10 Synchronizing with sqlite3
 
-* Before use, download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html). 
-* Note: On Windows, set `path=%path%;/opt/sqlite/sqlite3.dll`. 
+* Before use, 
 * Initialize the database using `cmd/datax/examples/sqlite3/init.sql` **for testing purposes**
-* In `examples/sqlite3/config.json`, `url` is the path of sqlite3 database files. On Windows, it can be `E:\sqlite3\test.db`, meanwhile, on Linux, it can be `/sqlite3/test.db`,
-* Start the sqlite3 synchronization command:
+* In `examples/sqlite3/config.json`, `url` is the path of sqlite3 database files. On Windows, it can be `E:\sqlite3\test.db`, meanwhile, on Linux, it can be `/sqlite3/test.db`
 
+**Windows**
+- download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html).
+- Execution command:
+```cmd
+set path=%path%;D:\sqlite && .\go-etl.exe -c examples\sqlite3\config.json
+```
+
+**Linux**
+- download the corresponding [SQLite Download Page](https://www.sqlite.org/download.html).
+- Execution command:
 ```bash
-./go-etl -c examples/sqlite3/config.json
+export  path=$path;/usr/local/sqlite && ./go-etl -c examples/sqlite3/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/sqlite3/config.json
 ```
 
 ##### 2.1.2.11 Synchronization with Dameng Database
-* Use cmd/datax/examples/dm/init.sql to initialize the database for testing purposes
-* Run the command to start Dameng Database synchronization:
 
+* Use cmd/datax/examples/dm/init.sql to initialize the database for testing purposes
+
+**Windows**
+- Execution command:
+```cmd
+.\go-etl.exe -c examples\dm\config.json
+```
+
+**Linux**
+- Execution command:
 ```bash
 ./go-etl -c examples/dm/config.json
+```
+
+**Docker**
+- Execution command:
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/dm/config.json
 ```
 
 ##### 2.1.2.12 Other Synchronization Examples
@@ -296,6 +466,13 @@ It is assumed that data is evenly distributed based on the split key. Proper use
 
 * Generate MySQL data using a program and create `split.csv`
 
+**Windows**
+```cmd
+cd cmd/datax/examples/split
+go run main.go
+```
+
+**Linux**
 ```bash
 cd cmd/datax/examples/split
 go run main.go
@@ -304,6 +481,13 @@ go run main.go
 * Use `init.sql` to create the table
 * Synchronize to the MySQL database
 
+**Windows**
+```cmd
+cd ../..
+.\go-etl.exe -c examples/split/csv.json
+```
+
+**Linux**
 ```bash
 cd ../..
 ./go-etl -c examples/split/csv.json
@@ -312,6 +496,12 @@ cd ../..
 * Modify `examples/split/config.json` to set the split key as `id,dt,str`
 * Synchronize MySQL data with integer, date, and string types using the split key
 
+**Windows**
+```cmd
+.\go-etl.exe -c examples/split/config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c examples/split/config.json
 ```
@@ -326,8 +516,19 @@ In this example, a full import is used:
 1. Before writing data, a temporary table is created.
 2. After writing data, the original table is deleted, and the temporary table is renamed to the new table.
 
+**Windows**
+```cmd
+.\go-etl.exe -c examples/prePostSql/config.json
+```
+
+**Linux**
 ```bash
 ./go-etl -c examples/prePostSql/config.json
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/prePostSql/config.json
 ```
 
 #### 2.1.6 Flow Control Configuration
@@ -352,11 +553,25 @@ Previously, the `byte` and `record` configurations for speed did not take effect
 
 * Generate `src.csv` using a program and initiate the flow control test
 
+**Windows**
+```cmd
+cd cmd/datax/examples/limit
+go run main.go
+cd ../..
+.\go-etl.exe -c examples/limit/config.json
+```
+
+**Linux**
 ```bash
 cd cmd/datax/examples/limit
 go run main.go
 cd ../..
 ./go-etl -c examples/limit/config.json
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/examples/limit/config.json
 ```
 
 #### 2.1.7 querySql Configuration
@@ -434,82 +649,159 @@ The database reader uses `querySql` to query the database.2.2 多任务数据同
 
   Each column can be a path or table name. Note that all tables should have a configured database name or schema name, which needs to be configured in the data source configuration file.
 
-  ##### 2.2.1.3 Batch Generation of Data Configuration Sets and Execution Scripts
+##### 2.2.1.3 Batch Generation of Data Configuration Sets and Execution Scripts
 
-  ```bash
-  ./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv 
-  ```
+**Windows**
+```cmd
+.\go-etl.exe -c tools/testData/xlsx.json -w tools/testData/wizard.csv
+```
 
-  -c specifies the data source configuration file, and -w specifies the source-destination configuration wizard file.
+**Linux**
+```bash
+./go-etl -c tools/testData/xlsx.json -w tools/testData/wizard.csv
+```
 
-  The execution result will generate a set of configuration files in the data source configuration file directory, with the number of rows in the source-destination configuration wizard file. The configuration sets will be named as specified_data_source_config_file1.json, specified_data_source_config_file2.json, ..., specified_data_source_config_file[n].json.
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/tools/testData/xlsx.json -w data/tools/testData/wizard.csv
+```
 
-  Additionally, an execution script named run.bat or run.sh will be generated in the current directory.
+-c specifies the data source configuration file, and -w specifies the source-destination configuration wizard file.
 
-  ##### 2.2.1.4 Batch Execution of Generated Data Configuration Sets
+The execution result will generate a set of configuration files in the data source configuration file directory, with the number of rows in the source-destination configuration wizard file. The configuration sets will be named as specified_data_source_config_file1.json, specified_data_source_config_file2.json, ..., specified_data_source_config_file[n].json.
 
-  ###### Windows
+Additionally, an execution script named run.bat or run.sh will be generated in the current directory.
 
-  ```bash
-  run.bat
-  ```
+##### 2.2.1.4 Batch Execution of Generated Data Configuration Sets
 
-  Linux
+**Windows**
+```cmd
+run.bat
+```
 
-  ```bash
-  run.sh
-  ```
+**Linux**
+```bash
+run.sh
+```
 
-  #### 2.2.2 Test Results
+**Docker**
+```bash
+docker exec -it etl release/bin/run.sh
+```
 
-  You can run the test data in cmd/datax/testData:
+#### 2.2.2 Test Results
 
-  ```bash
-  cd cmd/datax
-  ./go-etl -c testData/xlsx.json -w testData/wizard.csv 
-  ```
+You can run the test data in cmd/datax/testData:
 
-  The result will generate a set of configuration files in the testData directory, with the number of rows in the wizard.csv file. The configuration sets will be named as xlsx1.json, xlsx2.json, ..., xlsx[n].json.
+**Windows**
+```cmd
+cd cmd/datax
+.\go-etl.exe -c testData/xlsx.json -w testData/wizard.csv
+```
+
+**Linux**
+```bash
+cd cmd/datax
+./go-etl -c testData/xlsx.json -w testData/wizard.csv
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -c data/cmd/datax/testData/xlsx.json -w data/cmd/datax/testData/wizard.csv
+```
+
+The result will generate a set of configuration files in the testData directory, with the number of rows in the wizard.csv file. The configuration sets will be named as xlsx1.json, xlsx2.json, ..., xlsx[n].json.
 
   ### 2.3 Data Synchronization Help Manual
 
-  #### 2.3.1 Help Command
+#### 2.3.1 Help Command
 
-  ```
- ./go-etl -h
-  ```
+**Windows**
+```cmd
+.\go-etl.exe -h
+```
 
-  Help display:
+**Linux**
+```bash
+./go-etl -h
+```
 
-  ```bash
-  Usage of go-etl:
-    -c string
-          config (default "config.json")
-    -http string
-          http
-    -w string
-          wizard
-  ```
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -h
+```
 
-  -http adds a listening port, such as 6080. After enabling, access 127.0.0.1:6080/metrics to get real-time throughput.
+Help display:
 
-  #### 2.3.2 View Version
+**Windows**
+```cmd
+Usage of go-etl:
+  -c string
+        config (default "config.json")
+  -http string
+        http
+  -w string
+        wizard
+```
 
-  ```bash
-  ./go-etl version
-  ```
+**Linux**
+```bash
+Usage of go-etl:
+  -c string
+        config (default "config.json")
+  -http string
+        http
+  -w string
+        wizard
+```
 
-  Display: `version number` (git commit: `git commit number`) compiled by go version `go version number`
+-http adds a listening port, such as 6080. After enabling, access 127.0.0.1:6080/metrics to get real-time throughput.
 
-  ```bash
-  v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 windows/amd64
-  ```
+#### 2.3.2 View Version
 
-  #### 2.3.3 Start Monitoring Port
+**Windows**
+```cmd
+.\go-etl.exe version
+```
 
-  ```bash
+**Linux**
+```bash
+./go-etl version
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl version
+```
+
+Display: `version number` (git commit: `git commit number`) compiled by go version `go version number`
+
+**Windows**
+```cmd
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 windows/amd64
+```
+
+**Linux**
+```bash
+v0.1.0 (git commit: c82eb302218f38cd3851df4b425256e93f85160d) compiled by go version go1.16.5 linux/amd64
+```
+
+#### 2.3.3 Start Monitoring Port
+
+**Windows**
+```cmd
+.\go-etl.exe -http :6080 -c examples\limit\config.json
+```
+
+**Linux**
+```bash
 ./go-etl -http :6080 -c examples/limit/config.json
-  ```
+```
+
+**Docker**
+```bash
+docker exec -it etl release/bin/go-etl -http :6080 -c data/examples/limit/config.json
+```
 
   ##### 2.3.3.1 Retrieve Current Monitoring Data
 
