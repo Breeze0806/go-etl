@@ -1,0 +1,13 @@
+# Web service configuration
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+# Database configuration
+database:
+  path: "./data/web.db"
+
+# JWT configuration
+jwt:
+  secret: "go-etl-web-secret-key"
+  expiry_hours: 24

@@ -27,3 +27,11 @@ docker/postgres/dest
 docker/postgres/src
 docker/prometheus
 .idea
+web/node_modules
+.sisyphus
+web/dist
+nul
+web/playwright-report
+web/e2e
+web/test*
+AGENTS.md
