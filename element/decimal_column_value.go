@@ -120,6 +120,11 @@ func (d *DecimalColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(d.Type(), TypeTime, fmt.Errorf(" val: %v", d.String()))
 }
 
+// AsJSON converts to a JSON number
+func (d *DecimalColumnValue) AsJSON() (JSON, error) {
+	return nil, NewTransformErrorFormColumnTypes(d.Type(), TypeJSON, fmt.Errorf(" val: %v", d.String()))
+}
+
 func (d *DecimalColumnValue) String() string {
 	return d.val.String()
 }

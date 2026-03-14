@@ -102,6 +102,11 @@ func (b *BoolColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
 
+// AsJSON converts to a JSON boolean
+func (b *BoolColumnValue) AsJSON() (JSON, error) {
+	return nil, NewTransformErrorFormColumnTypes(b.Type(), TypeJSON, fmt.Errorf(" val: %v", b.String()))
+}
+
 func (b *BoolColumnValue) String() string {
 	if b.val {
 		return "true"

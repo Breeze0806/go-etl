@@ -32,6 +32,7 @@ const (
 	TypeString  ColumnType = "string"  // StringType: String type
 	TypeBytes   ColumnType = "bytes"   // BytesType: Byte stream type
 	TypeTime    ColumnType = "time"    // TimeType: Time type
+	TypeJSON    ColumnType = "json"    // TimeType: Time type
 )
 
 // String Printing display
@@ -51,6 +52,7 @@ type ColumnValue interface {
 	AsString() (string, error)         // ToString: Convert to string
 	AsBytes() ([]byte, error)          // ToBytes: Convert to byte stream
 	AsTime() (time.Time, error)        // ToTime: Convert to time
+	AsJSON() (JSON, error)             // ToJSON: Convert to JSON
 }
 
 // ColumnValueClonable Cloneable column value
@@ -123,6 +125,11 @@ func (n *nilColumnValue) AsBytes() ([]byte, error) {
 // AsTime Failed to convert to time
 func (n *nilColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, ErrNilValue
+}
+
+// AsJSON Failed to convert to JSON
+func (n *nilColumnValue) AsJSON() (JSON, error) {
+	return nil, ErrNilValue
 }
 
 // String Printing display

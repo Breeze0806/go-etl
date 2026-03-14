@@ -99,7 +99,7 @@ func (s *StringColumnValue) AsDecimal() (DecimalNumber, error) {
 
 // AsString - Convert to a string
 func (s *StringColumnValue) AsString() (string, error) {
-	return s.val, nil
+	return s.String(), nil
 }
 
 // AsBytes - Convert to a byte stream
@@ -114,6 +114,11 @@ func (s *StringColumnValue) AsTime() (t time.Time, err error) {
 		return time.Time{}, NewTransformErrorFormColumnTypes(s.Type(), TypeTime, fmt.Errorf("err: %v val: %v", err, s.val))
 	}
 	return
+}
+
+// AsJSON - Convert to a JSON string
+func (s *StringColumnValue) AsJSON() (JSON, error) {
+	return _DefaultJSONConverter.ConvertFromString(s.val)
 }
 
 func (s *StringColumnValue) String() string {

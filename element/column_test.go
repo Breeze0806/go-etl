@@ -247,6 +247,33 @@ func Test_nilColumnValue_AsTime(t *testing.T) {
 	}
 }
 
+func Test_nilColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		n       *nilColumnValue
+		want    JSON
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			n:       &nilColumnValue{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("nilColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("nilColumnValue.AsJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_nilColumnValue_String(t *testing.T) {
 	tests := []struct {
 		name string

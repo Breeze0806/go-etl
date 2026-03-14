@@ -21,7 +21,7 @@ type Record interface {
 
 ## Data Type Conversions
 
-go-etl supports six internal data types:
+go-etl supports seven internal data types:
 
 - `bigInt`: Fixed-point numbers (int64, int32, int16, int8, BigInt, etc.).
 - `decimal`: Floating-point numbers (float32, float64, BigDecimal (unlimited precision), etc.).
@@ -29,24 +29,26 @@ go-etl supports six internal data types:
 - `time`: Date and time type.
 - `bool`: Boolean value.
 - `bytes`: Binary data, which can store unstructured data such as MP3 files.
+- `json`: JSON type, for storing and processing JSON data.
 
-Correspondingly, there are six implementations of `ColumnValue`: `TimeColumnValue`, `BigIntColumnValue`, `DecimalColumnValue`, `BytesColumnValue`, `StringColumnValue`, and `BoolColumnValue`.
+Correspondingly, there are seven implementations of `ColumnValue`: `TimeColumnValue`, `BigIntColumnValue`, `DecimalColumnValue`, `BytesColumnValue`, `StringColumnValue`, `BoolColumnValue`, and `JsonColumnValue`.
 
 These `ColumnValue` interfaces provide a series of data type conversion methods that start with `as`.
 
 ```go
 // ColumnValue represents a value in a column.
 type ColumnValue interface {
- fmt.Stringer
+	fmt.Stringer
 
- Type() ColumnType                    // Returns the column type.
- IsNil() bool                         // Checks if the value is nil.
- AsBool() (bool, error)               // Converts the value to a boolean.
- AsBigInt() (*apd.BigInt, error)         // Converts the value to a big integer.
- AsDecimal() (*apd.Decimal, error) // Converts the value to a decimal with unlimited precision.
- AsString() (string, error)           // Converts the value to a string.
- AsBytes() ([]byte, error)            // Converts the value to a byte array.
- AsTime() (time.Time, error)          // Converts the value to a time.
+	Type() ColumnType                    // Returns the column type.
+	IsNil() bool                         // Checks if the value is nil.
+	AsBool() (bool, error)               // Converts the value to a boolean.
+	AsBigInt() (*apd.BigInt, error)         // Converts the value to a big integer.
+	AsDecimal() (*apd.Decimal, error) // Converts the value to a decimal with unlimited precision.
+	AsString() (string, error)           // Converts the value to a string.
+	AsBytes() ([]byte, error)            // Converts the value to a byte array.
+	AsTime() (time.Time, error)          // Converts the value to a time.
+	AsJSON() (JSON, error)               // Converts the value to JSON.
 }
 ```
 
@@ -79,6 +81,7 @@ Currently, there are two implementation approaches, but the older approach has p
 | bytes         | []byte              |                                                              |
 | string        | string              |                                                              |
 | bool          | bool                |                                                              |
+| json          | encoding.JSON       | Wraps the encoding.JSON from github.com/Breeze0806/go/encoding package |
 
 + Current Implementation Approach
 
@@ -90,10 +93,11 @@ Currently, there are two implementation approaches, but the older approach has p
 | bytes         | []byte              |                                                              |
 | string        | string              |                                                              |
 | bool          | bool                |                                                              |
+| json          | DefaultJSON         | Wraps encoding.JSON to implement the element.JSON interface |
 
 The gap between these two implementation methods mainly lies in numerical adjustments, which are integrated through the following interfaces:
 
-
+### Number Interface
 ```golang
 // NumberConverter: Digital Converter
 type NumberConverter interface {
@@ -161,17 +165,42 @@ BenchmarkDecimal_BigIntStr_String-32                            1000000000      
 ```
 Additionally, if any issues arise, you can revert to the old implementation by modifying the `_DefaultNumberConverter` value in `number.go`.
 
+### JSON Interface
+
+```go
+// JSON is the JSON interface
+type JSON interface {
+	ToString() string
+	ToBytes() []byte
+	Clone() JSON
+}
+// JSONConverter is the JSON converter interface
+type JSONConverter interface {
+	ConvertFromString(s string) (json JSON, err error)
+	ConvertFromBytes(b []byte) (json JSON, err error)
+}
+```
+
+The `JSON` interface provides methods to convert JSON values to strings and bytes, as well as clone JSON values.
+
+`JSONConverter` provides functionality to convert strings and bytes to JSON values.
+
+The JSON type implementation wraps the `github.com/Breeze0806/go/encoding` package to provide robust JSON parsing and manipulation capabilities.
+
+### Type Conversion Relationship Table
+
 The relationship between the types and their conversions is as follows:
 
-| from\to | time                                                   | bigInt                                   | decimal                           | bytes                                                      | string                                                     | bool                                                                |
-| --- | -------------------------------------------------- | ------------------------------------ | ------------------------------- | -------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
-| time    | -                                                    | Not supported                        | Not supported                   | Supports conversion of specified time formats (generally supports default time format) | Supports conversion of specified time formats (generally supports default time format) | Not supported                                                   |
-| bigInt  | Not supported                                      | -                                    | Supported                       | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               |
-| decimal | Not supported                                      | Rounds to the nearest integer, truncating the decimal part | -                                 | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               |
-| bytes   | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | -                                                      | Supported                                                  | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to true, and "0", "f", "F", "FALSE", "false", "False" to false |
-| string  | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | Supported                                                  | -                                                        | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to "true", and "0", "f", "F", "FALSE", "false", "False" to false |
-| bool    | Not supported                                      | true converts to 1, false converts to 0                 | true converts to 1.0, false converts to 0.0 | true converts to "true", false converts to "false" | true converts to "true", false converts to "false" | -                                                           |
+| from\to | time                                                   | bigInt                                   | decimal                           | bytes                                                      | string                                                     | bool                                                                | json                                                             |
+| --- | -------------------------------------------------- | ------------------------------------ | ------------------------------- | -------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| time    | -                                                    | Not supported                        | Not supported                   | Supports conversion of specified time formats (generally supports default time format) | Supports conversion of specified time formats (generally supports default time format) | Not supported                                                   | Not supported                                                    |
+| bigInt  | Not supported                                      | -                                    | Supported                       | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               | Not supported                                                    |
+| decimal | Not supported                                      | Rounds to the nearest integer, truncating the decimal part | -                                 | Supported                                                  | Supported                                                  | Converts non-zero values to true, and zero to false               | Not supported                                                    |
+| bytes   | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | -                                                      | Supported                                                  | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to true, and "0", "f", "F", "FALSE", "false", "False" to false | Supported (parses as JSON)                                     |
+| string  | Only supports conversion of specified time formats (generally supports default time format) | Real numbers and scientific notation strings are rounded | Real numbers and scientific notation strings | Supported                                                  | -                                                        | Supports conversion of "1", "t", "T", "TRUE", "true", "True" to "true", and "0", "f", "F", "FALSE", "false", "False" to "false" | Supported (parses as JSON)                                     |
+| bool    | Not supported                                      | true converts to 1, false converts to 0                 | true converts to 1.0, false converts to 0.0 | true converts to "true", false converts to "false" | true converts to "true", false converts to "false" | -                                                           | Not supported                                                    |
+| json    | Not supported                                      | Not supported                        | Not supported                   | Supported (outputs as JSON bytes)                               | Supported (outputs as JSON string)                               | Not supported                                                   | -                                                               |
 
-**Note: The default time format is 2006-01-02 15:04:05.999999999Z07:00**
+**Note: The default time format is `2006-01-02 15:04:05.999999999Z07:00`**
 
-This table provides an overview of data type conversions between different formats, including time, bigInt, decimal, bytes, string, and bool. It specifies which conversions are supported and which are not, as well as any specific behavior or limitations associated with each conversion.
+This table provides an overview of data type conversions between different formats, including time, bigInt, decimal, bytes, string, bool, and json. It specifies which conversions are supported and which are not, as well as any specific behavior or limitations associated with each conversion.

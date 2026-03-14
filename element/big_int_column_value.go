@@ -120,6 +120,11 @@ func (b *BigIntColumnValue) AsTime() (time.Time, error) {
 	return time.Time{}, NewTransformErrorFormColumnTypes(b.Type(), TypeTime, fmt.Errorf(" val: %v", b.String()))
 }
 
+// AsJSON - Convert to a JSON number
+func (b *BigIntColumnValue) AsJSON() (JSON, error) {
+	return nil, NewTransformErrorFormColumnTypes(b.Type(), TypeJSON, fmt.Errorf(" val: %v", b.String()))
+}
+
 func (b *BigIntColumnValue) String() string {
 	return b.val.String()
 }

@@ -338,3 +338,30 @@ func TestTimeColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestTimeColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		t       *TimeColumnValue
+		want    JSON
+		wantErr bool
+	}{
+		{
+			name:    "1",
+			t:       NewTimeColumnValue(time.Date(2020, 12, 17, 22, 49, 56, 69-999-999, time.Local)).(*TimeColumnValue),
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.t.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TimeColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TimeColumnValue.AsJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

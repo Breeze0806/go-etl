@@ -508,3 +508,60 @@ func TestStringColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestStringColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		s       *StringColumnValue
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "1",
+			s:    NewStringColumnValue(`{"key": "value"}`).(*StringColumnValue),
+			want: `{"key": "value"}`,
+		},
+		{
+			name: "2",
+			s:    NewStringColumnValue(`[1, 2, 3]`).(*StringColumnValue),
+			want: `[1, 2, 3]`,
+		},
+		{
+			name:    "3",
+			s:       NewStringColumnValue(`invalid json`).(*StringColumnValue),
+			wantErr: true,
+		},
+		{
+			name: "4",
+			s:    NewStringColumnValue(`"hello"`).(*StringColumnValue),
+			want: `"hello"`,
+		},
+		{
+			name: "5",
+			s:    NewStringColumnValue(`123`).(*StringColumnValue),
+			want: `123`,
+		},
+		{
+			name: "6",
+			s:    NewStringColumnValue(`true`).(*StringColumnValue),
+			want: `true`,
+		},
+		{
+			name: "7",
+			s:    NewStringColumnValue(`null`).(*StringColumnValue),
+			want: `null`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.s.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("StringColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && got.ToString() != tt.want {
+				t.Errorf("StringColumnValue.AsJSON() = %v, want %v", got.ToString(), tt.want)
+			}
+		})
+	}
+}

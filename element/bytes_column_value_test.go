@@ -524,3 +524,60 @@ func TestBytesColumnValue_Cmp(t *testing.T) {
 		})
 	}
 }
+
+func TestBytesColumnValue_AsJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		b       *BytesColumnValue
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "1",
+			b:    NewBytesColumnValue([]byte(`{"key": "value"}`)).(*BytesColumnValue),
+			want: `{"key": "value"}`,
+		},
+		{
+			name: "2",
+			b:    NewBytesColumnValue([]byte(`[1, 2, 3]`)).(*BytesColumnValue),
+			want: `[1, 2, 3]`,
+		},
+		{
+			name:    "3",
+			b:       NewBytesColumnValue([]byte(`invalid json`)).(*BytesColumnValue),
+			wantErr: true,
+		},
+		{
+			name: "4",
+			b:    NewBytesColumnValue([]byte(`"hello"`)).(*BytesColumnValue),
+			want: `"hello"`,
+		},
+		{
+			name: "5",
+			b:    NewBytesColumnValue([]byte(`123`)).(*BytesColumnValue),
+			want: `123`,
+		},
+		{
+			name: "6",
+			b:    NewBytesColumnValue([]byte(`true`)).(*BytesColumnValue),
+			want: `true`,
+		},
+		{
+			name: "7",
+			b:    NewBytesColumnValue([]byte(`null`)).(*BytesColumnValue),
+			want: `null`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.AsJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BytesColumnValue.AsJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && got.ToString() != tt.want {
+				t.Errorf("BytesColumnValue.AsJSON() = %v, want %v", got.ToString(), tt.want)
+			}
+		})
+	}
+}
