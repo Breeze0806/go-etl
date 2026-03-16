@@ -12,30 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package csv
+package parquet
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/Breeze0806/go-etl/config"
-	// csv storage
-	"github.com/Breeze0806/go-etl/storage/stream/file/csv"
+	spireader "github.com/Breeze0806/go-etl/datax/common/spi/reader"
+	"github.com/Breeze0806/go-etl/datax/plugin/reader/file"
 )
 
-// Config represents the configuration for reading CSV files.
-type Config struct {
-	csv.InConfig
+//A reader is uesed to extract data from data source
 
-	Path []string `json:"path"`
+// Reader reader
+type Reader struct {
+	pluginConf *config.JSON
 }
 
-// NewConfig reads the JSON configuration conf to obtain the CSV reading configuration.
-func NewConfig(conf *config.JSON) (c *Config, err error) {
-	c = &Config{}
-	fmt.Println(conf.String())
-	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {
-		return nil, err
-	}
-	return
+// ResourcesConfig plugin resource configuration
+func (r *Reader) ResourcesConfig() *config.JSON {
+	return r.pluginConf
+}
+
+// Job job
+func (r *Reader) Job() spireader.Job {
+	job := NewJob()
+	job.SetPluginConf(r.pluginConf)
+	return job
+}
+
+// Task task
+func (r *Reader) Task() spireader.Task {
+	task := file.NewTask()
+	task.SetPluginConf(r.pluginConf)
+	return task
 }

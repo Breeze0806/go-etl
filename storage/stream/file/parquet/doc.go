@@ -12,30 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package csv
-
-import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/Breeze0806/go-etl/config"
-	// csv storage
-	"github.com/Breeze0806/go-etl/storage/stream/file/csv"
-)
-
-// Config represents the configuration for reading CSV files.
-type Config struct {
-	csv.InConfig
-
-	Path []string `json:"path"`
-}
-
-// NewConfig reads the JSON configuration conf to obtain the CSV reading configuration.
-func NewConfig(conf *config.JSON) (c *Config, err error) {
-	c = &Config{}
-	fmt.Println(conf.String())
-	if err = json.Unmarshal([]byte(conf.String()), c); err != nil {
-		return nil, err
-	}
-	return
-}
+// Package csv mainly implements the stream/file interface.
+package parquet
