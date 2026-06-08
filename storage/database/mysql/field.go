@@ -97,6 +97,8 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		f.goType = database.GoTypeFloat64
 	case "DATE", "DATETIME", "TIMESTAMP":
 		f.goType = database.GoTypeTime
+	case "JSON":
+		f.goType = database.GoTypeJSON
 	}
 	return f
 }
@@ -202,6 +204,25 @@ func (s *Scanner) Scan(src any) (err error) {
 			cv = element.NewDecimalColumnValueFromFloat(data)
 		default:
 			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeDecimal)
+		}
+	case "JSON":
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilJsonColumnValue()
+		case []byte:
+			v, err := element.NewJsonColumnValueFromBytes(data)
+			if err != nil {
+				return fmt.Errorf("invalid JSON in %q: %w", s.f.Name(), err)
+			}
+			cv = v
+		case string:
+			v, err := element.NewJsonColumnValueFromString(data)
+			if err != nil {
+				return fmt.Errorf("invalid JSON in %q: %w", s.f.Name(), err)
+			}
+			cv = v
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeJSON)
 		}
 	default:
 		return fmt.Errorf("src is %v(%T), but db type is %v", src, src, s.f.Type().DatabaseTypeName())
