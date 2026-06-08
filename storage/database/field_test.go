@@ -97,6 +97,7 @@ func TestGoType_String(t *testing.T) {
 	// GoTypeString:  "string",
 	// GoTypeBytes:   "bytes",
 	// GoTypeTime:    "time",
+	// GoTypeJSON:    "json",
 	tests := []struct {
 		name string
 		t    GoType
@@ -116,6 +117,11 @@ func TestGoType_String(t *testing.T) {
 			name: "6",
 			t:    GoTypeInt64,
 			want: "int64",
+		},
+		{
+			name: "7",
+			t:    GoTypeJSON,
+			want: "json",
 		},
 		{
 			name: "8",
@@ -243,6 +249,12 @@ func TestGoValuer_Value(t *testing.T) {
 				element.NewDefaultColumn(element.NewNilBigIntColumnValue(), "test", 0)),
 			wantErr: false,
 		},
+		{
+			name: "13",
+			g: NewGoValuer(newMockField(NewBaseField(1, "f1", NewBaseFieldType(&sql.ColumnType{})), newMockFieldType(GoTypeJSON)),
+				element.NewDefaultColumn(mustJsonColumnValueFromString(`{"a":1}`), "test", 0)),
+			want: `{"a":1}`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -347,4 +359,12 @@ func TestBaseField_SetError(t *testing.T) {
 			}
 		})
 	}
+}
+
+func mustJsonColumnValueFromString(s string) element.ColumnValue {
+	cv, err := element.NewJsonColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return cv
 }
