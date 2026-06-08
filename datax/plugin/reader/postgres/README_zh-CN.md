@@ -161,6 +161,7 @@ PostgresReader通过使用dbmsreader中定义的查询流程调用go-etl自定�
 | string       | varchar, text, uuid                                      |
 | time         | date, time, timestamp                                    |
 | bytes        | char                                                     |
+| json | json, jsonb |
 
 ## 性能报告
 

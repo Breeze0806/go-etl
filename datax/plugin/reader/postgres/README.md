@@ -160,6 +160,7 @@ Below is a list of type conversions that PostgresReader performs for Postgres ty
 | string      | varchar, text, uuid                                   |
 | time        | date, time, timestamp                                    |
 | bytes       | char                                                     |
+| json | json, jsonb |
 
 ## Performance Report
 
