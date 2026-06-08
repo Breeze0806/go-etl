@@ -103,6 +103,8 @@ func NewFieldType(typ database.ColumnType) *FieldType {
 		f.goType = database.GoTypeString
 	case oid.TypeName[oid.T_uuid]:
 		f.goType = database.GoTypeString
+	case oid.TypeName[oid.T_json], oid.TypeName[oid.T_jsonb]:
+		f.goType = database.GoTypeJSON
 	}
 	return f
 }
@@ -208,6 +210,25 @@ func (s *Scanner) Scan(src any) (err error) {
 			}
 		default:
 			return fmt.Errorf("src is %v(%T), but type is %v", src, src, element.TypeDecimal)
+		}
+	case oid.TypeName[oid.T_json], oid.TypeName[oid.T_jsonb]:
+		switch data := src.(type) {
+		case nil:
+			cv = element.NewNilJsonColumnValue()
+		case string:
+			v, err := element.NewJsonColumnValueFromString(data)
+			if err != nil {
+				return fmt.Errorf("invalid JSON/JSONB in %q: %w", s.f.Name(), err)
+			}
+			cv = v
+		case []byte:
+			v, err := element.NewJsonColumnValueFromBytes(data)
+			if err != nil {
+				return fmt.Errorf("invalid JSON/JSONB in %q: %w", s.f.Name(), err)
+			}
+			cv = v
+		default:
+			return fmt.Errorf("src is %v(%T), but not %v", src, src, element.TypeJSON)
 		}
 	case oid.TypeName[oid.T_uuid]:
 		switch data := src.(type) {
