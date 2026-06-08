@@ -146,6 +146,7 @@ MysqlWriter通过使用dbmswriter中定义的查询流程调用go-etl自定义�
 | string       | varchar, char, tinytext, text, mediumtext, longtext |
 | time         | date, datetime, timestamp, time                     |
 | bytes        | tinyblob, mediumblob, blob, longblob, varbinary,bit |
+| json | json |
 
 ## 性能报告
 
