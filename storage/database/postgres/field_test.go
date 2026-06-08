@@ -34,6 +34,22 @@ func testDecimalColumnValueFromString(s string) element.ColumnValue {
 	return d
 }
 
+func mustJsonColumnValueFromBytes(b []byte) element.ColumnValue {
+	c, err := element.NewJsonColumnValueFromBytes(b)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
+func mustJsonColumnValueFromString(s string) element.ColumnValue {
+	c, err := element.NewJsonColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
 type mockColumnType struct {
 	name string
 }
@@ -301,6 +317,18 @@ func TestFieldType_GoType(t *testing.T) {
 			want: database.GoTypeTime,
 		},
 
+		//json
+		{
+			name: "JSON",
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_json])),
+			want: database.GoTypeJSON,
+		},
+		{
+			name: "JSONB",
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb])),
+			want: database.GoTypeJSON,
+		},
+
 		//unknown
 		{
 			name: "16",
@@ -332,6 +360,16 @@ func TestFieldType_IsSupportted(t *testing.T) {
 			name: "2",
 			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T__bool])),
 			want: false,
+		},
+		{
+			name: "JSON",
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_json])),
+			want: true,
+		},
+		{
+			name: "JSONB",
+			f:    NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb])),
+			want: true,
 		},
 	}
 	for _, tt := range tests {
@@ -613,6 +651,102 @@ func TestScanner_Scan(t *testing.T) {
 				"f1", NewFieldType(newMockColumnType(oid.TypeName[oid.T__bool]))))),
 			args: args{
 				src: "1234567890.1231233",
+			},
+			wantErr: true,
+		},
+
+		//"JSON", "JSONB"
+		{
+			name: "JSONnil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_json]))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilJsonColumnValue(), "test", 0),
+		},
+		{
+			name: "JSONBnil",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb]))))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilJsonColumnValue(), "test", 0),
+		},
+		{
+			name: "JSONbytes",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_json]))))),
+			args: args{
+				src: []byte("{\"a\":1}"),
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromBytes([]byte("{\"a\":1}")),
+				"test", element.ByteSize([]byte("{\"a\":1}"))),
+		},
+		{
+			name: "JSONBbytes",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb]))))),
+			args: args{
+				src: []byte("{\"a\":1}"),
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromBytes([]byte("{\"a\":1}")),
+				"test", element.ByteSize([]byte("{\"a\":1}"))),
+		},
+		{
+			name: "JSONstring",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_json]))))),
+			args: args{
+				src: "{\"k\":null}",
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromString("{\"k\":null}"),
+				"test", element.ByteSize([]byte("{\"k\":null}"))),
+		},
+		{
+			name: "JSONBstring",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb]))))),
+			args: args{
+				src: "{\"k\":null}",
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromString("{\"k\":null}"),
+				"test", element.ByteSize([]byte("{\"k\":null}"))),
+		},
+		{
+			name: "JSONinvalidbytes",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_json]))))),
+			args: args{
+				src: []byte("{not json"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "JSONBinvalidbytes",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb]))))),
+			args: args{
+				src: []byte("{not json"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "JSONunsupported",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_json]))))),
+			args: args{
+				src: int16(0),
+			},
+			wantErr: true,
+		},
+		{
+			name: "JSONBunsupported",
+			s: NewScanner(NewField(database.NewBaseField(0,
+				"test", NewFieldType(newMockColumnType(oid.TypeName[oid.T_jsonb]))))),
+			args: args{
+				src: int16(0),
 			},
 			wantErr: true,
 		},
