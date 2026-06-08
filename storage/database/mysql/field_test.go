@@ -80,6 +80,22 @@ func mustBigIntValueFromString(s string) element.ColumnValue {
 	return c
 }
 
+func mustJsonColumnValueFromBytes(b []byte) element.ColumnValue {
+	c, err := element.NewJsonColumnValueFromBytes(b)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
+func mustJsonColumnValueFromString(s string) element.ColumnValue {
+	c, err := element.NewJsonColumnValueFromString(s)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
 func TestField_Quoted(t *testing.T) {
 	tests := []struct {
 		name string
@@ -367,6 +383,11 @@ func TestFieldType_GoType(t *testing.T) {
 			want: database.GoTypeTime,
 		},
 		{
+			name: "JSON",
+			f:    NewFieldType(newMockFieldType("JSON")),
+			want: database.GoTypeJSON,
+		},
+		{
 			name: "NEWDATE",
 			f:    NewFieldType(newMockFieldType("NEWDATE")),
 			want: database.GoTypeUnknown,
@@ -634,6 +655,49 @@ func TestScanner_Scan(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		//"JSON"
+		{
+			name: "JSONnil",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("JSON")))),
+			args: args{
+				src: nil,
+			},
+			want: element.NewDefaultColumn(element.NewNilJsonColumnValue(), "test", 0),
+		},
+		{
+			name: "JSONbytes",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("JSON")))),
+			args: args{
+				src: []byte("{\"a\":1}"),
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromBytes([]byte("{\"a\":1}")),
+				"test", element.ByteSize([]byte("{\"a\":1}"))),
+		},
+		{
+			name: "JSONstring",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("JSON")))),
+			args: args{
+				src: string("{\"k\":\"v\"}"),
+			},
+			want: element.NewDefaultColumn(mustJsonColumnValueFromString("{\"k\":\"v\"}"),
+				"test", element.ByteSize([]byte("{\"k\":\"v\"}"))),
+		},
+		{
+			name: "JSONinvalidbytes",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("JSON")))),
+			args: args{
+				src: []byte("{not json"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "JSONunsupported",
+			s:    NewScanner(NewField(database.NewBaseField(0, "test", newMockFieldType("JSON")))),
+			args: args{
+				src: int16(0),
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -787,6 +851,11 @@ func TestFieldType_IsSupportted(t *testing.T) {
 		{
 			name: "TIMESTAMP",
 			f:    NewFieldType(newMockFieldType("TIMESTAMP")),
+			want: true,
+		},
+		{
+			name: "JSON",
+			f:    NewFieldType(newMockFieldType("JSON")),
 			want: true,
 		},
 		{
