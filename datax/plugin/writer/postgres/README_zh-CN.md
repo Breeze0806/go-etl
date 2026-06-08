@@ -161,6 +161,7 @@ Postgres/Greenplum通过使用dbmswriter中定义的查询流程调用go-etl自�
 | string       | varchar, text, uuid                                     |
 | time         | date, time, timestamp                                    |
 | bytes        | char                                                     |
+| json | json, jsonb |
 
 ## 性能报告
 

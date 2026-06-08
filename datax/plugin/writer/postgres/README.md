@@ -160,6 +160,7 @@ Below is a conversion table for PostgresWriter with regards to Postgres types:
 | string | varchar, text, uuid  |
 | time | date, time, timestamp |
 | bytes | char |
+| json | json, jsonb |
 
 ## Performance Report
 
