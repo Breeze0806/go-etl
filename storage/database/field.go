@@ -41,6 +41,7 @@ const (
 	GoTypeString                // String type.
 	GoTypeBytes                 // Byte stream type.
 	GoTypeTime                  // Time type.
+	GoTypeJSON                  // JSON type.
 )
 
 // Enumeration string of golang types.
@@ -52,6 +53,7 @@ var goTypeMap = map[GoType]string{
 	GoTypeString:  "string",
 	GoTypeBytes:   "bytes",
 	GoTypeTime:    "time",
+	GoTypeJSON:    "json",
 }
 
 // String description of the enumeration of golang types.
@@ -227,6 +229,12 @@ func (g *GoValuer) Value() (val driver.Value, err error) {
 		return g.c.AsBytes()
 	case GoTypeTime:
 		return g.c.AsTime()
+	case GoTypeJSON:
+		j, err := g.c.AsJSON()
+		if err != nil {
+			return nil, err
+		}
+		return j.ToString(), nil
 	}
 	return nil, fmt.Errorf("%v type(%v)", typ.GoType(), g.f.Type().DatabaseTypeName())
 }
