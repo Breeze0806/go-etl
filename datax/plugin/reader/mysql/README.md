@@ -162,6 +162,7 @@ Below is a conversion table for MysqlReader regarding MySQL types:
 | string | varchar, char, tinytext, text, mediumtext, longtext |
 | time | date, datetime, timestamp, time |
 | bytes | tinyblob, mediumblob, blob, longblob, varbinary, bit |
+| json | json |
 
 ## Performance Report
 
