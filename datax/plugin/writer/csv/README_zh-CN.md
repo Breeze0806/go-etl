@@ -22,7 +22,7 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
         "content":[
             {
                 "writer":{
-                    "name": "cvswriter",
+                    "name": "csvwriter",
                     "parameter": {
                         "path":["a.txt","b.txt"],
                         "column":[
@@ -66,7 +66,7 @@ CsvWriter通过使用file.Task中定义的写入流程调用go-etl自定义的st
 
 ##### type
 
-- 描述 主要用于配置csv文件的列类型，主要有boolen,bigInt,decimal,string,time等类型
+- 描述 主要用于配置csv文件的列类型，主要有boolean,bigInt,decimal,string,time等类型
 - 必选：是
 - 默认值: 无
 

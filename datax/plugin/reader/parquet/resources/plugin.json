@@ -1,0 +1,6 @@
+{
+  "name": "parquetreader",
+  "developer": "ccchhh",
+  "description": "use github.com/xitongsys/parquet-go.",
+  "opener":"parquet"
+}
