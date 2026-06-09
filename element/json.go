@@ -52,11 +52,6 @@ func (j *DefaultJSON) ToBytes() []byte {
 	return b
 }
 
-// GetJSON returns the underlying encoding.JSON
-func (j *DefaultJSON) GetJSON() *encoding.JSON {
-	return j.json
-}
-
 // Clone clones the JSON
 func (j *DefaultJSON) Clone() JSON {
 	if j.json == nil {
